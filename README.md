@@ -2,4 +2,4 @@
 
 ## Nylo Support
 
-Support library for the Flutter ![Nylo Framework](https://nylo.dev).
+Support library for the Flutter [Nylo Framework](https://nylo.dev).
