@@ -6,7 +6,8 @@ abstract class NyStatefulWidget extends StatefulWidget {
   final BaseController? controller;
   final String? routeName;
 
-  NyStatefulWidget({Key? key, this.controller, this.routeName}) : super(key: key);
+  NyStatefulWidget({Key? key, this.controller, this.routeName})
+      : super(key: key);
 
   StatefulElement createElement() => StatefulElement(this);
 

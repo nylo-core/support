@@ -75,6 +75,21 @@ class NyRouter {
     return _routeNameMappings.keys.toList();
   }
 
+  /// Get the registered routes as a list.
+  Map<String, NyRouterRoute> getRegisteredRoutes() {
+    return _routeNameMappings;
+  }
+
+  /// Set the registered routes.
+  void setRegisteredRoutes(Map<String, NyRouterRoute> routes) {
+    _routeNameMappings.addAll(routes);
+  }
+
+  /// Set the registered routes.
+  void setNyRoutes(NyRouter router) {
+    _routeNameMappings.addAll(router.getRegisteredRoutes());
+  }
+
   /// Retrieves the arguments passed in when calling the [navigate] function.
   ///
   /// Returned arguments are casted with the type provided, the type will always
@@ -102,14 +117,15 @@ class NyRouter {
   page(NyStatefulWidget widget,
       {PageTransitionType? transition, List<RouteGuard>? routeGuards}) {
     String widgetRouteName = widget.getRouteName();
-    assert(widgetRouteName != "", "${widget.toString()} is missing a route name. \nAdd\n" +
-        """
+    assert(
+        widgetRouteName != "",
+        "${widget.toString()} is missing a route name. \nAdd\n" +
+            """
     @override
     String getRouteName() {
       return "/your-route-name";
-    }"""
-    + "\nto your \"${widget.toString()}\" widget class."
-        );
+    }""" +
+            "\nto your \"${widget.toString()}\" widget class.");
     this._addRoute(NyRouterRoute(
         name: widgetRouteName,
         view: (context) => widget,

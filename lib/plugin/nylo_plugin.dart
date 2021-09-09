@@ -1,12 +1,31 @@
 import 'package:nylo_support/nylo.dart';
+import 'package:nylo_support/router/router.dart';
 
-class NyPlugin {
-  late Nylo nyloApp;
+abstract class NyAppPlugin {
+  initPackage(Nylo nylo) async {}
+  construct() async {}
+  routes() {}
+}
+
+class BasePlugin implements NyAppPlugin {
+  late Nylo app;
 
   initPackage(Nylo nylo) async {
-    nyloApp = nylo;
+    app = nylo;
     await this.construct();
   }
 
   construct() async {}
+
+  NyRouter routes() => nyCreateRoutes((router) {});
+}
+
+class NyPlugin extends BasePlugin {
+  construct() async {}
+
+  NyRouter routes() => nyCreateRoutes((router) {
+        // Add your routes here
+
+        // router.route("/new-page", (context) => NewPage());
+      });
 }

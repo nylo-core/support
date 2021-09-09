@@ -12,5 +12,6 @@ class Nylo {
   /// Nylo.use(CustomPlugin());
   use(NyPlugin plugin) async {
     await plugin.initPackage(this);
+    router!.setNyRoutes(plugin.routes());
   }
 }

@@ -201,6 +201,14 @@ class NyStorage {
       return double.parse(data);
     }
 
+    if (_isInteger(data)) {
+      return int.parse(data);
+    }
+
+    if (_isDouble(data)) {
+      return double.parse(data);
+    }
+
     return data;
   }
 
@@ -208,6 +216,34 @@ class NyStorage {
   static Future delete(String key) async {
     return await StorageManager.storage.delete(key: key);
   }
+}
+
+bool _isInteger(String? s) {
+  if (s == null) {
+    return false;
+  }
+
+  RegExp regExp = new RegExp(
+    r"^-?[0-9]+$",
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  return regExp.hasMatch(s);
+}
+
+bool _isDouble(String? s) {
+  if (s == null) {
+    return false;
+  }
+
+  RegExp regExp = new RegExp(
+    r"^[0-9]{1,13}([\.]?[0-9]*)?$",
+    caseSensitive: false,
+    multiLine: false,
+  );
+
+  return regExp.hasMatch(s);
 }
 
 /// Logger used for messages you want to print to the console.
