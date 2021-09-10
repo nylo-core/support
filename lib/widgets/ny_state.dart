@@ -5,9 +5,9 @@ import 'package:nylo_support/router/router.dart';
 import 'package:page_transition/page_transition.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
-
   /// Helper to get the [TextTheme].
   TextTheme get textTheme => Theme.of(context).textTheme;
+
   /// Helper to get the [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(context);
 

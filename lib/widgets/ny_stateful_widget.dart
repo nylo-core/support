@@ -32,5 +32,13 @@ abstract class NyStatefulWidget extends StatefulWidget {
   }
 
   /// Returns data that's sent via the Navigator or [routeTo] method.
-  dynamic data() => this.controller!.request!.data();
+  dynamic data() {
+    if (this.controller == null) {
+      return null;
+    }
+    if (this.controller!.request == null) {
+      return null;
+    }
+    return this.controller!.request!.data();
+  }
 }

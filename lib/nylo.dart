@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 
@@ -14,15 +12,16 @@ class Nylo {
   /// Nylo.use(CustomPlugin());
   use(NyPlugin plugin) async {
     await plugin.initPackage(this);
+    if (router == null) {
+      router = NyRouter();
+    }
     router!.setNyRoutes(plugin.routes());
   }
 
   /// Run to init Nylo
-  static Future<Nylo> init(
-      {required router}) async {
+  static Future<Nylo> init({required router}) async {
     await dotenv.load(fileName: ".env");
 
     return Nylo(router: router);
   }
 }
-

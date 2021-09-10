@@ -1,11 +1,10 @@
 import 'dart:io';
-
+import 'package:nylo_support/metro/constants/strings.dart';
 import 'package:nylo_support/metro/metro_console.dart';
 
-import 'constants/strings.dart';
-
 class MetroService {
-  static makeController(String className, String value,
+  /// Creates a new Controller.
+  static Future makeController(String className, String value,
       {String folderPath = controllerFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_controller.dart';
 
@@ -14,6 +13,7 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Page.
   static makePage(String className, String value,
       {String folderPath = pageFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_page.dart';
@@ -23,6 +23,7 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Model.
   static makeModel(String className, String value,
       {String folderPath = modelFolder,
       bool storable = false,
@@ -34,6 +35,7 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Stateless Widget.
   static makeStatelessWidget(String className, String value,
       {String folderPath = widgetFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
@@ -43,6 +45,7 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Stateful Widget.
   static makeStatefulWidget(String className, String value,
       {String folderPath = widgetFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
@@ -51,20 +54,29 @@ class MetroService {
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value);
   }
-}
 
-_createNewFile(String path, String value) async {
-  final File filePage = File(path);
-  await filePage.writeAsString(value);
-}
-
-_makeDirectory(String path) async {
-  final File dirFolder = File(path);
-  if (!(await dirFolder.exists())) {
-    await Directory(path).create();
+  /// Check if a file exist by passing in a [path].
+  static hasFile(path) async {
+    return await File(path).exists();
   }
 }
 
+/// Creates a new file from a [path] and [value].
+_createNewFile(String path, String value) async {
+  final File file = File(path);
+  await file.writeAsString(value);
+}
+
+/// Creates a new directory from a [path] if it doesn't exist.
+_makeDirectory(String path) async {
+  Directory directory = Directory(path);
+  if (!(await directory.exists())) {
+    await directory.create();
+  }
+}
+
+/// Checks if a file exists from a [path].
+/// Use [shouldForceCreate] to override check.
 _checkIfFileExists(path, {bool shouldForceCreate = false}) async {
   if (await File(path).exists() && shouldForceCreate == false) {
     MetroConsole.writeInRed('$path already exists');
@@ -72,6 +84,8 @@ _checkIfFileExists(path, {bool shouldForceCreate = false}) async {
   }
 }
 
+/// Capitalize a String value.
+/// Accepts an [input] and returns a [String].
 String capitalize(String input) {
   if (input.isEmpty) {
     return input;

@@ -1,4 +1,4 @@
-## 1.0.0 - 2021-09-10
+## 2.0.0 - 2021-09-10
 
 * Add routes from NyPlugin
 * NyState has new 'get' helpers for TextTheme and MediaQuery

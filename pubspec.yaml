@@ -1,6 +1,6 @@
 name: nylo_support
 description: Support library for the Flutter Nylo framework.
-version: 1.1.0
+version: 2.0.0
 homepage: https://nylo.dev
 repository: https://github.com/nylo-core/support
 issue_tracker: https://github.com/nylo-core/support/issues
