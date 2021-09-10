@@ -26,7 +26,7 @@ typedef NyRouteView = Widget Function(
 );
 
 /// Builds the routes in the router.dart file
-NyRouter nyCreateRoutes(Function(NyRouter router) build) {
+NyRouter nyRoutes(Function(NyRouter router) build) {
   NyRouter nyRouter = NyRouter();
   build(nyRouter);
 

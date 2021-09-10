@@ -1,4 +1,5 @@
-## 1.0.0 - 2021-09-09
+## 1.0.0 - 2021-09-10
+
 * Add routes from NyPlugin
 * NyState has new 'get' helpers for TextTheme and MediaQuery
 * NyStorage 'read' method now returns more accurate data types if a type is not specified

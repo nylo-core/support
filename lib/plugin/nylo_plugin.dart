@@ -17,15 +17,14 @@ class BasePlugin implements NyAppPlugin {
 
   construct() async {}
 
-  NyRouter routes() => nyCreateRoutes((router) {});
+  NyRouter routes() => nyRoutes((router) {});
 }
 
 class NyPlugin extends BasePlugin {
   construct() async {}
 
-  NyRouter routes() => nyCreateRoutes((router) {
+  NyRouter routes() => nyRoutes((router) {
         // Add your routes here
-
         // router.route("/new-page", (context) => NewPage());
       });
 }

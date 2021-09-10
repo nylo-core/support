@@ -31,6 +31,8 @@ class AppLocalizations {
     });
   }
 
+  Map<String, String> get localizedStrings => _localizedStrings;
+
   /// Translate strings with the [key] used in the .json file.
   String? trans(String key) {
     return _localizedStrings[key];

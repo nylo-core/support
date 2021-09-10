@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:localize_and_translate/localize_and_translate.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 
 class Nylo {
   late NyRouter? router;
-  ThemeData? themeData;
-  Nylo({this.router, this.themeData});
+
+  Nylo({this.router});
 
   /// Assign a [NyPlugin] to add extra functionality to your app from a plugin.
   /// e.g. from main.dart
@@ -14,4 +16,13 @@ class Nylo {
     await plugin.initPackage(this);
     router!.setNyRoutes(plugin.routes());
   }
+
+  /// Run to init Nylo
+  static Future<Nylo> init(
+      {required router}) async {
+    await dotenv.load(fileName: ".env");
+
+    return Nylo(router: router);
+  }
 }
+

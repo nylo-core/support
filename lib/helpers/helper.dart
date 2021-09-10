@@ -238,7 +238,7 @@ bool _isDouble(String? s) {
   }
 
   RegExp regExp = new RegExp(
-    r"^[0-9]{1,13}([\.]?[0-9]*)?$",
+    r"^[0-9]{1,13}([.]?[0-9]*)?$",
     caseSensitive: false,
     multiLine: false,
   );
