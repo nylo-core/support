@@ -1,3 +1,7 @@
+## [2.0.1] - 2021-09-18
+
+* Upgrade Dart (v2.14.0)
+
 ## 2.0.0 - 2021-09-10
 
 * Add routes from NyPlugin
