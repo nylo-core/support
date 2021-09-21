@@ -249,9 +249,9 @@ class AppLocale {
   /// Updates the current locale for the app.
   /// Provide the [locale] you wish to use like Locale("es")
   /// The locale needs to also exist within your /lang directory
-  updateLocale(BuildContext context, Locale locale) {
+  updateLocale(BuildContext context, Locale locale) async {
     this.locale = locale;
-    reloadLocale(context, locale);
+    await reloadLocale(context, locale);
   }
 }
 

@@ -1,3 +1,8 @@
+## [2.1.0] - 2021-09-21
+
+* Fix `updateLocale` method
+* Ability to add additional Router's to Nylo
+
 ## [2.0.1] - 2021-09-18
 
 * Upgrade Dart (v2.14.0)
