@@ -17,7 +17,7 @@ class AppLocalizations {
   static const LocalizationsDelegate<AppLocalizations> delegate =
       _AppLocalizationsDelegate();
 
-  late Map<String, String> _localizedStrings;
+  late Map<String, dynamic> _localizedStrings;
 
   /// loads the locale file from the /lang directory
   Future load() async {
@@ -26,14 +26,16 @@ class AppLocalizations {
 
     Map<String, dynamic> jsonMap = json.decode(jsonString);
 
-    _localizedStrings = jsonMap.map((k, v) {
-      return MapEntry(k, v.toString());
-    });
+    _localizedStrings = jsonMap;
   }
 
   /// Translate strings with the [key] used in the .json file.
-  String? trans(String key) {
+  dynamic trans(String key) {
     return _localizedStrings[key];
+  }
+
+  Map<String, dynamic> getLocalizedString() {
+    return _localizedStrings;
   }
 }
 
