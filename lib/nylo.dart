@@ -1,6 +1,8 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
+export 'package:nylo_support/exceptions/validation_exception.dart';
+export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
   late NyRouter? router;
@@ -19,9 +21,12 @@ class Nylo {
   }
 
   /// Run to init Nylo
-  static Future<Nylo> init({required router}) async {
+  static Future<Nylo> init({required router, Function? setup}) async {
     await dotenv.load(fileName: ".env");
 
+    if (setup != null) {
+      await setup();
+    }
     return Nylo(router: router);
   }
 }

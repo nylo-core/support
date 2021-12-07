@@ -374,12 +374,7 @@ class NyRouter {
       return PageTransition(
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-          Widget widget = route.builder(context, baseArgs ?? route.defaultArgs);
-          if (widget is NyStatefulWidget && widget.controller != null) {
-            widget.controller!.context = context;
-            widget.controller!.construct(context);
-          }
-          return widget;
+          return route.builder(context, baseArgs ?? route.defaultArgs);
         }),
         type: argsWrapper.pageTransitionType ?? route.pageTransitionType,
         settings: settings,

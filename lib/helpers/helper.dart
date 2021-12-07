@@ -273,7 +273,7 @@ class NyLogger {
 }
 
 /// Returns the translation value from the [key] you provide.
-/// E.g. trans(context, "hello")
+/// E.g. trans("hello")
 /// lang translation will be returned for the app locale.
-String? trans(BuildContext context, String key) =>
-    AppLocalizations.of(context)!.trans(key);
+String trans(String key, {Map<String, String>? arguments}) =>
+    NyLocalization.instance.translate(key, arguments);
