@@ -149,14 +149,6 @@ class NyLocalization {
       if (value is Map<String, dynamic>) value = value[keys[i]];
     }
 
-<<<<<<< Updated upstream
-  /// Updates the current locale for the app.
-  /// Provide the [locale] you wish to use like Locale("es")
-  /// The locale needs to also exist within your /lang directory
-  updateLocale(BuildContext context, Locale locale) {
-    this.locale = locale;
-    reloadLocale(context, locale);
-=======
     /// If we found the value, cache it. If the value is null then
     /// we're not going to cache it, and returning null instead.
     if (value != null) {
@@ -164,7 +156,6 @@ class NyLocalization {
     }
 
     return value;
->>>>>>> Stashed changes
   }
 
   bool isNestedCached(String key) => _values!.containsKey(key);

@@ -1,4 +1,3 @@
-
 ## [2.2.0] - 2021-12-07
 
 * New validator added to NyState. Allows you to validate data in widgets.
