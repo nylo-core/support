@@ -55,6 +55,26 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Stateful Widget.
+  static makeTheme(String className, String value,
+      {String folderPath = themeFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_theme.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
+  /// Creates a new Stateful Widget.
+  static makeThemeColors(String className, String value,
+      {String folderPath = themeColorsFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_theme_colors.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
   /// Check if a file exist by passing in a [path].
   static hasFile(path) async {
     return await File(path).exists();

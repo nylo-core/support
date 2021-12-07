@@ -1,3 +1,12 @@
+## [2.2.0] - 2021-12-07
+
+* New validator added to NyState. Allows you to validate data in widgets.
+* Added toast notification helper
+* Refactored localization class
+* Ability to create themes and theme colors from Metro Cli
+* Pubspec.yaml dependency updates
+* Bug fixes
+
 ## [2.1.0] - 2021-09-21
 
 * Fix `updateLocale` method

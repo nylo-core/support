@@ -1,6 +1,6 @@
 name: nylo_support
 description: Support library for the Nylo framework. This library supports routing, widgets, localization, cli, storage and more.
-version: 2.1.0
+version: 2.2.0
 homepage: https://nylo.dev
 repository: https://github.com/nylo-core/support
 issue_tracker: https://github.com/nylo-core/support/issues
@@ -11,10 +11,15 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  page_transition: ^2.0.2
-  flutter_secure_storage: ^4.2.1
+  page_transition: ^2.0.4
+  flutter_secure_storage: ^5.0.2
   flutter_dotenv: ^5.0.2
+  validated: ^2.0.0
+  flutter_styled_toast: ^2.0.0
+  animate_do: ^2.0.0
   logger: ^1.1.0
+  flutter_localizations:
+    sdk: flutter
   flutter:
     sdk: flutter
 

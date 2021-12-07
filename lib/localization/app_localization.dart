@@ -1,262 +1,221 @@
-import 'dart:async';
+// Base class to handle localization in the project
+
 import 'dart:convert';
+import 'dart:ui';
 
-import 'package:flutter/widgets.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 
-/// Base class to handle localization in the project
-class AppLocalizations {
-  Locale locale;
+// Locale Types
+enum LocaleType { device, asDefined }
 
-  AppLocalizations(this.locale);
+class LocalizedApp extends StatefulWidget {
+  final Widget? child;
 
-  static AppLocalizations? of(BuildContext context) {
-    return Localizations.of<AppLocalizations>(context, AppLocalizations);
+  LocalizedApp({this.child});
+
+  /// Reloads the app
+  static void restart(BuildContext context) {
+    context.findAncestorStateOfType<_LocalizedAppState>()!.restart();
   }
 
-  static const LocalizationsDelegate<AppLocalizations> delegate =
-      _AppLocalizationsDelegate();
+  @override
+  _LocalizedAppState createState() => _LocalizedAppState();
+}
 
-  late Map<String, String> _localizedStrings;
+class _LocalizedAppState extends State<LocalizedApp> {
+  Key key = new UniqueKey();
 
-  /// loads the locale file from the /lang directory
-  Future load() async {
-    String jsonString =
-        await rootBundle.loadString('lang/${locale.languageCode}.json');
-
-    Map<String, dynamic> jsonMap = json.decode(jsonString);
-
-    _localizedStrings = jsonMap.map((k, v) {
-      return MapEntry(k, v.toString());
+  void restart() {
+    this.setState(() {
+      key = new UniqueKey();
     });
   }
 
-  /// Translate strings with the [key] used in the .json file.
-  String? trans(String key) {
-    return _localizedStrings[key];
-  }
-}
-
-class _AppLocalizationsDelegate
-    extends LocalizationsDelegate<AppLocalizations> {
-  const _AppLocalizationsDelegate();
-
   @override
-  bool isSupported(Locale locale) => [
-        "aa",
-        "ab",
-        "af",
-        "ak",
-        "sq",
-        "am",
-        "ar",
-        "an",
-        "hy",
-        "as",
-        "av",
-        "ae",
-        "ay",
-        "az",
-        "ba",
-        "bm",
-        "eu",
-        "be",
-        "bn",
-        "bh",
-        "bi",
-        "bs",
-        "br",
-        "bg",
-        "my",
-        "ca",
-        "ch",
-        "ce",
-        "zh",
-        "cu",
-        "cv",
-        "kw",
-        "co",
-        "cr",
-        "cs",
-        "da",
-        "dv",
-        "nl",
-        "dz",
-        "en",
-        "eo",
-        "et",
-        "ee",
-        "fo",
-        "fj",
-        "fi",
-        "fr",
-        "fy",
-        "ff",
-        "ka",
-        "de",
-        "gd",
-        "ga",
-        "gl",
-        "gv",
-        "el",
-        "gn",
-        "gu",
-        "ht",
-        "ha",
-        "he",
-        "hz",
-        "hi",
-        "ho",
-        "hr",
-        "hu",
-        "ig",
-        "is",
-        "io",
-        "ii",
-        "iu",
-        "ie",
-        "ia",
-        "id",
-        "ik",
-        "it",
-        "jv",
-        "ja",
-        "kl",
-        "kn",
-        "ks",
-        "kr",
-        "kk",
-        "km",
-        "ki",
-        "rw",
-        "ky",
-        "kv",
-        "kg",
-        "ko",
-        "kj",
-        "ku",
-        "lo",
-        "la",
-        "lv",
-        "li",
-        "ln",
-        "lt",
-        "lb",
-        "lu",
-        "lg",
-        "mk",
-        "mh",
-        "ml",
-        "mi",
-        "mr",
-        "ms",
-        "mg",
-        "mt",
-        "mn",
-        "na",
-        "nv",
-        "nr",
-        "nd",
-        "ng",
-        "ne",
-        "nn",
-        "nb",
-        "no",
-        "ny",
-        "oc",
-        "oj",
-        "or",
-        "om",
-        "os",
-        "pa",
-        "fa",
-        "pi",
-        "pl",
-        "pt",
-        "ps",
-        "qu",
-        "rm",
-        "ro",
-        "rn",
-        "ru",
-        "sg",
-        "sa",
-        "si",
-        "sk",
-        "sl",
-        "se",
-        "sm",
-        "sn",
-        "sd",
-        "so",
-        "st",
-        "es",
-        "sc",
-        "sr",
-        "ss",
-        "su",
-        "sw",
-        "sv",
-        "ty",
-        "ta",
-        "tt",
-        "te",
-        "tg",
-        "tl",
-        "th",
-        "bo",
-        "ti",
-        "to",
-        "tn",
-        "ts",
-        "tk",
-        "tr",
-        "tw",
-        "ug",
-        "uk",
-        "ur",
-        "uz",
-        "ve",
-        "vi",
-        "vo",
-        "cy",
-        "wa",
-        "wo",
-        "xh",
-        "yi",
-        "yo",
-        "za",
-        "zu"
-      ].contains(locale.languageCode);
-
-  @override
-  bool shouldReload(_AppLocalizationsDelegate old) => false;
-
-  Future<AppLocalizations> load(Locale locale) async {
-    AppLocalizations localizations = new AppLocalizations(locale);
-    await localizations.load();
-    return localizations;
+  Widget build(BuildContext context) {
+    return new Container(
+      key: key,
+      child: widget.child,
+    );
   }
 }
 
-/// A locale class used to manage the current locale state.
-class AppLocale {
-  Locale locale = Locale("en");
-
-  AppLocale._privateConstructor();
-  static final AppLocale instance = AppLocale._privateConstructor();
-
-  /// Updates the current locale for the app.
-  /// Provide the [locale] you wish to use like Locale("es")
-  /// The locale needs to also exist within your /lang directory
-  updateLocale(BuildContext context, Locale locale) async {
-    this.locale = locale;
-    await reloadLocale(context, locale);
-  }
+extension Translation on String {
+  String tr({Map<String, String>? arguments}) => NyLocalization.instance.translate(this, arguments);
 }
 
-/// Reloads the locale for the [AppLocalizations] class with a locale.
-reloadLocale(BuildContext context, Locale locale) async {
-  AppLocalizations.of(context)!.locale = locale;
-  await AppLocalizations.of(context)!.load();
+class NyLocalization {
+
+  NyLocalization._privateConstructor();
+
+  static final NyLocalization instance = NyLocalization._privateConstructor();
+
+  // Config Vars
+  LocaleType? _localeType;
+  List<String> _langList = [];
+  String? _assetsDir;
+  Locale? _locale;
+  Map<String, dynamic>? _values;
+
+  /// init NyLocalization
+  Future<void> init({
+    LocaleType? localeType = LocaleType.asDefined,
+    String? languageCode,
+    List<String> languagesList = const ['en'],
+    String? assetsDirectory = 'lang/',
+    Map<String, String>? valuesAsMap,
+  }) async {
+    // --- assets directory --- //
+    if (assetsDirectory != null && !assetsDirectory.endsWith('/')) {
+      assetsDirectory = '$assetsDirectory/';
+    }
+    _assetsDir = assetsDirectory;
+
+    // --- locale type --- //
+    _localeType = localeType ?? LocaleType.device;
+
+    // --- language list --- //
+    _langList = languagesList;
+
+    if (languageCode != null) {
+      _locale = Locale(languageCode);
+    } else if (_localeType == LocaleType.device) {
+      if ('${window.locale}'.contains(RegExp('[-_]'))) {
+        _locale = Locale('${window.locale}'.split(RegExp('[-_]'))[0]);
+      } else {
+        _locale = Locale('${window.locale}');
+      }
+    } else {
+      _locale = Locale(_langList[0]);
+    }
+
+    if (_assetsDir == null && valuesAsMap == null) {
+      assert(
+      _assetsDir != null || valuesAsMap != null,
+      'You must define assetsDirectory or valuesAsMap',
+      );
+      return null;
+    }
+
+    if (_assetsDir != null) {
+      _assetsDir = assetsDirectory;
+      _values = await initLanguage(_locale!.languageCode);
+    } else {
+      _values = valuesAsMap;
+    }
+  }
+
+  /// Loads language Map<key, value>
+  initLanguage(String languageCode) async {
+    String filePath = "$_assetsDir$languageCode.json";
+    String content = await rootBundle.loadString(filePath);
+    return json.decode(content);
+  }
+
+  /// translates a word
+  String translate(String key, [Map<String, String>? arguments]) {
+    String value = (_values == null || _values![key] == null) ? '$key' : _values![key];
+
+    String? returnValue = value;
+
+    if (isNestedKey(key)) {
+      returnValue = getNested(key);
+    }
+
+    if (returnValue == null) {
+      return "";
+    }
+
+    if (arguments == null) return returnValue;
+
+    for (var key in arguments.keys) {
+      value = returnValue.replaceAll("{{$key}}", arguments[key]!);
+    }
+    return value;
+  }
+
+  String? getNested(String key) {
+    if (isNestedCached(key)) return _values![key];
+
+    final keys = key.split('.');
+    final kHead = keys.first;
+
+    var value = _values![kHead];
+
+    for (var i = 1; i < keys.length; i++) {
+      if (value is Map<String, dynamic>) value = value[keys[i]];
+    }
+
+    /// If we found the value, cache it. If the value is null then
+    /// we're not going to cache it, and returning null instead.
+    if (value != null) {
+      cacheNestedKey(key, value);
+    }
+
+    return value;
+  }
+
+  bool isNestedCached(String key) => _values!.containsKey(key);
+
+  void cacheNestedKey(String key, String value) {
+    if (!isNestedKey(key)) {
+      throw Exception('Cannot cache a key that is not nested.');
+    }
+
+    _values![key] = value;
+  }
+
+  bool isNestedKey(String key) =>
+      !_values!.containsKey(key) && key.contains('.');
+
+  /// changes active language
+  Future<void> setLanguage(
+      BuildContext context, {
+        required String language,
+        bool restart = true,
+      }) async {
+    if (language == "") {
+      language = _locale?.languageCode ?? _langList[0];
+    }
+
+    _locale = Locale(language, "");
+
+    String filePath = "$_assetsDir$language.json";
+    String content = await rootBundle.loadString(filePath);
+
+    _values = json.decode(content);
+
+    if (restart) {
+      LocalizedApp.restart(context);
+    }
+  }
+
+  /// isDirectionRTL(BuildContext context)
+  /// returns `true` if active language direction is TRL
+  bool isDirectionRTL(BuildContext context) => Directionality.of(context) == TextDirection.rtl;
+
+  /// reloads the app
+  restart(BuildContext context) => LocalizedApp.restart(context);
+
+  /// Returns language code as string
+  String get languageCode => _locale!.languageCode;
+
+  /// Returns locale code as Locale
+  Locale get locale => _locale ?? Locale(_langList[0]);
+
+  /// Returns app delegates.
+  /// used in app entry point e.g. MaterialApp()
+  Iterable<LocalizationsDelegate> get delegates => [
+    GlobalMaterialLocalizations.delegate,
+    GlobalWidgetsLocalizations.delegate,
+    GlobalCupertinoLocalizations.delegate,
+    DefaultCupertinoLocalizations.delegate,
+  ];
+
+  /// Returns app locales.
+  /// used in app entry point e.g. MaterialApp()
+  Iterable<Locale> locals() => _langList.map<Locale>((lang) => new Locale(lang, ''));
 }
