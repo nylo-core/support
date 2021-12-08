@@ -68,7 +68,8 @@ class MetroService {
   /// Creates a new Stateful Widget.
   static makeThemeColors(String className, String value,
       {String folderPath = themeColorsFolder, bool forceCreate = false}) async {
-    String filePath = '$folderPath/${className.toLowerCase()}_theme_colors.dart';
+    String filePath =
+        '$folderPath/${className.toLowerCase()}_theme_colors.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);

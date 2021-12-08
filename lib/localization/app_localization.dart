@@ -44,11 +44,11 @@ class _LocalizedAppState extends State<LocalizedApp> {
 }
 
 extension Translation on String {
-  String tr({Map<String, String>? arguments}) => NyLocalization.instance.translate(this, arguments);
+  String tr({Map<String, String>? arguments}) =>
+      NyLocalization.instance.translate(this, arguments);
 }
 
 class NyLocalization {
-
   NyLocalization._privateConstructor();
 
   static final NyLocalization instance = NyLocalization._privateConstructor();
@@ -94,8 +94,8 @@ class NyLocalization {
 
     if (_assetsDir == null && valuesAsMap == null) {
       assert(
-      _assetsDir != null || valuesAsMap != null,
-      'You must define assetsDirectory or valuesAsMap',
+        _assetsDir != null || valuesAsMap != null,
+        'You must define assetsDirectory or valuesAsMap',
       );
       return null;
     }
@@ -117,7 +117,8 @@ class NyLocalization {
 
   /// translates a word
   String translate(String key, [Map<String, String>? arguments]) {
-    String value = (_values == null || _values![key] == null) ? '$key' : _values![key];
+    String value =
+        (_values == null || _values![key] == null) ? '$key' : _values![key];
 
     String? returnValue = value;
 
@@ -173,10 +174,10 @@ class NyLocalization {
 
   /// changes active language
   Future<void> setLanguage(
-      BuildContext context, {
-        required String language,
-        bool restart = true,
-      }) async {
+    BuildContext context, {
+    required String language,
+    bool restart = true,
+  }) async {
     if (language == "") {
       language = _locale?.languageCode ?? _langList[0];
     }
@@ -195,7 +196,8 @@ class NyLocalization {
 
   /// isDirectionRTL(BuildContext context)
   /// returns `true` if active language direction is TRL
-  bool isDirectionRTL(BuildContext context) => Directionality.of(context) == TextDirection.rtl;
+  bool isDirectionRTL(BuildContext context) =>
+      Directionality.of(context) == TextDirection.rtl;
 
   /// reloads the app
   restart(BuildContext context) => LocalizedApp.restart(context);
@@ -209,13 +211,14 @@ class NyLocalization {
   /// Returns app delegates.
   /// used in app entry point e.g. MaterialApp()
   Iterable<LocalizationsDelegate> get delegates => [
-    GlobalMaterialLocalizations.delegate,
-    GlobalWidgetsLocalizations.delegate,
-    GlobalCupertinoLocalizations.delegate,
-    DefaultCupertinoLocalizations.delegate,
-  ];
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        DefaultCupertinoLocalizations.delegate,
+      ];
 
   /// Returns app locales.
   /// used in app entry point e.g. MaterialApp()
-  Iterable<Locale> locals() => _langList.map<Locale>((lang) => new Locale(lang, ''));
+  Iterable<Locale> locals() =>
+      _langList.map<Locale>((lang) => new Locale(lang, ''));
 }
