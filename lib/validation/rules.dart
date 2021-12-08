@@ -108,7 +108,7 @@ class StringRule extends ValidationRule {
   StringRule(String attribute)
       : super(
             signature: "string",
-            description: "The $attribute is not a valid URL");
+            description: "The $attribute is not a valid");
 
   @override
   bool handle(Map<String, dynamic> info) {
