@@ -1,3 +1,9 @@
+## [2.2.1] - 2021-12-10
+
+* Upgrade to Dart 2.15
+* Update toast notifications
+* Refactor methods in localization
+
 ## [2.2.0] - 2021-12-07
 
 * New validator added to NyState. Allows you to validate data in widgets.

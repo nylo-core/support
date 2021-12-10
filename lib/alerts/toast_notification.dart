@@ -5,27 +5,28 @@ import 'package:nylo_support/alerts/toast_enums.dart';
 
 /// ToastNotificationStyleMetaHelper is used to return
 /// the correct value for the [ToastNotificationStyleType] toast style.
-class ToastNotificationStyleMetaHelper {
-  static ToastMeta getValue(ToastNotificationStyleType style) {
+class _ToastNotificationStyleMetaHelper {
+  static _ToastMeta getValue(ToastNotificationStyleType? style) {
     switch (style) {
+      case null:
       case ToastNotificationStyleType.SUCCESS:
-        return ToastMeta.success(action: () {
+        return _ToastMeta.success(action: () {
           ToastManager().dismissAll(showAnim: true);
         });
       case ToastNotificationStyleType.WARNING:
-        return ToastMeta.warning(action: () {
+        return _ToastMeta.warning(action: () {
           ToastManager().dismissAll(showAnim: true);
         });
       case ToastNotificationStyleType.INFO:
-        return ToastMeta.info(action: () {
+        return _ToastMeta.info(action: () {
           ToastManager().dismissAll(showAnim: true);
         });
       case ToastNotificationStyleType.DANGER:
-        return ToastMeta.danger(action: () {
+        return _ToastMeta.danger(action: () {
           ToastManager().dismissAll(showAnim: true);
         });
       default:
-        return ToastMeta.success(action: () {
+        return _ToastMeta.success(action: () {
           ToastManager().dismissAll(showAnim: true);
         });
     }
@@ -33,14 +34,14 @@ class ToastNotificationStyleMetaHelper {
 }
 
 /// Toast Meta makes it easy to use pre-defined styles in the toast alert.
-class ToastMeta {
+class _ToastMeta {
   Widget icon;
   String title;
   String description;
   Color color;
   Function? action;
   Duration duration;
-  ToastMeta(
+  _ToastMeta(
       {required this.icon,
       required this.title,
       required this.description,
@@ -49,7 +50,7 @@ class ToastMeta {
       this.duration = const Duration(seconds: 2)});
 
   /// DEFAULT SUCCESS TOAST META
-  ToastMeta.success(
+  _ToastMeta.success(
       {this.icon = const Icon(Icons.check, color: Colors.white, size: 30),
       this.title = "Success",
       this.description = "",
@@ -58,7 +59,7 @@ class ToastMeta {
       this.duration = const Duration(seconds: 5)});
 
   /// DEFAULT INFO TOAST META
-  ToastMeta.info(
+  _ToastMeta.info(
       {this.icon = const Icon(Icons.info, color: Colors.white, size: 30),
       this.title = "",
       this.description = "",
@@ -67,7 +68,7 @@ class ToastMeta {
       this.duration = const Duration(seconds: 5)});
 
   /// DEFAULT WARNING TOAST META
-  ToastMeta.warning(
+  _ToastMeta.warning(
       {this.icon =
           const Icon(Icons.error_outline, color: Colors.white, size: 30),
       this.title = "Oops!",
@@ -77,7 +78,7 @@ class ToastMeta {
       this.duration = const Duration(seconds: 6)});
 
   /// DEFAULT DANGER TOAST META
-  ToastMeta.danger(
+  _ToastMeta.danger(
       {this.icon = const Icon(Icons.warning, color: Colors.white, size: 30),
       this.title = "Oops!",
       this.description = "",
@@ -91,12 +92,12 @@ class ToastMeta {
 /// i.e [ToastNotificationStyleType.SUCCESS]
 /// Set a title, description to personalise the message.
 showToastNotification(BuildContext context,
-    {required ToastNotificationStyleType style,
+    {ToastNotificationStyleType? style,
     String? title,
     IconData? icon,
     String description = "",
     Duration? duration}) {
-  ToastMeta toastMeta = ToastNotificationStyleMetaHelper.getValue(style);
+  _ToastMeta toastMeta = _ToastNotificationStyleMetaHelper.getValue(style);
   toastMeta.title = toastMeta.title;
   if (title != null) {
     toastMeta.title = title;
