@@ -4,7 +4,6 @@ import 'dart:convert';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -77,7 +76,7 @@ class NyLocalization {
     // --- locale type --- //
     _localeType = localeType ?? LocaleType.device;
 
-    // --- language list --- //
+    // --- language list --- //showToastNotification
     _langList = languagesList;
 
     if (languageCode != null) {
@@ -102,14 +101,14 @@ class NyLocalization {
 
     if (_assetsDir != null) {
       _assetsDir = assetsDirectory;
-      _values = await initLanguage(_locale!.languageCode);
+      _values = await _initLanguage(_locale!.languageCode);
     } else {
       _values = valuesAsMap;
     }
   }
 
   /// Loads language Map<key, value>
-  initLanguage(String languageCode) async {
+  _initLanguage(String languageCode) async {
     String filePath = "$_assetsDir$languageCode.json";
     String content = await rootBundle.loadString(filePath);
     return json.decode(content);
@@ -122,8 +121,8 @@ class NyLocalization {
 
     String? returnValue = value;
 
-    if (isNestedKey(key)) {
-      returnValue = getNested(key);
+    if (_isNestedKey(key)) {
+      returnValue = _getNested(key);
     }
 
     if (returnValue == null) {
@@ -138,8 +137,8 @@ class NyLocalization {
     return value;
   }
 
-  String? getNested(String key) {
-    if (isNestedCached(key)) return _values![key];
+  String? _getNested(String key) {
+    if (_isNestedCached(key)) return _values![key];
 
     final keys = key.split('.');
     final kHead = keys.first;
@@ -153,23 +152,23 @@ class NyLocalization {
     /// If we found the value, cache it. If the value is null then
     /// we're not going to cache it, and returning null instead.
     if (value != null) {
-      cacheNestedKey(key, value);
+      _cacheNestedKey(key, value);
     }
 
     return value;
   }
 
-  bool isNestedCached(String key) => _values!.containsKey(key);
+  bool _isNestedCached(String key) => _values!.containsKey(key);
 
-  void cacheNestedKey(String key, String value) {
-    if (!isNestedKey(key)) {
+  void _cacheNestedKey(String key, String value) {
+    if (!_isNestedKey(key)) {
       throw Exception('Cannot cache a key that is not nested.');
     }
 
     _values![key] = value;
   }
 
-  bool isNestedKey(String key) =>
+  bool _isNestedKey(String key) =>
       !_values!.containsKey(key) && key.contains('.');
 
   /// changes active language
@@ -192,6 +191,18 @@ class NyLocalization {
     if (restart) {
       LocalizedApp.restart(context);
     }
+  }
+
+  /// changes locale
+  Future<void> setLocale({
+    required Locale locale,
+  }) async {
+    _locale = locale;
+
+    String filePath = "$_assetsDir${_locale!.languageCode}.json";
+    String content = await rootBundle.loadString(filePath);
+
+    _values = json.decode(content);
   }
 
   /// isDirectionRTL(BuildContext context)

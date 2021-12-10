@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
 import 'package:nylo_support/exceptions/validation_exception.dart';
