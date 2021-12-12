@@ -25,6 +25,13 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     super.dispose();
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    if (mounted) {
+      super.setState(fn);
+    }
+  }
+
   /// Initialize your widget in [widgetDidLoad].
   ///
   /// * [widgetDidLoad] is called after the [initState] method.
