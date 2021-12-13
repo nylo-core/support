@@ -1,3 +1,8 @@
+## [2.3.0] - 2021-12-12
+
+* Fix [BaseController] construct method
+* override setState in NyState
+
 ## [2.2.1] - 2021-12-10
 
 * Upgrade to Dart 2.15
