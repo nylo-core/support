@@ -31,6 +31,7 @@ abstract class BaseController {
 
   /// Initialize your controller with this method.
   /// It contains same [BuildContext] as the [NyStatefulWidget].
+  @mustCallSuper
   construct(BuildContext context) async {
     this.context = context;
   }
