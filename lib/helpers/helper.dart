@@ -130,9 +130,14 @@ abstract class Storable {
     await NyStorage.store(key, this);
   }
 
-  /// Check if the object implements [Storable].
-  isStoreable() {
-    return true;
+  /// Read a [key] value from NyStorage
+  Future read(String key) async {
+    dynamic data = await NyStorage.read(key);
+    if (data == null) {
+      return null;
+    }
+    this.fromStorage(jsonDecode(data));
+    return this;
   }
 }
 
@@ -175,7 +180,6 @@ class NyStorage {
 
     if (model != null) {
       try {
-        if (model.isStoreable() != null && model.isStoreable() == true) {
           String? data = await StorageManager.storage.read(key: key);
           if (data == null) {
             return null;
@@ -183,7 +187,6 @@ class NyStorage {
 
           model.fromStorage(jsonDecode(data));
           return model;
-        }
       } on Exception catch (e) {
         print(e.toString());
       }
