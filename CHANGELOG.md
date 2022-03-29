@@ -1,3 +1,10 @@
+## [2.4.0] - 2022-03-29
+
+* New helper method added to NyState `whenEnv`
+* Fix translations when supplying more than 1 argument
+* Generic class for networking requests added
+* Pubspec.yaml dependency updates
+
 ## [2.3.1] - 2021-12-17
 
 * Add @mustCallSuper for construct method

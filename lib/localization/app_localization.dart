@@ -126,15 +126,15 @@ class NyLocalization {
     }
 
     if (returnValue == null) {
-      return "";
+      return key;
     }
 
     if (arguments == null) return returnValue;
 
     for (var key in arguments.keys) {
-      value = returnValue.replaceAll("{{$key}}", arguments[key]!);
+      returnValue = returnValue?.replaceAll("{{$key}}", arguments[key]!);
     }
-    return value;
+    return returnValue ?? "";
   }
 
   String? _getNested(String key) {

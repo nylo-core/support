@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
 import 'package:nylo_support/exceptions/validation_exception.dart';
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/router/models/ny_argument.dart';
 import 'package:nylo_support/router/router.dart';
@@ -188,5 +189,29 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
           pageTransitionType: pageTransition,
         )
         .then((v) => onPop != null ? onPop(v) : (v) {});
+  }
+
+  /// Perform an action when the application's [env] is in a certain state
+  ///
+  /// E.g. Inside in your .env file your APP_ENV='production'
+  /// Call the method like the below example.
+  ///
+  /// whenEnv('production', perform: () {
+  /// .. perform any action you need to in production
+  /// });
+  whenEnv(String env, {required Function() perform, bool shouldSetState = true}) async {
+    if (getEnv('APP_ENV') != env) {
+      return;
+    }
+    
+    if (perform is Future) {
+      await perform();  
+    } else {
+      perform();
+    }
+
+    if (shouldSetState) {
+      setState(() {});
+    }
   }
 }
