@@ -180,13 +180,13 @@ class NyStorage {
 
     if (model != null) {
       try {
-          String? data = await StorageManager.storage.read(key: key);
-          if (data == null) {
-            return null;
-          }
+        String? data = await StorageManager.storage.read(key: key);
+        if (data == null) {
+          return null;
+        }
 
-          model.fromStorage(jsonDecode(data));
-          return model;
+        model.fromStorage(jsonDecode(data));
+        return model;
       } on Exception catch (e) {
         print(e.toString());
       }

@@ -199,13 +199,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// whenEnv('production', perform: () {
   /// .. perform any action you need to in production
   /// });
-  whenEnv(String env, {required Function() perform, bool shouldSetState = true}) async {
+  whenEnv(String env,
+      {required Function() perform, bool shouldSetState = true}) async {
     if (getEnv('APP_ENV') != env) {
       return;
     }
-    
+
     if (perform is Future) {
-      await perform();  
+      await perform();
     } else {
       perform();
     }
