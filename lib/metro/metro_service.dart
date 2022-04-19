@@ -65,6 +65,26 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Provider.
+  static makeProvider(String className, String value,
+      {String folderPath = providerFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_provider.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
+  /// Creates a new API service.
+  static makeApiService(String className, String value,
+      {String folderPath = networkingFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_api_service.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
   /// Creates a new Stateful Widget.
   static makeThemeColors(String className, String value,
       {String folderPath = themeColorsFolder, bool forceCreate = false}) async {
