@@ -1,3 +1,9 @@
+## [2.5.0] - 2022-04-19
+
+* New Metro command to create Providers in Nylo.
+* New Metro command to create API Services in Nylo.
+* NyProvider added as a base class for Providers.
+
 ## [2.4.0] - 2022-03-29
 
 * New helper method added to NyState `whenEnv`

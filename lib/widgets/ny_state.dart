@@ -19,7 +19,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-    this.widgetDidLoad();
+    this.init();
   }
 
   void dispose() {
@@ -33,10 +33,11 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  /// Initialize your widget in [widgetDidLoad].
+  /// Initialize your widget in [init].
   ///
-  /// * [widgetDidLoad] is called after the [initState] method.
-  widgetDidLoad() async {}
+  /// * [init] is called in the [initState] method.
+  /// This method is async so you can call methods that are Futures.
+  init() async {}
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
