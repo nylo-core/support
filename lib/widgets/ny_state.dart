@@ -19,7 +19,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-    this.init();
+    this.widgetDidLoad();
   }
 
   void dispose() {
@@ -33,19 +33,15 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  /// Initialize your widget in [init].
+  /// Initialize your widget in [widgetDidLoad].
   ///
-  /// * [init] is called in the [initState] method.
+  /// * [widgetDidLoad] is called in the [initState] method.
   /// This method is async so you can call methods that are Futures.
-  init() async {}
+  widgetDidLoad() async {}
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
     Navigator.of(context).pop(result);
-
-    this.validator(
-        rules: {"title": "required|email", "body": "required|string"},
-        data: {});
   }
 
   showToast(

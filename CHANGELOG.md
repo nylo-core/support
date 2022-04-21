@@ -1,3 +1,10 @@
+## [2.6.0] - 2022-04-21
+
+* Revert init change in NyState.
+* New Metro command to create events in Nylo.
+* bootApplication helper added.
+* Small refactor to folder names
+
 ## [2.5.0] - 2022-04-19
 
 * New Metro command to create Providers in Nylo.

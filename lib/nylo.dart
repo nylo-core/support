@@ -6,6 +6,7 @@ export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
   late NyRouter? router;
+  late Map<Type, NyEvent> _events = {};
 
   Nylo({this.router});
 
@@ -37,13 +38,38 @@ class Nylo {
     this.router!.setRegisteredRoutes(router.getRegisteredRoutes());
   }
 
+  addEvents(Map<Type, NyEvent> events) async {
+    if (this.router == null) {
+      _events = {};
+    }
+    _events.addAll(events);
+  }
+
+  Map<Type, NyEvent> getEvents() => _events;
+
   /// Run to init Nylo
-  static Future<Nylo> init({required router, Function? setup}) async {
+  static Future<Nylo> init({Function? setup}) async {
     await dotenv.load(fileName: ".env");
 
     if (setup != null) {
-      await setup();
+      return await setup();
     }
-    return Nylo(router: router);
+    return Nylo();
   }
+}
+
+abstract class NyEvent {
+  final Map<Type, NyListener> listeners = {};
+}
+
+class NyListener {
+  late NyEvent _event;
+
+  setEvent(NyEvent event) {
+    _event = event;
+  }
+
+  NyEvent getEvent() => _event;
+
+  Future<dynamic> handle(Map params) async {}
 }
