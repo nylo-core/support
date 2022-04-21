@@ -1,3 +1,7 @@
+## [2.6.1] - 2022-04-21
+
+* Fix Nylo init method with router param
+
 ## [2.6.0] - 2022-04-21
 
 * Revert init change in NyState.

@@ -48,11 +48,14 @@ class Nylo {
   Map<Type, NyEvent> getEvents() => _events;
 
   /// Run to init Nylo
-  static Future<Nylo> init({Function? setup}) async {
+  static Future<Nylo> init({NyRouter? router, Function? setup}) async {
     await dotenv.load(fileName: ".env");
 
     if (setup != null) {
       return await setup();
+    }
+    if (router != null) {
+      return Nylo(router: router);
     }
     return Nylo();
   }
