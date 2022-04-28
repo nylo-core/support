@@ -19,7 +19,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
-    this.widgetDidLoad();
+    this.init();
   }
 
   void dispose() {
@@ -33,17 +33,18 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  /// Initialize your widget in [widgetDidLoad].
+  /// Initialize your widget in [init].
   ///
-  /// * [widgetDidLoad] is called in the [initState] method.
+  /// * [init] is called in the [initState] method.
   /// This method is async so you can call methods that are Futures.
-  widgetDidLoad() async {}
+  init() async {}
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
     Navigator.of(context).pop(result);
   }
 
+  /// Show a toast notification
   showToast(
       {ToastNotificationStyleType style = ToastNotificationStyleType.SUCCESS,
       required String title,
@@ -73,7 +74,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   ///   print(e.validationRule.description);
   ///   print(e.toString());
   /// }
-  /// See more https://nylo.dev/docs/2.x/validation
+  /// See more https://nylo.dev/docs/3.x/validation
   validator(
       {required Map<String, String> rules,
       required Map<String, dynamic> data,

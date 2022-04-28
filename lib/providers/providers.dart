@@ -1,3 +1,4 @@
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/nylo.dart';
 
 /// Base class for Providers.
@@ -17,5 +18,11 @@ Future<Nylo> bootApplication(Map<Type, NyProvider> providers) async {
       nylo = nyloObject;
     }
   }
+  return nylo;
+}
+
+/// Called with init Nylo finishes.
+Future<Nylo> bootFinished(Nylo nylo) async {
+  Backpack.instance.set('nylo', nylo);
   return nylo;
 }

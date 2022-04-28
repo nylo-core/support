@@ -1,3 +1,4 @@
+import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/router/router.dart';
 
@@ -6,6 +7,7 @@ abstract class NyAppPlugin {
   initPackage(Nylo nylo) async {}
   construct() async {}
   routes() {}
+  events() {}
 }
 
 /// [BasePlugin] class for NyPlugin.
@@ -24,6 +26,9 @@ class BasePlugin implements NyAppPlugin {
 
   /// Add additional routes to a Nylo project via the [router].
   NyRouter routes() => nyRoutes((router) {});
+
+  /// Add events to a Nylo project.
+  Map<Type, NyEvent> events() => {};
 }
 
 class NyPlugin extends BasePlugin {
@@ -35,4 +40,7 @@ class NyPlugin extends BasePlugin {
         // Add your routes here
         // router.route("/new-page", (context) => NewPage());
       });
+
+  /// Add events to a Nylo project.
+  Map<Type, NyEvent> events() => {};
 }

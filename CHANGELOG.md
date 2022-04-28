@@ -1,3 +1,18 @@
+## [3.0.0] - 2022-04-29
+
+* New arguments for Nylo's `init` method: setup, setupFinished
+* Add init method for NyState class
+* New helpers: nyEvent, nyApi and Backpack
+* assert condition added to DefaultResponse class
+
+## [2.8.0] - 2022-04-21
+
+* Revert new init method in Nylo
+
+## [2.7.0] - 2022-04-21
+
+* Version bump
+
 ## [2.6.1] - 2022-04-21
 
 * Fix Nylo init method with router param

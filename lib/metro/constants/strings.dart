@@ -7,6 +7,7 @@ const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
 const String isResourceFlag = 'resource';
 const String modelFlag = 'model';
+const String urlFlag = 'url';
 
 // folders
 const String yamlPath = 'pubspec.yaml';
