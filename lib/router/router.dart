@@ -29,7 +29,6 @@ NyRouter nyRoutes(Function(NyRouter router) build) {
   NyRouter nyRouter = NyRouter();
   build(nyRouter);
 
-  NyNavigator.instance.router = nyRouter;
   return nyRouter;
 }
 
@@ -144,6 +143,7 @@ class NyRouter {
           "'${route.name}' has already been registered before. Overriding it!");
     }
     _routeNameMappings[route.name] = route;
+    NyNavigator.instance.router = this;
   }
 
   /// Add a list of routes at once.
@@ -151,6 +151,7 @@ class NyRouter {
     if (routes.isNotEmpty) {
       routes.forEach((route) => this._addRoute(route));
     }
+    NyNavigator.instance.router = this;
   }
 
   /// Makes this a callable class. Delegates to [navigate].

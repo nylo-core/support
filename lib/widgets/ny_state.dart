@@ -42,12 +42,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
     Navigator.of(context).pop(result);
-
-    this.validator(
-        rules: {"title": "required|email", "body": "required|string"},
-        data: {});
   }
 
+  /// Show a toast notification
   showToast(
       {ToastNotificationStyleType style = ToastNotificationStyleType.SUCCESS,
       required String title,
@@ -77,7 +74,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   ///   print(e.validationRule.description);
   ///   print(e.toString());
   /// }
-  /// See more https://nylo.dev/docs/2.x/validation
+  /// See more https://nylo.dev/docs/3.x/validation
   validator(
       {required Map<String, String> rules,
       required Map<String, dynamic> data,

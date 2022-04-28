@@ -1,4 +1,5 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 export 'package:nylo_support/exceptions/validation_exception.dart';
@@ -6,6 +7,7 @@ export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
   late NyRouter? router;
+  late Map<Type, NyEvent> _events = {};
 
   Nylo({this.router});
 
@@ -18,6 +20,8 @@ class Nylo {
       router = NyRouter();
     }
     router!.setNyRoutes(plugin.routes());
+    _events.addAll(plugin.events());
+    NyNavigator.instance.router = this.router!;
   }
 
   /// Allows you to add additional Router's to your project.
@@ -35,15 +39,29 @@ class Nylo {
       this.router = NyRouter();
     }
     this.router!.setRegisteredRoutes(router.getRegisteredRoutes());
+    NyNavigator.instance.router = this.router!;
   }
 
-  /// Run to init Nylo
-  static Future<Nylo> init({required router, Function? setup}) async {
+  /// Add [events] to Nylo
+  addEvents(Map<Type, NyEvent> events) async {
+    _events.addAll(events);
+  }
+
+  /// Return all the registered events
+  Map<Type, NyEvent> getEvents() => _events;
+
+  /// Initialize Nylo
+  static Future<Nylo> init({Function? setup, Function? setupFinished}) async {
     await dotenv.load(fileName: ".env");
 
-    if (setup != null) {
-      await setup();
+    if (setup == null) {
+      return Nylo();
     }
-    return Nylo(router: router);
+
+    Nylo nylo = await setup();
+    if (setupFinished != null) {
+      await setupFinished(nylo);
+    }
+    return nylo;
   }
 }

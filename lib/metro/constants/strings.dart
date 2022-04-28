@@ -7,14 +7,16 @@ const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
 const String isResourceFlag = 'resource';
 const String modelFlag = 'model';
+const String urlFlag = 'url';
 
 // folders
 const String yamlPath = 'pubspec.yaml';
-const String controllerFolder = 'lib/app/controllers';
-const String widgetFolder = 'lib/resources/widgets';
-const String pageFolder = 'lib/resources/pages';
-const String modelFolder = 'lib/app/models';
-const String themeFolder = 'lib/resources/themes';
+const String controllersFolder = 'lib/app/controllers';
+const String widgetsFolder = 'lib/resources/widgets';
+const String pagesFolder = 'lib/resources/pages';
+const String modelsFolder = 'lib/app/models';
+const String themesFolder = 'lib/resources/themes';
 const String providerFolder = 'lib/app/providers';
+const String eventsFolder = 'lib/app/events';
 const String networkingFolder = 'lib/app/networking';
 const String themeColorsFolder = 'lib/resources/themes/styles';

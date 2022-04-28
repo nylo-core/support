@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
+import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 
 /// Returns a value from the .env file
@@ -280,3 +281,71 @@ class NyLogger {
 /// lang translation will be returned for the app locale.
 String trans(String key, {Map<String, String>? arguments}) =>
     NyLocalization.instance.translate(key, arguments);
+
+/// Event helper
+nyEvent<T>({
+  Map? params,
+  Map<Type, NyEvent> events = const {},
+}) async {
+  assert(T.toString() != 'dynamic',
+      'You must provide an Event type for this method.\nE.g. event<LoginEvent>({"User": "#1 User"});');
+
+  Map<Type, NyEvent> appEvents = events;
+
+  if (events.isEmpty) {
+    appEvents = Backpack.instance.read('nylo').getEvents();
+  }
+
+  NyEvent nyEvent = appEvents[T]!;
+  assert(appEvents.containsKey(T),
+      'Your config/events.dart is missing this class ${T.toString()}');
+  Map<dynamic, NyListener> listeners = nyEvent.listeners;
+
+  if (listeners.isEmpty) {
+    return;
+  }
+  for (NyListener listener in listeners.values.toList()) {
+    listener.setEvent(nyEvent);
+    dynamic result = await listener.handle(params);
+    if (result != null && result == false) {
+      break;
+    }
+  }
+}
+
+/// API helper
+Future<void> nyApi<T>(
+    {required dynamic Function(T) request,
+    required Map<Type, dynamic> apiDecoders,
+    BuildContext? context}) async {
+  assert(apiDecoders.containsKey(T),
+      'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders');
+
+  dynamic apiService = apiDecoders[T];
+  if (context != null) {
+    apiService.setContext(context);
+  }
+
+  await request(apiService);
+}
+
+/// Backpack class for storing data
+/// This class is not designed to store huge amounts of data.
+class Backpack {
+  Map<String, dynamic> _values = {};
+
+  Backpack._privateConstructor();
+
+  static final Backpack instance = Backpack._privateConstructor();
+
+  T? read<T>(String key) {
+    if (!_values.containsKey(key)) {
+      return null;
+    }
+    return _values[key];
+  }
+
+  set(String key, dynamic value) async {
+    _values[key] = value;
+  }
+}

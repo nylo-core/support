@@ -5,7 +5,7 @@ import 'package:nylo_support/metro/metro_console.dart';
 class MetroService {
   /// Creates a new Controller.
   static Future makeController(String className, String value,
-      {String folderPath = controllerFolder, bool forceCreate = false}) async {
+      {String folderPath = controllersFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_controller.dart';
 
     await _makeDirectory(folderPath);
@@ -15,7 +15,7 @@ class MetroService {
 
   /// Creates a new Page.
   static makePage(String className, String value,
-      {String folderPath = pageFolder, bool forceCreate = false}) async {
+      {String folderPath = pagesFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_page.dart';
 
     await _makeDirectory(folderPath);
@@ -25,7 +25,7 @@ class MetroService {
 
   /// Creates a new Model.
   static makeModel(String className, String value,
-      {String folderPath = modelFolder,
+      {String folderPath = modelsFolder,
       bool storable = false,
       bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}.dart';
@@ -37,7 +37,7 @@ class MetroService {
 
   /// Creates a new Stateless Widget.
   static makeStatelessWidget(String className, String value,
-      {String folderPath = widgetFolder, bool forceCreate = false}) async {
+      {String folderPath = widgetsFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
 
     await _makeDirectory(folderPath);
@@ -47,7 +47,7 @@ class MetroService {
 
   /// Creates a new Stateful Widget.
   static makeStatefulWidget(String className, String value,
-      {String folderPath = widgetFolder, bool forceCreate = false}) async {
+      {String folderPath = widgetsFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
 
     await _makeDirectory(folderPath);
@@ -57,7 +57,7 @@ class MetroService {
 
   /// Creates a new Stateful Widget.
   static makeTheme(String className, String value,
-      {String folderPath = themeFolder, bool forceCreate = false}) async {
+      {String folderPath = themesFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_theme.dart';
 
     await _makeDirectory(folderPath);
@@ -69,6 +69,16 @@ class MetroService {
   static makeProvider(String className, String value,
       {String folderPath = providerFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_provider.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
+  /// Creates a new Event.
+  static makeEvent(String className, String value,
+      {String folderPath = eventsFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_event.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
