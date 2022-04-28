@@ -283,10 +283,10 @@ String trans(String key, {Map<String, String>? arguments}) =>
     NyLocalization.instance.translate(key, arguments);
 
 /// Event helper
-nyEvent<T>(
-    {Map? params,
-      Map<Type, NyEvent> events = const {},
-    }) async {
+nyEvent<T>({
+  Map? params,
+  Map<Type, NyEvent> events = const {},
+}) async {
   assert(T.toString() != 'dynamic',
       'You must provide an Event type for this method.\nE.g. event<LoginEvent>({"User": "#1 User"});');
 
