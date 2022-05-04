@@ -314,7 +314,7 @@ nyEvent<T>({
 }
 
 /// API helper
-Future<void> nyApi<T>(
+Future<dynamic> nyApi<T>(
     {required dynamic Function(T) request,
     required Map<Type, dynamic> apiDecoders,
     BuildContext? context}) async {
@@ -326,7 +326,7 @@ Future<void> nyApi<T>(
     apiService.setContext(context);
   }
 
-  await request(apiService);
+  return await request(apiService);
 }
 
 /// Backpack class for storing data

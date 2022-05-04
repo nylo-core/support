@@ -1,3 +1,8 @@
+## [3.0.1] - 2022-05-04
+
+* Fix `nyApi` helper not returning a value
+* Remove resource flag
+
 ## [3.0.0] - 2022-04-29
 
 * New arguments for Nylo's `init` method: setup, setupFinished

@@ -5,7 +5,6 @@ const String storableFlag = 'storable';
 const String forceFlag = 'force';
 const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
-const String isResourceFlag = 'resource';
 const String modelFlag = 'model';
 const String urlFlag = 'url';
 
