@@ -24,6 +24,8 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   void dispose() {
     super.dispose();
+    _lockMap = {};
+    _loadingMap = {};
   }
 
   @override
@@ -198,19 +200,141 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// .. perform any action you need to in production
   /// });
   whenEnv(String env,
-      {required Function() perform, bool shouldSetState = true}) async {
+      {required Function perform, bool shouldSetState = true}) async {
     if (getEnv('APP_ENV') != env) {
       return;
     }
 
-    if (perform is Future) {
-      await perform();
-    } else {
-      perform();
-    }
+    await perform();
 
     if (shouldSetState) {
       setState(() {});
+    }
+  }
+
+  Map<String, bool> _loadingMap = {};
+
+  /// Use the [awaitData] method when initial fetching data for a widget.
+  /// E.g. When your page first loads and you want to populate your widgets with
+  /// data.
+  ///
+  /// init() async {
+  ///  awaitData('home', perform: () async {
+  ///   ... await fetchApiData();
+  ///  });
+  /// }
+  ///
+  /// ... in your widget
+  /// Text( isLoading('home') ? 'YES Loading' : 'Loading Finished').
+  awaitData(
+      {String name = 'default',
+      required Function perform,
+      bool shouldSetState = true}) async {
+    _updateLoadingState(
+        shouldSetState: shouldSetState, name: name, value: true);
+
+    try {
+      await perform();
+    } on Exception catch (e) {
+      if (getEnv('APP_DEBUG', defaultValue: true) == true) {
+        print(e.toString());
+      }
+    }
+
+    _updateLoadingState(
+        shouldSetState: shouldSetState, name: name, value: false);
+  }
+
+  /// Checks the value from your loading map.
+  /// Provide the [name] of the loader.
+  bool isLoading({String name = 'default'}) {
+    if (_loadingMap.containsKey(name) == false) {
+      _loadingMap[name] = false;
+    }
+    return _loadingMap[name]!;
+  }
+
+  /// Update the loading state.
+  _updateLoadingState(
+      {required bool shouldSetState,
+      required String name,
+      required bool value}) {
+    if (shouldSetState == true) {
+      setState(() {
+        _setLoader(name, value: value);
+      });
+    } else {
+      _setLoader(name, value: value);
+    }
+  }
+
+  /// Set the state of the loader.
+  /// E.g.setLoader('updating_user', value: true);
+  ///
+  /// Provide a [name] and boolean value.
+  _setLoader(String name, {required bool value}) {
+    _loadingMap[name] = value;
+  }
+
+  Map<String, bool> _lockMap = {};
+
+  /// Checks the value from your lock map.
+  /// Provide the [name] of the lock.
+  bool isLocked(String name) {
+    if (_lockMap.containsKey(name) == false) {
+      _lockMap[name] = false;
+    }
+    return _lockMap[name]!;
+  }
+
+  /// Set the state of the lock.
+  /// E.g.setLock('updating_user', value: true);
+  ///
+  /// Provide a [name] and boolean value.
+  _setLock(String name, {required bool value}) {
+    _lockMap[name] = value;
+  }
+
+  /// The [lockRelease] method will call the function provided in [perform]
+  /// and then block the function from being called again until it has finished.
+  ///
+  /// E.g.
+  /// lockRelease('update', perform: () async {
+  ///   await handleSomething();
+  /// });
+  ///
+  /// Use [isLocked] to check if the function is still locked.
+  /// E.g.
+  /// isLocked('update') // true/false
+  lockRelease(String name,
+      {required Function perform, bool shouldSetState = true}) async {
+    if (isLocked(name) == true) {
+      return;
+    }
+    _updateLockState(shouldSetState: shouldSetState, name: name, value: true);
+
+    try {
+      await perform();
+    } on Exception catch (e) {
+      if (getEnv('APP_DEBUG', defaultValue: true) == true) {
+        print(e.toString());
+      }
+    }
+
+    _updateLockState(shouldSetState: shouldSetState, name: name, value: false);
+  }
+
+  /// Update the lock state.
+  _updateLockState(
+      {required bool shouldSetState,
+      required String name,
+      required bool value}) {
+    if (shouldSetState == true) {
+      setState(() {
+        _setLock(name, value: value);
+      });
+    } else {
+      _setLock(name, value: value);
     }
   }
 }
