@@ -1,3 +1,8 @@
+## [3.1.0] - 2022-05-19
+
+* New helpers added to NyState: `awaitData` and `lockRelease`.
+* Version bump
+
 ## [3.0.1] - 2022-05-04
 
 * Fix `nyApi` helper not returning a value
