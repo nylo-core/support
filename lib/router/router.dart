@@ -194,7 +194,7 @@ class NyRouter {
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       PageTransitionType? pageTransitionType,
-      Duration transitionDuration = const Duration(milliseconds: 300)}) {
+      Duration? transitionDuration = const Duration(milliseconds: 300)}) {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
