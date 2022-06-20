@@ -186,6 +186,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
           navigationType: navigationType,
           result: result,
           removeUntilPredicate: removeUntilPredicate,
+          transitionDuration: transitionDuration,
           pageTransitionType: pageTransition,
         )
         .then((v) => onPop != null ? onPop(v) : (v) {});
