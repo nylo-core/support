@@ -149,8 +149,12 @@ class StorageManager {
 /// Base class to help manage local storage
 class NyStorage {
   /// Saves an [object] to local storage.
-  static Future store(String key, object) async {
+  static Future store(String key, object, {bool inBackpack = false}) async {
     assert(object != null);
+
+    if (inBackpack == true) {
+      Backpack.instance.set(key, object);
+    }
 
     if (object is String) {
       return await StorageManager.storage.write(key: key, value: object);
