@@ -1,3 +1,10 @@
+## [3.2.0] - 2022-06-23
+
+* New optional parameter `inBackpack` added to the `store` when using NyStorage class to also save to your Backpack instance
+* Merge pull request [#17](https://github.com/nylo-core/support/pull/17) from @lpdevit to fix router navigation when using `transitionDuration`
+* Pubspec.yaml dependency updates
+* Version bump
+
 ## [3.1.0] - 2022-05-19
 
 * New helpers added to NyState: `awaitData` and `lockRelease`.

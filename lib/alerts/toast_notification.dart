@@ -111,9 +111,8 @@ showToastNotification(BuildContext context,
 
   // show the toast notification
   showToastWidget(
-    InkWell(
-      onTap: () => ToastManager().dismissAll(showAnim: true),
-      child: Container(
+    Stack(children: [
+      Container(
         padding: EdgeInsets.symmetric(horizontal: 18.0),
         margin: EdgeInsets.symmetric(horizontal: 8.0),
         height: 100,
@@ -165,7 +164,7 @@ showToastNotification(BuildContext context,
           ],
         ),
       ),
-    ),
+    ]),
     context: context,
     isIgnoring: false,
     position: StyledToastPosition.top,
