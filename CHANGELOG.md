@@ -1,4 +1,4 @@
-## [3.2.0] - 2022-06-23
+## [3.2.0] - 2022-06-28
 
 * New optional parameter `inBackpack` added to the `store` when using NyStorage class to also save to your Backpack instance
 * Merge pull request [#17](https://github.com/nylo-core/support/pull/17) from @lpdevit to fix router navigation when using `transitionDuration`
