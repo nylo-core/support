@@ -3,6 +3,7 @@ import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/router/errors/route_not_found.dart';
 import 'package:nylo_support/router/models/arguments_wrapper.dart';
 import 'package:nylo_support/router/models/base_arguments.dart';
+import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
 import 'package:nylo_support/router/models/route_args_pair.dart';
 import 'package:nylo_support/router/models/nyrouter_options.dart';
@@ -17,6 +18,7 @@ class NyNavigator {
   NyRouter router = NyRouter();
 
   NyNavigator._privateConstructor();
+
   static final NyNavigator instance = NyNavigator._privateConstructor();
 }
 
@@ -353,7 +355,10 @@ class NyRouter {
   /// These routes are built using the [NyRouterRoute]s [addRoute] method.
   RouteFactory generator() {
     return (settings) {
-      final NyRouterRoute? route = _routeNameMappings[settings.name!];
+      if (settings.name == null) return null;
+      var uriData = Uri.parse(settings.name!);
+
+      final NyRouterRoute? route = _routeNameMappings[uriData.path];
 
       if (route == null) return null;
 
@@ -369,12 +374,21 @@ class NyRouter {
         argsWrapper = ArgumentsWrapper();
       }
 
+      if (uriData.queryParameters.isEmpty) {
+        argsWrapper.queryParameters = null;
+      }else {
+        argsWrapper.queryParameters =
+            NyQueryParameters(uriData.queryParameters);
+      }
+
       final BaseArguments? baseArgs = argsWrapper.baseArguments;
+      final NyQueryParameters? queryParameters = argsWrapper.queryParameters;
 
       return PageTransition(
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
-          return route.builder(context, baseArgs ?? route.defaultArgs);
+          return route.builder(context, baseArgs ?? route.defaultArgs,
+              queryParameters ?? route.queryParameters);
         }),
         type: argsWrapper.pageTransitionType ?? route.pageTransitionType,
         settings: settings,

@@ -41,4 +41,15 @@ abstract class NyStatefulWidget extends StatefulWidget {
     }
     return this.controller!.request!.data();
   }
+
+  /// Returns query params
+  dynamic queryParams() {
+    if (this.controller == null) {
+      return null;
+    }
+    if (this.controller!.request == null) {
+      return null;
+    }
+    return this.controller!.request!.queryParameters();
+  }
 }
