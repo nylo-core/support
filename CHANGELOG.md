@@ -1,3 +1,7 @@
+## [3.3.0] - 2022-07-27
+
+* Merge PR from [youssefKadaouiAbbassi](https://github.com/youssefKadaouiAbbassi) that adds query parameters to the router e.g. "/my-page?hello=world" = {"hello": "world"}
+
 ## [3.2.0] - 2022-06-28
 
 * New optional parameter `inBackpack` added to the `store` when using NyStorage class to also save to your Backpack instance

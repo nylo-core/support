@@ -1,5 +1,6 @@
 import 'package:nylo_support/controllers/controller.dart';
 import 'package:nylo_support/router/models/base_arguments.dart';
+import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/widgets/ny_stateful_widget.dart';
@@ -11,12 +12,14 @@ import 'ny_argument.dart';
 typedef NyRouterRouteBuilder = Widget Function(
   BuildContext context,
   BaseArguments? args,
+  NyQueryParameters? queryParameters,
 );
 
 class NyRouterRoute {
   final String name;
   late NyRouterRouteBuilder builder;
   final BaseArguments? defaultArgs;
+  final NyQueryParameters? queryParameters;
   final NyRouteView view;
   PageTransitionType pageTransitionType;
 
@@ -29,14 +32,17 @@ class NyRouterRoute {
       {required this.name,
       required this.view,
       this.defaultArgs,
+      this.queryParameters,
       this.routeGuards,
       this.pageTransitionType = PageTransitionType.rightToLeft}) {
-    this.builder = (context, arg) {
+    this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
         if (widget.controller != null) {
-          widget.controller!.request =
-              NyRequest(currentRoute: name, args: arg as NyArgument?);
+          widget.controller!.request = NyRequest(
+              currentRoute: name,
+              args: arg as NyArgument?,
+              queryParameters: queryParameters);
           widget.controller!.construct(context);
         }
       }
