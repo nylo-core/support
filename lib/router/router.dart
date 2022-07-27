@@ -356,9 +356,20 @@ class NyRouter {
   RouteFactory generator() {
     return (settings) {
       if (settings.name == null) return null;
-      var uriData = Uri.parse(settings.name!);
 
-      final NyRouterRoute? route = _routeNameMappings[uriData.path];
+      Uri? uriSettingName;
+      try {
+        uriSettingName = Uri.parse(settings.name!);
+      } on FormatException catch (e) {
+        NyLogger.error(e.toString());
+      }
+
+      String routeName = settings.name!;
+      if (uriSettingName != null) {
+        routeName = uriSettingName.path;
+      }
+
+      final NyRouterRoute? route = _routeNameMappings[routeName];
 
       if (route == null) return null;
 
@@ -374,11 +385,9 @@ class NyRouter {
         argsWrapper = ArgumentsWrapper();
       }
 
-      if (uriData.queryParameters.isEmpty) {
-        argsWrapper.queryParameters = null;
-      }else {
+      if (uriSettingName != null && uriSettingName.queryParameters.isNotEmpty) {
         argsWrapper.queryParameters =
-            NyQueryParameters(uriData.queryParameters);
+            NyQueryParameters(uriSettingName.queryParameters);
       }
 
       final BaseArguments? baseArgs = argsWrapper.baseArguments;

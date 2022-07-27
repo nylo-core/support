@@ -43,7 +43,7 @@ abstract class NyStatefulWidget extends StatefulWidget {
   }
 
   /// Returns query params
-  dynamic queryParams() {
+  dynamic queryParameters() {
     if (this.controller == null) {
       return null;
     }
