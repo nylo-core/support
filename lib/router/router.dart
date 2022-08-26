@@ -105,17 +105,19 @@ class NyRouter {
 
   /// Add a new route with a widget.
   route(String name, NyRouteView view,
-      {PageTransitionType? transition, List<RouteGuard>? routeGuards}) {
+      {PageTransitionType? transition, Duration transitionDuration = const Duration(milliseconds: 300), List<RouteGuard>? routeGuards}) {
     this._addRoute(NyRouterRoute(
         name: name,
         view: view,
         pageTransitionType: transition ?? PageTransitionType.rightToLeft,
-        routeGuards: routeGuards));
+        pageTransitionDuration: transitionDuration,
+        routeGuards: routeGuards,
+    ));
   }
 
   /// Add a new page to the router.
   page(NyStatefulWidget widget,
-      {PageTransitionType? transition, List<RouteGuard>? routeGuards}) {
+      {PageTransitionType? transition, Duration transitionDuration = const Duration(milliseconds: 300), List<RouteGuard>? routeGuards}) {
     String widgetRouteName = widget.getRouteName();
     assert(
         widgetRouteName != "",
@@ -130,6 +132,7 @@ class NyRouter {
         name: widgetRouteName,
         view: (context) => widget,
         pageTransitionType: transition ?? PageTransitionType.rightToLeft,
+        pageTransitionDuration: transitionDuration,
         routeGuards: routeGuards));
   }
 
@@ -163,7 +166,8 @@ class NyRouter {
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       Map<String, dynamic>? params,
-      PageTransitionType? pageTransitionType}) {
+      PageTransitionType? pageTransitionType,
+        Duration? transitionDuration = const Duration(milliseconds: 300)}) {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
@@ -174,7 +178,8 @@ class NyRouter {
         result: result,
         removeUntilPredicate: removeUntilPredicate,
         args: args,
-        pageTransitionType: pageTransitionType);
+        pageTransitionType: pageTransitionType,
+        transitionDuration: transitionDuration);
   }
 
   /// Function used to navigate pages.
@@ -393,6 +398,14 @@ class NyRouter {
       final BaseArguments? baseArgs = argsWrapper.baseArguments;
       final NyQueryParameters? queryParameters = argsWrapper.queryParameters;
 
+      Duration duration = route.pageTransitionDuration;
+      if (this.options.transitionDuration != null) {
+        duration = this.options.transitionDuration!;
+      }
+      if (argsWrapper.transitionDuration != null) {
+        duration = argsWrapper.transitionDuration!;
+      }
+
       return PageTransition(
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -401,8 +414,7 @@ class NyRouter {
         }),
         type: argsWrapper.pageTransitionType ?? route.pageTransitionType,
         settings: settings,
-        duration:
-            argsWrapper.transitionDuration ?? this.options.transitionDuration,
+        duration: duration,
       );
     };
   }

@@ -22,6 +22,7 @@ class NyRouterRoute {
   final NyQueryParameters? queryParameters;
   final NyRouteView view;
   PageTransitionType pageTransitionType;
+  final Duration pageTransitionDuration;
 
   /// Ran before opening the route itself.
   /// If every route guard returns [true], the route is approved and opened.
@@ -34,7 +35,8 @@ class NyRouterRoute {
       this.defaultArgs,
       this.queryParameters,
       this.routeGuards,
-      this.pageTransitionType = PageTransitionType.rightToLeft}) {
+      this.pageTransitionType = PageTransitionType.rightToLeft,
+        this.pageTransitionDuration = const Duration(milliseconds: 300)}) {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {

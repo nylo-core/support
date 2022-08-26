@@ -2,12 +2,14 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
+import 'package:nylo_support/themes/base_theme_config.dart';
 export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
   late NyRouter? router;
   late Map<Type, NyEvent> _events = {};
+  late List<BaseThemeConfig> appThemes = [];
 
   Nylo({this.router});
 
