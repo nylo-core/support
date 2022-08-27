@@ -14,14 +14,14 @@ class BaseThemeConfig {
 
   BaseThemeConfig(
       {required this.id,
-        required this.description,
-        required this.theme,
-        required this.colors,
-        this.meta = const {}});
+      required this.description,
+      required this.theme,
+      required this.colors,
+      this.meta = const {}});
 
   AppTheme toAppTheme({ThemeData? defaultTheme}) => AppTheme(
-    id: id,
-    data: defaultTheme ?? theme,
-    description: description,
-  );
+        id: id,
+        data: defaultTheme ?? theme,
+        description: description,
+      );
 }

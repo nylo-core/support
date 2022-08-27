@@ -105,19 +105,23 @@ class NyRouter {
 
   /// Add a new route with a widget.
   route(String name, NyRouteView view,
-      {PageTransitionType? transition, Duration transitionDuration = const Duration(milliseconds: 300), List<RouteGuard>? routeGuards}) {
+      {PageTransitionType? transition,
+      Duration transitionDuration = const Duration(milliseconds: 300),
+      List<RouteGuard>? routeGuards}) {
     this._addRoute(NyRouterRoute(
-        name: name,
-        view: view,
-        pageTransitionType: transition ?? PageTransitionType.rightToLeft,
-        pageTransitionDuration: transitionDuration,
-        routeGuards: routeGuards,
+      name: name,
+      view: view,
+      pageTransitionType: transition ?? PageTransitionType.rightToLeft,
+      pageTransitionDuration: transitionDuration,
+      routeGuards: routeGuards,
     ));
   }
 
   /// Add a new page to the router.
   page(NyStatefulWidget widget,
-      {PageTransitionType? transition, Duration transitionDuration = const Duration(milliseconds: 300), List<RouteGuard>? routeGuards}) {
+      {PageTransitionType? transition,
+      Duration transitionDuration = const Duration(milliseconds: 300),
+      List<RouteGuard>? routeGuards}) {
     String widgetRouteName = widget.getRouteName();
     assert(
         widgetRouteName != "",
@@ -167,7 +171,7 @@ class NyRouter {
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       Map<String, dynamic>? params,
       PageTransitionType? pageTransitionType,
-        Duration? transitionDuration = const Duration(milliseconds: 300)}) {
+      Duration? transitionDuration = const Duration(milliseconds: 300)}) {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 

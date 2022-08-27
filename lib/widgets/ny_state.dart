@@ -16,11 +16,13 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Helper to get the [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(context);
-  
+
   /// Helper to get the [MediaQueryData].
   BaseColorStyles color({String? themeId}) {
     Nylo nylo = Backpack.instance.read('nylo');
-    BaseThemeConfig baseThemeConfig = nylo.appThemes.firstWhere((theme) => theme.id == (themeId ?? getEnv('LIGHT_THEME_ID')), orElse: () => nylo.appThemes.first);
+    BaseThemeConfig baseThemeConfig = nylo.appThemes.firstWhere(
+        (theme) => theme.id == (themeId ?? getEnv('LIGHT_THEME_ID')),
+        orElse: () => nylo.appThemes.first);
     return baseThemeConfig.colors;
   }
 

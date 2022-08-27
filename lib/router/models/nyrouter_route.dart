@@ -36,7 +36,7 @@ class NyRouterRoute {
       this.queryParameters,
       this.routeGuards,
       this.pageTransitionType = PageTransitionType.rightToLeft,
-        this.pageTransitionDuration = const Duration(milliseconds: 300)}) {
+      this.pageTransitionDuration = const Duration(milliseconds: 300)}) {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
