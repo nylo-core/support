@@ -1,8 +1,10 @@
-## [3.4.0] - 2022-08-26
+## [3.4.0] - 2022-08-27
 
 * Add base theme config for theme management in Nylo
 * Add theme colors for color management in Nylo
-* New helper for NyState class to fetch color easier
+* New helper for NyState class to fetch colors easier
+* Ability to add a duration for page transitions
+* Pubspec.yaml dependency updates
 * Version bump
 
 ## [3.3.0] - 2022-07-27
