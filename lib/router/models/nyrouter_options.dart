@@ -5,7 +5,7 @@ import 'package:nylo_support/router/ui/page_not_found.dart';
 class NyRouterOptions {
   final bool handleNameNotFoundUI;
   final Widget notFoundPage;
-  final Duration transitionDuration;
+  final Duration? transitionDuration;
 
   /// Should display logs in console. Nylo Router prints some useful logs
   /// which can be helpful during development.
@@ -26,7 +26,7 @@ class NyRouterOptions {
     this.notFoundPage = const PageNotFound(),
     this.handleNameNotFoundUI = false,
     this.isLoggingEnabled = false,
-    this.transitionDuration = const Duration(milliseconds: 300),
+    this.transitionDuration,
     this.navigatorKey,
   });
 }

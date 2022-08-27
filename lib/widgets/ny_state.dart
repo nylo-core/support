@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
-import 'package:nylo_support/exceptions/validation_exception.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/localization/app_localization.dart';
+import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/router/models/ny_argument.dart';
 import 'package:nylo_support/router/router.dart';
+import 'package:nylo_support/themes/base_color_styles.dart';
+import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/validation/rules.dart';
 import 'package:page_transition/page_transition.dart';
 
@@ -15,6 +16,15 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Helper to get the [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(context);
+
+  /// Helper to get the [MediaQueryData].
+  BaseColorStyles color({String? themeId}) {
+    Nylo nylo = Backpack.instance.read('nylo');
+    BaseThemeConfig baseThemeConfig = nylo.appThemes.firstWhere(
+        (theme) => theme.id == (themeId ?? getEnv('LIGHT_THEME_ID')),
+        orElse: () => nylo.appThemes.first);
+    return baseThemeConfig.colors;
+  }
 
   @override
   void initState() {

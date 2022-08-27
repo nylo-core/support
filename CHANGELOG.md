@@ -1,3 +1,12 @@
+## [3.4.0] - 2022-08-27
+
+* Add base theme config for theme management in Nylo
+* Add theme colors for color management in Nylo
+* New helper for NyState class to fetch colors easier
+* Ability to add a duration for page transitions
+* Pubspec.yaml dependency updates
+* Version bump
+
 ## [3.3.0] - 2022-07-27
 
 * Merge PR from [youssefKadaouiAbbassi](https://github.com/youssefKadaouiAbbassi) that adds query parameters to the router e.g. "/my-page?hello=world" = {"hello": "world"}

@@ -150,8 +150,6 @@ class StorageManager {
 class NyStorage {
   /// Saves an [object] to local storage.
   static Future store(String key, object, {bool inBackpack = false}) async {
-    assert(object != null);
-
     if (inBackpack == true) {
       Backpack.instance.set(key, object);
     }
@@ -349,7 +347,7 @@ class Backpack {
     return _values[key];
   }
 
-  set(String key, dynamic value) async {
+  set(String key, dynamic value) {
     _values[key] = value;
   }
 }

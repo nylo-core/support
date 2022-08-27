@@ -164,6 +164,18 @@ showToastNotification(BuildContext context,
           ],
         ),
       ),
+      Positioned(
+        top: 0,
+        right: 0,
+        child: IconButton(
+            onPressed: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            icon: Icon(
+              Icons.close,
+              color: Colors.white,
+            )),
+      )
     ]),
     context: context,
     isIgnoring: false,
