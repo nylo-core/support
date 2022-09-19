@@ -1,3 +1,9 @@
+## [3.5.0] - 2022-09-19
+
+* Move `routeTo` helper from NyState to Router.
+* New `PageTransitionSettings` class to pass transition settings such as Duration when using routeTo and the router.
+* Version bump
+
 ## [3.4.0] - 2022-08-27
 
 * Add base theme config for theme management in Nylo

@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/ui/page_not_found.dart';
 
 /// Options to configure a Nylo Router instance.
 class NyRouterOptions {
   final bool handleNameNotFoundUI;
   final Widget notFoundPage;
-  final Duration? transitionDuration;
+  final PageTransitionSettings pageTransitionSettings;
 
   /// Should display logs in console. Nylo Router prints some useful logs
   /// which can be helpful during development.
@@ -26,7 +27,7 @@ class NyRouterOptions {
     this.notFoundPage = const PageNotFound(),
     this.handleNameNotFoundUI = false,
     this.isLoggingEnabled = false,
-    this.transitionDuration,
+    this.pageTransitionSettings = const PageTransitionSettings.base(),
     this.navigatorKey,
   });
 }

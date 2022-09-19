@@ -3,12 +3,9 @@ import 'package:nylo_support/alerts/toast_notification.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/router/models/ny_argument.dart';
-import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/themes/base_color_styles.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/validation/rules.dart';
-import 'package:page_transition/page_transition.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [TextTheme].
@@ -163,43 +160,6 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       language: language,
       restart: restartState,
     );
-  }
-
-  /// Navigate to a new route in your /routes/router.dart.
-  ///
-  /// It requires a String [routeName] e.g. "/my-route"
-  ///
-  /// Optional variables in [data] that you can pass in [dynamic] objects to
-  /// the next widget you navigate to.
-  ///
-  /// [navigationType] can be assigned with the following:
-  /// NavigationType.push, NavigationType.pushReplace,
-  /// NavigationType.pushAndRemoveUntil or NavigationType.popAndPushNamed
-  ///
-  /// [pageTransitionType] allows you to assign a transition type for when
-  /// navigating to the new route. E.g. [PageTransitionType.fade] or
-  /// [PageTransitionType.bottomToTop].
-  /// See https://pub.dev/packages/page_transition to learn more.
-  routeTo(String routeName,
-      {dynamic data,
-      NavigationType navigationType = NavigationType.push,
-      dynamic result,
-      bool Function(Route<dynamic> route)? removeUntilPredicate,
-      Duration? transitionDuration,
-      PageTransitionType? pageTransition,
-      Function(dynamic value)? onPop}) {
-    NyArgument nyArgument = NyArgument(data);
-    NyNavigator.instance.router
-        .navigate(
-          routeName,
-          args: nyArgument,
-          navigationType: navigationType,
-          result: result,
-          removeUntilPredicate: removeUntilPredicate,
-          transitionDuration: transitionDuration,
-          pageTransitionType: pageTransition,
-        )
-        .then((v) => onPop != null ? onPop(v) : (v) {});
   }
 
   /// Perform an action when the application's [env] is in a certain state

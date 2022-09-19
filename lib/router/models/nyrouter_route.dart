@@ -1,5 +1,6 @@
 import 'package:nylo_support/controllers/controller.dart';
 import 'package:nylo_support/router/models/base_arguments.dart';
+import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
 import 'package:nylo_support/router/router.dart';
@@ -22,7 +23,7 @@ class NyRouterRoute {
   final NyQueryParameters? queryParameters;
   final NyRouteView view;
   PageTransitionType pageTransitionType;
-  final Duration pageTransitionDuration;
+  PageTransitionSettings? pageTransitionSettings;
 
   /// Ran before opening the route itself.
   /// If every route guard returns [true], the route is approved and opened.
@@ -36,7 +37,7 @@ class NyRouterRoute {
       this.queryParameters,
       this.routeGuards,
       this.pageTransitionType = PageTransitionType.rightToLeft,
-      this.pageTransitionDuration = const Duration(milliseconds: 300)}) {
+      this.pageTransitionSettings}) {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
