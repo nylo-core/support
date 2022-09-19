@@ -3,6 +3,7 @@ import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/router/errors/route_not_found.dart';
 import 'package:nylo_support/router/models/arguments_wrapper.dart';
 import 'package:nylo_support/router/models/base_arguments.dart';
+import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
 import 'package:nylo_support/router/models/route_args_pair.dart';
@@ -11,7 +12,6 @@ import 'package:nylo_support/router/models/nyrouter_route.dart';
 import 'package:nylo_support/router/ui/page_not_found.dart';
 import 'package:nylo_support/widgets/ny_stateful_widget.dart';
 import 'package:page_transition/page_transition.dart';
-
 import 'models/ny_argument.dart';
 
 class NyNavigator {
@@ -106,13 +106,13 @@ class NyRouter {
   /// Add a new route with a widget.
   route(String name, NyRouteView view,
       {PageTransitionType? transition,
-      Duration transitionDuration = const Duration(milliseconds: 300),
+      PageTransitionSettings? pageTransitionSettings,
       List<RouteGuard>? routeGuards}) {
     this._addRoute(NyRouterRoute(
       name: name,
       view: view,
       pageTransitionType: transition ?? PageTransitionType.rightToLeft,
-      pageTransitionDuration: transitionDuration,
+      pageTransitionSettings: pageTransitionSettings,
       routeGuards: routeGuards,
     ));
   }
@@ -120,7 +120,7 @@ class NyRouter {
   /// Add a new page to the router.
   page(NyStatefulWidget widget,
       {PageTransitionType? transition,
-      Duration transitionDuration = const Duration(milliseconds: 300),
+      PageTransitionSettings? pageTransitionSettings,
       List<RouteGuard>? routeGuards}) {
     String widgetRouteName = widget.getRouteName();
     assert(
@@ -136,7 +136,7 @@ class NyRouter {
         name: widgetRouteName,
         view: (context) => widget,
         pageTransitionType: transition ?? PageTransitionType.rightToLeft,
-        pageTransitionDuration: transitionDuration,
+        pageTransitionSettings: pageTransitionSettings,
         routeGuards: routeGuards));
   }
 
@@ -171,7 +171,7 @@ class NyRouter {
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       Map<String, dynamic>? params,
       PageTransitionType? pageTransitionType,
-      Duration? transitionDuration = const Duration(milliseconds: 300)}) {
+      PageTransitionSettings? pageTransitionSettings}) {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
@@ -183,7 +183,7 @@ class NyRouter {
         removeUntilPredicate: removeUntilPredicate,
         args: args,
         pageTransitionType: pageTransitionType,
-        transitionDuration: transitionDuration);
+        pageTransitionSettings: pageTransitionSettings);
   }
 
   /// Function used to navigate pages.
@@ -205,14 +205,14 @@ class NyRouter {
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       PageTransitionType? pageTransitionType,
-      Duration? transitionDuration = const Duration(milliseconds: 300)}) {
+      PageTransitionSettings? pageTransitionSettings}) {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
     _checkAndThrowRouteNotFound(name, args, navigationType);
 
     return _navigate(name, args, navigationType, result, removeUntilPredicate,
-            pageTransitionType, transitionDuration)
+            pageTransitionType, pageTransitionSettings)
         .then((value) => value as T);
   }
 
@@ -243,7 +243,7 @@ class NyRouter {
           null,
           null,
           routeArgs.pageTransition,
-          routeArgs.transitionDuration);
+          routeArgs.pageTransitionSettings);
 
       pageResponses.add(response);
     });
@@ -271,11 +271,11 @@ class NyRouter {
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       PageTransitionType? pageTransitionType,
-      Duration? transitionDuration) async {
+      PageTransitionSettings? pageTransitionSettings) async {
     final argsWrapper = ArgumentsWrapper(
       baseArguments: args,
       pageTransitionType: pageTransitionType,
-      transitionDuration: transitionDuration,
+      pageTransitionSettings: pageTransitionSettings,
     );
 
     // Evaluate if the route can be opened using route guard.
@@ -382,45 +382,238 @@ class NyRouter {
 
       if (route == null) return null;
 
-      ArgumentsWrapper? argsWrapper;
+      ArgumentsWrapper? argumentsWrapper;
       if (settings.arguments is ArgumentsWrapper) {
-        argsWrapper = settings.arguments as ArgumentsWrapper?;
+        argumentsWrapper = settings.arguments as ArgumentsWrapper?;
       } else {
-        argsWrapper = ArgumentsWrapper();
-        argsWrapper.baseArguments = NyArgument(settings.arguments);
+        argumentsWrapper = ArgumentsWrapper();
+        argumentsWrapper.baseArguments = NyArgument(settings.arguments);
       }
 
-      if (argsWrapper == null) {
-        argsWrapper = ArgumentsWrapper();
+      if (argumentsWrapper == null) {
+        argumentsWrapper = ArgumentsWrapper();
       }
 
       if (uriSettingName != null && uriSettingName.queryParameters.isNotEmpty) {
-        argsWrapper.queryParameters =
+        argumentsWrapper.queryParameters =
             NyQueryParameters(uriSettingName.queryParameters);
       }
 
-      final BaseArguments? baseArgs = argsWrapper.baseArguments;
-      final NyQueryParameters? queryParameters = argsWrapper.queryParameters;
+      final BaseArguments? baseArgs = argumentsWrapper.baseArguments;
+      final NyQueryParameters? queryParameters =
+          argumentsWrapper.queryParameters;
 
-      Duration duration = route.pageTransitionDuration;
-      if (this.options.transitionDuration != null) {
-        duration = this.options.transitionDuration!;
+      if (argumentsWrapper.pageTransitionSettings == null) {
+        argumentsWrapper.pageTransitionSettings = PageTransitionSettings();
       }
-      if (argsWrapper.transitionDuration != null) {
-        duration = argsWrapper.transitionDuration!;
+
+      if (route.pageTransitionSettings == null) {
+        route.pageTransitionSettings = PageTransitionSettings();
       }
 
       return PageTransition(
-        child: StatefulBuilder(
-            builder: (BuildContext context, StateSetter setState) {
-          return route.builder(context, baseArgs ?? route.defaultArgs,
-              queryParameters ?? route.queryParameters);
-        }),
-        type: argsWrapper.pageTransitionType ?? route.pageTransitionType,
-        settings: settings,
-        duration: duration,
-      );
+          child: StatefulBuilder(
+              builder: (BuildContext context, StateSetter setState) {
+            return route.builder(context, baseArgs ?? route.defaultArgs,
+                queryParameters ?? route.queryParameters);
+          }),
+          type: argumentsWrapper.pageTransitionType ?? route.pageTransitionType,
+          settings: settings,
+          duration: _getPageTransitionDuration(route, argumentsWrapper),
+          alignment: _getPageTransitionAlignment(route, argumentsWrapper),
+          reverseDuration:
+              _getPageTransitionReversedDuration(route, argumentsWrapper),
+          matchingBuilder:
+              _getPageTransitionMatchingBuilder(route, argumentsWrapper),
+          childCurrent: _getPageTransitionChildCurrent(route, argumentsWrapper),
+          curve: _getPageTransitionCurve(route, argumentsWrapper),
+          ctx: _getPageTransitionContext(route, argumentsWrapper),
+          inheritTheme: _getPageTransitionInheritTheme(route, argumentsWrapper),
+          fullscreenDialog:
+              _getPageTransitionFullscreenDialog(route, argumentsWrapper),
+          opaque: _getPageTransitionOpaque(route, argumentsWrapper),
+          isIos: _getPageTransitionIsIos(route, argumentsWrapper));
     };
+  }
+
+  /// Used to retrieve the correct Duration value for the [PageTransition] constructor.
+  Duration _getPageTransitionDuration(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    Duration duration = this.options.pageTransitionSettings.duration!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.duration != null) {
+      duration = route.pageTransitionSettings!.duration!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.duration != null) {
+      duration = argumentsWrapper.pageTransitionSettings!.duration!;
+    }
+    return duration;
+  }
+
+  /// Used to retrieve the correct ReversedDuration value for the [PageTransition] constructor.
+  Duration _getPageTransitionReversedDuration(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    Duration duration = this.options.pageTransitionSettings.reverseDuration!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.reverseDuration != null) {
+      duration = route.pageTransitionSettings!.reverseDuration!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.reverseDuration != null) {
+      duration = argumentsWrapper.pageTransitionSettings!.reverseDuration!;
+    }
+    return duration;
+  }
+
+  /// Used to retrieve the correct ChildCurrent value for the [PageTransition] constructor.
+  Widget? _getPageTransitionChildCurrent(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    Widget? widget = this.options.pageTransitionSettings.childCurrent;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.childCurrent != null) {
+      widget = route.pageTransitionSettings!.childCurrent;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.childCurrent != null) {
+      widget = argumentsWrapper.pageTransitionSettings!.childCurrent;
+    }
+    return widget;
+  }
+
+  /// Used to retrieve the correct Context value for the [PageTransition] constructor.
+  BuildContext? _getPageTransitionContext(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    BuildContext? buildContext = this.options.pageTransitionSettings.context;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.context != null) {
+      buildContext = route.pageTransitionSettings!.context;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.context != null) {
+      buildContext = argumentsWrapper.pageTransitionSettings!.context;
+    }
+    return buildContext;
+  }
+
+  /// Used to retrieve the correct InheritTheme value for the [PageTransition] constructor.
+  bool _getPageTransitionInheritTheme(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    bool boolVal = this.options.pageTransitionSettings.inheritTheme!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.inheritTheme != null) {
+      boolVal = route.pageTransitionSettings!.inheritTheme!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.inheritTheme != null) {
+      boolVal = argumentsWrapper.pageTransitionSettings!.inheritTheme!;
+    }
+    return boolVal;
+  }
+
+  /// Used to retrieve the correct Curve value for the [PageTransition] constructor.
+  Curve _getPageTransitionCurve(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    Curve curve = this.options.pageTransitionSettings.curve!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.curve != null) {
+      curve = route.pageTransitionSettings!.curve!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.curve != null) {
+      curve = argumentsWrapper.pageTransitionSettings!.curve!;
+    }
+    return curve;
+  }
+
+  /// Used to retrieve the correct Alignment value for the [PageTransition] constructor.
+  Alignment? _getPageTransitionAlignment(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    Alignment? alignment = this.options.pageTransitionSettings.alignment;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.alignment != null) {
+      alignment = route.pageTransitionSettings!.alignment;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.alignment != null) {
+      alignment = argumentsWrapper.pageTransitionSettings!.alignment;
+    }
+    return alignment;
+  }
+
+  /// Used to retrieve the correct FullscreenDialog value for the [PageTransition] constructor.
+  bool _getPageTransitionFullscreenDialog(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    bool fullscreenDialog =
+        this.options.pageTransitionSettings.fullscreenDialog!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.fullscreenDialog != null) {
+      fullscreenDialog = route.pageTransitionSettings!.fullscreenDialog!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.fullscreenDialog != null) {
+      fullscreenDialog =
+          argumentsWrapper.pageTransitionSettings!.fullscreenDialog!;
+    }
+    return fullscreenDialog;
+  }
+
+  /// Used to retrieve the correct Opaque value for the [PageTransition] constructor.
+  bool _getPageTransitionOpaque(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    bool opaque = this.options.pageTransitionSettings.opaque!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.opaque != null) {
+      opaque = route.pageTransitionSettings!.opaque!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.opaque != null) {
+      opaque = argumentsWrapper.pageTransitionSettings!.opaque!;
+    }
+    return opaque;
+  }
+
+  /// Used to retrieve the correct IsIos value for the [PageTransition] constructor.
+  bool _getPageTransitionIsIos(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    bool isIos = this.options.pageTransitionSettings.isIos!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.isIos != null) {
+      isIos = route.pageTransitionSettings!.isIos!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.isIos != null) {
+      isIos = argumentsWrapper.pageTransitionSettings!.isIos!;
+    }
+    return isIos;
+  }
+
+  /// Used to retrieve the correct MatchingBuilder value for the [PageTransition] constructor.
+  PageTransitionsBuilder _getPageTransitionMatchingBuilder(
+      NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
+    PageTransitionsBuilder matchingBuilder =
+        this.options.pageTransitionSettings.matchingBuilder!;
+
+    if (route.pageTransitionSettings != null &&
+        route.pageTransitionSettings!.matchingBuilder != null) {
+      matchingBuilder = route.pageTransitionSettings!.matchingBuilder!;
+    }
+    if (argumentsWrapper.pageTransitionSettings != null &&
+        argumentsWrapper.pageTransitionSettings!.matchingBuilder != null) {
+      matchingBuilder =
+          argumentsWrapper.pageTransitionSettings!.matchingBuilder!;
+    }
+    return matchingBuilder;
   }
 
   static RouteFactory unknownRouteGenerator() {
@@ -433,4 +626,39 @@ class NyRouter {
       );
     };
   }
+}
+
+/// Navigate to a new route in your /routes/router.dart.
+///
+/// It requires a String [routeName] e.g. "/my-route"
+///
+/// Optional variables in [data] that you can pass in [dynamic] objects to
+/// the next widget you navigate to.
+///
+/// [navigationType] can be assigned with the following:
+/// NavigationType.push, NavigationType.pushReplace,
+/// NavigationType.pushAndRemoveUntil or NavigationType.popAndPushNamed
+///
+/// [pageTransitionType] allows you to assign a transition type for when
+/// navigating to the new route. E.g. [PageTransitionType.fade] or
+/// [PageTransitionType.bottomToTop].
+/// See https://pub.dev/packages/page_transition to learn more.
+routeTo(String routeName,
+    {dynamic data,
+    NavigationType navigationType = NavigationType.push,
+    dynamic result,
+    bool Function(Route<dynamic> route)? removeUntilPredicate,
+    PageTransitionSettings? pageTransitionSettings,
+    PageTransitionType? pageTransition,
+    Function(dynamic value)? onPop}) {
+  NyArgument nyArgument = NyArgument(data);
+  NyNavigator.instance.router
+      .navigate(routeName,
+          args: nyArgument,
+          navigationType: navigationType,
+          result: result,
+          removeUntilPredicate: removeUntilPredicate,
+          pageTransitionType: pageTransition,
+          pageTransitionSettings: pageTransitionSettings)
+      .then((v) => onPop != null ? onPop(v) : (v) {});
 }
