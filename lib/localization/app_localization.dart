@@ -1,9 +1,11 @@
 // Base class to handle localization in the project
 
 import 'dart:convert';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
@@ -82,10 +84,19 @@ class NyLocalization {
     if (languageCode != null) {
       _locale = Locale(languageCode);
     } else if (_localeType == LocaleType.device) {
-      if ('${window.locale}'.contains(RegExp('[-_]'))) {
-        _locale = Locale('${window.locale}'.split(RegExp('[-_]'))[0]);
+      if (kIsWeb) {
+        if ('${window.locale}'.contains(RegExp('[-_]'))) {
+          _locale = Locale('${window.locale}'.split(RegExp('[-_]'))[0]);
+        } else {
+          _locale = Locale('${window.locale}');
+        }
       } else {
-        _locale = Locale('${window.locale}');
+        if (Platform.localeName.contains(RegExp('[-_]'))) {
+          final split = Platform.localeName.split(RegExp('[-_]'));
+          _locale = Locale(split[0], split[1]);
+        } else {
+          _locale = Locale(Platform.localeName);
+        }
       }
     } else {
       _locale = Locale(_langList[0]);
