@@ -3,8 +3,9 @@ import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
-export 'package:nylo_support/exceptions/validation_exception.dart';
+
 export 'package:nylo_support/alerts/toast_enums.dart';
+export 'package:nylo_support/exceptions/validation_exception.dart';
 
 class Nylo {
   late NyRouter? router;
@@ -54,7 +55,11 @@ class Nylo {
 
   /// Initialize Nylo
   static Future<Nylo> init({Function? setup, Function? setupFinished}) async {
-    await dotenv.load(fileName: ".env");
+    const ENV_FILE_PATH = String.fromEnvironment(
+      'ENV_FILE_PATH',
+      defaultValue: '.env',
+    );
+    await dotenv.load(fileName: ENV_FILE_PATH);
 
     if (setup == null) {
       return Nylo();
