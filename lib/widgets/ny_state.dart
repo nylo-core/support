@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
+import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
@@ -306,6 +307,26 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       });
     } else {
       _setLock(name, value: value);
+    }
+  }
+
+  /// The [waiter] method will check if the state is loading
+  /// If loading it will display the [placeholder] widget.
+  /// You can also specify the name of the [loadingKey].
+  Widget waiter({required Widget widget, Widget? placeholder, String? loadingKey}) {
+    if (isLoading(name: loadingKey ?? "default")) {
+      Nylo nylo = Backpack.instance.read('nylo');
+      return placeholder ?? nylo.appLoader;
+    }
+    return widget;
+  }
+
+  /// Set the value of a loading key by padding a true or false
+  setLoading(bool value, {String name = 'default', bool resetState = true}) {
+    if (resetState) {
+      setState(() {_loadingMap[name] = value;});
+    } else {
+      _loadingMap[name] = value;
     }
   }
 }

@@ -4,6 +4,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:logger/logger.dart';
 import 'package:nylo_support/events/events.dart';
+import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 
 /// Returns a value from the .env file
@@ -127,8 +128,11 @@ abstract class Storable {
   ///
   /// Get user
   /// User user = await NyStorage.read<User>('com.company.app.auth_user', model: new User());
-  Future save(String key) async {
+  Future save(String key, {bool inBackpack = false}) async {
     await NyStorage.store(key, this);
+    if (inBackpack) {
+      Backpack.instance.set(key, this);
+    }
   }
 
   /// Read a [key] value from NyStorage
@@ -172,6 +176,8 @@ class NyStorage {
       return await StorageManager.storage
           .write(key: key, value: jsonEncode(object.toStorage()));
     }
+
+    return await StorageManager.storage.write(key: key, value: object.toString());
   }
 
   /// Read a value from the local storage
@@ -297,10 +303,10 @@ nyEvent<T>({
   if (events.isEmpty) {
     appEvents = Backpack.instance.read('nylo').getEvents();
   }
+  assert(appEvents.containsKey(T),
+  'Your config/events.dart is missing this class ${T.toString()}');
 
   NyEvent nyEvent = appEvents[T]!;
-  assert(appEvents.containsKey(T),
-      'Your config/events.dart is missing this class ${T.toString()}');
   Map<dynamic, NyListener> listeners = nyEvent.listeners;
 
   if (listeners.isEmpty) {
@@ -321,7 +327,7 @@ Future<dynamic> nyApi<T>(
     required Map<Type, dynamic> apiDecoders,
     BuildContext? context}) async {
   assert(apiDecoders.containsKey(T),
-      'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders');
+      'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
 
   dynamic apiService = apiDecoders[T];
   if (context != null) {
@@ -329,25 +335,4 @@ Future<dynamic> nyApi<T>(
   }
 
   return await request(apiService);
-}
-
-/// Backpack class for storing data
-/// This class is not designed to store huge amounts of data.
-class Backpack {
-  Map<String, dynamic> _values = {};
-
-  Backpack._privateConstructor();
-
-  static final Backpack instance = Backpack._privateConstructor();
-
-  T? read<T>(String key) {
-    if (!_values.containsKey(key)) {
-      return null;
-    }
-    return _values[key];
-  }
-
-  set(String key, dynamic value) {
-    _values[key] = value;
-  }
 }

@@ -1,3 +1,8 @@
+## [4.0.0] - 2022-12-15
+
+* TBC...
+* Version bump
+
 ## [3.5.0] - 2022-09-19
 
 * Move `routeTo` helper from NyState to Router.

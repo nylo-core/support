@@ -75,6 +75,9 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
+  /// Creates a new Director.
+  static makeDirectory(String folderPath) async => await _makeDirectory(folderPath);
+
   /// Creates a new Event.
   static makeEvent(String className, String value,
       {String folderPath = eventsFolder, bool forceCreate = false}) async {
@@ -109,6 +112,35 @@ class MetroService {
   /// Check if a file exist by passing in a [path].
   static hasFile(path) async {
     return await File(path).exists();
+  }
+
+  /// Attempts to replace a file. Provide a [configName] to select which file to replace.
+  /// Then you can use the callback [originalFile] to get the file and manipulate it.
+  static addToConfig({required String configName, required String classImport, required String Function(String originalFile) createTemplate}) async {
+
+    // add it to the decoder config
+    String filePath = "lib/config/$configName.dart";
+    String originalFile = await loadAsset(filePath);
+
+    // create new file
+    String fileCreated = createTemplate(originalFile);
+    if (fileCreated == "") {return;}
+
+    // Add import
+    fileCreated = classImport + "\n" + fileCreated;
+
+    // save new file
+    final File file = File(filePath);
+    await file.writeAsString(fileCreated);
+  }
+
+  /// Load an asset from the project using an [assetPath].
+  static Future<String> loadAsset(String assetPath) async {
+    File file = new File(assetPath);
+    if ((await file.exists()) == false) {
+      return "";
+    }
+    return await file.readAsString();
   }
 }
 

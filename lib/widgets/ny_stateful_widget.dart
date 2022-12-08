@@ -6,6 +6,11 @@ abstract class NyStatefulWidget extends StatefulWidget {
   final BaseController? controller;
   final String? routeName;
 
+  String get route {
+    assert(routeName != null, '${this.runtimeType.toString()} is missing a routeName');
+    return (routeName ?? "");
+  }
+
   NyStatefulWidget({Key? key, this.controller, this.routeName})
       : super(key: key);
 

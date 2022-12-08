@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
@@ -10,6 +11,7 @@ class Nylo {
   late NyRouter? router;
   late Map<Type, NyEvent> _events = {};
   late List<BaseThemeConfig> appThemes = [];
+  late Widget appLoader = CircularProgressIndicator();
 
   Nylo({this.router});
 

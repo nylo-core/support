@@ -23,8 +23,8 @@ class NyNavigator {
 }
 
 typedef NyRouteView = Widget Function(
-  BuildContext context,
-);
+    BuildContext context,
+    );
 
 /// Builds the routes in the router.dart file
 NyRouter nyRoutes(Function(NyRouter router) build) {
@@ -106,8 +106,8 @@ class NyRouter {
   /// Add a new route with a widget.
   route(String name, NyRouteView view,
       {PageTransitionType? transition,
-      PageTransitionSettings? pageTransitionSettings,
-      List<RouteGuard>? routeGuards}) {
+        PageTransitionSettings? pageTransitionSettings,
+        List<RouteGuard>? routeGuards}) {
     this._addRoute(NyRouterRoute(
       name: name,
       view: view,
@@ -120,18 +120,18 @@ class NyRouter {
   /// Add a new page to the router.
   page(NyStatefulWidget widget,
       {PageTransitionType? transition,
-      PageTransitionSettings? pageTransitionSettings,
-      List<RouteGuard>? routeGuards}) {
+        PageTransitionSettings? pageTransitionSettings,
+        List<RouteGuard>? routeGuards}) {
     String widgetRouteName = widget.getRouteName();
     assert(
-        widgetRouteName != "",
-        "${widget.toString()} is missing a route name. \nAdd\n" +
-            """
+    widgetRouteName != "",
+    "${widget.toString()} is missing a route name. \nAdd\n" +
+        """
     @override
     String getRouteName() {
       return "/your-route-name";
     }""" +
-            "\nto your \"${widget.toString()}\" widget class.");
+        "\nto your \"${widget.toString()}\" widget class.");
     this._addRoute(NyRouterRoute(
         name: widgetRouteName,
         view: (context) => widget,
@@ -166,18 +166,18 @@ class NyRouter {
   /// Makes this a callable class. Delegates to [navigate].
   Future<T> call<T>(String name,
       {BaseArguments? args,
-      NavigationType navigationType = NavigationType.push,
-      dynamic result,
-      bool Function(Route<dynamic> route)? removeUntilPredicate,
-      Map<String, dynamic>? params,
-      PageTransitionType? pageTransitionType,
-      PageTransitionSettings? pageTransitionSettings}) {
+        NavigationType navigationType = NavigationType.push,
+        dynamic result,
+        bool Function(Route<dynamic> route)? removeUntilPredicate,
+        Map<String, dynamic>? params,
+        PageTransitionType? pageTransitionType,
+        PageTransitionSettings? pageTransitionSettings}) async {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
     _checkAndThrowRouteNotFound(name, args, navigationType);
 
-    return navigate<T>(name,
+    return await navigate<T>(name,
         navigationType: navigationType,
         result: result,
         removeUntilPredicate: removeUntilPredicate,
@@ -201,18 +201,18 @@ class NyRouter {
   /// [NavigationType.pushAndRemoveUntil] strategy.
   Future<T> navigate<T>(String name,
       {BaseArguments? args,
-      NavigationType navigationType = NavigationType.push,
-      dynamic result,
-      bool Function(Route<dynamic> route)? removeUntilPredicate,
-      PageTransitionType? pageTransitionType,
-      PageTransitionSettings? pageTransitionSettings}) {
+        NavigationType navigationType = NavigationType.push,
+        dynamic result,
+        bool Function(Route<dynamic> route)? removeUntilPredicate,
+        PageTransitionType? pageTransitionType,
+        PageTransitionSettings? pageTransitionSettings}) async {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
     _checkAndThrowRouteNotFound(name, args, navigationType);
 
-    return _navigate(name, args, navigationType, result, removeUntilPredicate,
-            pageTransitionType, pageTransitionSettings)
+    return await _navigate(name, args, navigationType, result, removeUntilPredicate,
+        pageTransitionType, pageTransitionSettings)
         .then((value) => value as T);
   }
 
@@ -221,8 +221,8 @@ class NyRouter {
   /// [routeArgsPairs] is a list of [RouteArgsPair]. Each [RouteArgsPair]
   /// contains the name of a route and its corresponding argument (if any).
   Future<List> navigateMultiple(
-    List<RouteArgsPair> routeArgsPairs,
-  ) {
+      List<RouteArgsPair> routeArgsPairs,
+      ) {
     assert(routeArgsPairs.isNotEmpty);
 
     final pageResponses = <Future>[];
@@ -303,21 +303,21 @@ class NyRouter {
 
     switch (navigationType) {
       case NavigationType.push:
-        return this
+        return await this
             .navigatorKey!
             .currentState!
             .pushNamed(name, arguments: argsWrapper);
       case NavigationType.pushReplace:
-        return this
+        return await this
             .navigatorKey!
             .currentState!
             .pushReplacementNamed(name, result: result, arguments: argsWrapper);
       case NavigationType.pushAndRemoveUntil:
-        return this.navigatorKey!.currentState!.pushNamedAndRemoveUntil(
+        return await this.navigatorKey!.currentState!.pushNamedAndRemoveUntil(
             name, removeUntilPredicate!,
             arguments: argsWrapper);
       case NavigationType.popAndPushNamed:
-        return this
+        return await this
             .navigatorKey!
             .currentState!
             .popAndPushNamed(name, result: result, arguments: argsWrapper);
@@ -327,10 +327,10 @@ class NyRouter {
   /// If the route is not registered throw an error
   /// Make sure to use the correct name while calling navigate.
   void _checkAndThrowRouteNotFound(
-    String name,
-    BaseArguments? args,
-    NavigationType navigationType,
-  ) {
+      String name,
+      BaseArguments? args,
+      NavigationType navigationType,
+      ) {
     if (!_routeNameMappings.containsKey(name)) {
       if (this.options.handleNameNotFoundUI) {
         NyLogger.error("Page not found\n"
@@ -414,23 +414,23 @@ class NyRouter {
       return PageTransition(
           child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
-            return route.builder(context, baseArgs ?? route.defaultArgs,
-                queryParameters ?? route.queryParameters);
-          }),
+                return route.builder(context, baseArgs ?? route.defaultArgs,
+                    queryParameters ?? route.queryParameters);
+              }),
           type: argumentsWrapper.pageTransitionType ?? route.pageTransitionType,
           settings: settings,
           duration: _getPageTransitionDuration(route, argumentsWrapper),
           alignment: _getPageTransitionAlignment(route, argumentsWrapper),
           reverseDuration:
-              _getPageTransitionReversedDuration(route, argumentsWrapper),
+          _getPageTransitionReversedDuration(route, argumentsWrapper),
           matchingBuilder:
-              _getPageTransitionMatchingBuilder(route, argumentsWrapper),
+          _getPageTransitionMatchingBuilder(route, argumentsWrapper),
           childCurrent: _getPageTransitionChildCurrent(route, argumentsWrapper),
           curve: _getPageTransitionCurve(route, argumentsWrapper),
           ctx: _getPageTransitionContext(route, argumentsWrapper),
           inheritTheme: _getPageTransitionInheritTheme(route, argumentsWrapper),
           fullscreenDialog:
-              _getPageTransitionFullscreenDialog(route, argumentsWrapper),
+          _getPageTransitionFullscreenDialog(route, argumentsWrapper),
           opaque: _getPageTransitionOpaque(route, argumentsWrapper),
           isIos: _getPageTransitionIsIos(route, argumentsWrapper));
     };
@@ -552,7 +552,7 @@ class NyRouter {
   bool _getPageTransitionFullscreenDialog(
       NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
     bool fullscreenDialog =
-        this.options.pageTransitionSettings.fullscreenDialog!;
+    this.options.pageTransitionSettings.fullscreenDialog!;
 
     if (route.pageTransitionSettings != null &&
         route.pageTransitionSettings!.fullscreenDialog != null) {
@@ -561,7 +561,7 @@ class NyRouter {
     if (argumentsWrapper.pageTransitionSettings != null &&
         argumentsWrapper.pageTransitionSettings!.fullscreenDialog != null) {
       fullscreenDialog =
-          argumentsWrapper.pageTransitionSettings!.fullscreenDialog!;
+      argumentsWrapper.pageTransitionSettings!.fullscreenDialog!;
     }
     return fullscreenDialog;
   }
@@ -602,7 +602,7 @@ class NyRouter {
   PageTransitionsBuilder _getPageTransitionMatchingBuilder(
       NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
     PageTransitionsBuilder matchingBuilder =
-        this.options.pageTransitionSettings.matchingBuilder!;
+    this.options.pageTransitionSettings.matchingBuilder!;
 
     if (route.pageTransitionSettings != null &&
         route.pageTransitionSettings!.matchingBuilder != null) {
@@ -611,7 +611,7 @@ class NyRouter {
     if (argumentsWrapper.pageTransitionSettings != null &&
         argumentsWrapper.pageTransitionSettings!.matchingBuilder != null) {
       matchingBuilder =
-          argumentsWrapper.pageTransitionSettings!.matchingBuilder!;
+      argumentsWrapper.pageTransitionSettings!.matchingBuilder!;
     }
     return matchingBuilder;
   }
@@ -645,20 +645,20 @@ class NyRouter {
 /// See https://pub.dev/packages/page_transition to learn more.
 routeTo(String routeName,
     {dynamic data,
-    NavigationType navigationType = NavigationType.push,
-    dynamic result,
-    bool Function(Route<dynamic> route)? removeUntilPredicate,
-    PageTransitionSettings? pageTransitionSettings,
-    PageTransitionType? pageTransition,
-    Function(dynamic value)? onPop}) {
+      NavigationType navigationType = NavigationType.push,
+      dynamic result,
+      bool Function(Route<dynamic> route)? removeUntilPredicate,
+      PageTransitionSettings? pageTransitionSettings,
+      PageTransitionType? pageTransition,
+      Function(dynamic value)? onPop}) async {
   NyArgument nyArgument = NyArgument(data);
-  NyNavigator.instance.router
+  await NyNavigator.instance.router
       .navigate(routeName,
-          args: nyArgument,
-          navigationType: navigationType,
-          result: result,
-          removeUntilPredicate: removeUntilPredicate,
-          pageTransitionType: pageTransition,
-          pageTransitionSettings: pageTransitionSettings)
+      args: nyArgument,
+      navigationType: navigationType,
+      result: result,
+      removeUntilPredicate: removeUntilPredicate,
+      pageTransitionType: pageTransition,
+      pageTransitionSettings: pageTransitionSettings)
       .then((v) => onPop != null ? onPop(v) : (v) {});
 }
