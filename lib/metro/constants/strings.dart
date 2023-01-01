@@ -24,7 +24,11 @@ const String networkingFolder = 'lib/app/networking';
 const String themeColorsFolder = 'lib/resources/themes/styles';
 
 // import paths
-String makeImportPathModel(String name) => "import '/../app/models/$name.dart';";
-String makeImportPathApiService(String name) => "import '/../app/networking/${name}_api_service.dart';";
-String makeImportPathEvent(String name) => "import '/../app/events/${name}_event.dart';";
-String makeImportPathProviders(String name) => "import '/../app/providers/${name}_provider.dart';";
+String makeImportPathModel(String name) =>
+    "import '/../app/models/$name.dart';";
+String makeImportPathApiService(String name) =>
+    "import '/../app/networking/${name}_api_service.dart';";
+String makeImportPathEvent(String name) =>
+    "import '/../app/events/${name}_event.dart';";
+String makeImportPathProviders(String name) =>
+    "import '/../app/providers/${name}_provider.dart';";

@@ -177,7 +177,8 @@ class NyStorage {
           .write(key: key, value: jsonEncode(object.toStorage()));
     }
 
-    return await StorageManager.storage.write(key: key, value: object.toString());
+    return await StorageManager.storage
+        .write(key: key, value: object.toString());
   }
 
   /// Read a value from the local storage
@@ -223,6 +224,15 @@ class NyStorage {
 
     return data;
   }
+
+  /// Deletes all keys with associated values.
+  static Future deleteAll() async {
+    await StorageManager.storage.deleteAll();
+  }
+
+  /// Decrypts and returns all keys with associated values.
+  static Future<Map<String, String>> readAll() async =>
+      await StorageManager.storage.readAll();
 
   /// Deletes associated value for the given [key].
   static Future delete(String key) async {
@@ -304,7 +314,7 @@ nyEvent<T>({
     appEvents = Backpack.instance.read('nylo').getEvents();
   }
   assert(appEvents.containsKey(T),
-  'Your config/events.dart is missing this class ${T.toString()}');
+      'Your config/events.dart is missing this class ${T.toString()}');
 
   NyEvent nyEvent = appEvents[T]!;
   Map<dynamic, NyListener> listeners = nyEvent.listeners;
@@ -324,14 +334,27 @@ nyEvent<T>({
 /// API helper
 Future<dynamic> nyApi<T>(
     {required dynamic Function(T) request,
-    required Map<Type, dynamic> apiDecoders,
-    BuildContext? context}) async {
+    Map<Type, dynamic> apiDecoders = const {},
+    BuildContext? context,
+    Map<String, dynamic> headers = const {},
+    String? bearerToken}) async {
   assert(apiDecoders.containsKey(T),
       'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
 
   dynamic apiService = apiDecoders[T];
+
   if (context != null) {
     apiService.setContext(context);
+  }
+
+  // add headers
+  if (headers.isNotEmpty) {
+    apiService.setHeaders(headers);
+  }
+
+  // add bearer token
+  if (bearerToken != null) {
+    apiService.setBearerToken(bearerToken);
   }
 
   return await request(apiService);

@@ -15,8 +15,11 @@ class MetroService {
 
   /// Creates a new Page.
   static makePage(String className, String value,
-      {String folderPath = pagesFolder, bool forceCreate = false}) async {
-    String filePath = '$folderPath/${className.toLowerCase()}_page.dart';
+      {String folderPath = pagesFolder,
+      bool forceCreate = false,
+      String? pathWithinFolder}) async {
+    String filePath =
+        '$folderPath/${pathWithinFolder != null ? '$pathWithinFolder/' : ''}${className.toLowerCase()}_page.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
@@ -55,7 +58,7 @@ class MetroService {
     await _createNewFile(filePath, value);
   }
 
-  /// Creates a new Stateful Widget.
+  /// Creates a new Theme.
   static makeTheme(String className, String value,
       {String folderPath = themesFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_theme.dart';
@@ -76,7 +79,8 @@ class MetroService {
   }
 
   /// Creates a new Director.
-  static makeDirectory(String folderPath) async => await _makeDirectory(folderPath);
+  static makeDirectory(String folderPath) async =>
+      await _makeDirectory(folderPath);
 
   /// Creates a new Event.
   static makeEvent(String className, String value,
@@ -110,21 +114,47 @@ class MetroService {
   }
 
   /// Check if a file exist by passing in a [path].
-  static hasFile(path) async {
-    return await File(path).exists();
-  }
+  static Future<bool> hasFile(path) async => await File(path).exists();
 
   /// Attempts to replace a file. Provide a [configName] to select which file to replace.
   /// Then you can use the callback [originalFile] to get the file and manipulate it.
-  static addToConfig({required String configName, required String classImport, required String Function(String originalFile) createTemplate}) async {
-
+  static addToConfig(
+      {required String configName,
+      required String classImport,
+      required String Function(String originalFile) createTemplate}) async {
     // add it to the decoder config
     String filePath = "lib/config/$configName.dart";
     String originalFile = await loadAsset(filePath);
 
     // create new file
     String fileCreated = createTemplate(originalFile);
-    if (fileCreated == "") {return;}
+    if (fileCreated == "") {
+      return;
+    }
+
+    // Add import
+    fileCreated = classImport + "\n" + fileCreated;
+
+    // save new file
+    final File file = File(filePath);
+    await file.writeAsString(fileCreated);
+  }
+
+  /// Attempts to replace a file. Provide a [routerName] to select which file to replace.
+  /// Then you can use the callback [originalFile] to get the file and manipulate it.
+  static addToRouter(
+      {String routerName = "router",
+      required String classImport,
+      required String Function(String originalFile) createTemplate}) async {
+    // add it to the decoder config
+    String filePath = "lib/routes/$routerName.dart";
+    String originalFile = await loadAsset(filePath);
+
+    // create new file
+    String fileCreated = createTemplate(originalFile);
+    if (fileCreated == "") {
+      return;
+    }
 
     // Add import
     fileCreated = classImport + "\n" + fileCreated;

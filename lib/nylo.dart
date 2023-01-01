@@ -8,12 +8,14 @@ export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
+  String initialRoute;
+
   late NyRouter? router;
   late Map<Type, NyEvent> _events = {};
   late List<BaseThemeConfig> appThemes = [];
   late Widget appLoader = CircularProgressIndicator();
 
-  Nylo({this.router});
+  Nylo({this.router}) : initialRoute = '/';
 
   /// Assign a [NyPlugin] to add extra functionality to your app from a plugin.
   /// e.g. from main.dart
@@ -51,11 +53,12 @@ class Nylo {
     _events.addAll(events);
   }
 
-  /// Return all the registered events
+  /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
 
   /// Initialize Nylo
-  static Future<Nylo> init({Function? setup, Function? setupFinished}) async {
+  static Future<Nylo> init(
+      {Function? setup, Function(Nylo nylo)? setupFinished}) async {
     await dotenv.load(fileName: ".env");
 
     if (setup == null) {

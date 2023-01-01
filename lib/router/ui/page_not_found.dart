@@ -7,7 +7,6 @@ class PageNotFound extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        elevation: 0.0,
         title: Text('Page Not Found'),
       ),
       body: Center(

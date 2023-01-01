@@ -1,6 +1,11 @@
-## [4.0.0] - 2022-12-15
+## [4.0.0] - 2023-01-01
 
-* TBC...
+* MetroService - new `addToRouter` & `addToConfig` methods to allow you to manipulate config files.
+* `NyTemplate` class added for building pre-made templates.
+* Helper added for the Backpack class to return an instance of `Nylo` easier.
+* `initialRoute` added to Nylo class.
+* New `boot() async {}` added to NyState widget. If you override this method and call an async method, it will allow you to use the `afterLoad(child: () => MyWidget())` helper to display a loader until the async method completes.
+* Pubspec.yaml dependency updates
 * Version bump
 
 ## [3.5.0] - 2022-09-19

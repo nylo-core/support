@@ -15,6 +15,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(context);
 
+  /// If set, the [boot] method will not be called.
+  bool requiresBoot = true;
+
   /// Helper to get the [MediaQueryData].
   BaseColorStyles color({String? themeId}) {
     Nylo nylo = Backpack.instance.read('nylo');
@@ -47,7 +50,32 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   ///
   /// * [init] is called in the [initState] method.
   /// This method is async so you can call methods that are Futures.
-  init() async {}
+  init() async {
+    if (!requiresBoot) {
+      return;
+    }
+    awaitData(
+      perform: () async {
+        await boot();
+      },
+      shouldSetStateBefore: false,
+    );
+  }
+
+  /// The [boot] method called within [init].
+  /// You may override this method for making asynchronous awaits.
+  /// In your [build] method, you can use the [afterLoad] method
+  /// like in the below example.
+  /// @override
+  ///   Widget build(BuildContext context) {
+  ///     return Scaffold(
+  ///       body: SafeAreaWidget(
+  ///        child: afterLoad(child: () => Container()
+  ///        )
+  ///     );
+  ///  }
+  /// This will then only display the widget after the boot method has completed.
+  boot() async {}
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
@@ -201,9 +229,10 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   awaitData(
       {String name = 'default',
       required Function perform,
-      bool shouldSetState = true}) async {
+      bool shouldSetStateBefore = true,
+      bool shouldSetStateAfter = true}) async {
     _updateLoadingState(
-        shouldSetState: shouldSetState, name: name, value: true);
+        shouldSetState: shouldSetStateBefore, name: name, value: true);
 
     try {
       await perform();
@@ -214,7 +243,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
 
     _updateLoadingState(
-        shouldSetState: shouldSetState, name: name, value: false);
+        shouldSetState: shouldSetStateAfter, name: name, value: false);
   }
 
   /// Checks the value from your loading map.
@@ -310,21 +339,35 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
   }
 
-  /// The [waiter] method will check if the state is loading
+  /// The [afterLoad] method will check if the state is loading
   /// If loading it will display the [placeholder] widget.
   /// You can also specify the name of the [loadingKey].
-  Widget waiter({required Widget widget, Widget? placeholder, String? loadingKey}) {
+  Widget afterLoad(
+      {required Function() child, Widget? placeholder, String? loadingKey}) {
     if (isLoading(name: loadingKey ?? "default")) {
       Nylo nylo = Backpack.instance.read('nylo');
       return placeholder ?? nylo.appLoader;
     }
-    return widget;
+    return child();
+  }
+
+  /// The [afterNotNull] method will check if the state is loading
+  /// If loading it will display the [placeholder] widget.
+  /// You can also specify the name of the [loadingKey].
+  Widget afterNotNull(dynamic variable,
+      {required Function() child, Widget? loadingPlaceholder}) {
+    if (variable == null) {
+      return loadingPlaceholder ?? Backpack.instance.nylo().appLoader;
+    }
+    return child();
   }
 
   /// Set the value of a loading key by padding a true or false
   setLoading(bool value, {String name = 'default', bool resetState = true}) {
     if (resetState) {
-      setState(() {_loadingMap[name] = value;});
+      setState(() {
+        _loadingMap[name] = value;
+      });
     } else {
       _loadingMap[name] = value;
     }

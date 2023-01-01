@@ -1,3 +1,5 @@
+import 'package:nylo_support/nylo.dart';
+
 /// Backpack class for storing data
 /// This class is not designed to store huge amounts of data.
 class Backpack {
@@ -7,6 +9,7 @@ class Backpack {
 
   static final Backpack instance = Backpack._privateConstructor();
 
+  /// Read data from the Backpack with a [key].
   T? read<T>(String key) {
     if (!_values.containsKey(key)) {
       return null;
@@ -14,8 +17,9 @@ class Backpack {
     return _values[key];
   }
 
-  set(String key, dynamic value) => _values[key] = value;
+  /// Set a value using a [key] and [value].
+  void set(String key, dynamic value) => _values[key] = value;
 
-  /// Returns an instance of Nylo
-  nylo({String key = 'nylo'}) => _values[key];
+  /// Returns an instance of Nylo.
+  Nylo nylo({String key = 'nylo'}) => _values[key];
 }
