@@ -1,3 +1,16 @@
+## [4.1.0] - 2023-01-30
+
+* Ability to set a baseUrl to a ApiService from the `nyApi` helper.
+* Fix `Nylo.init` to call `setupFinished` if setup is null.
+* New `NyFutureBuilder` widget which is a wrapper around FutureBuilder. Docs coming soon.
+* You can now pass a **key** into the `data` variable.
+* Update TextTheme styles for the `getAppTextTheme` method.
+* New `syncToBackpack()` helper in the `NyStorage` class.
+* Metro: Fix add page method
+* NyStorage: New helpers to deleteAll from the `Backpack` class.
+* Backpack: New `delete` & `deleteAll` methods.
+* Version bump
+
 ## [4.0.0] - 2023-01-01
 
 * MetroService - new `addToRouter` & `addToConfig` methods to allow you to manipulate config files.

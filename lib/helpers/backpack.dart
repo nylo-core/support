@@ -20,6 +20,18 @@ class Backpack {
   /// Set a value using a [key] and [value].
   void set(String key, dynamic value) => _values[key] = value;
 
+  /// Delete a value using a [key].
+  void delete(String key) {
+    if (_values.containsKey(key)) {
+      _values.remove(key);
+    }
+  }
+
+  /// Delete all values from [Backpack].
+  void deleteAll() {
+    _values = {};
+  }
+
   /// Returns an instance of Nylo.
   Nylo nylo({String key = 'nylo'}) => _values[key];
 }

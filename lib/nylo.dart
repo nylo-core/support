@@ -9,13 +9,17 @@ export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
   String initialRoute;
+  Widget appLoader;
+  Widget appLogo;
 
   late NyRouter? router;
   late Map<Type, NyEvent> _events = {};
   late List<BaseThemeConfig> appThemes = [];
-  late Widget appLoader = CircularProgressIndicator();
 
-  Nylo({this.router}) : initialRoute = '/';
+  Nylo({this.router})
+      : initialRoute = '/',
+        appLoader = CircularProgressIndicator(),
+        appLogo = SizedBox.shrink();
 
   /// Assign a [NyPlugin] to add extra functionality to your app from a plugin.
   /// e.g. from main.dart
@@ -61,14 +65,20 @@ class Nylo {
       {Function? setup, Function(Nylo nylo)? setupFinished}) async {
     await dotenv.load(fileName: ".env");
 
+    Nylo _nylo = Nylo();
+
     if (setup == null) {
-      return Nylo();
+      if (setupFinished != null) {
+        await setupFinished(_nylo);
+      }
+      return _nylo;
     }
 
-    Nylo nylo = await setup();
+    _nylo = await setup();
+
     if (setupFinished != null) {
-      await setupFinished(nylo);
+      await setupFinished(_nylo);
     }
-    return nylo;
+    return _nylo;
   }
 }

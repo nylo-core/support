@@ -148,14 +148,14 @@ showToastNotification(BuildContext context,
                     toastMeta.title,
                     style: Theme.of(context)
                         .textTheme
-                        .headline5!
+                        .headlineSmall!
                         .copyWith(color: Colors.white),
                   ),
                   Text(
                     toastMeta.description,
                     style: Theme.of(context)
                         .textTheme
-                        .bodyText1!
+                        .bodyLarge!
                         .copyWith(color: Colors.white),
                   ),
                 ],

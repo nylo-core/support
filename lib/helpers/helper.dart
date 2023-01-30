@@ -38,43 +38,40 @@ dynamic getEnv(String key, {dynamic defaultValue}) {
 /// Provide the name of the image, using [imageName] parameter.
 ///
 /// Returns a [String].
-String getImageAsset(String imageName) {
-  return "${getEnv("ASSET_PATH_IMAGES")}/$imageName";
-}
+String getImageAsset(String imageName) =>
+    "${getEnv("ASSET_PATH_IMAGES")}/$imageName";
 
 /// Returns the full path for an asset in /public/assets directory.
 /// Usage e.g. getPublicAsset('videos/welcome.mp4');
 ///
 /// Returns a [String].
-String getPublicAsset(String asset) {
-  return "${getEnv("ASSET_PATH_PUBLIC")}/$asset";
-}
+String getPublicAsset(String asset) => "${getEnv("ASSET_PATH_PUBLIC")}/$asset";
 
 /// Returns a text theme for a app font.
 /// Returns a [TextTheme].
 TextTheme getAppTextTheme(TextStyle appThemeFont, TextTheme textTheme) {
   return TextTheme(
-    headline1: appThemeFont.merge(textTheme.headline1),
-    headline2: appThemeFont.merge(textTheme.headline2),
-    headline3: appThemeFont.merge(textTheme.headline3),
-    headline4: appThemeFont.merge(textTheme.headline4),
-    headline5: appThemeFont.merge(textTheme.headline5),
-    headline6: appThemeFont.merge(textTheme.headline6),
-    subtitle1: appThemeFont.merge(textTheme.subtitle1),
-    subtitle2: appThemeFont.merge(textTheme.subtitle2),
-    bodyText1: appThemeFont.merge(textTheme.bodyText1),
-    bodyText2: appThemeFont.merge(textTheme.bodyText2),
-    caption: appThemeFont.merge(textTheme.caption),
-    button: appThemeFont.merge(textTheme.button),
-    overline: appThemeFont.merge(textTheme.overline),
+    displayLarge: appThemeFont.merge(textTheme.displayLarge),
+    displayMedium: appThemeFont.merge(textTheme.displayMedium),
+    displaySmall: appThemeFont.merge(textTheme.displaySmall),
+    headlineLarge: appThemeFont.merge(textTheme.headlineLarge),
+    headlineMedium: appThemeFont.merge(textTheme.headlineMedium),
+    headlineSmall: appThemeFont.merge(textTheme.headlineSmall),
+    titleLarge: appThemeFont.merge(textTheme.titleLarge),
+    titleMedium: appThemeFont.merge(textTheme.titleMedium),
+    titleSmall: appThemeFont.merge(textTheme.titleSmall),
+    bodyLarge: appThemeFont.merge(textTheme.bodyLarge),
+    bodyMedium: appThemeFont.merge(textTheme.bodyMedium),
+    bodySmall: appThemeFont.merge(textTheme.bodySmall),
+    labelLarge: appThemeFont.merge(textTheme.labelLarge),
+    labelMedium: appThemeFont.merge(textTheme.labelMedium),
+    labelSmall: appThemeFont.merge(textTheme.labelSmall),
   );
 }
 
 /// Extensions for String
 extension StringExtension on String {
-  String capitalize() {
-    return "${this[0].toUpperCase()}${this.substring(1)}";
-  }
+  String capitalize() => "${this[0].toUpperCase()}${this.substring(1)}";
 }
 
 /// Storable class to implement local storage for Models.
@@ -226,7 +223,10 @@ class NyStorage {
   }
 
   /// Deletes all keys with associated values.
-  static Future deleteAll() async {
+  static Future deleteAll({bool andFromBackpack = false}) async {
+    if (andFromBackpack == true) {
+      Backpack.instance.deleteAll();
+    }
     await StorageManager.storage.deleteAll();
   }
 
@@ -235,8 +235,19 @@ class NyStorage {
       await StorageManager.storage.readAll();
 
   /// Deletes associated value for the given [key].
-  static Future delete(String key) async {
+  static Future delete(String key, {bool andFromBackpack = false}) async {
+    if (andFromBackpack == true) {
+      Backpack.instance.delete(key);
+    }
     return await StorageManager.storage.delete(key: key);
+  }
+
+  /// Sync all the keys stored to the [Backpack] instance.
+  Future syncToBackpack() async {
+    Map<String, String> values = await readAll();
+    for (var data in values.entries) {
+      Backpack.instance.set(data.key, data.value);
+    }
   }
 }
 
@@ -337,7 +348,8 @@ Future<dynamic> nyApi<T>(
     Map<Type, dynamic> apiDecoders = const {},
     BuildContext? context,
     Map<String, dynamic> headers = const {},
-    String? bearerToken}) async {
+    String? bearerToken,
+    String? baseUrl}) async {
   assert(apiDecoders.containsKey(T),
       'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
 
@@ -355,6 +367,11 @@ Future<dynamic> nyApi<T>(
   // add bearer token
   if (bearerToken != null) {
     apiService.setBearerToken(bearerToken);
+  }
+
+  // add baseUrl
+  if (baseUrl != null) {
+    apiService.setBaseUrl(baseUrl);
   }
 
   return await request(apiService);
