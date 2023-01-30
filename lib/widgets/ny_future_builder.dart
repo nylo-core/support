@@ -47,7 +47,6 @@ class _NyFutureBuilderState<T> extends NyState<NyFutureBuilder> {
               if (widget.loading != null) {
                 return widget.loading!;
               }
-              ;
               return Backpack.instance.nylo().appLoader;
             }
           case ConnectionState.active:

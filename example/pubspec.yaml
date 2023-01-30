@@ -1,0 +1,20 @@
+name: nylo_support_example
+description: Learn more here https://nylo.dev.
+
+environment:
+  sdk: '>=2.19.0 <3.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  nylo_support:
+    path: ../
+
+flutter:
+
+  uses-material-design: true
