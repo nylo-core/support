@@ -243,10 +243,11 @@ class NyStorage {
   }
 
   /// Sync all the keys stored to the [Backpack] instance.
-  Future syncToBackpack() async {
+  static Future syncToBackpack() async {
     Map<String, String> values = await readAll();
     for (var data in values.entries) {
-      Backpack.instance.set(data.key, data.value);
+      dynamic result = await NyStorage.read(data.key);
+      Backpack.instance.set(data.key, result);
     }
   }
 }

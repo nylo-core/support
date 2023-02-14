@@ -2,7 +2,7 @@
 # See https://dart.dev/tools/pub/glossary#lockfile
 packages:
   animate_do:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: animate_do
       sha256: "9aeacc1a7238f971c039bdf45d13c628be554a242e0251c4ddda09d19a1a923f"
@@ -79,7 +79,7 @@ packages:
     source: sdk
     version: "0.0.0"
   flutter_dotenv:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_dotenv
       sha256: d9283d92059a22e9834bc0a31336658ffba77089fb6f3cc36751f1fc7c6661a3
@@ -87,12 +87,12 @@ packages:
     source: hosted
     version: "5.0.2"
   flutter_localizations:
-    dependency: "direct main"
+    dependency: transitive
     description: flutter
     source: sdk
     version: "0.0.0"
   flutter_secure_storage:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_secure_storage
       sha256: "98352186ee7ad3639ccc77ad7924b773ff6883076ab952437d20f18a61f0a7c5"
@@ -140,7 +140,7 @@ packages:
     source: hosted
     version: "2.0.0"
   flutter_styled_toast:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: flutter_styled_toast
       sha256: cc32aed2a49ce77a1ed5844073c6c0f5e381c81fd6d694e0ba3c5dc2a645963d
@@ -174,7 +174,7 @@ packages:
     source: hosted
     version: "0.6.5"
   logger:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: logger
       sha256: "5076f09225f91dc49289a4ccb92df2eeea9ea01cf7c26d49b3a1f04c6a49eec1"
@@ -205,8 +205,15 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.8.0"
+  nylo_support:
+    dependency: "direct dev"
+    description:
+      path: ".."
+      relative: true
+    source: path
+    version: "4.1.0"
   page_transition:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: page_transition
       sha256: a7694bc120b7064a7f57c336914bb8885acf4f70bb3772c30c2fcfe6a85e43ff
@@ -270,7 +277,7 @@ packages:
     source: hosted
     version: "4.2.4"
   recase:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: recase
       sha256: e4eb4ec2dcdee52dcf99cb4ceabaffc631d7424ee55e56f280bc039737f89213
@@ -387,7 +394,7 @@ packages:
     source: hosted
     version: "0.4.16"
   theme_provider:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: theme_provider
       sha256: "0f1d7235bf1b0b09a6b4c0dbefddab0309323c04d4ae8cd2f0e9178be85f8ae4"
@@ -395,7 +402,7 @@ packages:
     source: hosted
     version: "0.5.0"
   validated:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: validated
       sha256: f4da18b50fa2aeda8d2f6e55bdf73759593abe3f9dd4aeece4e98bf3438e6a9f

@@ -1,3 +1,10 @@
+## [4.1.1] - 2023-02-14
+
+* Add logo to package
+* Fix `syncToBackpack` method
+* Pubspec.yaml dependency updates
+* Version bump
+
 ## [4.1.0] - 2023-01-30
 
 * Ability to set a baseUrl to a ApiService from the `nyApi` helper.
