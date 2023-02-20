@@ -1,3 +1,7 @@
+## [4.2.0] - 2023-02-20
+
+* Allow passing custom env file path 
+
 ## [4.1.1] - 2023-02-14
 
 * Add logo to package
