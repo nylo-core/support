@@ -2,6 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
 
+/// Simple way to render Future's in your project.
+///
+/// Example
+/// NyFutureBuilder(future: myFuture(), child: (context, data) {
+///   return Text(data);
+/// }),
+///
+/// Creates a widget that builds itself based on the latest snapshot of
+/// interaction with a [Future].
 class NyFutureBuilder<T> extends StatefulWidget {
   NyFutureBuilder(
       {Key? key,
