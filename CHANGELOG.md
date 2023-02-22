@@ -1,3 +1,8 @@
+## [4.3.0] - 2023-02-22
+
+* Allow the `BaseThemeConfig` class to accept generics.
+* **--dart-define** variable change - `ENV_FILE_PATH` is now `ENV_FILE`.
+
 ## [4.2.0] - 2023-02-20
 
 * Allow passing custom env file path 

@@ -63,11 +63,11 @@ class Nylo {
   /// Initialize Nylo
   static Future<Nylo> init(
       {Function? setup, Function(Nylo nylo)? setupFinished}) async {
-    const ENV_FILE_PATH = String.fromEnvironment(
-      'ENV_FILE_PATH',
+    const String ENV_FILE = String.fromEnvironment(
+      'ENV_FILE',
       defaultValue: '.env',
     );
-    await dotenv.load(fileName: ENV_FILE_PATH);
+    await dotenv.load(fileName: ENV_FILE);
 
     Nylo _nylo = Nylo();
 
