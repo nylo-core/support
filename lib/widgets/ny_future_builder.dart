@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/widgets/ny_state.dart';
 
 /// Simple way to render Future's in your project.
 ///
@@ -11,13 +10,14 @@ import 'package:nylo_support/widgets/ny_state.dart';
 ///
 /// Creates a widget that builds itself based on the latest snapshot of
 /// interaction with a [Future].
-class NyFutureBuilder<T> extends StatefulWidget {
-  NyFutureBuilder(
+class NyFutureBuilder<T> extends StatelessWidget {
+
+  const NyFutureBuilder(
       {Key? key,
-      required this.future,
-      required this.child,
-      this.loading,
-      this.onError})
+        required this.future,
+        required this.child,
+        this.loading,
+        this.onError})
       : super(key: key);
 
   final Future<T>? future;
@@ -26,35 +26,18 @@ class NyFutureBuilder<T> extends StatefulWidget {
   final Widget? loading;
 
   @override
-  _NyFutureBuilderState createState() =>
-      _NyFutureBuilderState<T>(future: future, child: child, hasError: onError);
-}
-
-class _NyFutureBuilderState<T> extends NyState<NyFutureBuilder> {
-  _NyFutureBuilderState({this.future, this.child, this.hasError});
-
-  final Future<T>? future;
-  final Widget Function(BuildContext context, T data)? child;
-  final Widget Function(AsyncSnapshot snapshot)? hasError;
-
-  @override
-  init() async {
-    super.init();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return FutureBuilder<T>(
       future: future,
       builder: (
-        BuildContext context,
-        AsyncSnapshot<T> snapshot,
-      ) {
+          BuildContext context,
+          AsyncSnapshot<T> snapshot,
+          ) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             {
-              if (widget.loading != null) {
-                return widget.loading!;
+              if (loading != null) {
+                return loading!;
               }
               return Backpack.instance.nylo().appLoader;
             }
@@ -65,13 +48,13 @@ class _NyFutureBuilderState<T> extends NyState<NyFutureBuilder> {
           case ConnectionState.done:
             {
               if (snapshot.hasError) {
-                if (hasError != null) {
-                  return hasError!(snapshot);
+                if (onError != null) {
+                  return onError!(snapshot);
                 }
                 return const SizedBox.shrink();
               }
               if (snapshot.hasData) {
-                return child!(context, snapshot.data!);
+                return child(context, snapshot.data!);
               }
               return const SizedBox.shrink();
             }
@@ -84,3 +67,4 @@ class _NyFutureBuilderState<T> extends NyState<NyFutureBuilder> {
     );
   }
 }
+

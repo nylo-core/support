@@ -1,3 +1,7 @@
+## [4.3.1] - 2023-03-03
+
+* Change `NyFutureBuilder` to a Stateless widget to fix refreshing data.
+
 ## [4.3.0] - 2023-02-22
 
 * Allow the `BaseThemeConfig` class to accept generics.
