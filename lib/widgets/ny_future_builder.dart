@@ -11,13 +11,12 @@ import 'package:nylo_support/helpers/backpack.dart';
 /// Creates a widget that builds itself based on the latest snapshot of
 /// interaction with a [Future].
 class NyFutureBuilder<T> extends StatelessWidget {
-
   const NyFutureBuilder(
       {Key? key,
-        required this.future,
-        required this.child,
-        this.loading,
-        this.onError})
+      required this.future,
+      required this.child,
+      this.loading,
+      this.onError})
       : super(key: key);
 
   final Future<T>? future;
@@ -30,9 +29,9 @@ class NyFutureBuilder<T> extends StatelessWidget {
     return FutureBuilder<T>(
       future: future,
       builder: (
-          BuildContext context,
-          AsyncSnapshot<T> snapshot,
-          ) {
+        BuildContext context,
+        AsyncSnapshot<T> snapshot,
+      ) {
         switch (snapshot.connectionState) {
           case ConnectionState.waiting:
             {
@@ -67,4 +66,3 @@ class NyFutureBuilder<T> extends StatelessWidget {
     );
   }
 }
-
