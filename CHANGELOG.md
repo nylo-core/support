@@ -1,3 +1,8 @@
+## [4.4.0] - 2023-05-16
+
+* Flutter v3.10.0 fixes:
+    * Update: theme_provider package
+
 ## [4.3.1] - 2023-03-03
 
 * Change `NyFutureBuilder` to a Stateless widget to fix refreshing data.
