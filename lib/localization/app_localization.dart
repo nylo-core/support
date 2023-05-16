@@ -7,7 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 
-// Locale Types
+/// Locale Types
 enum LocaleType { device, asDefined }
 
 class LocalizedApp extends StatefulWidget {
@@ -27,6 +27,7 @@ class LocalizedApp extends StatefulWidget {
 class _LocalizedAppState extends State<LocalizedApp> {
   Key key = new UniqueKey();
 
+  /// setState the widget and update the [key].
   void restart() {
     this.setState(() {
       key = new UniqueKey();
@@ -42,11 +43,14 @@ class _LocalizedAppState extends State<LocalizedApp> {
   }
 }
 
+/// Translate [String].
 extension Translation on String {
   String tr({Map<String, String>? arguments}) =>
       NyLocalization.instance.translate(this, arguments);
 }
 
+/// NyLocalization
+/// Singleton object that handles localization in Nylo
 class NyLocalization {
   NyLocalization._privateConstructor();
 
@@ -82,10 +86,12 @@ class NyLocalization {
     if (languageCode != null) {
       _locale = Locale(languageCode);
     } else if (_localeType == LocaleType.device) {
-      if ('${window.locale}'.contains(RegExp('[-_]'))) {
-        _locale = Locale('${window.locale}'.split(RegExp('[-_]'))[0]);
+      Locale locale = PlatformDispatcher.instance.locale;
+      print(['locale.toString()', locale.toString()]);
+      if (locale.toString().contains(RegExp('[-_]'))) {
+        _locale = Locale(locale.toString().split(RegExp('[-_]'))[0]);
       } else {
-        _locale = Locale('${window.locale}');
+        _locale = locale;
       }
     } else {
       _locale = Locale(_langList[0]);
@@ -137,6 +143,9 @@ class NyLocalization {
     return returnValue ?? "";
   }
 
+  /// Get nested values in a string
+  /// E.g. "intros.hello".
+  /// Output if [key] is "intros" = "hello"
   String? _getNested(String key) {
     if (_isNestedCached(key)) return _values![key];
 
@@ -158,8 +167,10 @@ class NyLocalization {
     return value;
   }
 
+  /// Check if there is a cached value for [key].
   bool _isNestedCached(String key) => _values!.containsKey(key);
 
+  /// Set the [value] for a cache [key].
   void _cacheNestedKey(String key, String value) {
     if (!_isNestedKey(key)) {
       throw Exception('Cannot cache a key that is not nested.');

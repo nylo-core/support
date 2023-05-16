@@ -5,6 +5,7 @@ import 'package:nylo_support/nylo.dart';
 abstract class NyProvider {
   /// Boot method is used for initializing code in your application.
   Future<Nylo?> boot(Nylo nylo) async => null;
+  Future<void> afterBoot(Nylo nylo) async => null;
 }
 
 /// Boots application providers.
@@ -21,8 +22,12 @@ Future<Nylo> bootApplication(Map<Type, NyProvider> providers) async {
   return nylo;
 }
 
-/// Called with init Nylo finishes.
-Future<Nylo> bootFinished(Nylo nylo, {key = "nylo"}) async {
+/// Called after Nylo finishes booting.
+Future<Nylo> bootFinished(Nylo nylo, Map<Type, NyProvider> providers,
+    {String key = "nylo"}) async {
+  for (var provider in providers.values) {
+    await provider.afterBoot(nylo);
+  }
   Backpack.instance.set(key, nylo);
   return nylo;
 }

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nylo_support/events/events.dart';
+import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
@@ -8,16 +9,18 @@ export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
-  String initialRoute;
+  String _initialRoute;
   Widget appLoader;
   Widget appLogo;
 
-  late NyRouter? router;
-  late Map<Type, NyEvent> _events = {};
-  late List<BaseThemeConfig> appThemes = [];
+  NyRouter? router;
+  Map<Type, NyEvent> _events = {};
+  Map<Type, dynamic> _validationRules = {};
+  List<BaseThemeConfig> appThemes = [];
+  Map<Type, dynamic> _modelDecoders = {};
 
   Nylo({this.router})
-      : initialRoute = '/',
+      : _initialRoute = '/',
         appLoader = CircularProgressIndicator(),
         appLogo = SizedBox.shrink();
 
@@ -34,6 +37,15 @@ class Nylo {
     NyNavigator.instance.router = this.router!;
   }
 
+  /// Set the initial route from a [routeName].
+  setInitialRoute(String routeName) {
+    _initialRoute = routeName;
+    Backpack.instance.set("nylo", this);
+  }
+
+  /// Get the initial route.
+  String getInitialRoute() => _initialRoute;
+
   /// Allows you to add additional Router's to your project.
   ///
   /// file: e.g. /lib/routes/account_router.dart
@@ -43,7 +55,7 @@ class Nylo {
   ///    router.route("/account/update", (context) => AccountUpdatePage());
   /// });
   ///
-  /// Usage in /lib/main.dart e.g. Nylo.addRouter(accountRouter());
+  /// Usage in /app/providers/route_provider.dart e.g. Nylo.addRouter(accountRouter());
   addRouter(NyRouter router) async {
     if (this.router == null) {
       this.router = NyRouter();
@@ -59,6 +71,30 @@ class Nylo {
 
   /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
+
+  addValidationRules(Map<Type, dynamic> validators) {
+    _validationRules.addAll(validators);
+  }
+
+  Map<Type, dynamic> getValidationRules() => _validationRules;
+
+  /// Add [events] to Nylo
+  addModelDecoders(Map<Type, dynamic> events) async {
+    _modelDecoders.addAll(events);
+    if (!Backpack.instance.isNyloInitialized()) {
+      Backpack.instance.set("nylo", this);
+    }
+  }
+
+  /// Return all the registered events.
+  Map<Type, dynamic> getModelDecoders() => _modelDecoders;
+
+  /// Return an event.
+  NyEvent? getEvent(Type event) {
+    assert(_events.containsKey(event),
+        "Your events.dart file doesn't contain ${event.toString()}");
+    return _events[event];
+  }
 
   /// Initialize Nylo
   static Future<Nylo> init(

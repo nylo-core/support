@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/router/errors/route_not_found.dart';
 import 'package:nylo_support/router/models/arguments_wrapper.dart';
-import 'package:nylo_support/router/models/base_arguments.dart';
 import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
@@ -10,13 +10,11 @@ import 'package:nylo_support/router/models/route_args_pair.dart';
 import 'package:nylo_support/router/models/nyrouter_options.dart';
 import 'package:nylo_support/router/models/nyrouter_route.dart';
 import 'package:nylo_support/router/ui/page_not_found.dart';
-import 'package:nylo_support/widgets/ny_stateful_widget.dart';
 import 'package:page_transition/page_transition.dart';
 import 'models/ny_argument.dart';
 
 class NyNavigator {
   NyRouter router = NyRouter();
-
   NyNavigator._privateConstructor();
 
   static final NyNavigator instance = NyNavigator._privateConstructor();
@@ -95,12 +93,12 @@ class NyRouter {
   /// Retrieves the arguments passed in when calling the [navigate] function.
   ///
   /// Returned arguments are casted with the type provided, the type will always
-  /// be a subtype of [BaseArguments].
+  /// be a subtype of [NyArgument].
   ///
   /// Make sure to provide the appropriate type, that is, provide the same type
   /// as the one passed while calling [navigate], else a cast error will be
   /// thrown.
-  static T? args<T extends BaseArguments?>(BuildContext context) {
+  static T? args<T extends NyArgument?>(BuildContext context) {
     return (ModalRoute.of(context)!.settings.arguments as ArgumentsWrapper)
         .baseArguments as T?;
   }
@@ -109,37 +107,24 @@ class NyRouter {
   route(String name, NyRouteView view,
       {PageTransitionType? transition,
       PageTransitionSettings? pageTransitionSettings,
-      List<RouteGuard>? routeGuards}) {
+      List<NyRouteGuard>? routeGuards,
+      bool initialRoute = false,
+      bool authPage = false}) {
     this._addRoute(NyRouterRoute(
-      name: name,
-      view: view,
-      pageTransitionType: transition ?? PageTransitionType.rightToLeft,
-      pageTransitionSettings: pageTransitionSettings,
-      routeGuards: routeGuards,
-    ));
-  }
-
-  /// Add a new page to the router.
-  page(NyStatefulWidget widget,
-      {PageTransitionType? transition,
-      PageTransitionSettings? pageTransitionSettings,
-      List<RouteGuard>? routeGuards}) {
-    String widgetRouteName = widget.getRouteName();
-    assert(
-        widgetRouteName != "",
-        "${widget.toString()} is missing a route name. \nAdd\n" +
-            """
-    @override
-    String getRouteName() {
-      return "/your-route-name";
-    }""" +
-            "\nto your \"${widget.toString()}\" widget class.");
-    this._addRoute(NyRouterRoute(
-        name: widgetRouteName,
-        view: (context) => widget,
+        name: name,
+        view: view,
         pageTransitionType: transition ?? PageTransitionType.rightToLeft,
         pageTransitionSettings: pageTransitionSettings,
-        routeGuards: routeGuards));
+        routeGuards: routeGuards,
+        initialRoute: initialRoute,
+        authPage: authPage));
+
+    assert(
+        _routeNameMappings.entries
+                .where((element) => element.value.initialRoute == true)
+                .length <=
+            1,
+        'Your project has more than one initial route defined, please check your router file.');
   }
 
   /// Add a new route to [NyRouterRoute].
@@ -157,6 +142,28 @@ class NyRouter {
     NyNavigator.instance.router = this;
   }
 
+  static String getInitialRoute() {
+    String initialRoute = "/";
+    List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
+        .instance.router._routeNameMappings.entries
+        .where((element) => element.value.initialRoute == true)
+        .toList();
+
+    List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
+        .instance.router._routeNameMappings.entries
+        .where((element) => element.value.authPage == true)
+        .toList();
+
+    if (authRoutes.isNotEmpty && Backpack.instance.auth() != null) {
+      return authRoutes.first.value.name;
+    }
+
+    if (initialRoutes.isNotEmpty) {
+      return initialRoutes.first.value.name;
+    }
+    return initialRoute;
+  }
+
   /// Add a list of routes at once.
   void addRoutes(List<NyRouterRoute> routes) {
     if (routes.isNotEmpty) {
@@ -167,7 +174,7 @@ class NyRouter {
 
   /// Makes this a callable class. Delegates to [navigate].
   Future<T> call<T>(String name,
-      {BaseArguments? args,
+      {NyArgument? args,
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
@@ -202,7 +209,7 @@ class NyRouter {
   /// [removeUntilPredicate] should be provided if using
   /// [NavigationType.pushAndRemoveUntil] strategy.
   Future<T> navigate<T>(String name,
-      {BaseArguments? args,
+      {NyArgument? args,
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
@@ -268,7 +275,7 @@ class NyRouter {
   /// [NavigationType.pushAndRemoveUntil] strategy.
   Future<dynamic> _navigate(
       String name,
-      BaseArguments? args,
+      NyArgument? args,
       NavigationType navigationType,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
@@ -283,23 +290,18 @@ class NyRouter {
     // Evaluate if the route can be opened using route guard.
     final route = _routeNameMappings[name];
 
-    if (route != null &&
-        route.routeGuards != null &&
-        route.routeGuards!.isNotEmpty) {
-      bool canOpen = true;
+    if (route != null && (route.routeGuards ?? []).isNotEmpty) {
       for (RouteGuard routeGuard in route.routeGuards!) {
         final result = await routeGuard.canOpen(
           navigatorKey!.currentContext,
           argsWrapper.baseArguments,
         );
-        if (result != true) {
-          canOpen = false;
-          break;
+
+        if (result == false) {
+          NyLogger.info("'$name' route rejected by route guard!");
+          return await routeGuard.redirectTo(
+              navigatorKey!.currentContext, argsWrapper.baseArguments);
         }
-      }
-      if (canOpen != true) {
-        NyLogger.info("'$name' route rejected by route guard!");
-        return null;
       }
     }
 
@@ -336,7 +338,7 @@ class NyRouter {
   /// Make sure to use the correct name while calling navigate.
   void _checkAndThrowRouteNotFound(
     String name,
-    BaseArguments? args,
+    NyArgument? args,
     NavigationType navigationType,
   ) {
     if (!_routeNameMappings.containsKey(name)) {
@@ -407,7 +409,7 @@ class NyRouter {
             NyQueryParameters(uriSettingName.queryParameters);
       }
 
-      final BaseArguments? baseArgs = argumentsWrapper.baseArguments;
+      final NyArgument? baseArgs = argumentsWrapper.baseArguments;
       final NyQueryParameters? queryParameters =
           argumentsWrapper.queryParameters;
 

@@ -1,6 +1,8 @@
-import 'package:nylo_support/router/models/base_arguments.dart';
-
-class NyQueryParameters extends BaseArguments {
+/// Nylo Query Parameters
+/// Contains the [data] passed from the URL.
+/// E.g. "/home-page?userId=2
+/// [data] = {"userId": "2"}
+class NyQueryParameters {
   dynamic data;
   NyQueryParameters(this.data);
 }

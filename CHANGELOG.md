@@ -1,3 +1,43 @@
+## [5.0.0] - 2023-05-16
+
+* Router
+  * `authRoute` added to redirect to a certain route when a user is authenticated
+  * `initialRoute` added to set an initial route in your project
+  * `routeGuards` added to 'guard' a route
+* Add new NyTextField widget.
+* New `Model` class replaces `Storable`
+* Auth
+  * `Auth.user()` to find the authenticated user
+  * `Auth.set( User() )` to set an authenticated user
+  * `Auth.remove()` to remove an authenticated user
+  * `Auth.loggedIn()` to check if a user is logged in
+* Change `validator` in NyState to `validate`.
+* Allow Nylo to accept custom validation rules from a project.
+* Add to the `Backpack` class new methods:
+  * **auth** to return the authenticated user
+  * **isNyloInitialized** to check if Nylo is initialized
+* Backpack `read` method will now accept a **defaultValue** parameter to be returned if no data is found.
+* New helper methods:
+  * **match** - Matches
+  * **nyHexColor**
+  * **nyColorStyle**
+* `nyApi` will now accept `NyEvent`s so the data returned from your API requests will be passed to the events. 
+* The `NyLogger` class will now only log if the project's **APP_DEBUG** is set to true.
+* `NyProvider` class now has an `afterBoot` method which will be called after Nylo has finished 'booting'.
+* Remove `Storable` class
+* New helper in MetroService `makeRouteGuard`
+* New Extensions added for objects
+* `showNextLog()` added to force a log to show when the APP_DEBUG var is set to false
+* Remove `logger` package
+* DocBlocks added to some methods
+* Pubspec.yaml dependency updates
+* Version bump
+
+## [4.4.0] - 2023-05-16
+
+* Flutter v3.10.0 fixes:
+  * Update: theme_provider package
+
 ## [4.3.1] - 2023-03-03
 
 * Change `NyFutureBuilder` to a Stateless widget to fix refreshing data.

@@ -1,11 +1,14 @@
 import 'dart:convert';
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:logger/logger.dart';
 import 'package:nylo_support/events/events.dart';
+import 'package:nylo_support/helpers/auth.dart';
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/localization/app_localization.dart';
+import 'package:nylo_support/themes/base_theme_config.dart';
+import '../nylo.dart';
 
 /// Returns a value from the .env file
 /// the [key] must exist as a string value e.g. APP_NAME.
@@ -74,47 +77,28 @@ extension StringExtension on String {
   String capitalize() => "${this[0].toUpperCase()}${this.substring(1)}";
 }
 
-/// Storable class to implement local storage for Models.
-/// This class can be used to then storage models using the [NyStorage] class.
-abstract class Storable {
-  /// Return a representation of the model class.
-  /// E.g. Product class
-  ///
-  ///import 'package:nylo_support/helpers/helper.dart';
-  ///
-  /// class Product extends Storable {
-  /// ...
-  ///   @override
-  ///   toStorage() {
-  ///     return {
-  ///       "title": title,
-  ///       "price": price,
-  ///       "imageUrl": imageUrl
-  ///     };
-  ///   }
-  /// }
-  ///
-
-  toStorage() {
-    return {};
+/// Nylo's Model class
+///
+/// Usage
+/// class User extends Model {
+///   String? name;
+///   String? email;
+///   User();
+///   User.fromJson(dynamic data) {
+///     name = data['name'];
+///     email = data['email'];
+///   }
+///   toJson() => {
+///     "name": name,
+///     "email": email
+///   };
+/// }
+/// This class can be used to authenticate a model and store the object in storage.
+abstract class Model {
+  /// Authenticate the model.
+  Future<void> auth() async {
+    await Auth.set(this);
   }
-
-  /// Used to initialize the object using the [data] parameter.
-  /// E.g. Product class
-  ///
-  ///import 'package:nylo_support/helpers/helper.dart';
-  ///
-  /// class Product extends Storable {
-  /// ...
-  ///   @override
-  ///   fromStorage(dynamic data) {
-  ///     this.title = data["title"];
-  ///     this.price = data["price"];
-  ///     this.imageUrl = data["imageUrl"];
-  ///   }
-  /// }
-  ///
-  fromStorage(dynamic data) {}
 
   /// Save the object to secure storage using a unique [key].
   /// E.g. User class
@@ -127,22 +111,34 @@ abstract class Storable {
   /// User user = await NyStorage.read<User>('com.company.app.auth_user', model: new User());
   Future save(String key, {bool inBackpack = false}) async {
     await NyStorage.store(key, this);
-    if (inBackpack) {
+    if (inBackpack == true) {
       Backpack.instance.set(key, this);
     }
   }
 
-  /// Read a [key] value from NyStorage
-  Future read(String key) async {
-    dynamic data = await NyStorage.read(key);
-    if (data == null) {
-      return null;
+  /// Save an item to a collection
+  /// E.g. List of numbers
+  ///
+  /// User userAnthony = new User(name: 'Anthony');
+  /// await userAnthony.saveToCollection('mystoragekey');
+  ///
+  /// User userKyle = new User(name: 'Kyle');
+  /// await userKyle.saveToCollection('mystoragekey');
+  ///
+  /// Get the collection back with the user included.
+  /// List<User> users = await NyStorage.read<List<User>('mystoragekey');
+  ///
+  /// The [key] is the collection you want to access, you can also save
+  /// the collection to the [Backpack] class.
+  Future saveToCollection<T>(String key, {bool inBackpack = false}) async {
+    await NyStorage.addToCollection<T>(key, newItem: this);
+    if (inBackpack == true) {
+      Backpack.instance.set(key, this);
     }
-    this.fromStorage(jsonDecode(data));
-    return this;
   }
 }
 
+/// Storage manager for Nylo.
 class StorageManager {
   static final storage = new FlutterSecureStorage();
 }
@@ -169,9 +165,13 @@ class NyStorage {
           .write(key: key, value: object.toString());
     }
 
-    if (object is Storable) {
+    try {
+      Map<String, dynamic> json = object.toJson();
       return await StorageManager.storage
-          .write(key: key, value: jsonEncode(object.toStorage()));
+          .write(key: key, value: jsonEncode(json));
+    } on NoSuchMethodError catch (_) {
+      NyLogger.error(
+          '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
     }
 
     return await StorageManager.storage
@@ -179,24 +179,10 @@ class NyStorage {
   }
 
   /// Read a value from the local storage
-  static Future<dynamic> read<T>(String key, {Storable? model}) async {
+  static Future<dynamic> read<T>(String key) async {
     String? data = await StorageManager.storage.read(key: key);
     if (data == null) {
       return null;
-    }
-
-    if (model != null) {
-      try {
-        String? data = await StorageManager.storage.read(key: key);
-        if (data == null) {
-          return null;
-        }
-
-        model.fromStorage(jsonDecode(data));
-        return model;
-      } on Exception catch (e) {
-        print(e.toString());
-      }
     }
 
     if (T.toString() == "String") {
@@ -219,6 +205,16 @@ class NyStorage {
       return double.parse(data);
     }
 
+    if (T.toString() != 'dynamic') {
+      try {
+        String? data = await StorageManager.storage.read(key: key);
+        if (data == null) return null;
+        return dataToModel<T>(data: jsonDecode(data));
+      } on Exception catch (e) {
+        NyLogger.error(e.toString());
+        return null;
+      }
+    }
     return data;
   }
 
@@ -242,6 +238,77 @@ class NyStorage {
     return await StorageManager.storage.delete(key: key);
   }
 
+  /// Deletes a collection from the given [key].
+  static Future deleteCollection(String key,
+      {bool andFromBackpack = false}) async {
+    await delete(key, andFromBackpack: andFromBackpack);
+  }
+
+  /// Add a newItem to the collection using a [key].
+  static Future addToCollection<T>(String key,
+      {required dynamic newItem, bool allowDuplicates = true}) async {
+    List<T> collection = await readCollection<T>(key);
+    if (allowDuplicates == false) {
+      if (collection.any((collect) => collect == newItem)) {
+        return;
+      }
+    }
+    collection.add(newItem);
+    await saveCollection(key, collection);
+  }
+
+  /// Read the collection values using a [key].
+  static Future<List<T>> readCollection<T>(String key) async {
+    String? data = await read(key);
+    if (data == null || data == "") return [];
+
+    List<dynamic> listData = jsonDecode(data);
+
+    if (!["dynamic", "string", "double", "int"]
+        .contains(T.toString().toLowerCase())) {
+      return List.from(listData)
+          .map((json) => dataToModel<T>(data: json))
+          .toList();
+    }
+    return List.from(listData).toList().cast();
+  }
+
+  /// Sets the [key] to null.
+  static Future clear(String key) async => await NyStorage.store(key, null);
+
+  /// Delete an item of a collection using a [index] and the collection [key].
+  static Future deleteFromCollection<T>(int index,
+      {required String key}) async {
+    List<T> collection = await readCollection<T>(key);
+    if (collection.isEmpty) return;
+    collection.removeAt(index);
+    await saveCollection(key, collection);
+  }
+
+  /// Save a list of objects to a [collection] using a [key].
+  static Future saveCollection(String key, List collection) async {
+    String json = jsonEncode(collection.map((item) {
+      Map<String, dynamic>? data = _objectToJson(item);
+      if (data != null) {
+        return data;
+      }
+      return item;
+    }).toList());
+    await store(key, json);
+  }
+
+  /// Delete a value from a collection using a [key] and the [value] you want to remove.
+  static Future deleteValueFromCollection<T>(String key,
+      {dynamic value}) async {
+    List<T> collection = await readCollection<T>(key);
+    collection.removeWhere((item) => item == value);
+    await saveCollection(key, collection);
+  }
+
+  /// Checks if a collection is empty
+  static Future<bool> isCollectionEmpty(String key) async =>
+      (await readCollection(key)).isEmpty;
+
   /// Sync all the keys stored to the [Backpack] instance.
   static Future syncToBackpack() async {
     Map<String, String> values = await readAll();
@@ -252,6 +319,19 @@ class NyStorage {
   }
 }
 
+/// Attempts to call toJson() on an [object].
+Map<String, dynamic>? _objectToJson(dynamic object) {
+  try {
+    Map<String, dynamic> json = object.toJson();
+    return json;
+  } on NoSuchMethodError catch (_) {
+    NyLogger.error(
+        '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
+  }
+  return null;
+}
+
+/// Checks if the value is an integer.
 bool _isInteger(String? s) {
   if (s == null) {
     return false;
@@ -266,6 +346,7 @@ bool _isInteger(String? s) {
   return regExp.hasMatch(s);
 }
 
+/// Checks if the value is a double.
 bool _isDouble(String? s) {
   if (s == null) {
     return false;
@@ -282,28 +363,66 @@ bool _isDouble(String? s) {
 
 /// Logger used for messages you want to print to the console.
 class NyLogger {
-  Logger _logger = Logger(
-    printer: PrettyPrinter(
-      methodCount: 0,
-      errorMethodCount: 8,
-      lineLength: 100,
-      colors: true,
-      printEmojis: false,
-      printTime: true,
-    ),
-  );
-
-  NyLogger.debug(String? message) {
-    _logger.d(message);
+  /// Logs a debug [message] to the console.
+  /// It will only print if your app's environment is in debug mode.
+  /// You can override this by setting [alwaysPrint] = true.
+  static debug(dynamic message, {bool alwaysPrint = false}) {
+    _loggerPrint(message ?? "", 'debug', alwaysPrint);
   }
 
-  NyLogger.error(String message) {
-    _logger.e(message);
+  /// Logs an error [message] to the console.
+  /// It will only print if your app's environment is in debug mode.
+  /// You can override this by setting [alwaysPrint] = true.
+  static error(dynamic message, {bool alwaysPrint = false}) {
+    if (message.runtimeType.toString() == 'Exception') {
+      _loggerPrint(message.toString(), 'error', alwaysPrint);
+    }
+    _loggerPrint(message, 'error', alwaysPrint);
   }
 
-  NyLogger.info(String message) {
-    _logger.i(message);
+  /// Log an info [message] to the console.
+  /// It will only print if your app's environment is in debug mode.
+  /// You can override this by setting [alwaysPrint] = true.
+  static info(dynamic message, {bool alwaysPrint = false}) {
+    _loggerPrint(message ?? "", 'info', alwaysPrint);
   }
+
+  /// Dumps a [message] with a tag.
+  static dump(dynamic message, String? tag, {bool alwaysPrint = false}) {
+    _loggerPrint(message ?? "", tag, alwaysPrint);
+  }
+
+  /// Log json data [message] to the console.
+  /// It will only print if your app's environment is in debug mode.
+  /// You can override this by setting [alwaysPrint] = true.
+  static json(String message, {bool alwaysPrint = false}) {
+    bool canPrint = (getEnv('APP_DEBUG', defaultValue: true));
+    if (!canPrint && !alwaysPrint) return;
+    log(message);
+  }
+
+  /// Print a new log message
+  static _loggerPrint(dynamic message, String? type, bool alwaysPrint) {
+    bool canPrint = (getEnv('APP_DEBUG', defaultValue: true));
+    bool showLog = Backpack.instance.read('SHOW_LOG', defaultValue: false);
+    if (!showLog && !canPrint && !alwaysPrint) return;
+    if (showLog) {
+      Backpack.instance.set('SHOW_LOG', false);
+    }
+    String time = DateTime.now().toString();
+    print('${type != null ? "[$type] " : ""}$message\ntime: $time');
+  }
+}
+
+/// Return an object from your modelDecoders using [data].
+T dataToModel<T>({required dynamic data}) {
+  assert(T != dynamic,
+      "You must provide a Type from your modelDecoders from within your config/decoders.dart file");
+  Nylo nylo = Backpack.instance.nylo();
+  Map<Type, dynamic> modelDecoders = nylo.getModelDecoders();
+  assert(modelDecoders.containsKey(T),
+      "Your modelDecoders variable inside config/decoders.dart must contain a decoder for Type: $T");
+  return modelDecoders[T](data);
 }
 
 /// Returns the translation value from the [key] you provide.
@@ -350,7 +469,8 @@ Future<dynamic> nyApi<T>(
     BuildContext? context,
     Map<String, dynamic> headers = const {},
     String? bearerToken,
-    String? baseUrl}) async {
+    String? baseUrl,
+    List<Type> events = const []}) async {
   assert(apiDecoders.containsKey(T),
       'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
 
@@ -375,5 +495,79 @@ Future<dynamic> nyApi<T>(
     apiService.setBaseUrl(baseUrl);
   }
 
-  return await request(apiService);
+  dynamic result = await request(apiService);
+  if (events.isNotEmpty) {
+    Nylo nylo = Backpack.instance.nylo();
+
+    for (var event in events) {
+      NyEvent? nyEvent = nylo.getEvent(event);
+      if (nyEvent == null) {
+        continue;
+      }
+      Map<dynamic, NyListener> listeners = nyEvent.listeners;
+
+      if (listeners.isEmpty) {
+        return;
+      }
+      for (NyListener listener in listeners.values.toList()) {
+        listener.setEvent(nyEvent);
+
+        dynamic eventResult = await listener.handle({'data': result});
+        if (eventResult != null && eventResult == false) {
+          break;
+        }
+      }
+    }
+    return result;
+  }
+}
+
+/// Helper to get the color styles
+/// Find a color style from the Nylo's [appThemes].
+T nyColorStyle<T>(BuildContext context, {String? themeId}) {
+  Nylo nylo = Backpack.instance.nylo();
+  List<BaseThemeConfig<T>> appThemes =
+      nylo.appThemes as List<BaseThemeConfig<T>>;
+
+  if (themeId == null) {
+    BaseThemeConfig<T> themeFound = appThemes.firstWhere(
+        (theme) =>
+            theme.id ==
+            getEnv(Theme.of(context).brightness == Brightness.light
+                ? 'LIGHT_THEME_ID'
+                : 'DARK_THEME_ID'),
+        orElse: () => appThemes.first);
+    return themeFound.colors;
+  }
+
+  BaseThemeConfig<T> baseThemeConfig = appThemes.firstWhere(
+      (theme) => theme.id == themeId,
+      orElse: () => appThemes.first);
+  return baseThemeConfig.colors;
+}
+
+/// Hex Color
+nyHexColor(String hexColor) {
+  hexColor = hexColor.toUpperCase().replaceAll("#", "");
+  if (hexColor.length == 6) {
+    hexColor = "FF" + hexColor;
+  }
+  return Color(int.parse(hexColor, radix: 16));
+}
+
+/// Match a value from a Map of data.
+/// It will return null if a match is not found.
+T? match<T>(dynamic value, Map<String, dynamic> Function() values) {
+  Map<String, dynamic> check = values();
+  if (!check.containsKey(value)) {
+    NyLogger.error('The value "$value" does not match any values provided');
+    return null;
+  }
+  return check[value];
+}
+
+/// If you call [showNextLog] it will force the app to display the next
+/// 'NyLogger' log even if your app's APP_DEBUG is set to false.
+showNextLog() {
+  Backpack.instance.set('SHOW_LOG', true);
 }

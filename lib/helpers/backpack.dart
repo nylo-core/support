@@ -1,3 +1,4 @@
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/nylo.dart';
 
 /// Backpack class for storing data
@@ -10,8 +11,9 @@ class Backpack {
   static final Backpack instance = Backpack._privateConstructor();
 
   /// Read data from the Backpack with a [key].
-  T? read<T>(String key) {
+  T? read<T>(String key, {dynamic defaultValue}) {
     if (!_values.containsKey(key)) {
+      if (defaultValue != null) return defaultValue;
       return null;
     }
     return _values[key];
@@ -33,5 +35,26 @@ class Backpack {
   }
 
   /// Returns an instance of Nylo.
-  Nylo nylo({String key = 'nylo'}) => _values[key];
+  Nylo nylo({String key = 'nylo'}) {
+    if (!_values.containsKey(key)) {
+      throw Exception('Nylo has not been initialized yet');
+    }
+    return _values[key];
+  }
+
+  /// Returns an instance of the auth user.
+  T? auth<T>({String? key}) {
+    String storageKey = getEnv('AUTH_USER_KEY', defaultValue: 'AUTH_USER');
+    if (key != null) {
+      storageKey = key;
+    }
+    if (!_values.containsKey(storageKey)) {
+      return null;
+    }
+    return _values[storageKey];
+  }
+
+  /// Check if the Backpack class contains an instance of Nylo.
+  bool isNyloInitialized({String? key = "nylo"}) =>
+      _values.containsKey(key) && _values[key] is Nylo;
 }

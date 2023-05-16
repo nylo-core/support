@@ -1,7 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/router/models/ny_argument.dart';
 import 'package:nylo_support/widgets/ny_stateful_widget.dart';
-
 import '../router/models/ny_query_parameters.dart';
 
 /// Base class to handle requests

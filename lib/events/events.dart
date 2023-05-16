@@ -17,7 +17,7 @@ class NyListener {
 
   /// Handle the payload from the event
   /// The [event] argument provides a Map of the data
-  /// event<ChatCreated>({"chat": Chat()});
+  /// event<ChatCreated>(data: {"chat": Chat()});
   /// E.g. [event] = {"chat":"Chat instance"}
   Future<dynamic> handle(Map? event) async {}
 }

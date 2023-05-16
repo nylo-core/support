@@ -8,8 +8,7 @@ import 'package:nylo_support/helpers/backpack.dart';
 ///   return Text(data);
 /// }),
 ///
-/// Creates a widget that builds itself based on the latest snapshot of
-/// interaction with a [Future].
+/// Creates a widget that builds itself from a [Future] snapshot.
 class NyFutureBuilder<T> extends StatelessWidget {
   const NyFutureBuilder(
       {Key? key,

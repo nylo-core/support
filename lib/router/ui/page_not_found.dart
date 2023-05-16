@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:nylo_support/localization/app_localization.dart';
 
 class PageNotFound extends StatelessWidget {
   const PageNotFound();
@@ -7,7 +8,7 @@ class PageNotFound extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Page Not Found'),
+        title: Text('Page Not Found'.tr()),
       ),
       body: Center(
         child: Container(
@@ -22,7 +23,7 @@ class PageNotFound extends StatelessWidget {
               ),
               SizedBox(height: 24.0),
               Text(
-                'Sorry, the page you have requested is not available.',
+                'Sorry, the page you have requested is not available.'.tr(),
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 16.0,
@@ -30,7 +31,7 @@ class PageNotFound extends StatelessWidget {
               ),
               ElevatedButton(
                 onPressed: () => Navigator.pop(context),
-                child: Text("Go back"),
+                child: Text("Go back".tr()),
               ),
             ],
           ),

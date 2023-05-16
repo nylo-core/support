@@ -6,7 +6,7 @@ import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/themes/base_color_styles.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
-import 'package:nylo_support/validation/rules.dart';
+import 'package:nylo_support/validation/ny_validator.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [TextTheme].
@@ -27,10 +27,15 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     return baseThemeConfig.colors;
   }
 
+  bool initialLoad = true;
+
   @override
   void initState() {
     super.initState();
-    this.init();
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+      initialLoad = false;
+      await this.init();
+    });
   }
 
   void dispose() {
@@ -97,88 +102,69 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
         duration: duration);
   }
 
-  /// This validator method provides an easy way to validate data.
-  /// You can use this method like the example below:
-  /// try {
-  ///   this.validator(rules: {
-  ///     "email": "email|max:20",
-  ///     "name": "min:10"
-  ///   }, data: {
-  ///     "email": _textEditingEmailController.text,
-  ///     "name": _textEditingNameController.text
-  ///   });
-  ///
-  /// } on ValidationException catch (e) {
-  ///   print(e.validationRule.description);
-  ///   print(e.toString());
-  /// }
-  /// See more https://nylo.dev/docs/3.x/validation
-  validator(
+  /// Displays a Toast message containing "Sorry" for the title, you
+  /// only need to provide a [description].
+  showToastSorry(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Sorry",
+        description: description,
+        style: style ?? ToastNotificationStyleType.DANGER);
+  }
+
+  /// Displays a Toast message containing "Oops" for the title, you
+  /// only need to provide a [description].
+  showToastOops(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Oops",
+        description: description,
+        style: style ?? ToastNotificationStyleType.DANGER);
+  }
+
+  /// Displays a Toast message containing "Success" for the title, you
+  /// only need to provide a [description].
+  showToastSuccess(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Success",
+        description: description,
+        style: style ?? ToastNotificationStyleType.SUCCESS);
+  }
+
+  /// Validate data from your widget.
+  validate(
       {required Map<String, String> rules,
       required Map<String, dynamic> data,
       Map<String, dynamic> messages = const {},
       bool showAlert = true,
       Duration? alertDuration,
       ToastNotificationStyleType alertStyle =
-          ToastNotificationStyleType.WARNING}) {
-    Map<String, Map<String, dynamic>> map = data.map((key, value) {
-      if (!rules.containsKey(key)) {
-        throw new Exception('Missing rule: ' + key);
-      }
-      Map<String, dynamic> tmp = {"data": value, "rule": rules[key]};
-      if (messages.containsKey(key)) {
-        tmp.addAll({"message": messages[key]});
-      }
-      return MapEntry(key, tmp);
-    });
+          ToastNotificationStyleType.WARNING,
+      required Function()? onSuccess,
+      Function(Exception exception)? onFailure}) {
+    assert(mounted, 'Widget has not mounted yet');
+    try {
+      NyValidator.check(
+          rules: rules,
+          data: data,
+          context: context,
+          showAlert: showAlert,
+          alertDuration: alertDuration,
+          alertStyle: alertStyle);
 
-    for (int i = 0; i < map.length; i++) {
-      String attribute = map.keys.toList()[i];
-      Map<String, dynamic> info = map[attribute]!;
-
-      dynamic data = info['data'];
-
-      String rule = info['rule'];
-      List<String> rules = rule.split("|").toList();
-
-      if (rule.contains("nullable") && (data == null || data == "")) {
-        continue;
-      }
-
-      List<ValidationRule?> validationRules = [
-        EmailRule(attribute),
-        BooleanRule(attribute),
-        ContainsRule(attribute),
-        URLRule(attribute),
-        StringRule(attribute),
-        MaxRule(attribute),
-        MinRule(attribute),
-      ];
-
-      for (rule in rules) {
-        ValidationRule? validationRule =
-            validationRules.firstWhere((validationRule) {
-          if (validationRule!.signature == rule) {
-            return true;
-          }
-          if (rule.contains(":")) {
-            String firstSection = rule.split(":").first;
-            return validationRule.signature == firstSection;
-          }
-          return false;
-        }, orElse: () => null);
-        if (validationRule == null) {
-          continue;
-        }
-        bool hasFailed = validationRule.handle(info);
-        if (hasFailed == false) {
-          if (showAlert == true) {
-            validationRule.alert(context,
-                style: alertStyle, duration: alertDuration);
-          }
-          throw new ValidationException(attribute, validationRule);
-        }
-      }
+      if (onSuccess == null) return;
+      onSuccess();
+    } on Exception catch (exception) {
+      NyLogger.error(exception.toString());
+      if (onFailure == null) return;
+      onFailure(exception);
     }
   }
 
@@ -212,6 +198,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
   }
 
+  /// Contains a map for all the loading keys.
   Map<String, bool> _loadingMap = {};
 
   /// Use the [awaitData] method when initial fetching data for a widget.
@@ -237,9 +224,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     try {
       await perform();
     } on Exception catch (e) {
-      if (getEnv('APP_DEBUG', defaultValue: true) == true) {
-        print(e.toString());
-      }
+      NyLogger.error(e.toString());
     }
 
     _updateLoadingState(
@@ -317,9 +302,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     try {
       await perform();
     } on Exception catch (e) {
-      if (getEnv('APP_DEBUG', defaultValue: true) == true) {
-        print(e.toString());
-      }
+      NyLogger.error(e.toString());
     }
 
     _updateLockState(shouldSetState: shouldSetState, name: name, value: false);
@@ -344,7 +327,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// You can also specify the name of the [loadingKey].
   Widget afterLoad(
       {required Function() child, Widget? placeholder, String? loadingKey}) {
-    if (isLoading(name: loadingKey ?? "default")) {
+    if (initialLoad == true || isLoading(name: loadingKey ?? "default")) {
       Nylo nylo = Backpack.instance.read('nylo');
       return placeholder ?? nylo.appLoader;
     }

@@ -30,9 +30,7 @@ class MetroService {
 
   /// Creates a new Model.
   static makeModel(String className, String value,
-      {String folderPath = modelsFolder,
-      bool storable = false,
-      bool forceCreate = false}) async {
+      {String folderPath = modelsFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}.dart';
 
     await _makeDirectory(folderPath);
@@ -74,6 +72,16 @@ class MetroService {
   static makeProvider(String className, String value,
       {String folderPath = providerFolder, bool forceCreate = false}) async {
     String filePath = '$folderPath/${className.toLowerCase()}_provider.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value);
+  }
+
+  /// Creates a new Route Guard.
+  static makeRouteGuard(String className, String value,
+      {String folderPath = routeGuardsFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${className.toLowerCase()}_route_guard.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
@@ -163,8 +171,7 @@ class MetroService {
 
     // save new file
     final File file = File(filePath);
-
-    RegExp regEx = RegExp(r'}\);([\n\s\S]+)');
+    RegExp regEx = RegExp(r'^([\s]+)?}\);([\n\s\S]+)?$');
 
     await file.writeAsString(fileCreated.replaceAll(regEx, '});'));
   }

@@ -2,6 +2,7 @@ import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 import 'package:nylo_support/alerts/toast_enums.dart';
+import 'package:nylo_support/localization/app_localization.dart';
 
 /// ToastNotificationStyleMetaHelper is used to return
 /// the correct value for the [ToastNotificationStyleType] toast style.
@@ -89,7 +90,7 @@ class _ToastMeta {
 
 /// Display a new Toast notification to the user.
 /// Provide a valid [ToastNotificationStyleType]
-/// i.e [ToastNotificationStyleType.SUCCESS]
+/// i.e. [ToastNotificationStyleType.SUCCESS]
 /// Set a title, description to personalise the message.
 showToastNotification(BuildContext context,
     {ToastNotificationStyleType? style,
@@ -145,14 +146,14 @@ showToastNotification(BuildContext context,
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
-                    toastMeta.title,
+                    toastMeta.title.tr(),
                     style: Theme.of(context)
                         .textTheme
                         .headlineSmall!
                         .copyWith(color: Colors.white),
                   ),
                   Text(
-                    toastMeta.description,
+                    toastMeta.description.tr(),
                     style: Theme.of(context)
                         .textTheme
                         .bodyLarge!

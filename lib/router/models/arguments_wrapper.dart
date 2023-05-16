@@ -1,10 +1,10 @@
-import 'package:nylo_support/router/models/base_arguments.dart';
+import 'package:nylo_support/router/models/ny_argument.dart';
 import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:page_transition/page_transition.dart';
 
 class ArgumentsWrapper {
-  BaseArguments? baseArguments;
+  NyArgument? baseArguments;
   NyQueryParameters? queryParameters;
   PageTransitionType? pageTransitionType;
   PageTransitionSettings? pageTransitionSettings;
@@ -16,7 +16,7 @@ class ArgumentsWrapper {
       this.pageTransitionSettings});
 
   ArgumentsWrapper copyWith(
-      {BaseArguments? baseArguments,
+      {NyArgument? baseArguments,
       NyQueryParameters? queryParameters,
       PageTransitionType? pageTransitionType}) {
     return ArgumentsWrapper(

@@ -1,7 +1,6 @@
 // argument flags
 const String fileOption = 'file';
 const String helpFlag = 'help';
-const String storableFlag = 'storable';
 const String forceFlag = 'force';
 const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
@@ -22,6 +21,7 @@ const String providerFolder = 'lib/app/providers';
 const String eventsFolder = 'lib/app/events';
 const String networkingFolder = 'lib/app/networking';
 const String themeColorsFolder = 'lib/resources/themes/styles';
+const String routeGuardsFolder = 'lib/routes/guards';
 
 // import paths
 String makeImportPathModel(String name) =>
