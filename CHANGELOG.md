@@ -1,3 +1,8 @@
+## [5.1.1] - 2023-05-24
+* Add generic type to `SyncAuthToBackpackEvent`.
+* Fix `NyLogger.json` helper not formatting the output to JSON
+* Add **key** parameter to `auth` 
+
 ## [5.1.0] - 2023-05-23
 * New parameter added to `NyTextField` widget called `handleValidationError` - This new helper is a callback that can be used to handle any validation errors thrown
 * New String extension `toHexColor()` - This will convert your strings into a `Color`. Try it "DB768E".toHexColor()

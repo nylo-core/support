@@ -96,8 +96,8 @@ extension StringExtension on String {
 /// This class can be used to authenticate a model and store the object in storage.
 abstract class Model {
   /// Authenticate the model.
-  Future<void> auth() async {
-    await Auth.set(this);
+  Future<void> auth({String? key}) async {
+    await Auth.set(this, key: key);
   }
 
   /// Save the object to secure storage using a unique [key].
@@ -395,10 +395,14 @@ class NyLogger {
   /// Log json data [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
-  static json(String message, {bool alwaysPrint = false}) {
+  static json(dynamic message, {bool alwaysPrint = false}) {
     bool canPrint = (getEnv('APP_DEBUG', defaultValue: true));
     if (!canPrint && !alwaysPrint) return;
-    log(message);
+    try {
+      log(jsonEncode(message));
+    } on Exception catch (e) {
+      NyLogger.error(e.toString());
+    }
   }
 
   /// Print a new log message

@@ -3,18 +3,24 @@ import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 
 /// Sync Authenticated User to the Backpack
-class SyncAuthToBackpackEvent implements NyEvent {
+class SyncAuthToBackpackEvent<T> implements NyEvent {
   @override
   final listeners = {
-    _DefaultListener: _DefaultListener(),
+    _DefaultListener: _DefaultListener<T>(),
   };
 }
 
-class _DefaultListener extends NyListener {
+class _DefaultListener<T> extends NyListener {
   @override
   handle(dynamic event) async {
     String storageKey = getEnv('AUTH_USER_KEY', defaultValue: 'AUTH_USER');
-    dynamic authUser = await NyStorage.read(storageKey);
+
+    dynamic authUser;
+    if (T.toString() == 'dynamic') {
+      authUser = await NyStorage.read(storageKey);
+    } else {
+      authUser = await NyStorage.read<T>(storageKey);
+    }
     if (authUser != null) {
       Backpack.instance.set(storageKey, authUser);
     }
