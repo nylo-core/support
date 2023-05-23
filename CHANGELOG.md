@@ -1,3 +1,9 @@
+## [5.1.0] - 2023-05-23
+* New parameter added to `NyTextField` widget called `handleValidationError` - This new helper is a callback that can be used to handle any validation errors thrown
+* New String extension `toHexColor()` - This will convert your strings into a `Color`. Try it "DB768E".toHexColor()
+* Fix `api` helper not returning request data
+* Added new extensions for `Text` 
+
 ## [5.0.0] - 2023-05-16
 
 * Router

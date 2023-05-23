@@ -58,6 +58,7 @@ class NyTextField extends StatefulWidget {
   final ScrollPhysics? scrollPhysics;
   final Iterable<String>? autofillHints;
   final Clip clipBehavior;
+  final Function(String handleError)? handleValidationError;
 
   NyTextField({
     Key? key,
@@ -68,6 +69,7 @@ class NyTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.textAlign,
     this.maxLines = 1,
+    this.handleValidationError,
     this.minLines,
     this.enableSuggestions = true,
     this.hintText,
@@ -154,6 +156,7 @@ class _NyTextFieldState extends NyState<NyTextField> {
     if (widget.validationRules == null) {
       return null;
     }
+
     String attributeKey = (widget.labelText ?? "");
     try {
       NyValidator.check(
@@ -163,6 +166,11 @@ class _NyTextFieldState extends NyState<NyTextField> {
               ? {attributeKey: "$attributeKey|${widget.validationErrorMessage}"}
               : {});
     } on ValidationException catch (e) {
+      String message = e.toTextFieldMessage();
+      if (widget.handleValidationError != null) {
+        widget.handleValidationError!(message);
+        return null;
+      }
       return e.toTextFieldMessage();
     }
     return null;

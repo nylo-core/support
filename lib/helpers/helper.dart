@@ -518,8 +518,8 @@ Future<dynamic> nyApi<T>(
         }
       }
     }
-    return result;
   }
+  return result;
 }
 
 /// Helper to get the color styles
