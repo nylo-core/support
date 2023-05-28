@@ -41,6 +41,30 @@ extension NyMap on Map? {
   }
 }
 
+/// Extensions for [double]
+extension NyDouble on double? {
+  dump({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+  }
+
+  dd({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+    exit(0);
+  }
+}
+
+/// Extensions for [bool]
+extension NyBool on bool? {
+  dump({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+  }
+
+  dd({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+    exit(0);
+  }
+}
+
 /// Extensions for [List]
 extension NyList on List? {
   dump({String? tag}) {

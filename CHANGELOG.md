@@ -1,3 +1,6 @@
+## [5.1.2] - 2023-05-28
+* Add new extensions for bool types
+
 ## [5.1.1] - 2023-05-24
 * Add generic type to `SyncAuthToBackpackEvent`.
 * Fix `NyLogger.json` helper not formatting the output to JSON
