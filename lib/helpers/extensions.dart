@@ -1,6 +1,20 @@
 import 'dart:io';
 
-import 'package:flutter/material.dart';
+import 'package:flutter/material.dart'
+    show
+        Color,
+        Text,
+        BuildContext,
+        Theme,
+        TextDirection,
+        TextStyle,
+        TextAlign,
+        FontWeight,
+        Key,
+        StrutStyle,
+        TextOverflow,
+        TextWidthBasis,
+        Locale;
 import 'package:nylo_support/helpers/helper.dart';
 
 /// Extensions for [String]

@@ -1,10 +1,45 @@
 import 'dart:io';
 import 'package:nylo_support/metro/constants/strings.dart';
 import 'package:nylo_support/metro/metro_console.dart';
+import 'package:nylo_support/metro/models/ny_command.dart';
 import 'package:nylo_support/metro/models/ny_template.dart';
 import 'package:recase/recase.dart';
 
 class MetroService {
+  /// Run a command from the terminal
+  /// [menu] should contain the list of commands that can be run.
+  static Future<void> runCommand(List<String> arguments,
+      {required List<NyCommand?> allCommands, required String menu}) async {
+    List<String> argumentsForAction = arguments.toList();
+
+    if (argumentsForAction.isEmpty) {
+      MetroConsole.writeInBlack(menu);
+      return;
+    }
+
+    List<String> argumentSplit = arguments[0].split(":");
+
+    if (argumentSplit.length == 0 || argumentSplit.length <= 1) {
+      MetroConsole.writeInBlack('Invalid arguments ' + arguments.toString());
+      exit(2);
+    }
+
+    String type = argumentSplit[0];
+    String action = argumentSplit[1];
+
+    NyCommand? nyCommand = allCommands.firstWhereOrNull(
+        (command) => type == command?.category && command?.name == action);
+
+    if (nyCommand == null) {
+      MetroConsole.writeInBlack('Invalid arguments ' + arguments.toString());
+      exit(1);
+    }
+
+    argumentsForAction.removeAt(0);
+
+    await nyCommand.action!(argumentsForAction);
+  }
+
   /// Creates a new Controller.
   static Future makeController(String className, String value,
       {String folderPath = controllersFolder, bool forceCreate = false}) async {
@@ -356,6 +391,16 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
       }
       MetroConsole.writeInGreen('${template.name} created 🎉');
     }
+  }
+}
+
+/// IterableExtension
+extension IterableExtension<T> on Iterable<T> {
+  T? firstWhereOrNull(bool Function(T element) test) {
+    for (var element in this) {
+      if (test(element)) return element;
+    }
+    return null;
   }
 }
 
