@@ -40,6 +40,6 @@ jobs:
       - name: Update nylo.dev
         uses: alikamal1/Form_Data_HTTP_POST_Action@v.1.0
         with:
-          url: 'http://nylo.test/api/github/actions/nylo/version'
+          url: 'https://nylo.dev/api/github/actions/nylo/version'
           headers: '{"X-GH-API-KEY": "${{ secrets.NYLO_API_GH_SECRET }}"}'
           data: '{"version": "${{  github.ref_name }}"}'
