@@ -42,4 +42,4 @@ jobs:
         with:
           url: 'https://nylo.dev/api/github/actions/support/version'
           headers: '{"X-GH-API-KEY": "${{ secrets.NYLO_API_GH_SECRET }}"}'
-          data: '{"version": "${{  github.ref_name }}"}'
+          data: '{"version": "${{ github.ref_name }}"}'

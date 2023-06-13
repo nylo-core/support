@@ -1,3 +1,9 @@
+## [5.2.0] - 2023-06-13
+
+* Add new constants
+* Fix Slate's when using `MetroService`
+* update git actions
+
 ## [5.1.3] - 2023-06-08
 
 * Add new method to MetroService `runCommand` to replace `command` method in metro.
