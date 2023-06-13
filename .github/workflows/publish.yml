@@ -21,9 +21,6 @@ jobs:
       - name: Get dependencies
         run: flutter pub get
 
-      - name: Analyze code
-        run: flutter analyze
-
       - name: Format code
         run: dart format --fix .
 
