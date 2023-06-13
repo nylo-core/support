@@ -1,3 +1,7 @@
+## [5.2.1] - 2023-06-13
+
+* fix issues from dart analyze
+
 ## [5.2.0] - 2023-06-13
 
 * Add new constants

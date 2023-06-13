@@ -11,25 +11,56 @@ class _ToastNotificationStyleMetaHelper {
     switch (style) {
       case null:
       case ToastNotificationStyleType.SUCCESS:
-        return _ToastMeta.success(action: () {
-          ToastManager().dismissAll(showAnim: true);
-        });
+        return _ToastMeta(
+            icon: const Icon(Icons.check, color: Colors.white, size: 30),
+            title: "Success",
+            description: "",
+            color: Colors.green,
+            action: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            duration: const Duration(seconds: 5));
       case ToastNotificationStyleType.WARNING:
-        return _ToastMeta.warning(action: () {
-          ToastManager().dismissAll(showAnim: true);
-        });
+        return _ToastMeta(
+            icon:
+                const Icon(Icons.error_outline, color: Colors.white, size: 30),
+            title: "Oops!",
+            description: "",
+            color: Colors.orange,
+            action: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            duration: const Duration(seconds: 6));
       case ToastNotificationStyleType.INFO:
-        return _ToastMeta.info(action: () {
-          ToastManager().dismissAll(showAnim: true);
-        });
+        return _ToastMeta(
+            icon: const Icon(Icons.info, color: Colors.white, size: 30),
+            title: "Info",
+            description: "",
+            color: Colors.teal,
+            action: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            duration: const Duration(seconds: 5));
       case ToastNotificationStyleType.DANGER:
-        return _ToastMeta.danger(action: () {
-          ToastManager().dismissAll(showAnim: true);
-        });
+        return _ToastMeta(
+            icon: const Icon(Icons.warning, color: Colors.white, size: 30),
+            title: "Oops!",
+            description: "",
+            color: Colors.redAccent,
+            action: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            duration: const Duration(seconds: 7));
       default:
-        return _ToastMeta.success(action: () {
-          ToastManager().dismissAll(showAnim: true);
-        });
+        return _ToastMeta(
+            icon: const Icon(Icons.check, color: Colors.white, size: 30),
+            title: "Success",
+            description: "",
+            color: Colors.green,
+            action: () {
+              ToastManager().dismissAll(showAnim: true);
+            },
+            duration: const Duration(seconds: 5));
     }
   }
 }
@@ -49,43 +80,6 @@ class _ToastMeta {
       required this.color,
       this.action,
       this.duration = const Duration(seconds: 2)});
-
-  /// DEFAULT SUCCESS TOAST META
-  _ToastMeta.success(
-      {this.icon = const Icon(Icons.check, color: Colors.white, size: 30),
-      this.title = "Success",
-      this.description = "",
-      this.color = Colors.green,
-      this.action,
-      this.duration = const Duration(seconds: 5)});
-
-  /// DEFAULT INFO TOAST META
-  _ToastMeta.info(
-      {this.icon = const Icon(Icons.info, color: Colors.white, size: 30),
-      this.title = "",
-      this.description = "",
-      this.color = Colors.teal,
-      this.action,
-      this.duration = const Duration(seconds: 5)});
-
-  /// DEFAULT WARNING TOAST META
-  _ToastMeta.warning(
-      {this.icon =
-          const Icon(Icons.error_outline, color: Colors.white, size: 30),
-      this.title = "Oops!",
-      this.description = "",
-      this.color = Colors.orange,
-      this.action,
-      this.duration = const Duration(seconds: 6)});
-
-  /// DEFAULT DANGER TOAST META
-  _ToastMeta.danger(
-      {this.icon = const Icon(Icons.warning, color: Colors.white, size: 30),
-      this.title = "Oops!",
-      this.description = "",
-      this.color = Colors.redAccent,
-      this.action,
-      this.duration = const Duration(seconds: 7)});
 }
 
 /// Display a new Toast notification to the user.
