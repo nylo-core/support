@@ -27,6 +27,7 @@ const String configFolder = 'lib/config';
 const String themeColorsFolder = 'lib/resources/themes/styles';
 const String routeGuardsFolder = 'lib/routes/guards';
 const String publicAssetsImagesFolder = 'public/assets/images';
+const String langFolder = 'lang';
 
 // import paths
 String makeImportPathModel(String name) => "import '/app/models/$name.dart';";

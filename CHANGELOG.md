@@ -1,3 +1,7 @@
+## [5.2.2] - 2023-06-14
+
+* add lang folder to constants
+
 ## [5.2.1] - 2023-06-13
 
 * fix issues from dart analyze
