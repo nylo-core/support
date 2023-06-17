@@ -152,12 +152,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     assert(mounted, 'Widget has not mounted yet');
     try {
       NyValidator.check(
-          rules: rules,
-          data: data,
-          context: context,
-          showAlert: showAlert,
-          alertDuration: alertDuration,
-          alertStyle: alertStyle);
+        rules: rules,
+        data: data,
+        messages: messages,
+        context: context,
+        showAlert: showAlert,
+        alertDuration: alertDuration,
+        alertStyle: alertStyle,
+      );
 
       if (onSuccess == null) return;
       onSuccess();

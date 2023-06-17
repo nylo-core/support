@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/metro/metro_service.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/validation/rules.dart';
 import 'package:nylo_support/validation/validations.dart';
@@ -43,11 +44,9 @@ class NyValidator {
 
     Nylo nylo = Backpack.instance.nylo();
 
-    Map<Type, dynamic> allValidationRules = {};
+    Map<String, dynamic> allValidationRules = {};
     allValidationRules.addAll(nylo.getValidationRules());
     allValidationRules.addAll(nyDefaultValidations);
-
-    List<ValidationRule?> validationRules = [];
 
     for (int i = 0; i < map.length; i++) {
       String attribute = map.keys.toList()[i];
@@ -62,35 +61,34 @@ class NyValidator {
         continue;
       }
 
-      for (var validationRule in allValidationRules.entries) {
-        validationRules.add(validationRule.value(attribute));
-      }
-
       for (rule in rules) {
+        String ruleQuery = rule;
+        if (ruleQuery.contains(":")) {
+          String firstSection = ruleQuery.split(":").first;
+          ruleQuery = firstSection;
+        }
+
+        MapEntry<String, dynamic>? validationRuleMapEntry =
+            allValidationRules.entries.firstWhereOrNull(
+                (nyDefaultValidation) => nyDefaultValidation.key == ruleQuery);
+        if (validationRuleMapEntry == null) continue;
+
         ValidationRule? validationRule =
-            validationRules.firstWhere((validationRule) {
-          if (validationRule!.signature == rule) {
-            return true;
-          }
-          if (rule.contains(":")) {
-            String firstSection = rule.split(":").first;
-            return validationRule.signature == firstSection;
-          }
-          return false;
-        }, orElse: () => null);
-        if (validationRule == null) {
-          continue;
-        }
+            validationRuleMapEntry.value(attribute);
+        if (validationRule == null) continue;
 
-        bool hasFailed = validationRule.handle(info);
+        bool didNotFail = validationRule.handle(info);
 
-        if (hasFailed == false) {
-          if (showAlert == true && context != null) {
-            validationRule.alert(context,
-                style: alertStyle, duration: alertDuration);
-          }
-          throw new ValidationException(attribute, validationRule);
+        if (didNotFail == true) continue;
+
+        if (showAlert == true && context != null) {
+          validationRule.alert(
+            context,
+            style: alertStyle,
+            duration: alertDuration,
+          );
         }
+        throw new ValidationException(attribute, validationRule);
       }
     }
   }

@@ -41,12 +41,15 @@ class ValidationRule {
   /// The alert which will be displayed.
   alert(context,
       {ToastNotificationStyleType style = ToastNotificationStyleType.WARNING,
-      Duration? duration}) {
-    showToastNotification(context,
-        style: style,
-        title: title.tr(),
-        description: description.tr(),
-        duration: duration);
+      Duration? duration,
+      Map<String, dynamic>? info}) {
+    showToastNotification(
+      context,
+      style: style,
+      title: title.tr(),
+      description: description.tr(),
+      duration: duration,
+    );
   }
 }
 
@@ -107,7 +110,7 @@ class ContainsRule extends ValidationRule {
   @override
   bool handle(Map<String, dynamic> info) {
     super.handle(info);
-    RegExp regExp = RegExp("contains:([A-z0-9, ]+)");
+    RegExp regExp = RegExp(r'contains:([A-z0-9, ]+)');
     String match = regExp.firstMatch(info['rule'])!.group(1) ?? "";
     List<String> listMatches = match.split(",");
 
@@ -233,7 +236,7 @@ class RegexRule extends ValidationRule {
   @override
   bool handle(Map<String, dynamic> info) {
     super.handle(info);
-    RegExp regExp = RegExp(r"regex:(.+)");
+    RegExp regExp = RegExp(r'regex:(.+)');
     String match = regExp.firstMatch(info['rule'])!.group(1) ?? "";
 
     final check = RegExp(match);
@@ -252,7 +255,7 @@ class MaxRule extends ValidationRule {
 
   @override
   bool handle(Map<String, dynamic> info) {
-    RegExp regExp = RegExp("max:([0-9]+)");
+    RegExp regExp = RegExp(r'max:([0-9]+)');
     String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
     int intMatch = int.parse(match);
     this.description =
@@ -275,7 +278,7 @@ class MinRule extends ValidationRule {
 
   @override
   bool handle(Map<String, dynamic> info) {
-    RegExp regExp = RegExp("min:([0-9]+)");
+    RegExp regExp = RegExp(r'min:([0-9]+)');
     String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
     int intMatch = int.parse(match);
     this.description =

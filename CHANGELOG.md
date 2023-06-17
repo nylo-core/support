@@ -1,3 +1,7 @@
+## [5.3.0] - 2023-06-17
+
+* Fix validator
+
 ## [5.2.2] - 2023-06-14
 
 * add lang folder to constants

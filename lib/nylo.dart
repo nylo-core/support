@@ -15,7 +15,7 @@ class Nylo {
 
   NyRouter? router;
   Map<Type, NyEvent> _events = {};
-  Map<Type, dynamic> _validationRules = {};
+  Map<String, dynamic> _validationRules = {};
   List<BaseThemeConfig> appThemes = [];
   Map<Type, dynamic> _modelDecoders = {};
 
@@ -72,11 +72,11 @@ class Nylo {
   /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
 
-  addValidationRules(Map<Type, dynamic> validators) {
+  addValidationRules(Map<String, dynamic> validators) {
     _validationRules.addAll(validators);
   }
 
-  Map<Type, dynamic> getValidationRules() => _validationRules;
+  Map<String, dynamic> getValidationRules() => _validationRules;
 
   /// Add [events] to Nylo
   addModelDecoders(Map<Type, dynamic> events) async {
