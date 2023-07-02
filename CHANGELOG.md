@@ -1,3 +1,7 @@
+## [5.3.1] - 2023-07-03
+
+* Add generic type to `saveCollection()` helper.
+
 ## [5.3.0] - 2023-06-17
 
 * Fix validator

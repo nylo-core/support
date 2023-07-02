@@ -254,7 +254,7 @@ class NyStorage {
       }
     }
     collection.add(newItem);
-    await saveCollection(key, collection);
+    await saveCollection<T>(key, collection);
   }
 
   /// Read the collection values using a [key].
@@ -282,11 +282,17 @@ class NyStorage {
     List<T> collection = await readCollection<T>(key);
     if (collection.isEmpty) return;
     collection.removeAt(index);
-    await saveCollection(key, collection);
+    await saveCollection<T>(key, collection);
   }
 
   /// Save a list of objects to a [collection] using a [key].
-  static Future saveCollection(String key, List collection) async {
+  static Future saveCollection<T>(String key, List collection) async {
+    if (["dynamic", "string", "double", "int"]
+        .contains(T.toString().toLowerCase())) {
+      await store(key, jsonEncode(collection));
+      return;
+    }
+
     String json = jsonEncode(collection.map((item) {
       Map<String, dynamic>? data = _objectToJson(item);
       if (data != null) {
@@ -302,7 +308,7 @@ class NyStorage {
       {dynamic value}) async {
     List<T> collection = await readCollection<T>(key);
     collection.removeWhere((item) => item == value);
-    await saveCollection(key, collection);
+    await saveCollection<T>(key, collection);
   }
 
   /// Checks if a collection is empty
