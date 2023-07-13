@@ -142,13 +142,8 @@ class NyRouter {
     NyNavigator.instance.router = this;
   }
 
+  /// Find the initial route.
   static String getInitialRoute() {
-    String initialRoute = "/";
-    List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
-        .instance.router._routeNameMappings.entries
-        .where((element) => element.value.initialRoute == true)
-        .toList();
-
     List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
         .where((element) => element.value.authPage == true)
@@ -158,10 +153,15 @@ class NyRouter {
       return authRoutes.first.value.name;
     }
 
+    List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
+        .instance.router._routeNameMappings.entries
+        .where((element) => element.value.initialRoute == true)
+        .toList();
+
     if (initialRoutes.isNotEmpty) {
       return initialRoutes.first.value.name;
     }
-    return initialRoute;
+    return "/";
   }
 
   /// Add a list of routes at once.

@@ -9,7 +9,7 @@ export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';
 
 class Nylo {
-  String _initialRoute;
+  String? _initialRoute;
   Widget appLoader;
   Widget appLogo;
 
@@ -20,8 +20,7 @@ class Nylo {
   Map<Type, dynamic> _modelDecoders = {};
 
   Nylo({this.router})
-      : _initialRoute = '/',
-        appLoader = CircularProgressIndicator(),
+      : appLoader = CircularProgressIndicator(),
         appLogo = SizedBox.shrink();
 
   /// Assign a [NyPlugin] to add extra functionality to your app from a plugin.
@@ -40,11 +39,25 @@ class Nylo {
   /// Set the initial route from a [routeName].
   setInitialRoute(String routeName) {
     _initialRoute = routeName;
-    Backpack.instance.set("nylo", this);
+    if (!Backpack.instance.isNyloInitialized()) {
+      Backpack.instance.set("nylo", this);
+    }
   }
 
   /// Get the initial route.
-  String getInitialRoute() => _initialRoute;
+  String getInitialRoute() => _initialRoute ?? '/';
+
+  /// Initialize routes
+  void initRoutes({String? initialRoute}) {
+    if (initialRoute != null) {
+      setInitialRoute(initialRoute);
+      return;
+    }
+    if (_initialRoute != null) {
+      return;
+    }
+    setInitialRoute(NyRouter.getInitialRoute());
+  }
 
   /// Allows you to add additional Router's to your project.
   ///
@@ -72,15 +85,17 @@ class Nylo {
   /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
 
+  /// Add [validators] to Nylo
   addValidationRules(Map<String, dynamic> validators) {
     _validationRules.addAll(validators);
   }
 
+  /// Get [validators] from Nylo
   Map<String, dynamic> getValidationRules() => _validationRules;
 
-  /// Add [events] to Nylo
-  addModelDecoders(Map<Type, dynamic> events) async {
-    _modelDecoders.addAll(events);
+  /// Add [modelDecoders] to Nylo
+  addModelDecoders(Map<Type, dynamic> modelDecoders) async {
+    _modelDecoders.addAll(modelDecoders);
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.set("nylo", this);
     }

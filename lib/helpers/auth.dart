@@ -9,6 +9,10 @@ class Auth {
   static Future<void> set(dynamic auth, {String? key}) async =>
       await nyEvent<AuthUserEvent>(params: {"auth": auth, "key": key});
 
+  /// Login a auth user for a given [key].
+  static Future login(dynamic auth, {String? key}) async =>
+      await set(auth, key: key);
+
   /// Get the auth user
   static T? user<T>({String? key}) {
     if (key != null) {
@@ -25,6 +29,9 @@ class Auth {
     }
     await NyStorage.delete(storageKey, andFromBackpack: true);
   }
+
+  /// Logout the auth user for a given [key].
+  static Future logout({String? key}) async => await remove(key: key);
 
   /// Check if a user is logged in for a given [key].
   static Future<bool> loggedIn({String? key}) async {

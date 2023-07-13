@@ -1,3 +1,7 @@
+## [5.4.0] - 2023-07-13
+
+* New helper added to `Nylo` class `initRoutes()`
+
 ## [5.3.1] - 2023-07-03
 
 * Add generic type to `saveCollection()` helper.
