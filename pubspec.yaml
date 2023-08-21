@@ -1,10 +1,11 @@
 name: nylo_support
 description: Support library for the Nylo framework. This library supports routing, widgets, localization, cli, storage and more.
-version: 5.5.0
+version: 5.5.1
 homepage: https://nylo.dev
-repository: https://github.com/nylo-core/support
+repository: https://github.com/nylo-core/support/tree/5.x
 issue_tracker: https://github.com/nylo-core/support/issues
 documentation: https://github.com/nylo-core/support
+publish_to: none
 
 environment:
   sdk: '>=2.14.0 <4.0.0'

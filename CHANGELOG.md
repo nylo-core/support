@@ -1,3 +1,7 @@
+## [5.5.1] - 2023-08-21
+
+* Update pubspec.yaml
+
 ## [5.5.0] - 2023-08-21
 
 * Add event_bus_plus to pubspec.yaml

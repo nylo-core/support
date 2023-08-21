@@ -14,7 +14,6 @@ class Nylo {
   String? _initialRoute;
   Widget appLoader;
   Widget appLogo;
-
   NyRouter? router;
   Map<Type, NyEvent> _events = {};
   Map<String, dynamic> _validationRules = {};
