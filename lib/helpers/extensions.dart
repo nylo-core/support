@@ -15,6 +15,7 @@ import 'package:flutter/material.dart'
         TextOverflow,
         TextWidthBasis,
         Locale;
+import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 
 /// Extensions for [String]
@@ -226,6 +227,14 @@ extension NyText on Text {
   Text setFontFamily(String fontFamily) =>
       copyWith(style: TextStyle(fontFamily: fontFamily));
 
+  /// Change the [fontSize].
+  Text setFontSize(double fontSize) {
+    if (style == null) {
+      return copyWith(style: TextStyle(fontSize: fontSize));
+    }
+    return this.setStyle(TextStyle(fontSize: fontSize));
+  }
+
   /// Helper to apply changes.
   Text copyWith(
       {Key? key,
@@ -253,5 +262,12 @@ extension NyText on Text {
         semanticsLabel: semanticsLabel ?? this.semanticsLabel,
         textWidthBasis: textWidthBasis ?? this.textWidthBasis,
         style: style != null ? this.style?.merge(style) ?? style : this.style);
+  }
+}
+
+extension NyBackpack<T> on String {
+  /// Read a value from the Backpack instance.
+  T? fromBackpack<T>() {
+    return Backpack.instance.read<T>(this);
   }
 }

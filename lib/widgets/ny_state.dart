@@ -1,3 +1,4 @@
+import 'package:event_bus_plus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
 import 'package:nylo_support/helpers/backpack.dart';
@@ -7,6 +8,7 @@ import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/themes/base_color_styles.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/validation/ny_validator.dart';
+import 'package:nylo_support/widgets/event_bus/update_state.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [TextTheme].
@@ -15,8 +17,26 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [MediaQueryData].
   MediaQueryData get mediaQuery => MediaQuery.of(context);
 
+  /// Helper to get the [EventBus].
+  EventBus? get eventBus => Backpack.instance.read("event_bus");
+
+  /// The [stateName] is used as the ID for the [UpdateState] class.
+  String? stateName;
+
   /// If set, the [boot] method will not be called.
   bool requiresBoot = true;
+
+  /// Check if the [initState] has already been loaded.
+  bool initialLoad = true;
+
+  /// Check if the state should listen for events via the [EventBus].
+  bool get allowStateUpdates => stateName != null;
+
+  /// Contains a map for all the loading keys.
+  Map<String, bool> _loadingMap = {};
+
+  /// Contains a map for all the locked states.
+  Map<String, bool> _lockMap = {};
 
   /// Helper to get the [MediaQueryData].
   BaseColorStyles color({String? themeId}) {
@@ -27,16 +47,46 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     return baseThemeConfig.colors;
   }
 
-  bool initialLoad = true;
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       initialLoad = false;
+      if (eventBus != null && allowStateUpdates) {
+        List<EventBusHistoryEntry> eventHistory = eventBus!.history
+            .where((element) =>
+                element.event.runtimeType.toString() == 'UpdateState')
+            .toList();
+        if (eventHistory.isNotEmpty) {
+          stateInit(eventHistory.last.event.props[1]);
+        }
+        eventBus!.on<UpdateState>().listen((event) {
+          if (event.stateName != stateName) return;
+
+          setState(() {
+            stateUpdated(event.data);
+          });
+        });
+      }
       await this.init();
     });
   }
+
+  /// When you call [updateState], this method will be called within your
+  /// State. The [data] parameter will contain any data passed from the
+  /// updateState method.
+  ///
+  /// E.g.
+  /// updateState('my_state', data: "Hello World");
+  ///
+  /// stateUpdated(data) {
+  ///   data = "Hello World"
+  /// }
+  void stateUpdated(dynamic data) {}
+
+  /// [stateInit] is called once within your [initState], this method
+  /// will contain any previous [data] for your state.
+  void stateInit(dynamic data) {}
 
   void dispose() {
     super.dispose();
@@ -59,6 +109,18 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     if (!requiresBoot) {
       return;
     }
+    awaitData(
+      perform: () async {
+        await boot();
+      },
+      shouldSetStateBefore: false,
+    );
+  }
+
+  /// Reboot your widget.
+  ///
+  /// This method will re-call the boot command to 'reboot' your widget.
+  reboot() async {
     awaitData(
       perform: () async {
         await boot();
@@ -148,8 +210,32 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       ToastNotificationStyleType alertStyle =
           ToastNotificationStyleType.WARNING,
       required Function()? onSuccess,
-      Function(Exception exception)? onFailure}) {
+      Function(Exception exception)? onFailure,
+      String? lockRelease}) {
     assert(mounted, 'Widget has not mounted yet');
+    if (lockRelease != null) {
+      this.lockRelease(lockRelease, perform: () async {
+        try {
+          NyValidator.check(
+            rules: rules,
+            data: data,
+            messages: messages,
+            context: context,
+            showAlert: showAlert,
+            alertDuration: alertDuration,
+            alertStyle: alertStyle,
+          );
+
+          if (onSuccess == null) return;
+          await onSuccess();
+        } on Exception catch (exception) {
+          NyLogger.error(exception.toString());
+          if (onFailure == null) return;
+          onFailure(exception);
+        }
+      });
+      return;
+    }
     try {
       NyValidator.check(
         rules: rules,
@@ -199,9 +285,6 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       setState(() {});
     }
   }
-
-  /// Contains a map for all the loading keys.
-  Map<String, bool> _loadingMap = {};
 
   /// Use the [awaitData] method when initial fetching data for a widget.
   /// E.g. When your page first loads and you want to populate your widgets with
@@ -263,8 +346,6 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   _setLoader(String name, {required bool value}) {
     _loadingMap[name] = value;
   }
-
-  Map<String, bool> _lockMap = {};
 
   /// Checks the value from your lock map.
   /// Provide the [name] of the lock.
@@ -343,6 +424,16 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       {required Function() child, Widget? loadingPlaceholder}) {
     if (variable == null) {
       return loadingPlaceholder ?? Backpack.instance.nylo().appLoader;
+    }
+    return child();
+  }
+
+  /// The [afterNotLocked] method will check if the state is locked,
+  /// if the state is locked it will display the [locked] widget.
+  Widget afterNotLocked(String name,
+      {required Function() child, Widget? locked}) {
+    if (isLocked(name)) {
+      return locked ?? Backpack.instance.nylo().appLoader;
     }
     return child();
   }

@@ -1,3 +1,4 @@
+import 'package:event_bus_plus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:nylo_support/events/events.dart';
@@ -5,6 +6,7 @@ import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
+import 'package:nylo_support/widgets/event_bus/update_state.dart';
 export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';
 
@@ -109,6 +111,18 @@ class Nylo {
     assert(_events.containsKey(event),
         "Your events.dart file doesn't contain ${event.toString()}");
     return _events[event];
+  }
+
+  /// Add an [EventBus] to your Nylo project.
+  addEventBus({int maxHistoryLength = 10, bool allowLogging = false}) {
+    EventBus eventBus = EventBus(
+      maxHistoryLength: maxHistoryLength,
+      allowLogging: allowLogging,
+    );
+    final event = UpdateState();
+    eventBus.watch(event);
+
+    Backpack.instance.set("event_bus", eventBus);
   }
 
   /// Initialize Nylo

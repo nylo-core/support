@@ -142,6 +142,32 @@ class NyRouter {
     NyNavigator.instance.router = this;
   }
 
+  /// Retrieves the auth route name from your router.
+  String? getAuthRouteName() {
+    List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
+        .instance.router._routeNameMappings.entries
+        .where((element) => element.value.authPage == true)
+        .toList();
+
+    if (authRoutes.isNotEmpty && Backpack.instance.auth() != null) {
+      return authRoutes.first.value.name;
+    }
+    return null;
+  }
+
+  /// Retrieves the initial route name from your router.
+  String getInitialRouteName() {
+    List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
+        .instance.router._routeNameMappings.entries
+        .where((element) => element.value.initialRoute == true)
+        .toList();
+
+    if (initialRoutes.isNotEmpty) {
+      return initialRoutes.first.value.name;
+    }
+    return "/";
+  }
+
   /// Find the initial route.
   static String getInitialRoute() {
     List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
@@ -638,7 +664,7 @@ class NyRouter {
   }
 }
 
-/// Navigate to a new route in your /routes/router.dart.
+/// Navigate to a new route.
 ///
 /// It requires a String [routeName] e.g. "/my-route"
 ///
@@ -664,6 +690,55 @@ routeTo(String routeName,
   NyArgument nyArgument = NyArgument(data);
   await NyNavigator.instance.router
       .navigate(routeName,
+          args: nyArgument,
+          navigationType: navigationType,
+          result: result,
+          removeUntilPredicate: removeUntilPredicate,
+          pageTransitionType: pageTransition,
+          pageTransitionSettings: pageTransitionSettings)
+      .then((v) => onPop != null ? onPop(v) : (v) {});
+}
+
+/// Navigate to the auth route.
+routeToAuth(
+    {dynamic data,
+    NavigationType navigationType = NavigationType.pushAndForgetAll,
+    dynamic result,
+    bool Function(Route<dynamic> route)? removeUntilPredicate,
+    PageTransitionSettings? pageTransitionSettings,
+    PageTransitionType? pageTransition,
+    Function(dynamic value)? onPop}) async {
+  NyArgument nyArgument = NyArgument(data);
+  String? route = NyNavigator.instance.router.getAuthRouteName();
+  if (route == null) {
+    NyLogger.debug("No auth route set");
+    return;
+  }
+  await NyNavigator.instance.router
+      .navigate(route,
+          args: nyArgument,
+          navigationType: navigationType,
+          result: result,
+          removeUntilPredicate: removeUntilPredicate,
+          pageTransitionType: pageTransition,
+          pageTransitionSettings: pageTransitionSettings)
+      .then((v) => onPop != null ? onPop(v) : (v) {});
+}
+
+/// Navigate to the initial route.
+routeToInitial(
+    {dynamic data,
+    NavigationType navigationType = NavigationType.pushAndForgetAll,
+    dynamic result,
+    bool Function(Route<dynamic> route)? removeUntilPredicate,
+    PageTransitionSettings? pageTransitionSettings,
+    PageTransitionType? pageTransition,
+    Function(dynamic value)? onPop}) async {
+  NyArgument nyArgument = NyArgument(data);
+  String route = NyNavigator.instance.router.getInitialRouteName();
+
+  await NyNavigator.instance.router
+      .navigate(route,
           args: nyArgument,
           navigationType: navigationType,
           result: result,

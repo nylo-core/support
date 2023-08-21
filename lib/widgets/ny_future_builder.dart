@@ -19,7 +19,7 @@ class NyFutureBuilder<T> extends StatelessWidget {
       : super(key: key);
 
   final Future<T>? future;
-  final Widget Function(BuildContext context, T data) child;
+  final Widget Function(BuildContext context, T? data) child;
   final Widget Function(AsyncSnapshot snapshot)? onError;
   final Widget? loading;
 
@@ -51,10 +51,8 @@ class NyFutureBuilder<T> extends StatelessWidget {
                 }
                 return const SizedBox.shrink();
               }
-              if (snapshot.hasData) {
-                return child(context, snapshot.data!);
-              }
-              return const SizedBox.shrink();
+
+              return child(context, snapshot.data);
             }
           case ConnectionState.none:
             {

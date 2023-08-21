@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:event_bus_plus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
@@ -8,7 +9,8 @@ import 'package:nylo_support/helpers/auth.dart';
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
-import '../nylo.dart';
+import 'package:nylo_support/widgets/event_bus/update_state.dart';
+import '/nylo.dart';
 
 /// Returns a value from the .env file
 /// the [key] must exist as a string value e.g. APP_NAME.
@@ -116,6 +118,9 @@ abstract class Model {
     }
   }
 
+  /// Convert the model toJson.
+  toJson() {}
+
   /// Save an item to a collection
   /// E.g. List of numbers
   ///
@@ -165,13 +170,15 @@ class NyStorage {
           .write(key: key, value: object.toString());
     }
 
-    try {
-      Map<String, dynamic> json = object.toJson();
-      return await StorageManager.storage
-          .write(key: key, value: jsonEncode(json));
-    } on NoSuchMethodError catch (_) {
-      NyLogger.error(
-          '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
+    if (object is Model) {
+      try {
+        Map<String, dynamic> json = object.toJson();
+        return await StorageManager.storage
+            .write(key: key, value: jsonEncode(json));
+      } on NoSuchMethodError catch (_) {
+        NyLogger.error(
+            '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
+      }
     }
 
     return await StorageManager.storage
@@ -316,9 +323,13 @@ class NyStorage {
       (await readCollection(key)).isEmpty;
 
   /// Sync all the keys stored to the [Backpack] instance.
-  static Future syncToBackpack() async {
+  static Future syncToBackpack({bool overwrite = false}) async {
     Map<String, String> values = await readAll();
+    Backpack backpack = Backpack.instance;
     for (var data in values.entries) {
+      if (overwrite == false && backpack.contains(data.key)) {
+        continue;
+      }
       dynamic result = await NyStorage.read(data.key);
       Backpack.instance.set(data.key, result);
     }
@@ -419,8 +430,10 @@ class NyLogger {
     if (showLog) {
       Backpack.instance.set('SHOW_LOG', false);
     }
-    String time = DateTime.now().toString();
-    print('${type != null ? "[$type] " : ""}$message\ntime: $time');
+    DateTime dateTime = DateTime.now();
+    String dateTimeFormatted =
+        "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+    print('[$dateTimeFormatted] ${type != null ? "$type " : ""}$message');
   }
 }
 
@@ -451,7 +464,7 @@ nyEvent<T>({
 
   Map<Type, NyEvent> appEvents = events;
 
-  if (events.isEmpty) {
+  if (events.isEmpty && Backpack.instance.read('nylo') != null) {
     appEvents = Backpack.instance.read('nylo').getEvents();
   }
   assert(appEvents.containsKey(T),
@@ -578,6 +591,40 @@ T? match<T>(dynamic value, Map<String, dynamic> Function() values) {
 
 /// If you call [showNextLog] it will force the app to display the next
 /// 'NyLogger' log even if your app's APP_DEBUG is set to false.
-showNextLog() {
+void showNextLog() {
   Backpack.instance.set('SHOW_LOG', true);
+}
+
+/// Update's the state of a NyState Widget in your application.
+/// Provide the [name] of the state and then return a value in the callback [setValue].
+///
+/// Example
+/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
+///   // [currentValue] will contain the current value
+///   return (1 + currentValue).toString();
+/// });
+///
+void updateState<T>(String name,
+    {dynamic Function(T? currentValue)? setValue}) {
+  EventBus? eventBus = Backpack.instance.read("event_bus");
+  if (eventBus == null) {
+    NyLogger.error(
+        'Event bus not defined, ensure your project as called nylo.addEventBus() in one of your providers.');
+    return;
+  }
+
+  dynamic data;
+  if (setValue != null) {
+    List<EventBusHistoryEntry> eventHistory = eventBus.history
+        .where(
+            (element) => element.event.runtimeType.toString() == 'UpdateState')
+        .toList();
+    if (eventHistory.isNotEmpty) {
+      T? lastValue = eventHistory.last.event.props[1] as T?;
+      data = setValue(lastValue);
+    }
+  }
+
+  final event = UpdateState(data: data, stateName: name);
+  eventBus.fire(event);
 }

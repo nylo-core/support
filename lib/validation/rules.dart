@@ -220,7 +220,7 @@ class NumericRule extends ValidationRule {
   @override
   bool handle(Map<String, dynamic> info) {
     super.handle(info);
-    RegExp _numeric = RegExp(r'^-?[0-9]+$');
+    RegExp _numeric = RegExp(r'^-?[0-9]\d*(\.\d+)?$');
     return _numeric.hasMatch(info['data']);
   }
 }

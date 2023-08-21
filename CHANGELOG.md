@@ -1,3 +1,21 @@
+## [5.5.0] - 2023-08-21
+
+* Add event_bus_plus to pubspec.yaml
+* Add pull_to_refresh_flutter3 to pubspec.yaml
+* Add new method `addEventBus` to Nylo class
+* Ability to use `lockRelease` on the validate helper
+* New widget - `NyPullToRefresh` this new widget provides a simple way to implement pull to refresh on your list views.
+* New widget - `NyListView` this new widget provides a simple way to implement a list view.
+* Change NyFutureBuilder to accept null in the `child` callback
+* New `updateState` helper to allow your to update the state of a NyState from anywhere in your project
+* Fix `syncToBackpack` method
+* New extension `fromBackpack` on Strings - Allows you to read a model from your Backpack instance. E.g. `User user = StorageKey.authUser.fromBackpack()`.
+* Fix validation rule `numeric`
+* Improve `NyFutureBuilder` to allow null types to be returned in the `child(context, data)` callback
+* New `reboot` method added to NyState, it will re-run your `boot()` method
+* New route helpers `routeToAuth()` & `routeToInitial()`
+* New `afterNotLocked()` method added to NyState.
+
 ## [5.4.0] - 2023-07-13
 
 * New helper added to `Nylo` class `initRoutes()`

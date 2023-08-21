@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/nylo.dart';
 
@@ -16,7 +18,22 @@ class Backpack {
       if (defaultValue != null) return defaultValue;
       return null;
     }
-    return _values[key];
+    dynamic value = _values[key];
+    if (T.toString() != 'dynamic' && (value is String)) {
+      dynamic nyJson = _NyJson.tryDecode(value);
+      if (nyJson != null) {
+        T model = dataToModel<T>(data: nyJson);
+        _values[key] = model;
+        return model;
+      }
+    }
+
+    return value;
+  }
+
+  /// Checks if Backpack contains a key.
+  bool contains(String key) {
+    return _values.containsKey(key);
   }
 
   /// Set a value using a [key] and [value].
@@ -57,4 +74,15 @@ class Backpack {
   /// Check if the Backpack class contains an instance of Nylo.
   bool isNyloInitialized({String? key = "nylo"}) =>
       _values.containsKey(key) && _values[key] is Nylo;
+}
+
+/// helper to encode and decode data
+class _NyJson {
+  static dynamic tryDecode(data) {
+    try {
+      return jsonDecode(data);
+    } catch (e) {
+      return null;
+    }
+  }
 }
