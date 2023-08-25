@@ -136,7 +136,7 @@ abstract class Model {
   /// The [key] is the collection you want to access, you can also save
   /// the collection to the [Backpack] class.
   Future saveToCollection<T>(String key, {bool inBackpack = false}) async {
-    await NyStorage.addToCollection<T>(key, newItem: this);
+    await NyStorage.addToCollection<T>(key, item: this);
     if (inBackpack == true) {
       Backpack.instance.set(key, this);
     }
@@ -156,33 +156,19 @@ class NyStorage {
       Backpack.instance.set(key, object);
     }
 
-    if (object is String) {
-      return await StorageManager.storage.write(key: key, value: object);
-    }
-
-    if (object is int) {
+    if (!(object is Model)) {
       return await StorageManager.storage
           .write(key: key, value: object.toString());
     }
 
-    if (object is double) {
+    try {
+      Map<String, dynamic> json = object.toJson();
       return await StorageManager.storage
-          .write(key: key, value: object.toString());
+          .write(key: key, value: jsonEncode(json));
+    } on NoSuchMethodError catch (_) {
+      NyLogger.error(
+          '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
     }
-
-    if (object is Model) {
-      try {
-        Map<String, dynamic> json = object.toJson();
-        return await StorageManager.storage
-            .write(key: key, value: jsonEncode(json));
-      } on NoSuchMethodError catch (_) {
-        NyLogger.error(
-            '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
-      }
-    }
-
-    return await StorageManager.storage
-        .write(key: key, value: object.toString());
   }
 
   /// Read a value from the local storage
@@ -253,14 +239,14 @@ class NyStorage {
 
   /// Add a newItem to the collection using a [key].
   static Future addToCollection<T>(String key,
-      {required dynamic newItem, bool allowDuplicates = true}) async {
+      {required dynamic item, bool allowDuplicates = true}) async {
     List<T> collection = await readCollection<T>(key);
     if (allowDuplicates == false) {
-      if (collection.any((collect) => collect == newItem)) {
+      if (collection.any((collect) => collect == item)) {
         return;
       }
     }
-    collection.add(newItem);
+    collection.add(item);
     await saveCollection<T>(key, collection);
   }
 
@@ -493,6 +479,10 @@ Future<dynamic> nyApi<T>(
     Map<String, dynamic> headers = const {},
     String? bearerToken,
     String? baseUrl,
+    int? page,
+    int? perPage,
+    String queryParamPage = "page",
+    String? queryParamPerPage,
     List<Type> events = const []}) async {
   assert(apiDecoders.containsKey(T),
       'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
@@ -516,6 +506,15 @@ Future<dynamic> nyApi<T>(
   // add baseUrl
   if (baseUrl != null) {
     apiService.setBaseUrl(baseUrl);
+  }
+
+  /// [queryParamPage] by default is 'page'
+  /// [queryParamPerPage] by default is 'per_page'
+  if (page != null) {
+    apiService.setPagination(page,
+        paramPage: queryParamPage,
+        paramPerPage: queryParamPerPage,
+        perPage: perPage);
   }
 
   dynamic result = await request(apiService);
@@ -605,7 +604,7 @@ void showNextLog() {
 /// });
 ///
 void updateState<T>(String name,
-    {dynamic Function(T? currentValue)? setValue}) {
+    {dynamic data, dynamic Function(T? currentValue)? setValue}) {
   EventBus? eventBus = Backpack.instance.read("event_bus");
   if (eventBus == null) {
     NyLogger.error(
@@ -613,7 +612,7 @@ void updateState<T>(String name,
     return;
   }
 
-  dynamic data;
+  dynamic _data = data;
   if (setValue != null) {
     List<EventBusHistoryEntry> eventHistory = eventBus.history
         .where(
@@ -621,10 +620,10 @@ void updateState<T>(String name,
         .toList();
     if (eventHistory.isNotEmpty) {
       T? lastValue = eventHistory.last.event.props[1] as T?;
-      data = setValue(lastValue);
+      _data = setValue(lastValue);
     }
   }
 
-  final event = UpdateState(data: data, stateName: name);
+  final event = UpdateState(data: _data, stateName: name);
   eventBus.fire(event);
 }

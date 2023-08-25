@@ -4,4 +4,5 @@ enum ToastNotificationStyleType {
   WARNING,
   INFO,
   DANGER,
+  CUSTOM,
 }

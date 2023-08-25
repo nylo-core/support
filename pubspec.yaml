@@ -12,7 +12,7 @@ topics:
   - framework
 
 environment:
-  sdk: '>=2.14.0 <4.0.0'
+  sdk: '>=2.15.0 <4.0.0'
   flutter: ">=1.17.0"
 
 dependencies:

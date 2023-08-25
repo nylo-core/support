@@ -33,6 +33,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.dragStartBehavior,
     this.keyboardDismissBehavior,
     this.restorationId,
+    this.headerStyle,
     this.clipBehavior,
   })  : kind = "builder",
         separatorBuilder = null,
@@ -65,6 +66,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.dragStartBehavior,
     this.keyboardDismissBehavior,
     this.restorationId,
+    this.headerStyle,
     this.clipBehavior,
   })  : kind = "separated",
         super(key: key);
@@ -95,6 +97,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final DragStartBehavior? dragStartBehavior;
   final ScrollViewKeyboardDismissBehavior? keyboardDismissBehavior;
   final String? restorationId;
+  final String? headerStyle;
   final Clip? clipBehavior;
 
   @override
@@ -251,7 +254,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
       return SmartRefresher(
         enablePullDown: true,
         enablePullUp: true,
-        header: WaterDropHeader(),
+        header: headerType(),
         footer: CustomFooter(
           builder: (BuildContext context, LoadStatus? mode) {
             Widget body;
@@ -279,5 +282,34 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
         child: child,
       );
     });
+  }
+
+  Widget headerType() {
+    switch (widget.headerStyle) {
+      case "ClassicHeader":
+        {
+          return ClassicHeader();
+        }
+      case "WaterDropHeader":
+        {
+          return WaterDropHeader();
+        }
+      case "MaterialClassicHeader":
+        {
+          return MaterialClassicHeader();
+        }
+      case "WaterDropMaterialHeader":
+        {
+          return WaterDropMaterialHeader();
+        }
+      case "BezierHeader":
+        {
+          return BezierHeader();
+        }
+      default:
+        {
+          return WaterDropHeader();
+        }
+    }
   }
 }

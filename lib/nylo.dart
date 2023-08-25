@@ -1,6 +1,8 @@
 import 'package:event_bus_plus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:nylo_support/alerts/toast_enums.dart';
+import 'package:nylo_support/alerts/toast_meta.dart';
 import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
@@ -18,6 +20,12 @@ class Nylo {
   Map<Type, NyEvent> _events = {};
   Map<String, dynamic> _validationRules = {};
   List<BaseThemeConfig> appThemes = [];
+  Widget Function({
+    required ToastNotificationStyleType style,
+    Function(ToastNotificationStyleMetaHelper helper)?
+        toastNotificationStyleMeta,
+    Function? onDismiss,
+  })? toastNotification;
   Map<Type, dynamic> _modelDecoders = {};
 
   Nylo({this.router})

@@ -1,3 +1,16 @@
+## [5.6.0] - 2023-08-25
+
+* New feature - `paginate` through your `List`'s, you can now call `[1,2,3,4,5].paginate(itemsPerPage: 2, page: iteration).toList();`
+* New Widget - `NySwitch` this widget allows you to provide a `List` of widgets and `index` for which should be the **child** widget.
+* New paginate feature for the `nyApi` helper. Now you can pass in a page like `api<ApiService>((request) => request.listOfDataExample(), page: 1);`. This will add a query parameter on your url like "my-example-site.com/todos?page=1".
+* Remove `color` helper from NyState
+* Remove `stateInit` from NyState
+* Add `stateData` to NyState
+* Change afterLoad, afterNotNull and afterNotLocked to use `loading` as the new parameter when you need to override the Loading widget.
+* Ability to set custom toast notifications
+* Refactor toast notifications
+* Refactor addToCollection() method `newItem` to `item`
+
 ## [5.5.1] - 2023-08-21
 
 * Update pubspec.yaml

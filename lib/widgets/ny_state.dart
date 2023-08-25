@@ -5,8 +5,6 @@ import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/themes/base_color_styles.dart';
-import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/validation/ny_validator.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
 
@@ -23,6 +21,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// The [stateName] is used as the ID for the [UpdateState] class.
   String? stateName;
 
+  /// The [stateData] contains the last value set from a `updateState()` call.
+  dynamic stateData;
+
   /// If set, the [boot] method will not be called.
   bool requiresBoot = true;
 
@@ -30,7 +31,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   bool initialLoad = true;
 
   /// Check if the state should listen for events via the [EventBus].
-  bool get allowStateUpdates => stateName != null;
+  bool get allowStateUpdates => stateName != null && eventBus != null;
 
   /// Contains a map for all the loading keys.
   Map<String, bool> _loadingMap = {};
@@ -38,34 +39,24 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Contains a map for all the locked states.
   Map<String, bool> _lockMap = {};
 
-  /// Helper to get the [MediaQueryData].
-  BaseColorStyles color({String? themeId}) {
-    Nylo nylo = Backpack.instance.read('nylo');
-    BaseThemeConfig baseThemeConfig = nylo.appThemes.firstWhere(
-        (theme) => theme.id == (themeId ?? getEnv('LIGHT_THEME_ID')),
-        orElse: () => nylo.appThemes.first);
-    return baseThemeConfig.colors;
-  }
-
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       initialLoad = false;
-      if (eventBus != null && allowStateUpdates) {
+      if (allowStateUpdates) {
         List<EventBusHistoryEntry> eventHistory = eventBus!.history
             .where((element) =>
                 element.event.runtimeType.toString() == 'UpdateState')
             .toList();
         if (eventHistory.isNotEmpty) {
-          stateInit(eventHistory.last.event.props[1]);
+          stateData = eventHistory.last.event.props[1];
         }
-        eventBus!.on<UpdateState>().listen((event) {
+        eventBus!.on<UpdateState>().listen((event) async {
           if (event.stateName != stateName) return;
 
-          setState(() {
-            stateUpdated(event.data);
-          });
+          await stateUpdated(event.data);
+          setState(() {});
         });
       }
       await this.init();
@@ -79,14 +70,10 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// E.g.
   /// updateState('my_state', data: "Hello World");
   ///
-  /// stateUpdated(data) {
+  /// stateUpdated(dynamic data) {
   ///   data = "Hello World"
   /// }
-  void stateUpdated(dynamic data) {}
-
-  /// [stateInit] is called once within your [initState], this method
-  /// will contain any previous [data] for your state.
-  void stateInit(dynamic data) {}
+  stateUpdated(dynamic data) async {}
 
   void dispose() {
     super.dispose();
@@ -156,12 +143,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       required String description,
       IconData? icon,
       Duration? duration}) {
-    showToastNotification(context,
-        style: style,
-        title: title,
-        description: description,
-        icon: icon,
-        duration: duration);
+    showToastNotification(
+      context,
+      style: style,
+      title: title,
+      description: description,
+      icon: icon,
+      duration: duration,
+    );
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you
@@ -198,6 +187,15 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
         title: title ?? "Success",
         description: description,
         style: style ?? ToastNotificationStyleType.SUCCESS);
+  }
+
+  /// Display a custom Toast message.
+  showToastCustom(
+      {String? title, String? description, ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "",
+        description: description ?? "",
+        style: style ?? ToastNotificationStyleType.CUSTOM);
   }
 
   /// Validate data from your widget.
@@ -406,34 +404,33 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   }
 
   /// The [afterLoad] method will check if the state is loading
-  /// If loading it will display the [placeholder] widget.
+  /// If loading it will display the [loading] widget.
   /// You can also specify the name of the [loadingKey].
   Widget afterLoad(
-      {required Function() child, Widget? placeholder, String? loadingKey}) {
+      {required Function() child, Widget? loading, String? loadingKey}) {
     if (initialLoad == true || isLoading(name: loadingKey ?? "default")) {
       Nylo nylo = Backpack.instance.read('nylo');
-      return placeholder ?? nylo.appLoader;
+      return loading ?? nylo.appLoader;
     }
     return child();
   }
 
-  /// The [afterNotNull] method will check if the state is loading
-  /// If loading it will display the [placeholder] widget.
-  /// You can also specify the name of the [loadingKey].
+  /// The [afterNotNull] method will check if the [variable] passed in is null
+  /// If the variable is not null, it will display the [loading] widget.
   Widget afterNotNull(dynamic variable,
-      {required Function() child, Widget? loadingPlaceholder}) {
+      {required Function() child, Widget? loading}) {
     if (variable == null) {
-      return loadingPlaceholder ?? Backpack.instance.nylo().appLoader;
+      return loading ?? Backpack.instance.nylo().appLoader;
     }
     return child();
   }
 
   /// The [afterNotLocked] method will check if the state is locked,
-  /// if the state is locked it will display the [locked] widget.
+  /// if the state is locked it will display the [loading] widget.
   Widget afterNotLocked(String name,
-      {required Function() child, Widget? locked}) {
+      {required Function() child, Widget? loading}) {
     if (isLocked(name)) {
-      return locked ?? Backpack.instance.nylo().appLoader;
+      return loading ?? Backpack.instance.nylo().appLoader;
     }
     return child();
   }

@@ -270,4 +270,57 @@ extension NyBackpack<T> on String {
   T? fromBackpack<T>() {
     return Backpack.instance.read<T>(this);
   }
+
+  /// Read a StorageKey value from NyStorage
+  Future<T?> fromStorage<T>() async {
+    return await NyStorage.read<T>(this);
+  }
+
+  /// Delete a StorageKey value from NyStorage
+  deleteFromStorage({bool andFromBackpack = false}) async {
+    return await NyStorage.delete(this, andFromBackpack: andFromBackpack);
+  }
+}
+
+/// Extension on the `List<T>` class that adds a `paginate` method for easy
+/// pagination of list elements.
+extension Paginate<T> on List<T> {
+  /// Paginates the elements of the list based on the given parameters.
+  ///
+  /// The `paginate` method allows you to split a list of elements into
+  /// multiple pages, with each page containing a specified number of items.
+  /// This can be useful for implementing paginated UIs, such as displaying
+  /// a limited number of items per page in a list view.
+  ///
+  /// The [itemsPerPage] parameter specifies the maximum number of items
+  /// to include on each page. The [page] parameter specifies the page
+  /// number (1-based) for which you want to retrieve the items.
+  ///
+  /// The method returns an `Iterable<T>` that represents the elements on the
+  /// specified page. Note that the iterable is lazily evaluated, meaning that
+  /// elements are computed on-demand as you iterate over it.
+  ///
+  /// If the calculated start index for the page exceeds the length of the list,
+  /// or if the list is empty, the returned iterable will be empty.
+  ///
+  /// Example usage:
+  ///
+  /// ```dart
+  /// final List<int> numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+  /// final int itemsPerPage = 3;
+  ///
+  /// final Iterable<int> firstPage = numbers.paginate(itemsPerPage: itemsPerPage, page: 1);
+  /// print(firstPage.toList()); // Output: [1, 2, 3]
+  ///
+  /// final Iterable<int> secondPage = numbers.paginate(itemsPerPage: itemsPerPage, page: 2);
+  /// print(secondPage.toList()); // Output: [4, 5, 6]
+  /// ```
+  Iterable<T> paginate({required int itemsPerPage, required int page}) sync* {
+    final startIndex = (page - 1) * itemsPerPage;
+    final endIndex = startIndex + itemsPerPage;
+
+    for (int i = startIndex; i < endIndex && i < length; i++) {
+      yield this[i];
+    }
+  }
 }
