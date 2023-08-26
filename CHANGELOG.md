@@ -1,3 +1,11 @@
+## [5.7.0] - 2023-08-26
+
+* Add new toast notification helpers to `NyState`
+  * showToastWarning
+  * showToastInfo
+  * showToastDanger
+* Fix toast_meta.dart style types
+
 ## [5.6.0] - 2023-08-25
 
 * New feature - `paginate` through your `List`'s, you can now call `[1,2,3,4,5].paginate(itemsPerPage: 2, page: iteration).toList();`

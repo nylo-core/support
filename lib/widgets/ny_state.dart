@@ -165,6 +165,42 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
         style: style ?? ToastNotificationStyleType.DANGER);
   }
 
+  /// Displays a Toast message containing "Warning" for the title, you
+  /// only need to provide a [description].
+  showToastWarning(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Warning",
+        description: description,
+        style: style ?? ToastNotificationStyleType.WARNING);
+  }
+
+  /// Displays a Toast message containing "Info" for the title, you
+  /// only need to provide a [description].
+  showToastInfo(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Info",
+        description: description,
+        style: style ?? ToastNotificationStyleType.INFO);
+  }
+
+  /// Displays a Toast message containing "Error" for the title, you
+  /// only need to provide a [description].
+  showToastDanger(
+      {String? title,
+      required String description,
+      ToastNotificationStyleType? style}) {
+    showToast(
+        title: title ?? "Error",
+        description: description,
+        style: style ?? ToastNotificationStyleType.DANGER);
+  }
+
   /// Displays a Toast message containing "Oops" for the title, you
   /// only need to provide a [description].
   showToastOops(

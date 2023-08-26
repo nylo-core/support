@@ -64,7 +64,7 @@ class ToastMeta {
         color = Colors.teal,
         duration = const Duration(seconds: 5),
         action = action ?? null,
-        style = 'warning',
+        style = 'info',
         super();
 
   ToastMeta.danger({
@@ -89,7 +89,7 @@ class ToastMeta {
     Duration? duration,
     Function? action,
   })  : icon = const Icon(Icons.warning, color: Colors.white, size: 30),
-        title = "Oops!",
+        title = "",
         description = "",
         color = Colors.redAccent,
         duration = const Duration(seconds: 7),
