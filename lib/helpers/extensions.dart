@@ -2,19 +2,21 @@ import 'dart:io';
 
 import 'package:flutter/material.dart'
     show
-        Color,
-        Text,
+        Brightness,
         BuildContext,
-        Theme,
-        TextDirection,
-        TextStyle,
-        TextAlign,
+        Color,
         FontWeight,
         Key,
+        Locale,
+        MediaQuery,
         StrutStyle,
+        Text,
+        TextAlign,
+        TextDirection,
         TextOverflow,
+        TextStyle,
         TextWidthBasis,
-        Locale;
+        Theme;
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 
@@ -322,5 +324,17 @@ extension Paginate<T> on List<T> {
     for (int i = startIndex; i < endIndex && i < length; i++) {
       yield this[i];
     }
+  }
+}
+
+/// Check if the device is in Dark Mode
+extension DarkMode on BuildContext {
+  /// Example
+  /// if (context.isDarkMode) {
+  ///   do something here...
+  /// }
+  bool get isDarkMode {
+    final brightness = MediaQuery.of(this).platformBrightness;
+    return brightness == Brightness.dark;
   }
 }

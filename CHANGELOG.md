@@ -1,3 +1,7 @@
+## [5.8.1] - 2023-08-31
+
+* New helper to check if the device is in dark mode.
+
 ## [5.8.0] - 2023-08-31
 
 * Ability to set a default value on NyStorage
