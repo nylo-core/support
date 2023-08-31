@@ -554,7 +554,8 @@ T nyColorStyle<T>(BuildContext context, {String? themeId}) {
 
   if (themeId == null) {
     BaseThemeConfig<T> themeFound = appThemes.firstWhere(
-        (theme) => theme.id == ThemeProvider.controllerOf(context).currentThemeId,
+        (theme) =>
+            theme.id == ThemeProvider.controllerOf(context).currentThemeId,
         orElse: () => appThemes.first);
     return themeFound.colors;
   }

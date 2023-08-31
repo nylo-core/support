@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_meta.dart';
 import 'package:nylo_support/helpers/helper.dart';
 
+/// [DefaultToastNotification] a simple toast notification
 class DefaultToastNotification extends StatelessWidget {
   const DefaultToastNotification(ToastMeta toastMeta, {Key? key, this.dismiss})
       : _toastMeta = toastMeta,
