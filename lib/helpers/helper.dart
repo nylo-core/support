@@ -10,6 +10,7 @@ import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
+import 'package:theme_provider/theme_provider.dart';
 import '/nylo.dart';
 
 /// Returns a value from the .env file
@@ -172,10 +173,10 @@ class NyStorage {
   }
 
   /// Read a value from the local storage
-  static Future<dynamic> read<T>(String key) async {
+  static Future<dynamic> read<T>(String key, {dynamic defaultValue}) async {
     String? data = await StorageManager.storage.read(key: key);
     if (data == null) {
-      return null;
+      return defaultValue;
     }
 
     if (T.toString() == "String") {
@@ -553,11 +554,7 @@ T nyColorStyle<T>(BuildContext context, {String? themeId}) {
 
   if (themeId == null) {
     BaseThemeConfig<T> themeFound = appThemes.firstWhere(
-        (theme) =>
-            theme.id ==
-            getEnv(Theme.of(context).brightness == Brightness.light
-                ? 'LIGHT_THEME_ID'
-                : 'DARK_THEME_ID'),
+        (theme) => theme.id == ThemeProvider.controllerOf(context).currentThemeId,
         orElse: () => appThemes.first);
     return themeFound.colors;
   }

@@ -1,3 +1,10 @@
+## [5.8.0] - 2023-08-31
+
+* Ability to set a default value on NyStorage
+* Fix https://github.com/nylo-core/framework/issues/35
+* Ability to set a default value on `NyStorage.read`
+* Update pubspec.yaml
+
 ## [5.7.0] - 2023-08-26
 
 * Add new toast notification helpers to `NyState`
