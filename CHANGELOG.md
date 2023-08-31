@@ -1,3 +1,7 @@
+## [5.8.2] - 2023-08-31
+
+* Fix nyColorStyle to use the correct theme color
+
 ## [5.8.1] - 2023-08-31
 
 * New helper to check if the device is in dark mode.

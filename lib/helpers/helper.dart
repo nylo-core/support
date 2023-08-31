@@ -7,6 +7,7 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/helpers/auth.dart';
 import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/helpers/extensions.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
@@ -553,10 +554,12 @@ T nyColorStyle<T>(BuildContext context, {String? themeId}) {
       nylo.appThemes as List<BaseThemeConfig<T>>;
 
   if (themeId == null) {
-    BaseThemeConfig<T> themeFound = appThemes.firstWhere(
-        (theme) =>
-            theme.id == ThemeProvider.controllerOf(context).currentThemeId,
-        orElse: () => appThemes.first);
+    BaseThemeConfig<T> themeFound = appThemes.firstWhere((theme) {
+      if (context.isDarkMode) {
+        return theme.id == getEnv('DARK_THEME_ID');
+      }
+      return theme.id == ThemeProvider.controllerOf(context).currentThemeId;
+    }, orElse: () => appThemes.first);
     return themeFound.colors;
   }
 
