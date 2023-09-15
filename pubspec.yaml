@@ -16,14 +16,14 @@ environment:
   flutter: ">=1.17.0"
 
 dependencies:
-  page_transition: ^2.0.9
+  page_transition: ^2.1.0
   flutter_secure_storage: ^9.0.0
   flutter_dotenv: ^5.1.0
   theme_provider: ^0.6.0
   validated: ^2.0.0
   recase: ^4.1.0
   flutter_styled_toast: ^2.2.1
-  animate_do: ^3.0.2
+  animate_do: ^3.1.2
   event_bus_plus: ^0.6.1
   pull_to_refresh_flutter3: ^2.0.1
   flutter_localizations:

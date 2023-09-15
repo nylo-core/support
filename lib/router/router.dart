@@ -398,8 +398,9 @@ class NyRouter {
   /// Generates the [RouteFactory] which builds a [Route] on request.
   ///
   /// These routes are built using the [NyRouterRoute]s [addRoute] method.
-  RouteFactory generator() {
-    return (settings) {
+  RouteFactory generator(
+      {Widget Function(BuildContext context, Widget widget)? builder}) {
+    return (RouteSettings settings) {
       if (settings.name == null) return null;
 
       Uri? uriSettingName;
@@ -450,6 +451,13 @@ class NyRouter {
       return PageTransition(
           child: StatefulBuilder(
               builder: (BuildContext context, StateSetter setState) {
+            if (builder != null) {
+              Widget widget = route.builder(
+                  context,
+                  baseArgs ?? route.defaultArgs,
+                  queryParameters ?? route.queryParameters);
+              return builder(context, widget);
+            }
             return route.builder(context, baseArgs ?? route.defaultArgs,
                 queryParameters ?? route.queryParameters);
           }),

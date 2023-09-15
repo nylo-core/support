@@ -1,3 +1,8 @@
+## [5.9.0] - 2023-09-15
+
+* Add optional **builder** callback to the `route.generator()` method. This can be used to override the default Widget returned.
+* Update pubspec.yaml
+
 ## [5.8.2] - 2023-08-31
 
 * Fix nyColorStyle to use the correct theme color
