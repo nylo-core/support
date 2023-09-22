@@ -1,3 +1,7 @@
+## [5.9.1] - 2023-09-22
+
+* Update pubspec.yaml
+
 ## [5.9.0] - 2023-09-15
 
 * Add optional **builder** callback to the `route.generator()` method. This can be used to override the default Widget returned.
