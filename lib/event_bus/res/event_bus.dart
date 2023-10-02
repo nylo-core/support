@@ -180,7 +180,8 @@ class EventBus implements IEventBus {
       final newEvent = func(event);
       if (newEvent.runtimeType == event.runtimeType) {
         if (allowLogging) {
-          NyLogger.debug(' 🟠 SKIP EVENT: ${newEvent.runtimeType} => ${event.runtimeType}');
+          NyLogger.debug(
+              ' 🟠 SKIP EVENT: ${newEvent.runtimeType} => ${event.runtimeType}');
         }
         continue;
       }
