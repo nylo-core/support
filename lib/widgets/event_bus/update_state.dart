@@ -1,4 +1,4 @@
-import 'package:event_bus_plus/event_bus_plus.dart';
+import 'package:nylo_support/event_bus/event_bus_plus.dart';
 
 /// UpdateState Model.
 

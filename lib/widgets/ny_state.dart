@@ -1,4 +1,4 @@
-import 'package:event_bus_plus/event_bus_plus.dart';
+import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
 import 'package:nylo_support/helpers/backpack.dart';

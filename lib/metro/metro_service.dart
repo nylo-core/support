@@ -186,6 +186,21 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
     });
   }
 
+  /// Creates a new config file.
+  static makeConfig(String configName, String value,
+      {String folderPath = configFolder, bool forceCreate = false}) async {
+    String filePath = '$folderPath/${configName.toLowerCase()}.dart';
+    String name = configName.replaceAll(RegExp(r'(_?config)'), "");
+    ReCase nameReCase = ReCase(name);
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value, onSuccess: () {
+      MetroConsole.writeInGreen(
+          '[Config] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+    });
+  }
+
   /// Creates a new Stateful Widget.
   static makeStatefulWidget(String className, String value,
       {String folderPath = widgetsFolder, bool forceCreate = false}) async {

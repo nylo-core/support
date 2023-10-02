@@ -1,3 +1,9 @@
+## [5.10.0] - 2023-10-01
+
+* Ability to create config files
+* Add `event_bus_plus` to the library
+* Update pubspec.yaml
+
 ## [5.9.1] - 2023-09-22
 
 * Update pubspec.yaml
