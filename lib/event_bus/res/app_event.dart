@@ -1,4 +1,3 @@
-import 'package:clock/clock.dart';
 import 'package:equatable/equatable.dart';
 
 /// The base class for all events
@@ -7,7 +6,7 @@ abstract class AppEvent extends Equatable {
   const AppEvent();
 
   /// The event time
-  DateTime get timestamp => clock.now();
+  DateTime get timestamp => DateTime.now();
 }
 
 /// The event completion event
