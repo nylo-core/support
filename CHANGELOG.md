@@ -1,3 +1,8 @@
+## [5.10.1] - 2023-10-08
+
+* Fix typo in log
+* update validator & updateState docs
+
 ## [5.10.0] - 2023-10-01
 
 * Ability to create config files

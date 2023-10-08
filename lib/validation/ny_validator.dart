@@ -6,7 +6,7 @@ import 'package:nylo_support/validation/rules.dart';
 import 'package:nylo_support/validation/validations.dart';
 
 class NyValidator {
-  /// This validator method provides an easy way to validate data.
+  /// NyValidator provides an easy way to validate data.
   /// You can use this method like in the example below:
   /// try {
   ///   NyValidator.check(rules: {

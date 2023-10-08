@@ -598,18 +598,41 @@ void showNextLog() {
 /// Update's the state of a NyState Widget in your application.
 /// Provide the [name] of the state and then return a value in the callback [setValue].
 ///
-/// Example
-/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
-///   // [currentValue] will contain the current value
-///   return (1 + currentValue).toString();
+/// Example using data param
+/// updateState<double>(NotificationCounter.state, data: {
+///   "value": 10
 /// });
+///
+/// Example in your NyState widget
+/// @override
+/// stateUpdated(dynamic data) async {
+///   print(data['value']); // 10
+/// }
+///
+///
+/// Example using setValue param
+/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
+///   if (currentValue == null) return 1;
+///   return (currentValue + 1);
+/// });
+///
+/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
+///   [currentValue] will contain the last value e.g. 1
+///   return (currentValue + 1);
+/// });
+///
+/// Example in your NyState widget
+/// @override
+/// stateUpdated(dynamic data) async {
+///   print(data); // 2
+/// }
 ///
 void updateState<T>(String name,
     {dynamic data, dynamic Function(T? currentValue)? setValue}) {
   EventBus? eventBus = Backpack.instance.read("event_bus");
   if (eventBus == null) {
     NyLogger.error(
-        'Event bus not defined, ensure your project as called nylo.addEventBus() in one of your providers.');
+        'Event bus not defined. Please ensure that your project has called nylo.addEventBus() in one of your providers.');
     return;
   }
 
