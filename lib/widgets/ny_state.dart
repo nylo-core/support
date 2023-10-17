@@ -81,6 +81,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     _loadingMap = {};
   }
 
+  /// Notify the framework that the internal state of this object has changed.
+  ///
+  /// Whenever you change the internal state of a [State] object, make the
+  /// change in a function that you pass to [setState]:
+  ///
+  /// ```dart
+  /// setState(() { _myState = newValue; });
+  /// ```
   @override
   void setState(VoidCallback fn) {
     if (mounted) {

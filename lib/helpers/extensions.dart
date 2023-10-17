@@ -9,12 +9,15 @@ import 'package:flutter/material.dart'
         Key,
         Locale,
         MediaQuery,
+        MediaQueryData,
+        Navigator,
         StrutStyle,
         Text,
         TextAlign,
         TextDirection,
         TextOverflow,
         TextStyle,
+        TextTheme,
         TextWidthBasis,
         Theme;
 import 'package:nylo_support/helpers/backpack.dart';
@@ -336,5 +339,27 @@ extension DarkMode on BuildContext {
   bool get isDarkMode {
     final brightness = MediaQuery.of(this).platformBrightness;
     return brightness == Brightness.dark;
+  }
+}
+
+extension NyContext on BuildContext {
+  TextTheme textTheme() {
+    return Theme.of(this).textTheme;
+  }
+
+  MediaQueryData mediaQuery() {
+    return MediaQuery.of(this);
+  }
+
+  pop<T extends Object?>({T? result}) {
+    Navigator.of(this).pop(result);
+  }
+
+  double widgetWidth() {
+    return mediaQuery().size.width;
+  }
+
+  double widgetHeight() {
+    return mediaQuery().size.height;
   }
 }

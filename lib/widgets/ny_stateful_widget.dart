@@ -1,15 +1,22 @@
 import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/controllers/controller.dart';
+import 'package:nylo_support/controllers/ny_controller.dart';
+import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/nylo.dart';
 
 /// StatefulWidget's include a [BaseController] to access from your child state.
-abstract class NyStatefulWidget extends StatefulWidget {
+abstract class NyStatefulWidget<T extends BaseController>
+    extends StatefulWidget {
   /// Get the route [controller].
-  final BaseController? controller;
+  late final T? controller;
 
   /// Get the route [path] for the page.
   static const String? path = "";
 
-  NyStatefulWidget({Key? key, this.controller}) : super(key: key);
+  NyStatefulWidget({Key? key}) : super(key: key) {
+    Nylo nylo = Backpack.instance.nylo();
+    controller = nylo.getController(T) ?? NyController();
+  }
 
   StatefulElement createElement() => StatefulElement(this);
 

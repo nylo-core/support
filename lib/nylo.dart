@@ -27,6 +27,7 @@ class Nylo {
     Function? onDismiss,
   })? toastNotification;
   Map<Type, dynamic> _modelDecoders = {};
+  Map<Type, dynamic> _controllers = {};
 
   Nylo({this.router})
       : appLoader = CircularProgressIndicator(),
@@ -51,6 +52,11 @@ class Nylo {
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.set("nylo", this);
     }
+  }
+
+  /// Find a [controller]
+  dynamic getController(dynamic controller) {
+    return _controllers[controller];
   }
 
   /// Get the initial route.
@@ -130,6 +136,14 @@ class Nylo {
     eventBus.watch(event);
 
     Backpack.instance.set("event_bus", eventBus);
+  }
+
+  /// Add Controllers to your Nylo project.
+  addControllers(Map<Type, dynamic> controllers) {
+    _controllers.addAll(controllers);
+    if (!Backpack.instance.isNyloInitialized()) {
+      Backpack.instance.set("nylo", this);
+    }
   }
 
   /// Initialize Nylo

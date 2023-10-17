@@ -3,6 +3,7 @@ import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
 import 'package:nylo_support/router/router.dart';
+import 'package:nylo_support/widgets/ny_page.dart';
 import 'package:nylo_support/widgets/ny_stateful_widget.dart';
 import 'package:flutter/widgets.dart';
 import 'package:page_transition/page_transition.dart';
@@ -43,6 +44,16 @@ class NyRouterRoute {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
+        if (widget.controller != null) {
+          widget.controller!.request = NyRequest(
+            currentRoute: name,
+            args: arg,
+            queryParameters: queryParameters,
+          );
+          widget.controller!.construct(context);
+        }
+      }
+      if (widget is NyPage) {
         if (widget.controller != null) {
           widget.controller!.request = NyRequest(
             currentRoute: name,

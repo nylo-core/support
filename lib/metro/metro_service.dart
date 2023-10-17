@@ -51,6 +51,33 @@ class MetroService {
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+
+    String classImport =
+        "import '/app/controllers/${nameReCase.snakeCase}_controller.dart';";
+
+    await MetroService.addToConfig(
+        configName: "decoders",
+        classImport: classImport,
+        createTemplate: (file) {
+          String controllerName = "${nameReCase.pascalCase}Controller";
+          if (file.contains(controllerName)) {
+            return "";
+          }
+
+          RegExp reg = RegExp(
+              r'final Map<Type, BaseController> controllers = \{([^}]*)\};');
+          String temp = """
+final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+  $controllerName: $controllerName(),
+};""";
+
+          return file.replaceFirst(
+            RegExp(
+                r'final Map<Type, BaseController> controllers = \{([^}]*)\};'),
+            temp,
+          );
+        });
+
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
           '[Controller] ${nameReCase.snakeCase}_controller created 🎉');
@@ -112,14 +139,12 @@ class MetroService {
           if (reg.allMatches(file).map((e) => e.group(1)).toList().isEmpty) {
             return "";
           }
-          String temp = """
-appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
-  router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page());
-});
-  """;
+          String temp =
+              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page());
+});""";
 
           return file.replaceFirst(
-            RegExp(r'appRouter\(\) => nyRoutes\(\(router\) {([^}]*)\n}\);'),
+            RegExp(r'appRouter\(\) => nyRoutes\(\(router\) {([^}]*)}\);'),
             temp,
           );
         });
@@ -154,7 +179,7 @@ appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).
           }
 
           RegExp reg =
-              RegExp(r'final Map<Type, dynamic> modelDecoders = {([^};]*)};');
+              RegExp(r'final Map<Type, dynamic> modelDecoders = \{([^}]*)\};');
           if (reg.allMatches(file).map((e) => e.group(1)).toList().isEmpty) {
             return file;
           }
@@ -166,7 +191,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
 };""";
 
           return file.replaceFirst(
-              RegExp(r'final Map<Type, dynamic> modelDecoders = {([^};]*)};'),
+              RegExp(r'final Map<Type, dynamic> modelDecoders = \{([^}]*)\};'),
               template);
         });
   }
@@ -262,17 +287,15 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
             return "";
           }
 
-          RegExp reg = RegExp(
-              r'final Map<Type, NyProvider> providers = {([\w\W\n\r\s:(),\/\/]+)};');
+          RegExp reg =
+              RegExp(r'final Map<Type, NyProvider> providers = \{([^}]*)\};');
           String template = """
 final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $providerName: $providerName(),
-};
-  """;
+};""";
 
           return file.replaceFirst(
-              RegExp(
-                  r'final Map<Type, NyProvider> providers = {[\w\W\n\r\s:(),\/\/]+(};)'),
+              RegExp(r'final Map<Type, NyProvider> providers = \{([^}]*)\};'),
               template);
         });
   }
@@ -324,17 +347,15 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
             return "";
           }
 
-          RegExp reg = RegExp(
-              r'final Map<Type, NyEvent> events = {([\w\W\n\r\s:(),\/\/]+)};');
+          RegExp reg =
+              RegExp(r'final Map<Type, NyEvent> events = \{([^}]*)\};');
           String template = """
 final Map<Type, NyEvent> events = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $eventName: $eventName(),
-};
-  """;
+};""";
 
           return file.replaceFirst(
-              RegExp(
-                  r'final Map<Type, NyEvent> events = {[\w\W\n\r\s:(),\/\/]+(};)'),
+              RegExp(r'final Map<Type, NyEvent> events = \{([^}]*)\};'),
               template);
         });
   }
@@ -369,16 +390,15 @@ final Map<Type, NyEvent> events = {${reg.allMatches(file).map((e) => e.group(1))
           }
 
           RegExp reg = RegExp(
-              r'final Map<Type, BaseApiService> apiDecoders = {([\w\W\n\r\s:(),\/\/]+)};');
+              r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};');
           String temp = """
 final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $apiServiceName: $apiServiceName(),
-};
-  """;
+};""";
 
           return file.replaceFirst(
             RegExp(
-                r'final Map<Type, BaseApiService> apiDecoders = {[\w\W\n\r\s:(),\/\/]+(};)'),
+                r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};'),
             temp,
           );
         });

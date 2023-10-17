@@ -1,3 +1,17 @@
+## [5.11.0] - 2023-10-17
+
+* Improve regex to auto add classes and routes
+* New `NyPage` widget - Learn more [here](https://nylo.dev/docs/5.x/ny-page)
+* New helper for the Nylo class - `addControllers`
+* Improve Metro to auto add controllers when created
+* Add more docs
+* New extensions added to BuildContext:
+  * textTheme
+  * mediaQuery
+  * pop
+  * widgetWidth
+  * widgetHeight
+
 ## [5.10.1] - 2023-10-08
 
 * Fix typo in log
