@@ -55,7 +55,7 @@ showToastNotification(BuildContext context,
     toastNotificationWidget ??
         DefaultToastNotification(
           toastMeta,
-          dismiss: () {
+          onDismiss: () {
             ToastManager().dismissAll(showAnim: true);
           },
         ),

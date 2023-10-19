@@ -1,85 +1,135 @@
-import 'package:animate_do/animate_do.dart';
 import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_meta.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import 'package:nylo_support/helpers/extensions.dart';
+import 'package:nylo_support/localization/app_localization.dart';
 
 /// [DefaultToastNotification] a simple toast notification
 class DefaultToastNotification extends StatelessWidget {
-  const DefaultToastNotification(ToastMeta toastMeta, {Key? key, this.dismiss})
+  const DefaultToastNotification(ToastMeta toastMeta,
+      {Function? onDismiss, Key? key})
       : _toastMeta = toastMeta,
+        _dismiss = onDismiss,
         super(key: key);
 
   final ToastMeta _toastMeta;
-  final Function? dismiss;
+  final Function? _dismiss;
 
   @override
   Widget build(BuildContext context) {
-    return Stack(children: [
-      Container(
-        padding: EdgeInsets.symmetric(horizontal: 18.0),
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: 12),
+      child: Container(
         margin: EdgeInsets.symmetric(horizontal: 8.0),
         height: 100,
-        decoration: ShapeDecoration(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8.0),
-          ),
-          color: _toastMeta.color,
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Pulse(
-              child: Container(
-                child: Center(
-                  child: IconButton(
-                    onPressed: () {},
-                    icon: _toastMeta.icon ?? SizedBox.shrink(),
-                    padding: EdgeInsets.only(right: 16),
-                  ),
-                ),
-              ),
-              infinite: true,
-              duration: Duration(milliseconds: 1500),
-            ),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text(
-                    trans(_toastMeta.title),
-                    style: Theme.of(context)
-                        .textTheme
-                        .headlineSmall!
-                        .copyWith(color: Colors.white),
-                  ),
-                  Text(
-                    trans(_toastMeta.description),
-                    style: Theme.of(context)
-                        .textTheme
-                        .bodyLarge!
-                        .copyWith(color: Colors.white),
-                  ),
-                ],
-              ),
+        decoration: BoxDecoration(
+          color: context.isDarkMode ? "#282c34".toHexColor() : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          boxShadow: [
+            BoxShadow(
+              color: context.isDarkMode
+                  ? Colors.black12
+                  : Colors.grey.withOpacity(0.1),
+              spreadRadius: 3,
+              blurRadius: 5,
+              offset: Offset(0, 2),
             ),
           ],
         ),
-      ),
-      Positioned(
-        top: 0,
-        right: 0,
-        child: IconButton(
-            onPressed: () {
-              if (dismiss == null) return;
-              dismiss!();
+        child: Stack(children: [
+          InkWell(
+            onTap: () {
+              if (_toastMeta.action != null) {
+                _toastMeta.action!();
+              }
             },
-            icon: Icon(
-              Icons.close,
-              color: Colors.white,
-            )),
-      )
-    ]);
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                      color: _toastMeta.color,
+                      borderRadius: BorderRadius.only(
+                          bottomLeft: Radius.circular(8),
+                          topLeft: Radius.circular(8))),
+                  alignment: Alignment.center,
+                  child: Center(child: _toastMeta.icon),
+                  padding: EdgeInsets.symmetric(horizontal: 12),
+                  margin: EdgeInsets.only(right: 12),
+                ),
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(right: 40),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          _toastMeta.title.tr(),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall!
+                              .copyWith(
+                                  color: context.isDarkMode
+                                      ? Colors.white.withOpacity(0.8)
+                                      : "#171717".toHexColor()),
+                        ).fontWeightBold(),
+                        Flexible(
+                          child: Text(
+                            _toastMeta.description,
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(context)
+                                .textTheme
+                                .bodyLarge!
+                                .copyWith(
+                                    color: context.isDarkMode
+                                        ? Colors.white70
+                                        : "#5d626b".toHexColor()),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            top: 12,
+            right: 12,
+            bottom: 12,
+            child: Center(
+              child: Container(
+                height: 30,
+                width: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                    color: context.isDarkMode
+                        ? Colors.white30
+                        : "#f2f2f2".toHexColor(),
+                    borderRadius: BorderRadius.circular(20)),
+                child: Center(
+                  child: IconButton(
+                      padding: EdgeInsets.zero,
+                      onPressed: () {
+                        if (_dismiss != null) {
+                          _dismiss!();
+                        }
+                      },
+                      icon: Icon(
+                        Icons.close,
+                        color: context.isDarkMode
+                            ? Colors.white
+                            : "#878787".toHexColor(),
+                        size: 18,
+                      )),
+                ),
+              ),
+            ),
+          )
+        ]),
+      ),
+    );
   }
 }

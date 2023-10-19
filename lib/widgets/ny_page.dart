@@ -37,7 +37,14 @@ class _State extends NyState<NyPage> {
     switch (data['action']) {
       case 'refresh-page':
         {
-          setState(() {});
+          Function()? _setState = stateData['setState'];
+          if (_setState != null) {
+            this.setState(() {
+              _setState();
+            });
+            return;
+          }
+          reboot();
           break;
         }
       case 'validate':
@@ -155,6 +162,15 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
   /// Instance of the [Backpack] class
   Backpack get backpack => Backpack.instance;
 
+  /// Context of the state
+  BuildContext get context => controller!.context!;
+
+  /// Helper to get the [TextTheme].
+  TextTheme get textTheme => Theme.of(context).textTheme;
+
+  /// Helper to get the [MediaQueryData].
+  MediaQueryData get mediaQuery => MediaQuery.of(context);
+
   @override
   createState() {
     return _State(
@@ -203,8 +219,11 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
   boot() async {}
 
   /// Refresh the page
-  void refreshPage() {
-    updateState(path, data: {"action": "refresh-page", "data": {}});
+  void refreshPage({Function()? setState}) {
+    updateState(path, data: {
+      "action": "refresh-page",
+      "data": {"setState": setState}
+    });
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you

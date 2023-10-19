@@ -1,3 +1,12 @@
+## [5.12.0] - 2023-10-19
+
+* Update the look for Toast Notifications
+* Add new parameter **setState** on `refreshPage` to set the state of the Widget. 
+* New helpers added to `NyPage`
+  * context
+  * textTheme
+  * mediaQuery
+
 ## [5.11.0] - 2023-10-17
 
 * Improve regex to auto add classes and routes
