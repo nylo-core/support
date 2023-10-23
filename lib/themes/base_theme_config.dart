@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/themes/base_color_styles.dart';
 import 'package:theme_provider/theme_provider.dart';
 
 /// Base theme config is used for theme management
