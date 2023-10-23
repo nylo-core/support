@@ -150,6 +150,53 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
         });
   }
 
+  /// Adds a Theme to your config/theme.dart file.
+  static addToTheme(String className) async {
+    String name = className.replaceAll(RegExp(r'(_?theme)'), "");
+    ReCase nameReCase = ReCase(name);
+
+    String classesToAdd =
+        """import '/resources/themes/styles/${nameReCase.snakeCase}_theme_colors.dart';
+import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
+
+    String template = """BaseThemeConfig<ColorStyles>(
+    id: '${nameReCase.snakeCase}_theme',
+    description: "${nameReCase.titleCase} theme",
+    theme: ${nameReCase.paramCase}Theme,
+    colors: ${nameReCase.pascalCase}ThemeColors(),
+  ),""";
+
+    String filePath = "lib/config/theme.dart";
+    String originalFile = await loadAsset(filePath);
+
+    // create new file
+    if (originalFile.contains(template)) {
+      return "";
+    }
+
+    RegExp reg = RegExp(
+        r'final List<BaseThemeConfig<ColorStyles>> appThemes = \[([^}]*)\];');
+    if (reg.allMatches(originalFile).map((e) => e.group(1)).toList().isEmpty)
+      return "";
+
+    String temp =
+        """final List<BaseThemeConfig<ColorStyles>> appThemes = [${reg.allMatches(originalFile).map((e) => e.group(1)).toList()[0]} $template
+];""";
+
+    String newFile = originalFile.replaceFirst(
+      RegExp(
+          r'final List<BaseThemeConfig<ColorStyles>> appThemes = \[([^}]*)\];'),
+      temp,
+    );
+
+    // Add import
+    newFile = classesToAdd + "\n" + newFile;
+
+    // save new file
+    final File file = File(filePath);
+    await file.writeAsString(newFile);
+  }
+
   /// Creates a new Model.
   static makeModel(String className, String value,
       {String folderPath = modelsFolder,

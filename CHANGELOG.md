@@ -1,3 +1,7 @@
+## [5.13.0] - 2023-10-23
+
+* New `addToTheme` helper added to MetroService.
+
 ## [5.12.0] - 2023-10-19
 
 * Update the look for Toast Notifications
