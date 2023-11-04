@@ -197,6 +197,17 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
     await file.writeAsString(newFile);
   }
 
+  /// Runs a process
+  static runProcess(String command) async {
+    List<String> commands = command.split(" ");
+
+    final processArguments = commands.getRange(1, commands.length).toList();
+    final process = await Process.start(commands.first, processArguments,
+        runInShell: false);
+    await stdout.addStream(process.stdout);
+    await stderr.addStream(process.stderr);
+  }
+
   /// Creates a new Model.
   static makeModel(String className, String value,
       {String folderPath = modelsFolder,
@@ -396,10 +407,10 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
 
           RegExp reg =
               RegExp(r'final Map<Type, NyEvent> events = \{([^}]*)\};');
-          String template = """
-final Map<Type, NyEvent> events = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+          String template =
+              """final Map<Type, NyEvent> events = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $eventName: $eventName(),
-};""";
+  };""";
 
           return file.replaceFirst(
               RegExp(r'final Map<Type, NyEvent> events = \{([^}]*)\};'),

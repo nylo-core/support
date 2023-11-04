@@ -1,3 +1,7 @@
+## [5.14.0] - 2023-11-04
+
+* New `runProcess` helper added to MetroService.
+
 ## [5.13.0] - 2023-10-23
 
 * New `addToTheme` helper added to MetroService.
