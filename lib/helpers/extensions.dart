@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart'
     show
         Brightness,
@@ -16,6 +15,7 @@ import 'package:flutter/material.dart'
         TextAlign,
         TextDirection,
         TextOverflow,
+        TextScaler,
         TextStyle,
         TextTheme,
         TextWidthBasis,
@@ -27,10 +27,12 @@ import 'package:nylo_support/helpers/helper.dart';
 extension NyStr on String? {
   Color toHexColor() => nyHexColor(this ?? "");
 
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump(this ?? "", tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump(this ?? "", tag);
     exit(0);
@@ -39,10 +41,12 @@ extension NyStr on String? {
 
 /// Extensions for [int]
 extension NyInt on int? {
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
@@ -51,10 +55,12 @@ extension NyInt on int? {
 
 /// Extensions for [Map]
 extension NyMap on Map? {
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
@@ -63,10 +69,12 @@ extension NyMap on Map? {
 
 /// Extensions for [double]
 extension NyDouble on double? {
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
@@ -75,10 +83,12 @@ extension NyDouble on double? {
 
 /// Extensions for [bool]
 extension NyBool on bool? {
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
@@ -87,10 +97,12 @@ extension NyBool on bool? {
 
 /// Extensions for [List]
 extension NyList on List? {
+  /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
+  /// dump the value to the console and exit the app. [tag] is optional.
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
@@ -249,7 +261,7 @@ extension NyText on Text {
       Locale? locale,
       bool? softWrap,
       TextOverflow? overflow,
-      double? textScaleFactor,
+      TextScaler? textScaler,
       int? maxLines,
       String? semanticsLabel,
       TextWidthBasis? textWidthBasis,
@@ -262,7 +274,7 @@ extension NyText on Text {
         locale: locale ?? this.locale,
         softWrap: softWrap ?? this.softWrap,
         overflow: overflow ?? this.overflow,
-        textScaleFactor: textScaleFactor ?? this.textScaleFactor,
+        textScaler: textScaler ?? this.textScaler,
         maxLines: maxLines ?? this.maxLines,
         semanticsLabel: semanticsLabel ?? this.semanticsLabel,
         textWidthBasis: textWidthBasis ?? this.textWidthBasis,
@@ -343,22 +355,27 @@ extension DarkMode on BuildContext {
 }
 
 extension NyContext on BuildContext {
+  /// Get the TextTheme
   TextTheme textTheme() {
     return Theme.of(this).textTheme;
   }
 
+  /// Get the MediaQueryData
   MediaQueryData mediaQuery() {
     return MediaQuery.of(this);
   }
 
+  /// Pop the current page
   pop<T extends Object?>({T? result}) {
     Navigator.of(this).pop(result);
   }
 
+  /// Get the width of the screen
   double widgetWidth() {
     return mediaQuery().size.width;
   }
 
+  /// Get the height of the screen
   double widgetHeight() {
     return mediaQuery().size.height;
   }

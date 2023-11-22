@@ -299,6 +299,23 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
     });
   }
 
+  /// Create a new Interceptor.
+  static makeInterceptor(String className, String value,
+      {String folderPath = networkingInterceptorsFolder,
+      bool forceCreate = false}) async {
+    String name = className.replaceAll(RegExp(r'(_?interceptor)'), "");
+    ReCase nameReCase = ReCase(name);
+    String filePath =
+        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_interceptor.dart';
+
+    await _makeDirectory(folderPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value, onSuccess: () {
+      MetroConsole.writeInGreen(
+          '[Interceptor] ${nameReCase.snakeCase}_interceptor created 🎉');
+    });
+  }
+
   /// Creates a new Theme.
   static makeTheme(String className, String value,
       {String folderPath = themesFolder, bool forceCreate = false}) async {
@@ -447,18 +464,37 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
             return "";
           }
 
-          RegExp reg = RegExp(
-              r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};');
-          String temp = """
+          if (file.contains("final Map<Type, BaseApiService> apiDecoders =")) {
+            RegExp reg = RegExp(
+                r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};');
+            String temp = """
 final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $apiServiceName: $apiServiceName(),
 };""";
 
-          return file.replaceFirst(
-            RegExp(
-                r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};'),
-            temp,
-          );
+            return file.replaceFirst(
+              RegExp(
+                  r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};'),
+              temp,
+            );
+          }
+
+          if (file.contains("final Map<Type, NyApiService> apiDecoders =")) {
+            RegExp reg = RegExp(
+                r'final Map<Type, NyApiService> apiDecoders = \{([^}]*)\};');
+            String temp = """
+final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+  $apiServiceName: $apiServiceName(),
+};""";
+
+            return file.replaceFirst(
+              RegExp(
+                  r'final Map<Type, NyApiService> apiDecoders = \{([^}]*)\};'),
+              temp,
+            );
+          }
+
+          return file;
         });
   }
 

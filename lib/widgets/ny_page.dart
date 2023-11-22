@@ -27,6 +27,7 @@ class _State extends NyState<NyPage> {
 
   Function()? _init, _boot;
 
+  @override
   stateUpdated(dynamic data) async {
     if (data['action'] == null) return;
 
@@ -57,8 +58,7 @@ class _State extends NyState<NyPage> {
               showAlert: stateData['showAlert'],
               alertDuration: stateData['alertDuration'],
               alertStyle: stateData['alertStyle'],
-              onFailure: stateData['onFailure'],
-              lockRelease: stateData['lockRelease']);
+              onFailure: stateData['onFailure']);
           break;
         }
       case 'toast-success':
@@ -101,18 +101,17 @@ class _State extends NyState<NyPage> {
               style: stateData['style']);
           break;
         }
-      case 'toast-custom':
-        {
-          showToastCustom(
-              title: stateData['title'],
-              description: stateData['description'],
-              style: stateData['style']);
-          break;
-        }
       case 'change-language':
         {
           changeLanguage(stateData['language'],
               restartState: stateData['restartState']);
+          break;
+        }
+      case 'lock-release':
+        {
+          lockRelease(stateData['name'],
+              perform: stateData['perform'],
+              shouldSetState: stateData['shouldSetState']);
           break;
         }
       default:
@@ -136,6 +135,11 @@ class _State extends NyState<NyPage> {
   }
 
   @override
+  dispose() {
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     if (_boot != null) {
       if (_loading != null) {
@@ -153,8 +157,18 @@ class _State extends NyState<NyPage> {
 }
 
 class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
-  /// Path name for the Page
-  static String path = "/";
+  /// Constructor for the [NyPage] class.
+  NyPage(String? path)
+      : child = null,
+        super(path);
+
+  /// Initialize NyPage with a [path] and [state].
+  NyPage.init(String? path, State state)
+      : child = state,
+        super(path);
+
+  /// Override the [_State] child
+  final State? child;
 
   /// Contains the loading widget from your config/design.dart file
   Widget get loadingWidget => backpack.nylo().appLoader;
@@ -173,12 +187,16 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
 
   @override
   createState() {
+    if (child != null) {
+      return child!;
+    }
     return _State(
-        child: build,
-        init: init,
-        boot: boot,
-        loading: loading,
-        stateName: path);
+      child: build,
+      init: init,
+      boot: boot,
+      loading: loading,
+      stateName: state,
+    );
   }
 
   /// Build your UI
@@ -218,12 +236,17 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
   /// This will then only display the widget after the boot method has completed.
   boot() async {}
 
+  /// Updates the page [state]
+  /// Provide an [action] and [data] to call a method in the [NyState].
+  void updatePageState(String action, dynamic data) {
+    assert(state != null, "State cannot be null");
+    if (state == null) return;
+    updateState(state!, data: {"action": action, "data": data});
+  }
+
   /// Refresh the page
   void refreshPage({Function()? setState}) {
-    updateState(path, data: {
-      "action": "refresh-page",
-      "data": {"setState": setState}
-    });
+    updatePageState("refresh-page", {"setState": setState});
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you
@@ -232,13 +255,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-sorry",
-      "data": {
-        "title": (title ?? "Sorry"),
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.DANGER
-      }
+    updatePageState("toast-sorry", {
+      "title": title ?? "Sorry",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.DANGER
     });
   }
 
@@ -248,13 +268,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-warning",
-      "data": {
-        "title": title ?? "Warning",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.WARNING
-      }
+    updatePageState("toast-warning", {
+      "title": title ?? "Warning",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.WARNING
     });
   }
 
@@ -264,13 +281,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-info",
-      "data": {
-        "title": title ?? "Info",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.INFO
-      }
+    updatePageState("toast-info", {
+      "title": title ?? "Info",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.INFO
     });
   }
 
@@ -280,13 +294,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-danger",
-      "data": {
-        "title": title ?? "Error",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.DANGER
-      }
+    updatePageState("toast-danger", {
+      "title": title ?? "Error",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.DANGER
     });
   }
 
@@ -296,13 +307,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-oops",
-      "data": {
-        "title": title ?? "Oops",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.DANGER
-      }
+    updatePageState("toast-oops", {
+      "title": title ?? "Oops",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.DANGER
     });
   }
 
@@ -312,13 +320,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-success",
-      "data": {
-        "title": title ?? "Success",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.SUCCESS
-      }
+    updatePageState("toast-success", {
+      "title": title ?? "Success",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.SUCCESS
     });
   }
 
@@ -327,13 +332,10 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updateState(path, data: {
-      "action": "toast-custom",
-      "data": {
-        "title": title ?? "",
-        "description": description,
-        "style": style ?? ToastNotificationStyleType.CUSTOM
-      }
+    updatePageState("toast-custom", {
+      "title": title ?? "",
+      "description": description,
+      "style": style ?? ToastNotificationStyleType.CUSTOM
     });
   }
 
@@ -349,27 +351,31 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       required Function()? onSuccess,
       Function(Exception exception)? onFailure,
       String? lockRelease}) {
-    updateState(path, data: {
-      "action": "validate",
-      "data": {
-        "rules": rules,
-        "data": data,
-        "messages": messages,
-        "showAlert": showAlert,
-        "alertDuration": alertDuration,
-        "alertStyle": alertStyle,
-        "onSuccess": onSuccess,
-        "onFailure": onFailure,
-        "lockRelease": lockRelease,
-      }
+    updatePageState("validate", {
+      "rules": rules,
+      "data": data,
+      "messages": messages,
+      "showAlert": showAlert,
+      "alertDuration": alertDuration,
+      "alertStyle": alertStyle,
+      "onSuccess": onSuccess,
+      "onFailure": onFailure,
+      "lockRelease": lockRelease,
     });
   }
 
   /// Update the language in the application
   void changeLanguage(String language, {bool restartState = true}) {
-    updateState(path, data: {
-      "action": "change-language",
-      "data": {"language": language, "restartState": restartState}
+    updatePageState("change-language", {
+      "language": language,
+      "restartState": restartState,
     });
+  }
+
+  /// Perform a lock release
+  void lockRelease(String name,
+      {required Function perform, bool shouldSetState = true}) async {
+    updatePageState("lock-release",
+        {"name": name, "perform": perform, "shouldSetState": shouldSetState});
   }
 }

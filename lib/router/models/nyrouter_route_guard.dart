@@ -57,6 +57,7 @@ class NyRouteGuard extends RouteGuard {
   ) async =>
       true;
 
+  @override
   Future<void> redirectTo(BuildContext? context, NyArgument? args) async {
     return;
   }

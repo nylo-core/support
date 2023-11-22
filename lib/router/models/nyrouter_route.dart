@@ -51,6 +51,9 @@ class NyRouterRoute {
             queryParameters: queryParameters,
           );
           widget.controller!.construct(context);
+          if (widget.state != null) {
+            widget.controller!.state = widget.state!;
+          }
         }
       }
       if (widget is NyPage) {
@@ -61,6 +64,7 @@ class NyRouterRoute {
             queryParameters: queryParameters,
           );
           widget.controller!.construct(context);
+          widget.controller!.state = widget.state;
         }
       }
       return widget;

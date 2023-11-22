@@ -22,6 +22,7 @@ class ToastMeta {
       this.dismiss,
       this.duration = const Duration(seconds: 2)});
 
+  /// ToastMeta.success() is a pre-defined toast alert with a green background
   ToastMeta.success(
       {Color? backgroundColor,
       String? description,
@@ -38,6 +39,7 @@ class ToastMeta {
         style = 'success',
         super();
 
+  /// ToastMeta.warning() is a pre-defined toast alert with a orange background
   ToastMeta.warning({
     Color? backgroundColor,
     String? description,
@@ -54,6 +56,7 @@ class ToastMeta {
         style = 'warning',
         super();
 
+  /// ToastMeta.info() is a pre-defined toast alert with a teal background
   ToastMeta.info({
     Color? backgroundColor,
     String? description,
@@ -70,6 +73,7 @@ class ToastMeta {
         style = 'info',
         super();
 
+  /// ToastMeta.danger() is a pre-defined toast alert with a red background
   ToastMeta.danger({
     Color? backgroundColor,
     String? description,
@@ -86,6 +90,7 @@ class ToastMeta {
         style = 'danger',
         super();
 
+  /// ToastMeta.custom() is a pre-defined toast alert with a red background
   ToastMeta.custom({
     Color? backgroundColor,
     String? description,
@@ -102,6 +107,8 @@ class ToastMeta {
         style = 'custom',
         super();
 
+  /// ToastMeta.copyWith() is used to copy the current toast alert and
+  /// override the values.
   ToastMeta copyWith(
       {Widget? icon,
       String? title,

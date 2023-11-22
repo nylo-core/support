@@ -1,3 +1,13 @@
+## [5.15.0] - 2023-11-22
+
+* New `makeInterceptor` helper added to MetroService.
+* New NyPage helpers added to `NyController`.
+* Small refactor to NyPage class.
+* Add `DioApiService` class to the package.
+* Add `state` to Controller.
+* Add more docs to methods/classes.
+* Add dio and pretty_dio_logger to pubspec.yaml
+
 ## [5.14.0] - 2023-11-04
 
 * New `runProcess` helper added to MetroService.

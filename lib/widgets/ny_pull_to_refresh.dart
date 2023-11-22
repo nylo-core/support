@@ -6,6 +6,15 @@ import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 
+/// NyPullToRefresh is a widget that shows a list of items with a pull to refresh.
+/// Example:
+/// ```dart
+/// NyPullToRefresh(
+/// data: (int iteration) async => [1,2,3,4,5].paginate(itemsPerPage: 2, page: iteration).toList(),
+///   child: (context, data) {
+///     return Text(data.toString());
+/// })
+/// ```
 class NyPullToRefresh<T> extends StatefulWidget {
   NyPullToRefresh({
     Key? key,
@@ -120,6 +129,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
   final RefreshController _refreshController =
       RefreshController(initialRefresh: false);
 
+  /// Refresh the list
   _onRefresh() async {
     _iteration = 1;
     _data = [];

@@ -7,8 +7,12 @@ import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/validation/ny_validator.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
+import 'package:nylo_support/widgets/ny_stateful_widget.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
+  /// Base NyState
+  NyState({String? path}) : stateName = path;
+
   /// Helper to get the [TextTheme].
   TextTheme get textTheme => Theme.of(context).textTheme;
 
@@ -42,6 +46,12 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   @override
   void initState() {
     super.initState();
+
+    /// Set the state name if the widget is a NyStatefulWidget
+    if (widget is NyStatefulWidget) {
+      stateName = (widget as NyStatefulWidget).controller?.state;
+    }
+
     WidgetsBinding.instance.addPostFrameCallback((_) async {
       initialLoad = false;
       if (allowStateUpdates) {
@@ -73,7 +83,100 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// stateUpdated(dynamic data) {
   ///   data = "Hello World"
   /// }
-  stateUpdated(dynamic data) async {}
+  // stateUpdated(dynamic data) async {}
+
+  // @override
+  stateUpdated(dynamic data) async {
+    if (data['action'] == null) return;
+
+    dynamic stateData = {};
+    if (data['data'] != null) {
+      stateData = data['data'];
+    }
+    switch (data['action']) {
+      case 'refresh-page':
+        {
+          Function()? _setState = stateData['setState'];
+          if (_setState != null) {
+            this.setState(() {
+              _setState();
+            });
+            return;
+          }
+          reboot();
+          break;
+        }
+      case 'validate':
+        {
+          validate(
+              rules: stateData['rules'],
+              data: stateData['data'],
+              onSuccess: stateData['onSuccess'],
+              messages: stateData['messages'],
+              showAlert: stateData['showAlert'],
+              alertDuration: stateData['alertDuration'],
+              alertStyle: stateData['alertStyle'],
+              onFailure: stateData['onFailure'],
+              lockRelease: stateData['lockRelease']);
+          break;
+        }
+      case 'toast-success':
+        {
+          showToastSuccess(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
+      case 'toast-warning':
+        {
+          showToastWarning(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
+      case 'toast-info':
+        {
+          showToastInfo(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
+      case 'toast-danger':
+        {
+          showToastDanger(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
+      case 'toast-custom':
+        {
+          showToastCustom(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
+      case 'change-language':
+        {
+          changeLanguage(stateData['language'],
+              restartState: stateData['restartState']);
+          break;
+        }
+      case 'lock-release':
+        {
+          lockRelease(stateData['name'],
+              perform: stateData['perform'],
+              shouldSetState: stateData['shouldSetState']);
+          break;
+        }
+      default:
+        {}
+    }
+  }
 
   void dispose() {
     super.dispose();
@@ -91,9 +194,8 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// ```
   @override
   void setState(VoidCallback fn) {
-    if (mounted) {
-      super.setState(fn);
-    }
+    if (!mounted) return;
+    super.setState(fn);
   }
 
   /// Initialize your widget in [init].
@@ -141,6 +243,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {
+    if (!mounted) return;
     Navigator.of(context).pop(result);
   }
 
@@ -151,6 +254,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       required String description,
       IconData? icon,
       Duration? duration}) {
+    if (!mounted) return;
     showToastNotification(
       context,
       style: style,
@@ -300,6 +404,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Update the language in the application
   changeLanguage(String language, {bool restartState = true}) async {
+    if (!mounted) return;
     await NyLocalization.instance.setLanguage(
       context,
       language: language,

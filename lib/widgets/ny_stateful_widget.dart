@@ -10,10 +10,14 @@ abstract class NyStatefulWidget<T extends BaseController>
   /// Get the route [controller].
   late final T? controller;
 
-  /// Get the route [path] for the page.
-  static const String? path = "";
+  /// State name
+  final String? state;
 
-  NyStatefulWidget({Key? key}) : super(key: key) {
+  final State? child;
+
+  NyStatefulWidget(String? path, {Key? key, this.child})
+      : state = path,
+        super(key: key) {
     Nylo nylo = Backpack.instance.nylo();
     controller = nylo.getController(T) ?? NyController();
   }
@@ -22,6 +26,9 @@ abstract class NyStatefulWidget<T extends BaseController>
 
   @override
   State<StatefulWidget> createState() {
+    if (child != null) {
+      return child!;
+    }
     throw UnimplementedError();
   }
 

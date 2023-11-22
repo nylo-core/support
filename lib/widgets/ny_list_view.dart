@@ -3,6 +3,19 @@ import 'package:flutter/material.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
 
+/// The NyListView widget is a wrapper for the ListView widget.
+/// It provides a simple way to display a list of items.
+/// Example:
+/// ```dart
+/// NyListView(
+///  data: () async => [1,2,3,4,5],
+///  child: (context, data) {
+///   return Text(data.toString());
+///  })
+///  ```
+///  The above example will display a list of numbers.
+///  The [data] is fetched from the data function.
+///  The [child] is the widget that will be displayed for each item in the list.
 class NyListView<T> extends StatefulWidget {
   NyListView({
     Key? key,

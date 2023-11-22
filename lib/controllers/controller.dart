@@ -33,8 +33,9 @@ class NyRequest {
 abstract class BaseController {
   BuildContext? context;
   NyRequest? request;
+  String? state;
 
-  BaseController({this.context, this.request});
+  BaseController({this.context, this.request, this.state = "/"});
 
   /// Returns any data passed through a [Navigator] or [routeTo] method.
   dynamic data() => this.request!.data();
