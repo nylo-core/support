@@ -1,3 +1,9 @@
+## [5.16.0] - 2023-11-23
+
+* Ability to set routes as the initial page and auth route in `MetroService`
+* `NyTemplate` now contains a new **options** variable to set more meta data about the template
+* Fix `MetroService` not adding api services to the config file
+
 ## [5.15.0] - 2023-11-22
 
 * New `makeInterceptor` helper added to MetroService.

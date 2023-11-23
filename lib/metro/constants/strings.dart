@@ -6,6 +6,8 @@ const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
 const String modelFlag = 'model';
 const String urlFlag = 'url';
+const String authPageFlag = 'auth';
+const String initialPageFlag = 'initial';
 
 // options
 const String postmanCollectionOption = 'postman';

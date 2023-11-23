@@ -91,6 +91,8 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
     String folderPath = pagesFolder,
     bool forceCreate = false,
     bool addToRoute = true,
+    bool isInitialPage = false,
+    bool isAuthPage = false,
   }) async {
     String name = className.replaceAll(RegExp(r'(_?page)'), "");
     ReCase nameReCase = ReCase(name);
@@ -129,8 +131,17 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
     await addToRouter(
         classImport: classImport,
         createTemplate: (file) {
+          String strAuthPage = "";
+          if (isAuthPage) {
+            strAuthPage = ", authPage: true";
+          }
+          String strInitialPage = "";
+          if (isInitialPage) {
+            strInitialPage = ", initialRoute: true";
+          }
+
           String routeName =
-              'router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page());';
+              'router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page()$strAuthPage$strInitialPage);';
           if (file.contains(routeName)) {
             return "";
           }
@@ -140,7 +151,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
             return "";
           }
           String temp =
-              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page());
+              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page()$strAuthPage$strInitialPage);
 });""";
 
           return file.replaceFirst(
@@ -483,7 +494,7 @@ final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) =>
             RegExp reg = RegExp(
                 r'final Map<Type, NyApiService> apiDecoders = \{([^}]*)\};');
             String temp = """
-final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
   $apiServiceName: $apiServiceName(),
 };""";
 
@@ -617,8 +628,19 @@ final Map<Type, BaseApiService> apiDecoders = {${reg.allMatches(file).map((e) =>
           }
         case pagesFolder:
           {
+            bool isAuthPage = false;
+            if (template.options.containsKey('is_auth_page')) {
+              isAuthPage = template.options['is_auth_page'];
+            }
+            bool isInitialPage = false;
+            if (template.options.containsKey('is_initial_page')) {
+              isInitialPage = template.options['is_initial_page'];
+            }
             await makePage(template.name, template.stub,
-                forceCreate: (hasForceFlag ?? false), addToRoute: true);
+                forceCreate: (hasForceFlag ?? false),
+                addToRoute: true,
+                isAuthPage: isAuthPage,
+                isInitialPage: isInitialPage);
             break;
           }
         case modelsFolder:
