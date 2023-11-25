@@ -8,7 +8,7 @@ import 'package:nylo_support/nylo.dart';
 abstract class NyStatefulWidget<T extends BaseController>
     extends StatefulWidget {
   /// Get the route [controller].
-  late final T? controller;
+  late final T controller;
 
   /// State name
   final String? state;
@@ -34,23 +34,17 @@ abstract class NyStatefulWidget<T extends BaseController>
 
   /// Returns data that's sent via the Navigator or [routeTo] method.
   dynamic data({String? key}) {
-    if (this.controller?.request == null) {
+    if (this.controller.request == null) {
       return null;
     }
-    if (key != null && this.controller!.request!.data() is Map) {
-      return this.controller!.request!.data()[key];
-    }
-    return this.controller!.request!.data();
+    return this.controller.request!.data(key: key);
   }
 
   /// Returns query params
   dynamic queryParameters() {
-    if (this.controller == null) {
+    if (this.controller.request == null) {
       return null;
     }
-    if (this.controller!.request == null) {
-      return null;
-    }
-    return this.controller!.request!.queryParameters();
+    return this.controller.request!.queryParameters();
   }
 }

@@ -44,28 +44,24 @@ class NyRouterRoute {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
-        if (widget.controller != null) {
-          widget.controller!.request = NyRequest(
-            currentRoute: name,
-            args: arg,
-            queryParameters: queryParameters,
-          );
-          widget.controller!.construct(context);
-          if (widget.state != null) {
-            widget.controller!.state = widget.state!;
-          }
+        widget.controller.request = NyRequest(
+          currentRoute: name,
+          args: arg,
+          queryParameters: queryParameters,
+        );
+        widget.controller.construct(context);
+        if (widget.state != null) {
+          widget.controller.state = widget.state!;
         }
       }
       if (widget is NyPage) {
-        if (widget.controller != null) {
-          widget.controller!.request = NyRequest(
-            currentRoute: name,
-            args: arg,
-            queryParameters: queryParameters,
-          );
-          widget.controller!.construct(context);
-          widget.controller!.state = widget.state;
-        }
+        widget.controller.request = NyRequest(
+          currentRoute: name,
+          args: arg,
+          queryParameters: queryParameters,
+        );
+        widget.controller.construct(context);
+        widget.controller.state = widget.state;
       }
       return widget;
     };

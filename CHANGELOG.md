@@ -1,3 +1,10 @@
+## [5.17.0] - 2023-11-25
+
+* `NyStatefulWidget` controller is now not nullable. You can call the controller like this `widget.controller.myMethod()`.
+* Add a mounted check in `NyState`'s validate helper.
+* Slight change to the `network` helper to now always accept new bearerToken passed into the method.
+* Update the `data()` method to accept a new `key` parameter. Now you can check for a key using `widget.controller.data('my_key')`.
+
 ## [5.16.0] - 2023-11-23
 
 * Ability to set routes as the initial page and auth route in `MetroService`

@@ -49,7 +49,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
     /// Set the state name if the widget is a NyStatefulWidget
     if (widget is NyStatefulWidget) {
-      stateName = (widget as NyStatefulWidget).controller?.state;
+      stateName = (widget as NyStatefulWidget).controller.state;
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
@@ -83,9 +83,6 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// stateUpdated(dynamic data) {
   ///   data = "Hello World"
   /// }
-  // stateUpdated(dynamic data) async {}
-
-  // @override
   stateUpdated(dynamic data) async {
     if (data['action'] == null) return;
 
@@ -358,7 +355,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       required Function()? onSuccess,
       Function(Exception exception)? onFailure,
       String? lockRelease}) {
-    assert(mounted, 'Widget has not mounted yet');
+    if (!mounted) return;
     if (lockRelease != null) {
       this.lockRelease(lockRelease, perform: () async {
         try {

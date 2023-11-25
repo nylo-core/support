@@ -22,7 +22,23 @@ class NyRequest {
   }
 
   /// Returns data passed as an argument to a route
-  dynamic data() => (_args == null ? null : _args!.data);
+  dynamic data({String? key}) {
+    if (_args == null) {
+      return null;
+    }
+
+    dynamic data = _args!.data;
+
+    if (key != null && data is Map) {
+      if (data.containsKey(key)) {
+        return data[key];
+      } else {
+        return null;
+      }
+    }
+
+    return data;
+  }
 
   /// Returns query params passed to a route
   dynamic queryParameters() =>

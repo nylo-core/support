@@ -101,7 +101,7 @@ class NyBaseApiService {
           }
         }
       }
-      if (bearerToken != null && !oldHeader.containsKey('Authorization')) {
+      if (bearerToken != null) {
         newValuesToAddToHeader.addAll({"Authorization": "Bearer $bearerToken"});
       }
       _api.options.headers.addAll(newValuesToAddToHeader);

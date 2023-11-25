@@ -177,7 +177,7 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
   Backpack get backpack => Backpack.instance;
 
   /// Context of the state
-  BuildContext get context => controller!.context!;
+  BuildContext get context => controller.context!;
 
   /// Helper to get the [TextTheme].
   TextTheme get textTheme => Theme.of(context).textTheme;
