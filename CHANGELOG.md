@@ -1,3 +1,7 @@
+## [5.18.0] - 2023-11-27
+
+* New extension `toMap` on `Iterable<MapEntry<String, dynamic>>` to convert a list of MapEntry's to a Map.
+
 ## [5.17.0] - 2023-11-25
 
 * `NyStatefulWidget` controller is now not nullable. You can call the controller like this `widget.controller.myMethod()`.

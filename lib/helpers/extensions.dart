@@ -380,3 +380,10 @@ extension NyContext on BuildContext {
     return mediaQuery().size.height;
   }
 }
+
+extension NyMapEntry on Iterable<MapEntry<String, dynamic>> {
+  /// Convert an Iterable<MapEntry<String, dynamic>> to a Map<String, dynamic>
+  Map<String, dynamic> toMap() {
+    return Map.fromEntries(this);
+  }
+}
