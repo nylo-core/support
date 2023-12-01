@@ -1,3 +1,7 @@
+## [5.18.1] - 2023-12-01
+
+* Update the pubspec.yaml
+
 ## [5.18.0] - 2023-11-27
 
 * New extension `toMap` on `Iterable<MapEntry<String, dynamic>>` to convert a list of MapEntry's to a Map.

@@ -6,7 +6,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Nylo Framework',
+      title: 'Nylo Support',
       theme: ThemeData(
         primarySwatch: Colors.blue,
       ),
