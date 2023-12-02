@@ -22,6 +22,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [EventBus].
   EventBus? get eventBus => Backpack.instance.read("event_bus");
 
+  /// Get data from the [NyStatefulWidget] controller.
+  dynamic data({String? key}) {
+    if (widget is NyStatefulWidget) {
+      return (widget as NyStatefulWidget).controller.data(key: key);
+    }
+    return null;
+  }
+
   /// The [stateName] is used as the ID for the [UpdateState] class.
   String? stateName;
 

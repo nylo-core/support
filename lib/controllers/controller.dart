@@ -54,7 +54,7 @@ abstract class BaseController {
   BaseController({this.context, this.request, this.state = "/"});
 
   /// Returns any data passed through a [Navigator] or [routeTo] method.
-  dynamic data() => this.request!.data();
+  dynamic data({String? key}) => this.request!.data(key: key);
 
   /// Returns any query parameters passed in a route
   /// e.g. /my-page?hello=world

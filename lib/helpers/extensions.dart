@@ -1,15 +1,36 @@
 import 'dart:io';
 import 'package:flutter/material.dart'
     show
+        AssetImage,
+        BorderRadius,
+        BoxDecoration,
+        BoxScrollView,
+        BoxShadow,
         Brightness,
         BuildContext,
+        CircleAvatar,
         Color,
+        Colors,
+        Column,
+        Container,
+        EdgeInsets,
+        Expanded,
         FontWeight,
+        Image,
+        ImageErrorListener,
+        InkWell,
         Key,
+        ListView,
         Locale,
         MediaQuery,
         MediaQueryData,
         Navigator,
+        Offset,
+        Padding,
+        Route,
+        Row,
+        SingleChildRenderObjectWidget,
+        StatelessWidget,
         StrutStyle,
         Text,
         TextAlign,
@@ -22,6 +43,9 @@ import 'package:flutter/material.dart'
         Theme;
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
+import 'package:nylo_support/router/router.dart';
+import 'package:page_transition/page_transition.dart';
+import '/router/models/ny_page_transition_settings.dart';
 
 /// Extensions for [String]
 extension NyStr on String? {
@@ -106,6 +130,360 @@ extension NyList on List? {
   dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
+  }
+}
+
+/// Extensions for [Column]
+extension NyColumn on Column {
+  /// Add padding to the column.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the column.
+  Padding paddingSymmetric({
+    double horizontal = 0.0,
+    double vertical = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+}
+
+/// Extensions for [Image]
+extension NyImage on Image {
+  Image localAsset() {
+    assert(this.image is AssetImage, "Image must be an AssetImage");
+    if (this.image is AssetImage) {
+      AssetImage assetImage = (this.image as AssetImage);
+      return Image.asset(
+        getImageAsset(assetImage.assetName),
+        fit: this.fit,
+        width: this.width,
+        height: this.height,
+        alignment: this.alignment,
+        centerSlice: this.centerSlice,
+        color: this.color,
+        colorBlendMode: this.colorBlendMode,
+        excludeFromSemantics: this.excludeFromSemantics,
+        filterQuality: this.filterQuality,
+        frameBuilder: this.frameBuilder,
+        gaplessPlayback: this.gaplessPlayback,
+        matchTextDirection: this.matchTextDirection,
+        repeat: this.repeat,
+        semanticLabel: this.semanticLabel,
+        errorBuilder: this.errorBuilder,
+        isAntiAlias: this.isAntiAlias,
+        package: assetImage.package,
+      );
+    }
+    return this;
+  }
+
+  /// Create a circle avatar.
+  CircleAvatar circleAvatar({
+    Color? backgroundColor = Colors.transparent,
+    double radius = 30.0,
+    ImageErrorListener? onBackgroundImageError,
+    ImageErrorListener? onForegroundImageError,
+    Color? foregroundColor,
+    double? minRadius,
+    double? maxRadius,
+  }) {
+    return CircleAvatar(
+      radius: radius,
+      backgroundImage: this.image,
+      backgroundColor: Colors.transparent,
+      onBackgroundImageError: onBackgroundImageError,
+      onForegroundImageError: onForegroundImageError,
+      foregroundColor: foregroundColor,
+      minRadius: minRadius,
+      maxRadius: maxRadius,
+    );
+  }
+}
+
+/// Extensions for [SingleChildRenderObjectWidget]
+extension NySingleChildRenderObjectWidget on SingleChildRenderObjectWidget {
+  /// Route to a new page.
+  InkWell onTapRoute(String routeName,
+      {dynamic data,
+      NavigationType navigationType = NavigationType.push,
+      dynamic result,
+      bool Function(Route<dynamic> route)? removeUntilPredicate,
+      PageTransitionSettings? pageTransitionSettings,
+      PageTransitionType? pageTransition,
+      Function(dynamic value)? onPop}) {
+    return InkWell(
+      onTap: () async {
+        await routeTo(routeName,
+            data: data,
+            navigationType: navigationType,
+            result: result,
+            removeUntilPredicate: removeUntilPredicate,
+            pageTransitionSettings: pageTransitionSettings,
+            pageTransition: pageTransition,
+            onPop: onPop);
+      },
+      child: this,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+    );
+  }
+
+  /// On tap run a action.
+  InkWell onTap(Function() action) {
+    return InkWell(
+      onTap: () async {
+        await action();
+      },
+      child: this,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+    );
+  }
+
+  /// Add padding to the widget.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the widget.
+  Padding paddingSymmetric({
+    double horizontal = 0.0,
+    double vertical = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+}
+
+extension NyStatelessWidget on StatelessWidget {
+  /// Route to a new page.
+  InkWell onTapRoute(String routeName,
+      {dynamic data,
+      NavigationType navigationType = NavigationType.push,
+      dynamic result,
+      bool Function(Route<dynamic> route)? removeUntilPredicate,
+      PageTransitionSettings? pageTransitionSettings,
+      PageTransitionType? pageTransition,
+      Function(dynamic value)? onPop}) {
+    return InkWell(
+      onTap: () async {
+        await routeTo(routeName,
+            data: data,
+            navigationType: navigationType,
+            result: result,
+            removeUntilPredicate: removeUntilPredicate,
+            pageTransitionSettings: pageTransitionSettings,
+            pageTransition: pageTransition,
+            onPop: onPop);
+      },
+      child: this,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+    );
+  }
+
+  /// On tap run a action.
+  InkWell onTap(Function() action) {
+    return InkWell(
+      onTap: () async {
+        await action();
+      },
+      child: this,
+      splashColor: Colors.transparent,
+      hoverColor: Colors.transparent,
+      focusColor: Colors.transparent,
+    );
+  }
+
+  /// Add padding to the widget.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the widget.
+  Padding paddingSymmetric({
+    double horizontal = 0.0,
+    double vertical = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+
+  /// Add a shadow to the container.
+  shadow(
+      {Color? color,
+      double blurRadius = 2,
+      double spreadRadius = 0,
+      Offset offset = const Offset(0.0, 0.1),
+      double rounded = 0}) {
+    if (color == null) {
+      color = Colors.grey.withOpacity(0.6);
+    }
+    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  }
+
+  /// Create a shadow on the container.
+  Container _setShadow(Color color, double blurRadius, double spreadRadius,
+      Offset offset, double rounded) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(rounded),
+        boxShadow: [
+          BoxShadow(
+            color: color,
+            blurRadius: blurRadius,
+            spreadRadius: spreadRadius,
+            offset: offset,
+          ),
+        ],
+      ),
+      child: this,
+    );
+  }
+
+  /// Add a small shadow to the container.
+  shadowSm(
+      {Color? color,
+      double blurRadius = 1.5,
+      double spreadRadius = 0,
+      Offset offset = const Offset(0.0, 0.1),
+      double rounded = 0}) {
+    if (color == null) {
+      color = Colors.grey.withOpacity(0.4);
+    }
+    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  }
+
+  /// Add a medium shadow to the container.
+  shadowMd(
+      {Color? color,
+      double blurRadius = 5.5,
+      double spreadRadius = 0,
+      Offset offset = const Offset(0.0, 0.1),
+      double rounded = 0}) {
+    if (color == null) {
+      color = Colors.black38.withOpacity(0.25);
+    }
+    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  }
+
+  /// Add a large shadow to the container.
+  shadowLg(
+      {Color? color,
+      double blurRadius = 10,
+      double spreadRadius = 1,
+      Offset offset = const Offset(0.0, 0.1),
+      double rounded = 0}) {
+    if (color == null) {
+      color = Colors.black38.withOpacity(0.3);
+    }
+    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  }
+}
+
+/// Extensions for [ListView]
+extension NyBoxScrollView on BoxScrollView {
+  /// expand the list view.
+  Column expanded() {
+    return Column(
+      children: [
+        Expanded(
+          child: this,
+        ),
+      ],
+    );
+  }
+
+  /// Add padding to the list view.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the list view.
+  Padding paddingSymmetric({
+    double horizontal = 0.0,
+    double vertical = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+}
+
+/// Extensions for [Row]
+extension NyRow on Row {
+  /// Add padding to the row.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the row.
+  Padding paddingSymmetric({
+    double horizontal = 0.0,
+    double vertical = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
   }
 }
 
@@ -238,6 +616,20 @@ extension NyText on Text {
   /// Aligns text to the center.
   Text setMaxLines(int maxLines) {
     return copyWith(maxLines: maxLines);
+  }
+
+  /// Add padding to the text.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding:
+          EdgeInsets.only(top: top, left: left, right: right, bottom: bottom),
+      child: this,
+    );
   }
 
   /// Change the [fontFamily].

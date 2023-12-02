@@ -1,3 +1,21 @@
+## [5.19.0] - 2023-12-02
+
+* New helper in `NyState` called `data()` to get data from the state.
+* A lot of new Extensions added to the package.
+  * `paddingOnly` and `paddingSymmetric` added to the following widgets:
+    * `Text`
+    * `Row`
+    * `Column`
+    * `Container`
+    * `SingleChildRenderObjectWidget`
+    * `StatelessWidget`
+  * New `Image` extensions added:
+    * `localAsset()` can be used to load an image from your assets folder. e.g. `Image.asset('my-image.png').localAsset() // load from assets folder`
+    * `circleAvatar` can be used to load an image as a circle avatar. e.g. `Image.asset('my-image.png').circleAvatar()`
+  * New `shadow` extension added to `Container` widget. e.g. `Container().shadow()` or `Container().shadowLg()`
+* New `onTap` helper added to `StatelessWidget` e.g. `Text('Hello').onTap(() => print('Hello'))`
+* New `onTapRoute` helper added to `StatelessWidget` e.g. `Text('Home Page').onTapRoute(HomePage.path)`
+
 ## [5.18.1] - 2023-12-01
 
 * Update the pubspec.yaml
