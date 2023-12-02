@@ -1,3 +1,7 @@
+## [5.20.0] - 2023-12-02
+
+* Add new `jsonFlag` to metro constants
+
 ## [5.19.0] - 2023-12-02
 
 * New helper in `NyState` called `data()` to get data from the state.

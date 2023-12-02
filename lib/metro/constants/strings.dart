@@ -5,6 +5,7 @@ const String forceFlag = 'force';
 const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
 const String modelFlag = 'model';
+const String jsonFlag = 'json';
 const String urlFlag = 'url';
 const String authPageFlag = 'auth';
 const String initialPageFlag = 'initial';
