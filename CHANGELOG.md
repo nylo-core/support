@@ -1,3 +1,11 @@
+## [5.21.0] - 2023-12-03
+
+* New `store()` method added to String extension. E.g. `await StorageKey.userToken.store("123");`
+* New `read` method added to String extension. E.g. `await StorageKey.userToken.read()`
+* New `addToCollection` method added to String extension. E.g. `await StorageKey.userToken.addToCollection("10");`
+* New `readCollection` method added to String extension. E.g. `await StorageKey.userToken.readCollection()`
+* Update `fromStorage` and `fromBackpack` method to accept a default value. E.g. `await StorageKey.userToken.fromStorage(defaultValue: "123");`
+
 ## [5.20.0] - 2023-12-02
 
 * Add new `jsonFlag` to metro constants

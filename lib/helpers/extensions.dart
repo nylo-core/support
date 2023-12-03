@@ -676,13 +676,36 @@ extension NyText on Text {
 
 extension NyBackpack<T> on String {
   /// Read a value from the Backpack instance.
-  T? fromBackpack<T>() {
-    return Backpack.instance.read<T>(this);
+  T? fromBackpack<T>({dynamic defaultValue}) {
+    return Backpack.instance.read<T>(this, defaultValue: defaultValue);
   }
 
   /// Read a StorageKey value from NyStorage
-  Future<T?> fromStorage<T>() async {
-    return await NyStorage.read<T>(this);
+  Future<T?> fromStorage<T>({dynamic defaultValue}) async {
+    return await NyStorage.read<T>(this, defaultValue: defaultValue);
+  }
+
+  /// Read a StorageKey value from NyStorage
+  Future<T?> read<T>({dynamic defaultValue}) async {
+    return await fromStorage(defaultValue: defaultValue);
+  }
+
+  /// Store a value in NyStorage
+  /// You can also store a value in the backpack by setting [inBackpack] to true
+  store(dynamic value, {bool inBackpack = false}) async {
+    return await NyStorage.store(this, value, inBackpack: inBackpack);
+  }
+
+  /// Add a value to a collection in NyStorage
+  /// You can also set [allowDuplicates] to false to prevent duplicates
+  addToCollection(dynamic value, {bool allowDuplicates = true}) async {
+    return await NyStorage.addToCollection<T>(this,
+        item: value, allowDuplicates: allowDuplicates);
+  }
+
+  /// Read a collection from NyStorage
+  Future<List<T>> readCollection<T>() async {
+    return await NyStorage.readCollection(this);
   }
 
   /// Delete a StorageKey value from NyStorage
