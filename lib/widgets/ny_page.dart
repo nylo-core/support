@@ -171,7 +171,7 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
   final State? child;
 
   /// Contains the loading widget from your config/design.dart file
-  Widget get loadingWidget => backpack.nylo().appLoader;
+  Widget get loadingWidget => Nylo.appLoader();
 
   /// Instance of the [Backpack] class
   Backpack get backpack => Backpack.instance;

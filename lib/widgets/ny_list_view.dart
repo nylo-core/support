@@ -23,6 +23,7 @@ class NyListView<T> extends StatefulWidget {
     required this.data,
     this.transform,
     this.empty,
+    this.loading,
     this.stateName,
     this.scrollDirection,
     this.reverse,
@@ -51,6 +52,7 @@ class NyListView<T> extends StatefulWidget {
   final dynamic Function(List<T> data)? transform;
   final Widget Function(BuildContext context, dynamic data) child;
   final Widget? empty;
+  final Widget? loading;
   final String kind;
   final IndexedWidgetBuilder? separatorBuilder;
   final Axis? scrollDirection;
@@ -84,6 +86,7 @@ class NyListView<T> extends StatefulWidget {
     required this.child,
     required this.separatorBuilder,
     this.empty,
+    this.loading,
     this.stateName,
     this.scrollDirection,
     this.reverse,
@@ -133,88 +136,90 @@ class _NyListViewState<T> extends NyState<NyListView> {
 
   @override
   Widget build(BuildContext context) {
-    return afterLoad(child: () {
-      if (_data.isEmpty) {
-        if (widget.empty != null) {
-          return widget.empty;
-        }
-        return Container(
-          alignment: Alignment.center,
-          child: Text("No results found".tr()),
-        );
-      }
-
-      if (widget.transform != null) {
-        _data = widget.transform!(_data);
-      }
-
-      switch (widget.kind) {
-        case "builder":
-          {
-            return ListView.builder(
-                scrollDirection: widget.scrollDirection ?? Axis.vertical,
-                reverse: widget.reverse ?? false,
-                controller: widget.controller,
-                primary: widget.primary,
-                physics: widget.physics,
-                shrinkWrap: widget.shrinkWrap ?? false,
-                findChildIndexCallback: widget.findChildIndexCallback,
-                addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-                addRepaintBoundaries: widget.addRepaintBoundaries,
-                addSemanticIndexes: widget.addSemanticIndexes,
-                cacheExtent: widget.cacheExtent,
-                dragStartBehavior:
-                    widget.dragStartBehavior ?? DragStartBehavior.start,
-                keyboardDismissBehavior: widget.keyboardDismissBehavior ??
-                    ScrollViewKeyboardDismissBehavior.manual,
-                restorationId: widget.restorationId,
-                clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-                padding: widget.padding ?? EdgeInsets.zero,
-                itemCount: _data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  dynamic model = (_data[index]);
-                  return widget.child(context, model);
-                });
-          }
-        case "separated":
-          {
-            return ListView.separated(
-              scrollDirection: widget.scrollDirection ?? Axis.vertical,
-              reverse: widget.reverse ?? false,
-              controller: widget.controller,
-              primary: widget.primary,
-              physics: widget.physics,
-              shrinkWrap: widget.shrinkWrap ?? false,
-              findChildIndexCallback: widget.findChildIndexCallback,
-              addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-              addRepaintBoundaries: widget.addRepaintBoundaries,
-              addSemanticIndexes: widget.addSemanticIndexes,
-              cacheExtent: widget.cacheExtent,
-              dragStartBehavior:
-                  widget.dragStartBehavior ?? DragStartBehavior.start,
-              keyboardDismissBehavior: widget.keyboardDismissBehavior ??
-                  ScrollViewKeyboardDismissBehavior.manual,
-              restorationId: widget.restorationId,
-              clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-              padding: EdgeInsets.zero,
-              itemCount: _data.length,
-              itemBuilder: (BuildContext context, int index) {
-                dynamic model = (_data[index]);
-                return widget.child(context, model);
-              },
-              separatorBuilder: (context, index) {
-                if (widget.separatorBuilder != null) {
-                  return widget.separatorBuilder!(context, index);
-                }
-                return Divider();
-              },
+    return afterLoad(
+        child: () {
+          if (_data.isEmpty) {
+            if (widget.empty != null) {
+              return widget.empty;
+            }
+            return Container(
+              alignment: Alignment.center,
+              child: Text("No results found".tr()),
             );
           }
-        default:
-          {
-            return SizedBox.shrink();
+
+          if (widget.transform != null) {
+            _data = widget.transform!(_data);
           }
-      }
-    });
+
+          switch (widget.kind) {
+            case "builder":
+              {
+                return ListView.builder(
+                    scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                    reverse: widget.reverse ?? false,
+                    controller: widget.controller,
+                    primary: widget.primary,
+                    physics: widget.physics,
+                    shrinkWrap: widget.shrinkWrap ?? false,
+                    findChildIndexCallback: widget.findChildIndexCallback,
+                    addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+                    addRepaintBoundaries: widget.addRepaintBoundaries,
+                    addSemanticIndexes: widget.addSemanticIndexes,
+                    cacheExtent: widget.cacheExtent,
+                    dragStartBehavior:
+                        widget.dragStartBehavior ?? DragStartBehavior.start,
+                    keyboardDismissBehavior: widget.keyboardDismissBehavior ??
+                        ScrollViewKeyboardDismissBehavior.manual,
+                    restorationId: widget.restorationId,
+                    clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
+                    padding: widget.padding ?? EdgeInsets.zero,
+                    itemCount: _data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      dynamic model = (_data[index]);
+                      return widget.child(context, model);
+                    });
+              }
+            case "separated":
+              {
+                return ListView.separated(
+                  scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                  reverse: widget.reverse ?? false,
+                  controller: widget.controller,
+                  primary: widget.primary,
+                  physics: widget.physics,
+                  shrinkWrap: widget.shrinkWrap ?? false,
+                  findChildIndexCallback: widget.findChildIndexCallback,
+                  addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+                  addRepaintBoundaries: widget.addRepaintBoundaries,
+                  addSemanticIndexes: widget.addSemanticIndexes,
+                  cacheExtent: widget.cacheExtent,
+                  dragStartBehavior:
+                      widget.dragStartBehavior ?? DragStartBehavior.start,
+                  keyboardDismissBehavior: widget.keyboardDismissBehavior ??
+                      ScrollViewKeyboardDismissBehavior.manual,
+                  restorationId: widget.restorationId,
+                  clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
+                  padding: EdgeInsets.zero,
+                  itemCount: _data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    dynamic model = (_data[index]);
+                    return widget.child(context, model);
+                  },
+                  separatorBuilder: (context, index) {
+                    if (widget.separatorBuilder != null) {
+                      return widget.separatorBuilder!(context, index);
+                    }
+                    return Divider();
+                  },
+                );
+              }
+            default:
+              {
+                return SizedBox.shrink();
+              }
+          }
+        },
+        loading: widget.loading);
   }
 }

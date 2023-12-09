@@ -1,3 +1,35 @@
+## [5.22.0] - 2023-12-09
+
+* Breaking changes
+* You can no longer set `appLoader` as a variable in your `Nylo` class. You must now use the `addLoader(widget)` helper method.
+* You can no longer set `appLogo` as a variable in your `Nylo` class. You must now use the `addLogo(widget)` helper method.
+* Use `Nylo.appLoader()` to get the loading widget
+* Use `Nylo.appLogo()` to get the app logo
+* Use `Nylo.isCurrentRoute(MyHomePage.path)` to check if the current route matches the given route
+* Set `apiDecoders` using `Nylo.addApiDecoders(apiDecoders)`
+* Navigator observers added to Nylo
+  * Get the observers using `Nylo.getNavigatorObservers()`
+  * Add an observer using `Nylo.addNavigatorObserver()`
+  * Remove an observer using `Nylo.removeNavigatorObserver(observer)`
+* Upgrade router
+  * Get the route history using `Nylo.getRouteHistory()`
+    * Get the current route using `Nylo.getCurrentRoute()`
+    * Get the previous route using `Nylo.getPreviousRoute()`
+    * Get the current route name using `Nylo.getCurrentRouteName()`
+    * Get the previous route name using `Nylo.getPreviousRouteName()`
+    * Get the current route arguments using `Nylo.getCurrentRouteArguments()`
+    * Get the previous route arguments using `Nylo.getPreviousRouteArguments()`
+* Add `loading` parameter to `NyPullToRefresh` widget
+* Add `loading` parameter to `NyListView` widget
+* New `NyThemeOptions` added to store theme colors
+* New `NyRouteHistoryObserver` class for handling route history
+* Ability to chain a `transition` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).transition(PageTransitionType.bottomToTop)`
+* Ability to chain a `transitionSettings` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).transitionSettings(PageTransitionSettings(duration: Duration(milliseconds: 500)))`
+* Ability to chain a `addRouteGuard` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).addRouteGuard(MyRouteGuard())`
+* Ability to chain a `addRouteGuards` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).addRouteGuards([MyRouteGuard(), MyRouteGuardTwo()])`
+* Ability to chain a `authRoute` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).authRoute() // new auth route`
+* Ability to chain a `initialRoute` on a route e.g. `router.route(DashboardPage.path, (_) => DashboardPage()).initialRoute() // new initial route`
+
 ## [5.21.0] - 2023-12-03
 
 * New `store()` method added to String extension. E.g. `await StorageKey.userToken.store("123");`

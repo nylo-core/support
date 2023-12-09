@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/nylo.dart';
 
 /// Simple way to render Future's in your project.
 ///
@@ -37,7 +37,7 @@ class NyFutureBuilder<T> extends StatelessWidget {
               if (loading != null) {
                 return loading!;
               }
-              return Backpack.instance.nylo().appLoader;
+              return Nylo.appLoader();
             }
           case ConnectionState.active:
             {

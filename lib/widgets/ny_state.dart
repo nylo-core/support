@@ -563,8 +563,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   Widget afterLoad(
       {required Function() child, Widget? loading, String? loadingKey}) {
     if (initialLoad == true || isLoading(name: loadingKey ?? "default")) {
-      Nylo nylo = Backpack.instance.read('nylo');
-      return loading ?? nylo.appLoader;
+      return loading ?? Nylo.appLoader();
     }
     return child();
   }
@@ -574,7 +573,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   Widget afterNotNull(dynamic variable,
       {required Function() child, Widget? loading}) {
     if (variable == null) {
-      return loading ?? Backpack.instance.nylo().appLoader;
+      return loading ?? Nylo.appLoader();
     }
     return child();
   }
@@ -584,7 +583,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   Widget afterNotLocked(String name,
       {required Function() child, Widget? loading}) {
     if (isLocked(name)) {
-      return loading ?? Backpack.instance.nylo().appLoader;
+      return loading ?? Nylo.appLoader();
     }
     return child();
   }

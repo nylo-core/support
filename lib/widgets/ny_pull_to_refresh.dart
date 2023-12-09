@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
@@ -22,6 +21,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     required this.child,
     required this.data,
     this.empty,
+    this.loading,
     this.stateName,
     this.transform,
     this.scrollDirection,
@@ -56,6 +56,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     required this.child,
     required this.separatorBuilder,
     this.empty,
+    this.loading,
     this.stateName,
     this.scrollDirection,
     this.reverse,
@@ -108,6 +109,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final String? restorationId;
   final String? headerStyle;
   final Clip? clipBehavior;
+  final Widget? loading;
 
   @override
   _NyPullToRefreshState<T> createState() => _NyPullToRefreshState<T>(stateName);
@@ -271,8 +273,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
             if (mode == LoadStatus.idle) {
               body = Text("Pull up load".tr());
             } else if (mode == LoadStatus.loading) {
-              Nylo nylo = Backpack.instance.nylo();
-              body = nylo.appLoader;
+              body = widget.loading ?? Nylo.appLoader();
             } else if (mode == LoadStatus.failed) {
               body = Text("Failed to load more results".tr());
             } else if (mode == LoadStatus.canLoading) {

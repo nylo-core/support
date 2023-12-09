@@ -9,6 +9,7 @@ import 'package:nylo_support/helpers/auth.dart';
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/extensions.dart';
 import 'package:nylo_support/localization/app_localization.dart';
+import 'package:nylo_support/networking/ny_api_service.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -549,28 +550,25 @@ Future<dynamic> nyApi<T>(
 /// Helper to get the color styles
 /// Find a color style from the Nylo's [appThemes].
 T nyColorStyle<T>(BuildContext context, {String? themeId}) {
-  Nylo nylo = Backpack.instance.nylo();
-  List<BaseThemeConfig<T>> appThemes =
-      nylo.appThemes as List<BaseThemeConfig<T>>;
+  List<AppTheme> appThemes = Nylo.getAppThemes();
 
   if (themeId == null) {
-    BaseThemeConfig<T> themeFound = appThemes.firstWhere((theme) {
+    AppTheme themeFound = appThemes.firstWhere((theme) {
       if (context.isDarkMode) {
         return theme.id == getEnv('DARK_THEME_ID');
       }
       return theme.id == ThemeProvider.controllerOf(context).currentThemeId;
     }, orElse: () => appThemes.first);
-    return themeFound.colors;
+    return (themeFound.options as NyThemeOptions).colors;
   }
 
-  BaseThemeConfig<T> baseThemeConfig = appThemes.firstWhere(
-      (theme) => theme.id == themeId,
+  AppTheme themeFound = appThemes.firstWhere((theme) => theme.id == themeId,
       orElse: () => appThemes.first);
-  return baseThemeConfig.colors;
+  return (themeFound.options as NyThemeOptions).colors;
 }
 
 /// Hex Color
-nyHexColor(String hexColor) {
+Color nyHexColor(String hexColor) {
   hexColor = hexColor.toUpperCase().replaceAll("#", "");
   if (hexColor.length == 6) {
     hexColor = "FF" + hexColor;
@@ -651,3 +649,43 @@ void updateState<T>(String name,
   final event = UpdateState(data: _data, stateName: name);
   eventBus.fire(event);
 }
+
+/// api helper
+/// Example:
+/// ```dart
+/// await api<ApiService>((request) => request.get("https://jsonplaceholder.typicode.com/posts"));
+/// ```
+/// The above example will send an API request and return the data.
+api<T extends NyApiService>(dynamic Function(T request) request,
+        {BuildContext? context,
+        Map<String, dynamic> headers = const {},
+        String? bearerToken,
+        String? baseUrl,
+        int? page,
+        String? queryNamePage,
+        String? queryNamePerPage,
+        int? perPage,
+        List<Type> events = const []}) async =>
+    await nyApi<T>(
+        request: request,
+        apiDecoders: Nylo.apiDecoders(),
+        context: context,
+        headers: headers,
+        bearerToken: bearerToken,
+        baseUrl: baseUrl,
+        events: events,
+        page: page,
+        perPage: perPage,
+        queryParamPage: queryNamePage ?? "page",
+        queryParamPerPage: queryNamePerPage);
+
+/// Event helper for Nylo
+/// Example:
+/// ```dart
+/// event<LoginEvent>(data: {
+///  "User": "#1 User"
+///  });
+///  ```
+///  The above example will send an event to LoginEvent.
+event<T>({Map? data}) async =>
+    await nyEvent<T>(params: data, events: Nylo.events());

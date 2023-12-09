@@ -72,6 +72,9 @@ class NyRouter {
   /// or [CupertinoApp]).
   GlobalKey<NavigatorState>? _navigatorKey;
 
+  /// Stores the history of routes visited.
+  List<Route<dynamic>> _routeHistory = [];
+
   GlobalKey<NavigatorState>? get navigatorKey => _navigatorKey;
 
   /// Get the registered routes names as a list.
@@ -103,28 +106,36 @@ class NyRouter {
         .baseArguments as T?;
   }
 
+  /// Updates a named route.
+  updateRoute(NyRouterRoute route) {
+    _routeNameMappings[route.name] = route;
+  }
+
   /// Add a new route with a widget.
-  route(String name, NyRouteView view,
+  NyRouterRoute route(String name, NyRouteView view,
       {PageTransitionType? transition,
       PageTransitionSettings? pageTransitionSettings,
-      List<NyRouteGuard>? routeGuards,
+      List<NyRouteGuard> routeGuards = const [],
       bool initialRoute = false,
       bool authPage = false}) {
-    this._addRoute(NyRouterRoute(
+    NyRouterRoute nyRouterRoute = NyRouterRoute(
         name: name,
         view: view,
         pageTransitionType: transition ?? PageTransitionType.rightToLeft,
         pageTransitionSettings: pageTransitionSettings,
         routeGuards: routeGuards,
         initialRoute: initialRoute,
-        authPage: authPage));
+        authPage: authPage);
+    this._addRoute(nyRouterRoute);
 
     assert(
         _routeNameMappings.entries
-                .where((element) => element.value.initialRoute == true)
+                .where((element) => element.value.getInitialRoute() == true)
                 .length <=
             1,
         'Your project has more than one initial route defined, please check your router file.');
+
+    return nyRouterRoute;
   }
 
   /// Add a new route to [NyRouterRoute].
@@ -146,7 +157,7 @@ class NyRouter {
   String? getAuthRouteName() {
     List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
-        .where((element) => element.value.authPage == true)
+        .where((element) => element.value.getAuthRoute() == true)
         .toList();
 
     if (authRoutes.isNotEmpty && Backpack.instance.auth() != null) {
@@ -159,7 +170,7 @@ class NyRouter {
   String getInitialRouteName() {
     List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
-        .where((element) => element.value.initialRoute == true)
+        .where((element) => element.value.getInitialRoute() == true)
         .toList();
 
     if (initialRoutes.isNotEmpty) {
@@ -172,7 +183,7 @@ class NyRouter {
   static String getInitialRoute() {
     List<MapEntry<String, NyRouterRoute>> authRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
-        .where((element) => element.value.authPage == true)
+        .where((element) => element.value.getAuthRoute() == true)
         .toList();
 
     if (authRoutes.isNotEmpty && Backpack.instance.auth() != null) {
@@ -181,7 +192,7 @@ class NyRouter {
 
     List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
-        .where((element) => element.value.initialRoute == true)
+        .where((element) => element.value.getInitialRoute() == true)
         .toList();
 
     if (initialRoutes.isNotEmpty) {
@@ -316,15 +327,15 @@ class NyRouter {
     // Evaluate if the route can be opened using route guard.
     final route = _routeNameMappings[name];
 
-    if (route != null && (route.routeGuards ?? []).isNotEmpty) {
-      for (RouteGuard routeGuard in route.routeGuards!) {
+    if (route != null && (route.getRouteGuards()).isNotEmpty) {
+      for (RouteGuard routeGuard in route.getRouteGuards()) {
         final result = await routeGuard.canOpen(
           navigatorKey!.currentContext,
           argsWrapper.baseArguments,
         );
 
         if (result == false) {
-          NyLogger.info("'$name' route rejected by route guard!");
+          NyLogger.info("'$name' route rejected by route guard.");
           return await routeGuard.redirectTo(
               navigatorKey!.currentContext, argsWrapper.baseArguments);
         }
@@ -358,6 +369,38 @@ class NyRouter {
               arguments: argsWrapper,
             );
     }
+  }
+
+  /// Get the previous route.
+  Route<dynamic>? getPreviousRoute() {
+    if (_routeHistory.length < 2) return null;
+    return _routeHistory[_routeHistory.length - 2];
+  }
+
+  /// Get the current route.
+  Route<dynamic>? getCurrentRoute() {
+    if (_routeHistory.length < 1) return null;
+    return _routeHistory[_routeHistory.length - 1];
+  }
+
+  /// Add the route to the history.
+  addRouteHistory(Route<dynamic> route) {
+    _routeHistory.add(route);
+  }
+
+  /// Remove the route from the history.
+  removeRouteHistory(Route<dynamic> route) {
+    _routeHistory.remove(route);
+  }
+
+  /// Remove the last route from the history.
+  removeLastRouteHistory() {
+    _routeHistory.removeLast();
+  }
+
+  /// Get the route history.
+  List<Route<dynamic>> getRouteHistory() {
+    return _routeHistory;
   }
 
   /// If the route is not registered throw an error
@@ -449,34 +492,35 @@ class NyRouter {
       }
 
       return PageTransition(
-          child: StatefulBuilder(
-              builder: (BuildContext context, StateSetter setState) {
-            if (builder != null) {
-              Widget widget = route.builder(
-                  context,
-                  baseArgs ?? route.defaultArgs,
-                  queryParameters ?? route.queryParameters);
-              return builder(context, widget);
-            }
-            return route.builder(context, baseArgs ?? route.defaultArgs,
+        child: StatefulBuilder(
+            builder: (BuildContext context, StateSetter setState) {
+          if (builder != null) {
+            Widget widget = route.builder(
+                context,
+                baseArgs ?? route.defaultArgs,
                 queryParameters ?? route.queryParameters);
-          }),
-          type: argumentsWrapper.pageTransitionType ?? route.pageTransitionType,
-          settings: settings,
-          duration: _getPageTransitionDuration(route, argumentsWrapper),
-          alignment: _getPageTransitionAlignment(route, argumentsWrapper),
-          reverseDuration:
-              _getPageTransitionReversedDuration(route, argumentsWrapper),
-          matchingBuilder:
-              _getPageTransitionMatchingBuilder(route, argumentsWrapper),
-          childCurrent: _getPageTransitionChildCurrent(route, argumentsWrapper),
-          curve: _getPageTransitionCurve(route, argumentsWrapper),
-          ctx: _getPageTransitionContext(route, argumentsWrapper),
-          inheritTheme: _getPageTransitionInheritTheme(route, argumentsWrapper),
-          fullscreenDialog:
-              _getPageTransitionFullscreenDialog(route, argumentsWrapper),
-          opaque: _getPageTransitionOpaque(route, argumentsWrapper),
-          isIos: _getPageTransitionIsIos(route, argumentsWrapper));
+            return builder(context, widget);
+          }
+          return route.builder(context, baseArgs ?? route.defaultArgs,
+              queryParameters ?? route.queryParameters);
+        }),
+        type: argumentsWrapper.pageTransitionType ?? route.pageTransitionType,
+        settings: settings,
+        duration: _getPageTransitionDuration(route, argumentsWrapper),
+        alignment: _getPageTransitionAlignment(route, argumentsWrapper),
+        reverseDuration:
+            _getPageTransitionReversedDuration(route, argumentsWrapper),
+        matchingBuilder:
+            _getPageTransitionMatchingBuilder(route, argumentsWrapper),
+        childCurrent: _getPageTransitionChildCurrent(route, argumentsWrapper),
+        curve: _getPageTransitionCurve(route, argumentsWrapper),
+        ctx: _getPageTransitionContext(route, argumentsWrapper),
+        inheritTheme: _getPageTransitionInheritTheme(route, argumentsWrapper),
+        fullscreenDialog:
+            _getPageTransitionFullscreenDialog(route, argumentsWrapper),
+        opaque: _getPageTransitionOpaque(route, argumentsWrapper),
+        isIos: _getPageTransitionIsIos(route, argumentsWrapper),
+      );
     };
   }
 
