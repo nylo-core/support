@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
@@ -111,6 +114,16 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
           reboot();
           break;
         }
+      case 'pop':
+        {
+          dynamic result = stateData['result'];
+          if (result != null) {
+            pop(result: result);
+            return;
+          }
+          pop();
+          break;
+        }
       case 'validate':
         {
           validate(
@@ -157,6 +170,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
               style: stateData['style']);
           break;
         }
+      case 'toast-sorry':
+        {
+          showToastSorry(
+              title: stateData['title'],
+              description: stateData['description'],
+              style: stateData['style']);
+          break;
+        }
       case 'toast-custom':
         {
           showToastCustom(
@@ -176,6 +197,12 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
           lockRelease(stateData['name'],
               perform: stateData['perform'],
               shouldSetState: stateData['shouldSetState']);
+          break;
+        }
+      case 'confirm-action':
+        {
+          confirmAction(stateData['action'],
+              title: stateData['title'], dismissText: stateData['dismissText']);
           break;
         }
       default:
@@ -353,9 +380,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Validate data from your widget.
   validate(
-      {required Map<String, String> rules,
-      required Map<String, dynamic> data,
-      Map<String, dynamic> messages = const {},
+      {required Map<String, dynamic> rules,
+      Map<String, dynamic>? data,
+      Map<String, dynamic>? messages,
       bool showAlert = true,
       Duration? alertDuration,
       ToastNotificationStyleType alertStyle =
@@ -364,13 +391,38 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
       Function(Exception exception)? onFailure,
       String? lockRelease}) {
     if (!mounted) return;
+
+    Map<String, String> finalRules = {};
+    Map<String, dynamic> finalData = {};
+    Map<String, dynamic> finalMessages = messages ?? {};
+
+    rules.forEach((key, value) {
+      if (value is List) {
+        assert(value.length < 4,
+            'Validation rules can contain a maximum of 3 items. E.g. "email": [emailData, "add|validation|rules", "my message"]');
+        finalRules[key] = value[1];
+        finalData[key] = value[0];
+        if (value.length == 3) {
+          finalMessages[key] = value[2];
+        }
+      } else {
+        finalRules[key] = value;
+      }
+    });
+
+    if (data != null) {
+      data.forEach((key, value) {
+        finalData.addAll({key: value});
+      });
+    }
+
     if (lockRelease != null) {
       this.lockRelease(lockRelease, perform: () async {
         try {
           NyValidator.check(
-            rules: rules,
-            data: data,
-            messages: messages,
+            rules: finalRules,
+            data: finalData,
+            messages: finalMessages,
             context: context,
             showAlert: showAlert,
             alertDuration: alertDuration,
@@ -389,9 +441,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
     try {
       NyValidator.check(
-        rules: rules,
-        data: data,
-        messages: messages,
+        rules: finalRules,
+        data: finalData,
+        messages: finalMessages,
         context: context,
         showAlert: showAlert,
         alertDuration: alertDuration,
@@ -597,5 +649,66 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     } else {
       _loadingMap[name] = value;
     }
+  }
+
+  /// Allow the user to confirm an [action].
+  /// Provide a [title] for the confirm button. You can also provide a
+  /// [dismissText] for the cancel button.
+  /// E.g.
+  /// confirmAction(() {
+  ///  ... perform action
+  ///  }, title: "Confirm Action", dismissText: "Cancel");
+  confirmAction(Function() action,
+      {required String title, String dismissText = "Cancel"}) {
+    if (Platform.isIOS) {
+      showCupertinoModalPopup(
+        context: context,
+        builder: (context) => CupertinoActionSheet(
+          actions: [
+            CupertinoActionSheetAction(
+              isDefaultAction: true,
+              onPressed: () {
+                Navigator.pop(context);
+                action();
+              },
+              child: Text(
+                title,
+              ),
+            ),
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            child: Text(
+              dismissText.tr(),
+            ),
+            onPressed: () => Navigator.pop(context),
+          ),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              action();
+            },
+            child: Text(
+              title,
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text(
+              dismissText.tr(),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

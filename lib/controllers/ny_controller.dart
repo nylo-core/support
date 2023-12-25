@@ -5,9 +5,18 @@ import 'controller.dart';
 
 /// Base NyController
 class NyController extends BaseController {
+  /// The BuildContext from the widget
   BuildContext? context;
+
+  /// The request object
   NyRequest? request;
+
+  /// The name of the state
   String? state;
+
+  /// Set this to true if you want to keep the state of the controller
+  bool immortal = false;
+
   NyController({this.context, this.request}) : super(context: context);
 
   /// Updates the page [state]
@@ -21,6 +30,11 @@ class NyController extends BaseController {
   /// Refreshes the page
   refreshPage() {
     updatePageState("refresh-page", {"setState": () {}});
+  }
+
+  /// Pop the page
+  pop({dynamic result}) {
+    updatePageState("pop", {"result": result});
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you
@@ -115,9 +129,9 @@ class NyController extends BaseController {
 
   /// Validate data from your widget.
   void validate(
-      {required Map<String, String> rules,
-      required Map<String, dynamic> data,
-      Map<String, dynamic> messages = const {},
+      {required Map<String, dynamic> rules,
+      Map<String, dynamic>? data,
+      Map<String, dynamic>? messages,
       bool showAlert = true,
       Duration? alertDuration,
       ToastNotificationStyleType alertStyle =
@@ -151,5 +165,12 @@ class NyController extends BaseController {
       {required Function perform, bool shouldSetState = true}) async {
     updatePageState("lock-release",
         {"name": name, "perform": perform, "shouldSetState": shouldSetState});
+  }
+
+  /// Perform a lock release
+  void confirmAction(Function() action,
+      {required String title, String dismissText = "Cancel"}) async {
+    updatePageState("confirm-action",
+        {"action": action, "title": title, "dismissText": dismissText});
   }
 }

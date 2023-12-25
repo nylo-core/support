@@ -1,3 +1,4 @@
+import 'package:nylo_support/controllers/ny_controller.dart';
 import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -34,6 +35,7 @@ class Nylo {
   })? _toastNotification;
   Map<Type, dynamic> _modelDecoders = {};
   Map<Type, dynamic> _controllers = {};
+  Map<Type, dynamic> _liveControllers = {};
 
   /// Create a new Nylo instance.
   Nylo({this.router, bool useNyRouteObserver = true})
@@ -76,7 +78,24 @@ class Nylo {
 
   /// Find a [controller]
   dynamic getController(dynamic controller) {
-    return _controllers[controller];
+    if (controller == null) return null;
+
+    dynamic controllerValue = _controllers[controller];
+    if (controllerValue == null) return null;
+
+    if (_liveControllers.containsKey(controller))
+      return _liveControllers[controller];
+
+    if (controllerValue is NyController) return controllerValue;
+
+    dynamic controllerFound = controllerValue();
+    if (!(controllerFound is NyController)) return null;
+
+    if (controllerFound.immortal) {
+      _liveControllers[controller] = controllerFound;
+      return _liveControllers[controller];
+    }
+    return controllerFound;
   }
 
   /// Get the initial route.

@@ -1,3 +1,17 @@
+## [5.23.0] - 2023-12-25
+
+* New `flexible` helper added for Stateless and Stateful widgets, e.g. `TextField().flexible()`
+* Add `showToastSorry` method to `NyState` class
+* Fix `addRouteGuard` helper for routes
+* Add `pop` helper to controller
+* New `is_type`, `is_true` and `is_false` validation rules
+* Implement Pull to refresh for empty data
+* Introducing a new flag you can set in your controllers `bool immortal = true;` this will allow your controller to live forever and not be disposed when the widget is removed from the tree.
+* New `NyFader` widget added, this widget allows you to add a gradient fade from the bottom/top/right/left of a widget.
+* You can also use the `faderBottom`, `faderTop`, `faderLeft` and `faderRight` helpers on a widget to add a gradient fade to the bottom/top/left/right of a widget.
+* New `withGap` extension added to `Row` and `Column` widgets to add a gap between children.
+* NyState new helper method added `confirmAction`, this will show a dialog to confirm an action.
+
 ## [5.22.0] - 2023-12-09
 
 * Breaking changes

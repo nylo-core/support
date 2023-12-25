@@ -64,6 +64,22 @@ class MetroService {
             return "";
           }
 
+          if (file.contains(
+              "final Map<Type, BaseController Function()> controllers")) {
+            RegExp reg = RegExp(
+                r'final Map<Type, BaseController Function\(\)> controllers = \{([^}]*)\};');
+            String temp = """
+final Map<Type, BaseController Function\(\)> controllers = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+  $controllerName: () => $controllerName(),
+};""";
+
+            return file.replaceFirst(
+              RegExp(
+                  r'final Map<Type, BaseController Function\(\)> controllers = \{([^}]*)\};'),
+              temp,
+            );
+          }
+
           RegExp reg = RegExp(
               r'final Map<Type, BaseController> controllers = \{([^}]*)\};');
           String temp = """

@@ -28,7 +28,7 @@ class NyRouterRoute {
   /// Ran before opening the route itself.
   /// If every route guard returns [true], the route is approved and opened.
   /// Anything else will result in the route being rejected and not open.
-  final List<RouteGuard> _routeGuards;
+  List<RouteGuard> _routeGuards = [];
 
   NyRouterRoute(
       {required this.name,
@@ -85,13 +85,14 @@ class NyRouterRoute {
 
   /// Add a route guard to the route.
   NyRouterRoute addRouteGuard(RouteGuard guard) {
-    _routeGuards.add(guard);
+    _routeGuards = [..._routeGuards, guard];
     NyNavigator.instance.router.updateRoute(this);
     return this;
   }
 
-  NyRouterRoute routeGuards(List<RouteGuard> guards) {
-    _routeGuards.addAll(guards);
+  /// Add route guards to the route
+  NyRouterRoute addRouteGuards(List<RouteGuard> guards) {
+    _routeGuards = [..._routeGuards, ...guards];
     NyNavigator.instance.router.updateRoute(this);
     return this;
   }

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
     show
         AssetImage,
@@ -15,6 +16,8 @@ import 'package:flutter/material.dart'
         Container,
         EdgeInsets,
         Expanded,
+        FlexFit,
+        Flexible,
         FontWeight,
         Image,
         ImageErrorListener,
@@ -40,10 +43,12 @@ import 'package:flutter/material.dart'
         TextStyle,
         TextTheme,
         TextWidthBasis,
-        Theme;
+        Theme,
+        VerticalDivider;
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/router/router.dart';
+import 'package:nylo_support/widgets/ny_fader.dart';
 import 'package:page_transition/page_transition.dart';
 import '/router/models/ny_page_transition_settings.dart';
 
@@ -159,10 +164,72 @@ extension NyColumn on Column {
       child: this,
     );
   }
+
+  /// Adds a gap between each child.
+  Column withGap(double space) {
+    assert(space >= 0, 'Space should be a non-negative value.');
+
+    List<Widget> newChildren = [];
+    for (int i = 0; i < children.length; i++) {
+      newChildren.add(children[i]);
+      if (i < children.length - 1) {
+        newChildren.add(SizedBox(width: space));
+      }
+    }
+
+    return Column(
+      key: this.key,
+      mainAxisAlignment: this.mainAxisAlignment,
+      mainAxisSize: this.mainAxisSize,
+      crossAxisAlignment: this.crossAxisAlignment,
+      textDirection: this.textDirection,
+      verticalDirection: this.verticalDirection,
+      textBaseline: this.textBaseline,
+      children: newChildren,
+    );
+  }
+
+  /// Make a Column [Flexible].
+  /// Example:
+  /// ```
+  /// Column(
+  ///  children: [
+  ///  MaterialButton(child: Text('Button 1'), onPressed: () {}).flexible(),
+  ///  MaterialButton(child: Text('Button 2'), onPressed: () {}).flexible(),
+  ///  ],
+  ///  ),
+  ///  ```
+  Flexible flexible({Key? key, int flex = 1, FlexFit fit = FlexFit.loose}) {
+    return Flexible(
+      child: this,
+      key: key,
+      flex: flex,
+      fit: fit,
+    );
+  }
+
+  /// Make a Column [Expanded].
+  /// Example:
+  /// ```
+  /// Column(
+  ///  children: [
+  ///  MaterialButton(child: Text('Button 1'), onPressed: () {}).expanded(),
+  ///  Text("Hello world"),
+  ///  ],
+  ///  ),
+  ///  ```
+  Expanded expanded({Key? key, int flex = 1}) {
+    return Expanded(
+      child: this,
+      key: key,
+      flex: flex,
+    );
+  }
 }
 
 /// Extensions for [Image]
 extension NyImage on Image {
+  /// Get the image from public/assets/images
   Image localAsset() {
     assert(this.image is AssetImage, "Image must be an AssetImage");
     if (this.image is AssetImage) {
@@ -349,16 +416,31 @@ extension NyStatelessWidget on StatelessWidget {
   }
 
   /// Add a shadow to the container.
-  shadow(
+  Container shadow(int strength,
       {Color? color,
-      double blurRadius = 2,
-      double spreadRadius = 0,
-      Offset offset = const Offset(0.0, 0.1),
-      double rounded = 0}) {
-    if (color == null) {
-      color = Colors.grey.withOpacity(0.6);
+      double? blurRadius,
+      double? spreadRadius,
+      Offset? offset,
+      double? rounded}) {
+    assert(strength >= 1 && strength <= 4, 'strength must be between 1 and 4');
+
+    switch (strength) {
+      case 1:
+        return _setShadow(color ?? Colors.grey.withOpacity(0.4), 1.5, 0,
+            offset ?? const Offset(0.0, 0.1), rounded ?? 0);
+      case 2:
+        return _setShadow(color ?? Colors.grey.withOpacity(0.6), 2, 0,
+            offset ?? const Offset(0.0, 0.1), rounded ?? 0);
+      case 3:
+        return _setShadow(color ?? Colors.black38.withOpacity(0.25), 5.5, 0,
+            offset ?? const Offset(0.0, 0.1), rounded ?? 0);
+      case 4:
+        return _setShadow(color ?? Colors.black38.withOpacity(0.3), 10, 1,
+            offset ?? const Offset(0.0, 0.1), rounded ?? 0);
+      default:
+        return _setShadow(color ?? Colors.grey.withOpacity(0.4), 1.5, 0,
+            offset ?? const Offset(0.0, 0.1), rounded ?? 0);
     }
-    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
   }
 
   /// Create a shadow on the container.
@@ -380,43 +462,143 @@ extension NyStatelessWidget on StatelessWidget {
     );
   }
 
-  /// Add a small shadow to the container.
-  shadowSm(
-      {Color? color,
-      double blurRadius = 1.5,
-      double spreadRadius = 0,
-      Offset offset = const Offset(0.0, 0.1),
-      double rounded = 0}) {
-    if (color == null) {
-      color = Colors.grey.withOpacity(0.4);
-    }
-    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  /// Make a StatelessWidget [Flexible].
+  /// Example:
+  /// ```
+  /// Column(
+  ///  children: [
+  ///  MaterialButton(child: Text('Button 1'), onPressed: () {}).flexible(),
+  ///  MaterialButton(child: Text('Button 2'), onPressed: () {}).flexible(),
+  ///  ],
+  ///  ),
+  ///  ```
+  Flexible flexible({Key? key, int flex = 1, FlexFit fit = FlexFit.loose}) {
+    return Flexible(
+      child: this,
+      key: key,
+      flex: flex,
+      fit: fit,
+    );
   }
 
-  /// Add a medium shadow to the container.
-  shadowMd(
-      {Color? color,
-      double blurRadius = 5.5,
-      double spreadRadius = 0,
-      Offset offset = const Offset(0.0, 0.1),
-      double rounded = 0}) {
-    if (color == null) {
-      color = Colors.black38.withOpacity(0.25);
-    }
-    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  /// Make gradient background for the widget.
+  NyFader faderBottom(int strength, {Color color = Colors.black}) {
+    return NyFader.bottom(
+      child: this,
+      strength: strength,
+      color: color,
+    );
   }
 
-  /// Add a large shadow to the container.
-  shadowLg(
-      {Color? color,
-      double blurRadius = 10,
-      double spreadRadius = 1,
-      Offset offset = const Offset(0.0, 0.1),
-      double rounded = 0}) {
-    if (color == null) {
-      color = Colors.black38.withOpacity(0.3);
-    }
-    return _setShadow(color, blurRadius, spreadRadius, offset, rounded);
+  /// Make gradient background for the widget.
+  NyFader faderTop(int strength, {Color color = Colors.black}) {
+    return NyFader.top(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// Make gradient background for the widget.
+  NyFader faderLeft(int strength, {Color color = Colors.black}) {
+    return NyFader.left(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// Make gradient background for the widget.
+  NyFader faderRight(int strength, {Color color = Colors.black}) {
+    return NyFader.right(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// faderFrom
+  NyFader faderFrom(int strength,
+      {Color color = Colors.black,
+      required List<AlignmentGeometry> alignment}) {
+    return NyFader(
+      child: this,
+      strength: strength,
+      color: color,
+      alignment: alignment,
+    );
+  }
+}
+
+extension NyStateful on StatefulWidget {
+  /// Make a StatefulWidget [Flexible].
+  /// Example:
+  /// ```
+  /// Row(
+  ///  children: [
+  ///   TextField(controller: TextEditingController()).flexible(),
+  ///   TextField(controller: TextEditingController()).flexible(),
+  ///  ],
+  ///  ),
+  ///  ```
+  Flexible flexible({Key? key, int flex = 1, FlexFit fit = FlexFit.loose}) {
+    return Flexible(
+      child: this,
+      key: key,
+      flex: flex,
+      fit: fit,
+    );
+  }
+
+  /// Make gradient fader from the bottom of the widget.
+  NyFader faderBottom(int strength, {Color color = Colors.black}) {
+    return NyFader.bottom(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// Make gradient fader from the top of the widget.
+  NyFader faderTop(int strength, {Color color = Colors.black}) {
+    return NyFader.top(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// Make gradient fader from the left of the widget.
+  NyFader faderLeft(int strength, {Color color = Colors.black}) {
+    return NyFader.left(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// Make gradient fader from the right of the widget.
+  NyFader faderRight(int strength, {Color color = Colors.black}) {
+    return NyFader.right(
+      child: this,
+      strength: strength,
+      color: color,
+    );
+  }
+
+  /// fader from bottom
+  NyFader faderFrom(int strength,
+      {Color color = Colors.black,
+      List<AlignmentGeometry> alignment = const [
+        Alignment.topCenter,
+        Alignment.bottomCenter
+      ]}) {
+    return NyFader(
+      child: this,
+      strength: strength,
+      color: color,
+      alignment: alignment,
+    );
   }
 }
 
@@ -483,6 +665,77 @@ extension NyRow on Row {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
       child: this,
+    );
+  }
+
+  /// Adds a gap between each child.
+  Row withGap(double space) {
+    assert(space >= 0, 'Space should be a non-negative value.');
+
+    List<Widget> newChildren = [];
+    for (int i = 0; i < children.length; i++) {
+      newChildren.add(children[i]);
+      if (i < children.length - 1) {
+        newChildren.add(SizedBox(width: space));
+      }
+    }
+
+    return Row(
+      key: this.key,
+      mainAxisAlignment: this.mainAxisAlignment,
+      mainAxisSize: this.mainAxisSize,
+      crossAxisAlignment: this.crossAxisAlignment,
+      textDirection: this.textDirection,
+      verticalDirection: this.verticalDirection,
+      textBaseline: this.textBaseline,
+      children: newChildren,
+    );
+  }
+
+  /// Add a divider between each child.
+  /// [width] is the width of the divider.
+  /// [color] is the color of the divider.
+  /// [thickness] is the thickness of the divider.
+  /// [indent] is the indent of the divider.
+  /// [endIndent] is the endIndent of the divider.
+  /// Example:
+  /// ```
+  /// Row(
+  /// children: [
+  ///  Text("Hello"),
+  ///  Text("World"),
+  /// ]).withDivider(),
+  IntrinsicHeight withDivider(
+      {double width = 1,
+      Color? color,
+      double thickness = 1,
+      double indent = 0,
+      double endIndent = 0}) {
+    List<Widget> newChildren = [];
+    for (int i = 0; i < children.length; i++) {
+      newChildren.add(children[i]);
+      if (i < children.length - 1) {
+        newChildren.add(VerticalDivider(
+          width: width,
+          color: color ?? Colors.grey.shade300,
+          thickness: thickness,
+          indent: indent,
+          endIndent: endIndent,
+        ));
+      }
+    }
+
+    return IntrinsicHeight(
+      child: Row(
+        key: this.key,
+        mainAxisAlignment: this.mainAxisAlignment,
+        mainAxisSize: this.mainAxisSize,
+        crossAxisAlignment: this.crossAxisAlignment,
+        textDirection: this.textDirection,
+        verticalDirection: this.verticalDirection,
+        textBaseline: this.textBaseline,
+        children: newChildren,
+      ),
     );
   }
 }

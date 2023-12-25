@@ -188,12 +188,42 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
   Widget build(BuildContext context) {
     return afterLoad(child: () {
       if (_data.isEmpty) {
-        if (widget.empty != null) {
-          return widget.empty;
-        }
-        return Container(
+        Widget emptyChild = Container(
           alignment: Alignment.center,
           child: Text("No results found".tr()),
+        );
+        if (widget.empty != null) {
+          emptyChild = widget.empty!;
+        }
+
+        return SmartRefresher(
+          enablePullDown: true,
+          enablePullUp: false,
+          header: headerType(),
+          footer: CustomFooter(
+            builder: (BuildContext context, LoadStatus? mode) {
+              Widget body;
+              if (mode == LoadStatus.idle) {
+                body = Text("Pull up load".tr());
+              } else if (mode == LoadStatus.loading) {
+                body = widget.loading ?? Nylo.appLoader();
+              } else if (mode == LoadStatus.failed) {
+                body = Text("Failed to load more results".tr());
+              } else if (mode == LoadStatus.canLoading) {
+                body = Text("Release to load more".tr());
+              } else {
+                body = SizedBox.shrink();
+              }
+              return Container(
+                height: 55.0,
+                child: Center(child: body),
+              );
+            },
+          ),
+          controller: _refreshController,
+          onRefresh: _onRefresh,
+          onLoading: null,
+          child: emptyChild,
         );
       }
 

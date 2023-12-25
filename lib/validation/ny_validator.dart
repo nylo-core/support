@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/metro/metro_service.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/validation/rules.dart';
@@ -90,6 +91,43 @@ class NyValidator {
         }
         throw new ValidationException(attribute, validationRule);
       }
+    }
+  }
+
+  /// Check if validation is successful.
+  static bool isSuccessful({
+    required Map<String, dynamic> rules,
+    Map<String, dynamic>? data,
+  }) {
+    Map<String, String> finalRules = {};
+    Map<String, dynamic> finalData = {};
+
+    rules.forEach((key, value) {
+      if (value is List) {
+        assert(value.length < 3,
+            'Validation rules can contain a maximum of 2 items. E.g. "email": [emailData, "add|validation|rules"]');
+        finalRules[key] = value[1];
+        finalData[key] = value[0];
+      } else {
+        finalRules[key] = value;
+      }
+    });
+
+    if (data != null) {
+      data.forEach((key, value) {
+        finalData.addAll({key: value});
+      });
+    }
+
+    try {
+      check(
+        rules: finalRules,
+        data: finalData,
+      );
+
+      return true;
+    } on Exception catch (exception) {
+      return false;
     }
   }
 }

@@ -335,7 +335,6 @@ class NyRouter {
         );
 
         if (result == false) {
-          NyLogger.info("'$name' route rejected by route guard.");
           return await routeGuard.redirectTo(
               navigatorKey!.currentContext, argsWrapper.baseArguments);
         }
@@ -496,9 +495,10 @@ class NyRouter {
             builder: (BuildContext context, StateSetter setState) {
           if (builder != null) {
             Widget widget = route.builder(
-                context,
-                baseArgs ?? route.defaultArgs,
-                queryParameters ?? route.queryParameters);
+              context,
+              baseArgs ?? route.defaultArgs,
+              queryParameters ?? route.queryParameters,
+            );
             return builder(context, widget);
           }
           return route.builder(context, baseArgs ?? route.defaultArgs,

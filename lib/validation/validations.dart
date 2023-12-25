@@ -4,6 +4,9 @@ import 'package:nylo_support/validation/rules.dart';
 final Map<String, dynamic> nyDefaultValidations = {
   "email": (attribute) => EmailRule(attribute),
   "boolean": (attribute) => BooleanRule(attribute),
+  "is_true": (attribute) => IsTrueRule(attribute),
+  "is_false": (attribute) => IsFalseRule(attribute),
+  "is_type": (attribute) => IsTypeRule(attribute),
   "contains": (attribute) => ContainsRule(attribute),
   "url": (attribute) => URLRule(attribute),
   "string": (attribute) => StringRule(attribute),

@@ -1,6 +1,5 @@
 import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
-import 'package:nylo_support/localization/app_localization.dart';
 import 'package:validated/validated.dart' as validate;
 
 /// BASE ValidationRule class
@@ -29,11 +28,15 @@ class ValidationRule {
   bool handle(Map<String, dynamic> info) {
     if (info.containsKey("message")) {
       String message = info['message'];
-      assert(message.contains("|"),
-          'The message is not formatted correctly. Create your validation message using the following format: "Oops|Something went wrong". The first section before the "|" will be used as the title, the second section will be the description.');
-      title = message.split("|").first;
-      description = message.split("|").last;
-      textFieldMessage = message.split("|").last;
+      if (message.contains("|")) {
+        title = message.split("|").first;
+        description = message.split("|").last;
+        textFieldMessage = message.split("|").last;
+      } else {
+        title = "Invalid data";
+        description = message;
+        textFieldMessage = message;
+      }
     }
     return true;
   }
@@ -46,8 +49,8 @@ class ValidationRule {
     showToastNotification(
       context,
       style: style,
-      title: title.tr(),
-      description: description.tr(),
+      title: title,
+      description: description,
       duration: duration,
     );
   }
@@ -81,6 +84,54 @@ class BooleanRule extends ValidationRule {
   bool handle(Map<String, dynamic> info) {
     super.handle(info);
     return validate.isBoolean(info['data']);
+  }
+}
+
+/// IS_TRUE RULE
+class IsTrueRule extends ValidationRule {
+  IsTrueRule(String attribute)
+      : super(
+            signature: "is_true",
+            description: "The $attribute field must be selected",
+            textFieldMessage: "This value must be selected");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    super.handle(info);
+    return info['data'].toString() == "true";
+  }
+}
+
+/// IS_FALSE RULE
+class IsFalseRule extends ValidationRule {
+  IsFalseRule(String attribute)
+      : super(
+            signature: "is_false",
+            description: "The $attribute field can't be selected",
+            textFieldMessage: "This value can't be selected");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    super.handle(info);
+    return info['data'].toString() == "false";
+  }
+}
+
+/// IS_TYPE RULE
+class IsTypeRule extends ValidationRule {
+  IsTypeRule(String attribute)
+      : super(
+            signature: "is_type",
+            description: "The $attribute field can't be selected",
+            textFieldMessage: "This value can't be selected");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    super.handle(info);
+    RegExp regExp = RegExp(r'is_type:([A-z0-9, ]+)');
+    String match = regExp.firstMatch(info['rule'])!.group(1) ?? "";
+
+    return info['data'].runtimeType.toString() == match;
   }
 }
 
