@@ -1,6 +1,5 @@
 import 'package:flutter/cupertino.dart';
 import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/metro/metro_service.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/validation/rules.dart';
@@ -126,7 +125,7 @@ class NyValidator {
       );
 
       return true;
-    } on Exception catch (exception) {
+    } on Exception catch (_) {
       return false;
     }
   }
