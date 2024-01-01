@@ -25,13 +25,18 @@ class NyApiService extends DioApiService {
   Future<T?> get<T>(
     String url, {
     Object? data,
+    Map<String, String>? queryParameters,
     Options? options,
     CancelToken? cancelToken,
     ProgressCallback? onReceiveProgress,
   }) async {
+    Uri uri = Uri.parse(url);
+    if (queryParameters != null) {
+      uri = uri.replace(queryParameters: queryParameters);
+    }
     if (T.toString() == 'dynamic') {
       return await network(
-        request: (request) => request.getUri(Uri.parse(url),
+        request: (request) => request.getUri(uri,
             data: data,
             options: options,
             cancelToken: cancelToken,
@@ -39,7 +44,7 @@ class NyApiService extends DioApiService {
       );
     }
     return await network<T>(
-      request: (request) => request.getUri(Uri.parse(url),
+      request: (request) => request.getUri(uri,
           data: data,
           options: options,
           cancelToken: cancelToken,

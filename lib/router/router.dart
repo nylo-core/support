@@ -6,7 +6,6 @@ import 'package:nylo_support/router/models/arguments_wrapper.dart';
 import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
 import 'package:nylo_support/router/models/ny_query_parameters.dart';
 import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
-import 'package:nylo_support/router/models/route_args_pair.dart';
 import 'package:nylo_support/router/models/nyrouter_options.dart';
 import 'package:nylo_support/router/models/nyrouter_route.dart';
 import 'package:nylo_support/router/ui/page_not_found.dart';
@@ -115,7 +114,7 @@ class NyRouter {
   NyRouterRoute route(String name, NyRouteView view,
       {PageTransitionType? transition,
       PageTransitionSettings? pageTransitionSettings,
-      List<NyRouteGuard> routeGuards = const [],
+      List<NyRouteGuard>? routeGuards,
       bool initialRoute = false,
       bool authPage = false}) {
     NyRouterRoute nyRouterRoute = NyRouterRoute(
@@ -209,29 +208,6 @@ class NyRouter {
     NyNavigator.instance.router = this;
   }
 
-  /// Makes this a callable class. Delegates to [navigate].
-  Future<T> call<T>(String name,
-      {NyArgument? args,
-      NavigationType navigationType = NavigationType.push,
-      dynamic result,
-      bool Function(Route<dynamic> route)? removeUntilPredicate,
-      Map<String, dynamic>? params,
-      PageTransitionType? pageTransitionType,
-      PageTransitionSettings? pageTransitionSettings}) async {
-    assert(navigationType != NavigationType.pushAndRemoveUntil ||
-        removeUntilPredicate != null);
-
-    _checkAndThrowRouteNotFound(name, args, navigationType);
-
-    return await navigate<T>(name,
-        navigationType: navigationType,
-        result: result,
-        removeUntilPredicate: removeUntilPredicate,
-        args: args,
-        pageTransitionType: pageTransitionType,
-        pageTransitionSettings: pageTransitionSettings);
-  }
-
   /// Function used to navigate pages.
   ///
   /// [name] is the route name that was registered using [addRoute].
@@ -260,41 +236,6 @@ class NyRouter {
     return await _navigate(name, args, navigationType, result,
             removeUntilPredicate, pageTransitionType, pageTransitionSettings)
         .then((value) => value as T);
-  }
-
-  /// Push multiple routes at the same time.
-  ///
-  /// [routeArgsPairs] is a list of [RouteArgsPair]. Each [RouteArgsPair]
-  /// contains the name of a route and its corresponding argument (if any).
-  Future<List> navigateMultiple(
-    List<RouteArgsPair> routeArgsPairs,
-  ) {
-    assert(routeArgsPairs.isNotEmpty);
-
-    final pageResponses = <Future>[];
-
-    // For each route check if it exists.
-    // Push the route.
-    routeArgsPairs.forEach((routeArgs) {
-      _checkAndThrowRouteNotFound(
-        routeArgs.name,
-        routeArgs.args,
-        NavigationType.push,
-      );
-
-      final response = _navigate(
-          routeArgs.name,
-          routeArgs.args,
-          NavigationType.push,
-          null,
-          null,
-          routeArgs.pageTransition,
-          routeArgs.pageTransitionSettings);
-
-      pageResponses.add(response);
-    });
-
-    return Future.wait(pageResponses);
   }
 
   /// Actual navigation is delegated by [navigate] method to this method.
@@ -422,19 +363,6 @@ class NyRouter {
       }
       throw RouteNotFoundError(name: name);
     }
-  }
-
-  /// Delegation for [Navigator.pop].
-  void pop([dynamic result]) {
-    this.navigatorKey!.currentState!.pop(result);
-  }
-
-  /// Delegation for [Navigator.popUntil].
-  void popUntil(void Function(Route<dynamic>) predicate) {
-    this
-        .navigatorKey!
-        .currentState!
-        .popUntil(predicate as bool Function(Route<dynamic>));
   }
 
   /// Generates the [RouteFactory] which builds a [Route] on request.

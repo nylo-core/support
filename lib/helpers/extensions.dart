@@ -45,6 +45,7 @@ import 'package:flutter/material.dart'
         TextWidthBasis,
         Theme,
         VerticalDivider;
+import 'package:intl/intl.dart' as intl;
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/router/router.dart';
@@ -112,6 +113,117 @@ extension NyDouble on double? {
 
 /// Extensions for [bool]
 extension NyBool on bool? {
+  /// dump the value to the console. [tag] is optional.
+  dump({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+  }
+
+  /// dump the value to the console and exit the app. [tag] is optional.
+  dd({String? tag}) {
+    NyLogger.dump((this ?? "").toString(), tag);
+    exit(0);
+  }
+}
+
+/// Extensions for [DateTime]
+extension NyDateTime on DateTime? {
+  /// Check if the date is still valid.
+  bool hasExpired() {
+    if (this == null) return true;
+    return this.isInPast();
+  }
+
+  /// Format [DateTime] to DateTimeString - yyyy-MM-dd HH:mm:ss
+  String? toDateTimeString() {
+    if (this == null) return null;
+    return intl.DateFormat("yyyy-MM-dd HH:mm:ss").format(this!);
+  }
+
+  /// Format [DateTime] to toDateString - yyyy-MM-dd
+  String? toDateString() {
+    if (this == null) return null;
+    return intl.DateFormat("yyyy-MM-dd").format(this!);
+  }
+
+  /// Format [DateTime] to toTimeString - HH:mm:ss
+  String? toTimeString() {
+    if (this == null) return null;
+    return intl.DateFormat("HH:mm:ss").format(this!);
+  }
+
+  /// Format [DateTime] to an age
+  int? toAge() {
+    if (this == null) return null;
+    return DateTime.now().difference(this!).inDays ~/ 365;
+  }
+
+  /// Check if [DateTime] is in the past
+  bool isInPast() {
+    if (this == null) return false;
+    return this!.isBefore(DateTime.now());
+  }
+
+  /// Check if [DateTime] is in the future
+  bool isInFuture() {
+    if (this == null) return false;
+    return this!.isAfter(DateTime.now());
+  }
+
+  /// Check if [DateTime] is today
+  bool isToday() {
+    if (this == null) return false;
+    DateTime dateTime = DateTime.now();
+    return this!.day == dateTime.day &&
+        this!.month == dateTime.month &&
+        this!.year == dateTime.year;
+  }
+
+  /// Check if [DateTime] is tomorrow
+  bool isTomorrow() {
+    if (this == null) return false;
+    DateTime dateTime = DateTime.now().add(Duration(days: 1));
+    return this!.day == dateTime.day &&
+        this!.month == dateTime.month &&
+        this!.year == dateTime.year;
+  }
+
+  /// Check if [DateTime] is yesterday
+  bool isYesterday() {
+    if (this == null) return false;
+    DateTime dateTime = DateTime.now().subtract(Duration(days: 1));
+    return this!.day == dateTime.day &&
+        this!.month == dateTime.month &&
+        this!.year == dateTime.year;
+  }
+
+  /// Get ordinal of the day.
+  String _addOrdinal(int day) {
+    if (day >= 11 && day <= 13) {
+      return '${day}th';
+    }
+    switch (day % 10) {
+      case 1:
+        return '${day}st';
+      case 2:
+        return '${day}nd';
+      case 3:
+        return '${day}rd';
+      default:
+        return '${day}th';
+    }
+  }
+
+  /// Format [DateTime] to a short date
+  String toShortDate(DateTime dateTime) {
+    return '${intl.DateFormat('E').format(dateTime)} ${_addOrdinal(dateTime.day)} ${intl.DateFormat('MMM').format(dateTime)}';
+  }
+
+  /// Format [DateTime]
+  String? toFormat(String format) {
+    if (this == null) return null;
+    return intl.DateFormat(format).format(this!);
+  }
+
   /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);

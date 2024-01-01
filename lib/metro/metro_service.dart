@@ -4,6 +4,7 @@ import 'package:nylo_support/metro/metro_console.dart';
 import 'package:nylo_support/metro/models/ny_command.dart';
 import 'package:nylo_support/metro/models/ny_template.dart';
 import 'package:recase/recase.dart';
+import 'models/metro_project_file.dart';
 
 class MetroService {
   /// Run a command from the terminal
@@ -42,18 +43,27 @@ class MetroService {
 
   /// Creates a new Controller.
   static Future makeController(String className, String value,
-      {String folderPath = controllersFolder, bool forceCreate = false}) async {
+      {String folderPath = controllersFolder,
+      bool forceCreate = false,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?controller)'), "");
     ReCase nameReCase = ReCase(name);
 
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_controller.dart';
+    // create missing directories in the project
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        prefix: "controller",
+        creationPath: creationPath);
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
 
     String classImport =
-        "import '/app/controllers/${nameReCase.snakeCase}_controller.dart';";
+        "import '/app/controllers/${creationPath != null ? '$creationPath/' : ''}${nameReCase.snakeCase}_controller.dart';";
 
     await MetroService.addToConfig(
         configName: "decoders",
@@ -100,49 +110,77 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
     });
   }
 
-  /// Creates a new Page.
-  static makePage(
-    String className,
-    String value, {
-    String folderPath = pagesFolder,
-    bool forceCreate = false,
-    bool addToRoute = true,
-    bool isInitialPage = false,
-    bool isAuthPage = false,
-  }) async {
-    String name = className.replaceAll(RegExp(r'(_?page)'), "");
-    ReCase nameReCase = ReCase(name);
-
-    // creation path
+  /// Finds the class name from a [className] from a String
+  /// and returns a [MetroProjectFile] object.
+  static MetroProjectFile createMetroProjectFile(String className,
+      {Pattern prefix = ""}) {
+    String name = className.replaceAll(prefix, "");
     String? creationPath;
+
     if (name.contains("/")) {
       List<String> pathSegments = Uri.parse(name).pathSegments.toList();
       name = pathSegments.removeLast();
-      String folder = pagesFolder;
+      creationPath = pathSegments.join("/");
+    }
+    return MetroProjectFile(name, creationPath: creationPath);
+  }
 
-      for (var segment in pathSegments) {
+  /// Create directories from a [creationPath].
+  static createDirectoriesFromCreationPath(
+      String? creationPath, String folder) async {
+    if (creationPath != null) {
+      for (var segment in creationPath.split("/").toList()) {
         await MetroService.makeDirectory("$folder/$segment");
         folder += '/$segment';
       }
-      creationPath = pathSegments.join("/");
     }
+  }
 
-    // create file
-    String filePath =
-        '$folderPath/${creationPath != null ? '$creationPath/' : ''}${nameReCase.snakeCase.toLowerCase()}_page.dart';
+  /// Create a file path.
+  static String createPathForDartFile(
+      {required String folderPath,
+      required String className,
+      String? prefix,
+      String? creationPath}) {
+    if (prefix != null) {
+      prefix = "_" + prefix;
+    } else {
+      prefix = "";
+    }
+    return '$folderPath/${creationPath != null ? '$creationPath/' : ''}${className.snakeCase}$prefix.dart';
+  }
+
+  /// Creates a new Page.
+  static makePage(String className, String value,
+      {String folderPath = pagesFolder,
+      bool forceCreate = false,
+      bool addToRoute = true,
+      bool isInitialPage = false,
+      bool isAuthPage = false,
+      String? creationPath}) async {
+    String name = className.replaceAll(RegExp(r'(_?page)'), "");
+
+    // create missing directories in the project
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        prefix: "page",
+        creationPath: creationPath);
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Page] ${nameReCase.snakeCase}_page created 🎉');
+      MetroConsole.writeInGreen('[Page] ${name.snakeCase}_page created 🎉');
     });
 
     // add to router
     if (addToRoute == false) return;
 
     String classImport =
-        "import '/resources/pages/${creationPath != null ? '$creationPath/' : ''}${nameReCase.snakeCase.toLowerCase()}_page.dart';";
+        "import '/resources/pages/${creationPath != null ? '$creationPath/' : ''}${name.snakeCase}_page.dart';";
 
     await addToRouter(
         classImport: classImport,
@@ -157,7 +195,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
           }
 
           String routeName =
-              'router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page()$strAuthPage$strInitialPage);';
+              'router.route(${name.pascalCase}Page.path, (context) => ${name.pascalCase}Page()$strAuthPage$strInitialPage);';
           if (file.contains(routeName)) {
             return "";
           }
@@ -167,7 +205,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
             return "";
           }
           String temp =
-              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${nameReCase.pascalCase}Page.path, (context) => ${nameReCase.pascalCase}Page()$strAuthPage$strInitialPage);
+              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${name.pascalCase}Page.path, (context) => ${name.pascalCase}Page()$strAuthPage$strInitialPage);
 });""";
 
           return file.replaceFirst(
@@ -239,21 +277,30 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
   static makeModel(String className, String value,
       {String folderPath = modelsFolder,
       bool forceCreate = false,
-      bool addToConfig = true}) async {
+      bool addToConfig = true,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?model)'), "");
     ReCase nameReCase = ReCase(name);
-    String filePath = '$folderPath/${className.toLowerCase()}.dart';
 
+    // create missing directories in the project
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        creationPath: creationPath);
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Model] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+      MetroConsole.writeInGreen('[Model] ${nameReCase.snakeCase} created 🎉');
     });
 
     if (addToConfig == false) return;
 
-    String classImport = makeImportPathModel(nameReCase.snakeCase);
+    String classImport = makeImportPathModel(nameReCase.snakeCase,
+        creationPath: creationPath ?? "");
     await MetroService.addToConfig(
         configName: "decoders",
         classImport: classImport,
@@ -283,63 +330,100 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
 
   /// Creates a new Stateless Widget.
   static makeStatelessWidget(String className, String value,
-      {String folderPath = widgetsFolder, bool forceCreate = false}) async {
-    String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
+      {String folderPath = widgetsFolder,
+      bool forceCreate = false,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?widget)'), "");
     ReCase nameReCase = ReCase(name);
 
+    // create missing directories in the project
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        prefix: "widget",
+        creationPath: creationPath);
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
-          '[Stateless Widget] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+          '[Stateless Widget] ${nameReCase.snakeCase} created 🎉');
     });
   }
 
   /// Creates a new config file.
   static makeConfig(String configName, String value,
-      {String folderPath = configFolder, bool forceCreate = false}) async {
-    String filePath = '$folderPath/${configName.toLowerCase()}.dart';
+      {String folderPath = configFolder,
+      bool forceCreate = false,
+      String? creationPath}) async {
     String name = configName.replaceAll(RegExp(r'(_?config)'), "");
-    ReCase nameReCase = ReCase(name);
 
+    // create missing directories in the project
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: configName,
+        creationPath: creationPath);
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Config] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+      MetroConsole.writeInGreen('[Config] ${name.snakeCase} created 🎉');
     });
   }
 
   /// Creates a new Stateful Widget.
   static makeStatefulWidget(String className, String value,
-      {String folderPath = widgetsFolder, bool forceCreate = false}) async {
-    String filePath = '$folderPath/${className.toLowerCase()}_widget.dart';
+      {String folderPath = widgetsFolder,
+      bool forceCreate = false,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?widget)'), "");
-    ReCase nameReCase = ReCase(name);
 
+    // create missing directories in the project
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        prefix: 'widget',
+        creationPath: creationPath);
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
-          '[Stateful Widget] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+          '[Stateful Widget] ${name.snakeCase} created 🎉');
     });
   }
 
   /// Create a new Interceptor.
   static makeInterceptor(String className, String value,
       {String folderPath = networkingInterceptorsFolder,
-      bool forceCreate = false}) async {
+      bool forceCreate = false,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?interceptor)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_interceptor.dart';
 
+    // create missing directories in the project
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: className,
+        prefix: 'interceptor',
+        creationPath: creationPath);
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
-          '[Interceptor] ${nameReCase.snakeCase}_interceptor created 🎉');
+          '[Interceptor] ${name.snakeCase}_interceptor created 🎉');
     });
   }
 
@@ -347,15 +431,13 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   static makeTheme(String className, String value,
       {String folderPath = themesFolder, bool forceCreate = false}) async {
     String name = className.replaceAll(RegExp(r'(_?theme)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_theme.dart';
+
+    String filePath = '$folderPath/${name.snakeCase}_theme.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Theme] ${nameReCase.snakeCase}_theme created 🎉');
+      MetroConsole.writeInGreen('[Theme] ${name.snakeCase}_theme created 🎉');
     });
   }
 
@@ -363,28 +445,29 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   static makeProvider(String className, String value,
       {String folderPath = providerFolder,
       bool forceCreate = false,
-      bool addToConfig = true}) async {
+      bool addToConfig = true,
+      String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?provider)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_provider.dart';
+
+    String filePath = '$folderPath/${name.snakeCase}_provider.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
-          '[Provider] ${nameReCase.snakeCase}_provider created 🎉');
+          '[Provider] ${name.snakeCase}_provider created 🎉');
     });
 
     if (addToConfig == false) return;
 
-    String classImport = makeImportPathProviders(nameReCase.snakeCase);
+    String classImport = makeImportPathProviders(name.snakeCase,
+        creationPath: creationPath ?? "");
 
     await MetroService.addToConfig(
         configName: "providers",
         classImport: classImport,
         createTemplate: (file) {
-          String providerName = "${nameReCase.pascalCase}Provider";
+          String providerName = "${name.pascalCase}Provider";
           if (file.contains(providerName)) {
             return "";
           }
@@ -406,15 +489,13 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
   static makeRouteGuard(String className, String value,
       {String folderPath = routeGuardsFolder, bool forceCreate = false}) async {
     String name = className.replaceAll(RegExp(r'(_?route_guard)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_route_guard.dart';
+
+    String filePath = '$folderPath/${name.snakeCase}_route_guard.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Route Guard] ${nameReCase.snakeCase.toLowerCase()} created 🎉');
+      MetroConsole.writeInGreen('[Route Guard] ${name.snakeCase} created 🎉');
     });
   }
 
@@ -428,23 +509,21 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
       bool forceCreate = false,
       bool addToConfig = true}) async {
     String name = className.replaceAll(RegExp(r'(_?event)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_event.dart';
+
+    String filePath = '$folderPath/${name.snakeCase}_event.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
-      MetroConsole.writeInGreen(
-          '[Event] ${nameReCase.snakeCase.toLowerCase()}_event created 🎉');
+      MetroConsole.writeInGreen('[Event] ${name.snakeCase}_event created 🎉');
     });
 
-    String classImport = makeImportPathEvent(nameReCase.snakeCase);
+    String classImport = makeImportPathEvent(name.snakeCase);
     await MetroService.addToConfig(
         configName: "events",
         classImport: classImport,
         createTemplate: (file) {
-          String eventName = "${nameReCase.pascalCase}Event";
+          String eventName = "${name.pascalCase}Event";
           if (file.contains(eventName)) {
             return "";
           }
@@ -468,25 +547,24 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
       bool forceCreate = false,
       bool addToConfig = true}) async {
     String name = className.replaceAll(RegExp(r'(_?api_service)'), "");
-    ReCase nameReCase = ReCase(name);
-    String filePath =
-        '$folderPath/${nameReCase.snakeCase.toLowerCase()}_api_service.dart';
+
+    String filePath = '$folderPath/${name.snakeCase}_api_service.dart';
 
     await _makeDirectory(folderPath);
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen(
-          '[API Service] ${nameReCase.snakeCase.toLowerCase()}_api_service created 🎉');
+          '[API Service] ${name.snakeCase}_api_service created 🎉');
     });
 
     if (addToConfig == false) return;
 
-    String classImport = makeImportPathApiService(nameReCase.snakeCase);
+    String classImport = makeImportPathApiService(name.snakeCase);
     await MetroService.addToConfig(
         configName: "decoders",
         classImport: classImport,
         createTemplate: (file) {
-          String apiServiceName = "${nameReCase.pascalCase}ApiService";
+          String apiServiceName = "${name.pascalCase}ApiService";
           if (file.contains(apiServiceName)) {
             return "";
           }

@@ -1,3 +1,22 @@
+## [5.24.0] - 2024-01-01
+
+* Big updates to `DioApiService`
+  * `network` method now accepts a `retry` parameter - Set how many times you want to retry the request if it fails.
+  * `network` method now accepts a `retryIf` parameter - A function to check if the request should be retried.
+  * `network` method now accepts a `retryDelay` parameter - Set how long you want to wait before retrying the request. 
+  * Three new methods added to `DioApiService`:
+    * `refreshToken` - Override this method to refresh your token.
+    * `shouldRefreshToken` - Override this method to check if you should refresh the token.
+    * `setAuthHeaders` - Override this method to set your own auth headers.
+* Big updates to `MetroService` to allow you to create files in sub folders.
+* Update **import paths** to support a `creationPath` when creating files in the project.
+* Update `validate` method inside NyPage to support the latest way of validating data.
+* Add more docs to library
+* New extension `hasExpired` on DateTime object - This will check if the DateTime has expired. It's usage is for checking if a token has expired.
+* Add queryParameters to `get` method inside API Service
+* Add intl package to pubspec.yaml
+* Remove dead code in Router
+
 ## [5.23.0] - 2023-12-25
 
 * New `flexible` helper added for Stateless and Stateful widgets, e.g. `TextField().flexible()`

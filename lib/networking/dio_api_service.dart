@@ -15,6 +15,8 @@ class DioApiService {
   final bool useHttpOnResponse = true;
   final Map<Type, Interceptor> interceptors = {};
   final Map<Type, dynamic>? decoders = {};
+  int retry = 0;
+  Duration retryDelay = Duration(seconds: 1);
 
   DioApiService(BuildContext? context) {
     _context = context;
@@ -90,7 +92,14 @@ class DioApiService {
       String? bearerToken,
       String? baseUrl,
       bool useUndefinedResponse = true,
-      Map<String, dynamic> headers = const {}}) async {
+      bool shouldRetry = true,
+      int? retry,
+      Duration? retryDelay,
+      bool Function(DioException dioException)? retryIf,
+      Map<String, dynamic>? headers}) async {
+    if (headers == null) {
+      headers = {};
+    }
     try {
       Map<String, dynamic> oldHeader = _api.options.headers;
       Map<String, dynamic> newValuesToAddToHeader = {};
@@ -101,8 +110,13 @@ class DioApiService {
           }
         }
       }
+      if (await shouldRefreshToken()) {
+        await refreshToken(Dio());
+      }
       if (bearerToken != null) {
         newValuesToAddToHeader.addAll({"Authorization": "Bearer $bearerToken"});
+      } else {
+        newValuesToAddToHeader.addAll(await setAuthHeaders(headers));
       }
       _api.options.headers.addAll(newValuesToAddToHeader);
       String oldBaseUrl = _api.options.baseUrl;
@@ -120,15 +134,42 @@ class DioApiService {
       }
       _context = null;
       return data;
-    } on DioException catch (dioError) {
-      NyLogger.error(dioError.toString());
-      onError(dioError);
+    } on DioException catch (dioException) {
+      int nyRetries = retry ?? this.retry;
+      Duration nyRetryDelay = retryDelay ?? this.retryDelay;
+      if (retryIf != null) {
+        bool nyRetryIf = retryIf(dioException);
+        if (nyRetryIf == false) {
+          shouldRetry = false;
+        }
+      }
+      if (shouldRetry == true && nyRetries > 0) {
+        for (var i = 0; i < nyRetries; i++) {
+          await Future.delayed(nyRetryDelay);
+          NyLogger.debug("[${i + 1}] Retrying request...");
+          dynamic response = await network(
+              request: request,
+              handleSuccess: handleSuccess,
+              handleFailure: handleFailure,
+              bearerToken: bearerToken,
+              baseUrl: baseUrl,
+              useUndefinedResponse: useUndefinedResponse,
+              headers: headers,
+              shouldRetry: false);
+          if (response != null) {
+            return response;
+          }
+        }
+      }
+
+      NyLogger.error(dioException.toString());
+      onError(dioException);
       if (_context != null) {
-        displayError(dioError, _context!);
+        displayError(dioException, _context!);
       }
 
       if (handleFailure != null) {
-        return handleFailure(dioError);
+        return handleFailure(dioException);
       }
 
       return null;
@@ -178,4 +219,64 @@ class DioApiService {
 
   /// Adds all the [interceptors] to [dio].
   _addInterceptors() => _api.interceptors.addAll(interceptors.values);
+
+  /// Perform a [Dio] request to update the users auth token.
+  /// This method is called when [shouldRefreshToken] returns true.
+  /// You can override this method to perform your own request.
+  /// The [dio] parameter is a new instance of [Dio].
+  /// You can use this to perform a request without affecting the
+  /// original [Dio] instance.
+  refreshToken(Dio dio) async {}
+
+  /// Check if the users auth token should be refreshed.
+  /// This method is called before every request.
+  /// You can override this method to perform your own checks.
+  Future<bool> shouldRefreshToken() async {
+    return false;
+  }
+
+  /// Set the auth headers for the request.
+  /// The [headers] parameter contains the current headers.
+  ///
+  /// Usage:
+  /// headers.addBearerToken('123') // add a bearer token
+  /// headers.addHeader('key', 'value') // add a header
+  /// headers.getBearerToken() // get the bearer token
+  /// headers.hasHeader('key') // check if a header exists
+  Future<RequestHeaders> setAuthHeaders(RequestHeaders headers) async {
+    return headers;
+  }
+}
+
+/// Typedef for [RequestHeaders]
+typedef RequestHeaders = Map<String, dynamic>;
+
+extension NyRequestHeaders on RequestHeaders {
+  /// Add a bearer token to the request headers.
+  Map<String, dynamic> addBearerToken(String token) {
+    this['Authorization'] = "Bearer $token";
+    return this;
+  }
+
+  /// Get the bearer token from the request headers.
+  String? getBearerToken() {
+    if (this.containsKey("Authorization")) {
+      String? auth = this["Authorization"];
+      if (auth != null) {
+        return auth.replaceFirst("Bearer ", "");
+      }
+    }
+    return null;
+  }
+
+  /// Add a new header value to the request headers.
+  Map<String, dynamic> addHeader(String key, dynamic value) {
+    this[key] = value;
+    return this;
+  }
+
+  /// Add a new header value to the request headers.
+  bool hasHeader(String key) {
+    return this.containsKey(key);
+  }
 }

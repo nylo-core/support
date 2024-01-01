@@ -341,8 +341,8 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
 
   /// Validate data from your widget.
   void validate(
-      {required Map<String, String> rules,
-      required Map<String, dynamic> data,
+      {required Map<String, dynamic> rules,
+      Map<String, dynamic>? data,
       Map<String, dynamic> messages = const {},
       bool showAlert = true,
       Duration? alertDuration,
@@ -370,12 +370,5 @@ class NyPage<T extends BaseController> extends NyStatefulWidget<T> {
       "language": language,
       "restartState": restartState,
     });
-  }
-
-  /// Perform a lock release
-  void lockRelease(String name,
-      {required Function perform, bool shouldSetState = true}) async {
-    updatePageState("lock-release",
-        {"name": name, "perform": perform, "shouldSetState": shouldSetState});
   }
 }

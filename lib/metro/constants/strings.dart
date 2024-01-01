@@ -33,14 +33,16 @@ const String publicAssetsImagesFolder = 'public/assets/images';
 const String langFolder = 'lang';
 
 // import paths
-String makeImportPathModel(String name) => "import '/app/models/$name.dart';";
-String makeImportPathApiService(String name) =>
-    "import '/app/networking/${name}_api_service.dart';";
-String makeImportPathEvent(String name) =>
-    "import '/app/events/${name}_event.dart';";
-String makeImportPathProviders(String name) =>
-    "import '/app/providers/${name}_provider.dart';";
-String makeImportPathConfigs(String name) => "import '/config/$name.dart';";
+String makeImportPathModel(String name, {String creationPath = ""}) =>
+    "import '/app/models/${creationPath != "" ? creationPath + "/" : ""}$name.dart';";
+String makeImportPathApiService(String name, {String creationPath = ""}) =>
+    "import '/app/networking/${creationPath != "" ? creationPath + "/" : ""}${name}_api_service.dart';";
+String makeImportPathEvent(String name, {String creationPath = ""}) =>
+    "import '/app/events/${creationPath != "" ? creationPath + "/" : ""}${name}_event.dart';";
+String makeImportPathProviders(String name, {String creationPath = ""}) =>
+    "import '/app/providers/${creationPath != "" ? creationPath + "/" : ""}${name}_provider.dart';";
+String makeImportPathConfigs(String name, {String creationPath = ""}) =>
+    "import '/config/${creationPath != "" ? creationPath + "/" : ""}$name.dart';";
 String makeImportPathBootstrap(String name) =>
     "import '/bootstrap/$name.dart';";
 String makeImportPathInterceptor(String name) =>

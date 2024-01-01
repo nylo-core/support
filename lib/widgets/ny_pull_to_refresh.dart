@@ -325,6 +325,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
     });
   }
 
+  /// Returns the header type
   Widget headerType() {
     switch (widget.headerStyle) {
       case "ClassicHeader":

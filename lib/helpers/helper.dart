@@ -419,9 +419,7 @@ class NyLogger {
     if (showLog) {
       Backpack.instance.set('SHOW_LOG', false);
     }
-    DateTime dateTime = DateTime.now();
-    String dateTimeFormatted =
-        "${dateTime.year}-${dateTime.month}-${dateTime.day} ${dateTime.hour}:${dateTime.minute}:${dateTime.second}";
+    String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
     print('[$dateTimeFormatted] ${type != null ? "$type " : ""}$message');
   }
 }

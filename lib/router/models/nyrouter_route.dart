@@ -35,14 +35,14 @@ class NyRouterRoute {
       required this.view,
       this.defaultArgs,
       this.queryParameters,
-      routeGuards = const [],
+      List<RouteGuard>? routeGuards,
       this.pageTransitionType = PageTransitionType.rightToLeft,
       this.pageTransitionSettings,
       initialRoute = false,
       authPage = false})
       : _initialRoute = initialRoute,
         _authPage = authPage,
-        _routeGuards = routeGuards {
+        _routeGuards = routeGuards ?? [] {
     this.builder = (context, arg, queryParameters) {
       Widget widget = view(context);
       if (widget is NyStatefulWidget) {
@@ -85,14 +85,16 @@ class NyRouterRoute {
 
   /// Add a route guard to the route.
   NyRouterRoute addRouteGuard(RouteGuard guard) {
-    _routeGuards = [..._routeGuards, guard];
+    _routeGuards.add(guard);
     NyNavigator.instance.router.updateRoute(this);
     return this;
   }
 
   /// Add route guards to the route
   NyRouterRoute addRouteGuards(List<RouteGuard> guards) {
-    _routeGuards = [..._routeGuards, ...guards];
+    guards.forEach((guard) {
+      _routeGuards.add(guard);
+    });
     NyNavigator.instance.router.updateRoute(this);
     return this;
   }

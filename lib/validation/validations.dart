@@ -1,6 +1,7 @@
 import 'package:nylo_support/validation/rules.dart';
 
 /// Default validation rules for Nylo
+/// https://nylo.dev/docs/5.x/validation#validation-rules
 final Map<String, dynamic> nyDefaultValidations = {
   "email": (attribute) => EmailRule(attribute),
   "boolean": (attribute) => BooleanRule(attribute),

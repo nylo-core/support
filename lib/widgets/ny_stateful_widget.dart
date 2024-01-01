@@ -13,6 +13,7 @@ abstract class NyStatefulWidget<T extends BaseController>
   /// State name
   final String? state;
 
+  /// Child state
   final State? child;
 
   NyStatefulWidget(String? path, {Key? key, this.child})
