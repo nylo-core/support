@@ -1,3 +1,7 @@
+## [5.25.1] - 2024-01-02
+
+* Change `toTimeString` to accept a `withSeconds` parameter
+
 ## [5.25.0] - 2024-01-01
 
 * Fix `toShortDate` method

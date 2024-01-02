@@ -145,10 +145,12 @@ extension NyDateTime on DateTime? {
     return intl.DateFormat("yyyy-MM-dd").format(this!);
   }
 
-  /// Format [DateTime] to toTimeString - HH:mm:ss
-  String? toTimeString() {
+  /// Format [DateTime] to toTimeString - HH:mm or HH:mm:ss
+  String? toTimeString({bool withSeconds = false}) {
     if (this == null) return null;
-    return intl.DateFormat("HH:mm:ss").format(this!);
+    String format = "HH:mm";
+    if (withSeconds) format = "HH:mm:ss";
+    return intl.DateFormat(format).format(this!);
   }
 
   /// Format [DateTime] to an age
