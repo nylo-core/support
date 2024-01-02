@@ -1,3 +1,8 @@
+## [5.25.0] - 2024-01-01
+
+* Fix `toShortDate` method
+* New parameter added to `network` called `shouldSetAuthHeaders` - This will tell the network method if it should set the auth headers or not. You can also override `shouldSetAuthHeaders` in your `DioApiService` class.
+
 ## [5.24.0] - 2024-01-01
 
 * Big updates to `DioApiService`

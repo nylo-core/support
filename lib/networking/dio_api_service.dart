@@ -17,6 +17,7 @@ class DioApiService {
   final Map<Type, dynamic>? decoders = {};
   int retry = 0;
   Duration retryDelay = Duration(seconds: 1);
+  bool shouldSetAuthHeaders = true;
 
   DioApiService(BuildContext? context) {
     _context = context;
@@ -93,6 +94,7 @@ class DioApiService {
       String? baseUrl,
       bool useUndefinedResponse = true,
       bool shouldRetry = true,
+      bool? shouldSetAuthHeaders,
       int? retry,
       Duration? retryDelay,
       bool Function(DioException dioException)? retryIf,
@@ -113,10 +115,13 @@ class DioApiService {
       if (await shouldRefreshToken()) {
         await refreshToken(Dio());
       }
+
       if (bearerToken != null) {
         newValuesToAddToHeader.addAll({"Authorization": "Bearer $bearerToken"});
       } else {
-        newValuesToAddToHeader.addAll(await setAuthHeaders(headers));
+        if ((shouldSetAuthHeaders ?? this.shouldSetAuthHeaders) == true) {
+          newValuesToAddToHeader.addAll(await setAuthHeaders(headers));
+        }
       }
       _api.options.headers.addAll(newValuesToAddToHeader);
       String oldBaseUrl = _api.options.baseUrl;
@@ -243,7 +248,9 @@ class DioApiService {
   /// headers.addHeader('key', 'value') // add a header
   /// headers.getBearerToken() // get the bearer token
   /// headers.hasHeader('key') // check if a header exists
-  Future<RequestHeaders> setAuthHeaders(RequestHeaders headers) async {
+  Future<RequestHeaders> setAuthHeaders(
+    RequestHeaders headers,
+  ) async {
     return headers;
   }
 }

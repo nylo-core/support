@@ -87,7 +87,6 @@ class NyLocalization {
       _locale = Locale(languageCode);
     } else if (_localeType == LocaleType.device) {
       Locale locale = PlatformDispatcher.instance.locale;
-      print(['locale.toString()', locale.toString()]);
       if (locale.toString().contains(RegExp('[-_]'))) {
         _locale = Locale(locale.toString().split(RegExp('[-_]'))[0]);
       } else {

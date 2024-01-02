@@ -214,8 +214,9 @@ extension NyDateTime on DateTime? {
   }
 
   /// Format [DateTime] to a short date
-  String toShortDate(DateTime dateTime) {
-    return '${intl.DateFormat('E').format(dateTime)} ${_addOrdinal(dateTime.day)} ${intl.DateFormat('MMM').format(dateTime)}';
+  String toShortDate() {
+    if (this == null) return "";
+    return '${intl.DateFormat('E').format(this!)} ${_addOrdinal(this!.day)} ${intl.DateFormat('MMM').format(this!)}';
   }
 
   /// Format [DateTime]
