@@ -30,7 +30,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.primary,
     this.physics,
     this.shrinkWrap,
-    this.padding,
+    this.padding = EdgeInsets.zero,
     this.itemExtent,
     this.prototypeItem,
     this.findChildIndexCallback,
@@ -64,7 +64,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.primary,
     this.physics,
     this.shrinkWrap,
-    this.padding,
+    this.padding = EdgeInsets.zero,
     this.itemExtent,
     this.prototypeItem,
     this.findChildIndexCallback,
@@ -249,7 +249,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                     ScrollViewKeyboardDismissBehavior.manual,
                 restorationId: widget.restorationId,
                 clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-                padding: EdgeInsets.zero,
+                padding: widget.padding,
                 itemCount: _data.length,
                 itemBuilder: (BuildContext context, int index) {
                   dynamic model = (_data[index] as T);
@@ -271,13 +271,13 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
               addRepaintBoundaries: widget.addRepaintBoundaries,
               addSemanticIndexes: widget.addSemanticIndexes,
               cacheExtent: widget.cacheExtent,
+              padding: widget.padding,
               dragStartBehavior:
                   widget.dragStartBehavior ?? DragStartBehavior.start,
               keyboardDismissBehavior: widget.keyboardDismissBehavior ??
                   ScrollViewKeyboardDismissBehavior.manual,
               restorationId: widget.restorationId,
               clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-              padding: EdgeInsets.zero,
               itemCount: _data.length,
               itemBuilder: (BuildContext context, int index) {
                 dynamic model = (_data[index] as T);

@@ -1,3 +1,8 @@
+## [5.27.0] - 2024-01-03
+
+* Fix `NyPullToRefresh` widget not using the `padding` parameter
+* Add new `locale` variable to `Nylo` class - Use `Nylo.locale` to get the current locale.
+
 ## [5.26.0] - 2024-01-03
 
 * Add `isAgeYounger(int age)` helper to DateTime extension - This will check if the DateTime is younger than the given age.
