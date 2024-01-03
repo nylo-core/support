@@ -1,3 +1,11 @@
+## [5.26.0] - 2024-01-03
+
+* Add `isAgeYounger(int age)` helper to DateTime extension - This will check if the DateTime is younger than the given age.
+* Add `isAgeOlder(int age)` helper to DateTime extension - This will check if the DateTime is older than the given age.
+* Add `isAgeBetween(int min, int max)` helper to DateTime extension - This will check if the DateTime is between the given ages.
+* Add `isAgeEqualTo(int age)` helper to DateTime extension - This will check if the DateTime is equal to the given age.
+* Add locale to intl.DateFormat methods to allow you to set the locale of the date.
+
 ## [5.25.1] - 2024-01-02
 
 * Change `toTimeString` to accept a `withSeconds` parameter

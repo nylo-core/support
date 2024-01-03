@@ -48,6 +48,7 @@ import 'package:flutter/material.dart'
 import 'package:intl/intl.dart' as intl;
 import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
+import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/widgets/ny_fader.dart';
 import 'package:page_transition/page_transition.dart';
@@ -127,6 +128,9 @@ extension NyBool on bool? {
 
 /// Extensions for [DateTime]
 extension NyDateTime on DateTime? {
+  /// Get the locale of the device.
+  String? get _locale => NyLocalization.instance.languageCode;
+
   /// Check if the date is still valid.
   bool hasExpired() {
     if (this == null) return true;
@@ -136,13 +140,13 @@ extension NyDateTime on DateTime? {
   /// Format [DateTime] to DateTimeString - yyyy-MM-dd HH:mm:ss
   String? toDateTimeString() {
     if (this == null) return null;
-    return intl.DateFormat("yyyy-MM-dd HH:mm:ss").format(this!);
+    return intl.DateFormat("yyyy-MM-dd HH:mm:ss", _locale).format(this!);
   }
 
   /// Format [DateTime] to toDateString - yyyy-MM-dd
   String? toDateString() {
     if (this == null) return null;
-    return intl.DateFormat("yyyy-MM-dd").format(this!);
+    return intl.DateFormat("yyyy-MM-dd", _locale).format(this!);
   }
 
   /// Format [DateTime] to toTimeString - HH:mm or HH:mm:ss
@@ -150,13 +154,45 @@ extension NyDateTime on DateTime? {
     if (this == null) return null;
     String format = "HH:mm";
     if (withSeconds) format = "HH:mm:ss";
-    return intl.DateFormat(format).format(this!);
+    return intl.DateFormat(format, _locale).format(this!);
   }
 
   /// Format [DateTime] to an age
   int? toAge() {
     if (this == null) return null;
     return DateTime.now().difference(this!).inDays ~/ 365;
+  }
+
+  /// Check if [DateTime] is younger than a certain [age]
+  bool? isAgeYounger(int age) {
+    if (this == null) return null;
+    int? ageCheck = this.toAge();
+    if (ageCheck == null) return null;
+    return ageCheck < age;
+  }
+
+  /// Check if [DateTime] is older than a certain [age]
+  bool? isAgeOlder(int age) {
+    if (this == null) return null;
+    int? ageCheck = this.toAge();
+    if (ageCheck == null) return null;
+    return ageCheck > age;
+  }
+
+  /// Check if [DateTime] is between a certain [min] and [max] age
+  bool? isAgeBetween(int min, int max) {
+    if (this == null) return null;
+    int? ageCheck = this.toAge();
+    if (ageCheck == null) return null;
+    return ageCheck >= min && ageCheck <= max;
+  }
+
+  /// Check if [DateTime] is equal to a certain [age]
+  isAgeEqualTo(int age) {
+    if (this == null) return null;
+    int? ageCheck = this.toAge();
+    if (ageCheck == null) return null;
+    return ageCheck == age;
   }
 
   /// Check if [DateTime] is in the past
@@ -215,16 +251,16 @@ extension NyDateTime on DateTime? {
     }
   }
 
-  /// Format [DateTime] to a short date
+  /// Format [DateTime] to a short date - example "Mon 1st Jan"
   String toShortDate() {
     if (this == null) return "";
-    return '${intl.DateFormat('E').format(this!)} ${_addOrdinal(this!.day)} ${intl.DateFormat('MMM').format(this!)}';
+    return '${intl.DateFormat('E', _locale).format(this!)} ${_addOrdinal(this!.day)} ${intl.DateFormat('MMM', _locale).format(this!)}';
   }
 
   /// Format [DateTime]
   String? toFormat(String format) {
     if (this == null) return null;
-    return intl.DateFormat(format).format(this!);
+    return intl.DateFormat(format, _locale).format(this!);
   }
 
   /// dump the value to the console. [tag] is optional.
