@@ -2,7 +2,6 @@
 
 import 'dart:convert';
 import 'dart:ui';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -224,7 +223,7 @@ class NyLocalization {
   restart(BuildContext context) => LocalizedApp.restart(context);
 
   /// Returns language code as string
-  String get languageCode => _locale!.languageCode;
+  String get languageCode => locale.languageCode;
 
   /// Returns locale code as Locale
   Locale get locale => _locale ?? Locale(_langList[0]);

@@ -14,7 +14,6 @@ import 'package:nylo_support/themes/base_color_styles.dart';
 import 'package:nylo_support/themes/base_theme_config.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
 import 'package:theme_provider/theme_provider.dart';
-
 import 'localization/app_localization.dart';
 export 'package:nylo_support/exceptions/validation_exception.dart';
 export 'package:nylo_support/alerts/toast_enums.dart';

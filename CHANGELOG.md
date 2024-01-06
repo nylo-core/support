@@ -1,3 +1,9 @@
+## [5.28.0] - 2024-01-06
+
+* Change `languageCode` to use `locale` in `Nylo` class
+* Add metaData to `ToastMeta`
+* Update pubspec.yaml
+
 ## [5.27.0] - 2024-01-03
 
 * Fix `NyPullToRefresh` widget not using the `padding` parameter
