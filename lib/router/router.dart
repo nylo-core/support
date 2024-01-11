@@ -265,8 +265,8 @@ class NyRouter {
       pageTransitionSettings: pageTransitionSettings,
     );
 
-    // Evaluate if the route can be opened using route guard.
-    final route = _routeNameMappings[name];
+    /// Evaluate if the route can be opened using route guard.
+    final NyRouterRoute? route = _routeNameMappings[name];
 
     if (route != null && (route.getRouteGuards()).isNotEmpty) {
       for (RouteGuard routeGuard in route.getRouteGuards()) {

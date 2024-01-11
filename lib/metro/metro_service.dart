@@ -278,6 +278,7 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
       {String folderPath = modelsFolder,
       bool forceCreate = false,
       bool addToConfig = true,
+      bool? skipIfExist = false,
       String? creationPath}) async {
     String name = className.replaceAll(RegExp(r'(_?model)'), "");
     ReCase nameReCase = ReCase(name);
@@ -292,6 +293,9 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
         className: className,
         creationPath: creationPath);
 
+    if (skipIfExist == true) {
+      if (await hasFile(filePath)) return;
+    }
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen('[Model] ${nameReCase.snakeCase} created 🎉');

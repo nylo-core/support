@@ -1,3 +1,7 @@
+## [5.29.0] - 2024-01-11
+
+* Add `skipIfExist` to **makeModel** method in `MetroService`
+
 ## [5.28.0] - 2024-01-06
 
 * Change `languageCode` to use `locale` in `Nylo` class
