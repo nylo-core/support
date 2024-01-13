@@ -1,3 +1,7 @@
+## [5.30.0] - 2024-01-13
+
+* New `dump` function added for printing out data in a readable format.
+ 
 ## [5.29.0] - 2024-01-11
 
 * Add `skipIfExist` to **makeModel** method in `MetroService`

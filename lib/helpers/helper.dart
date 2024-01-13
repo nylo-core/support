@@ -687,3 +687,11 @@ api<T extends NyApiService>(dynamic Function(T request) request,
 ///  The above example will send an event to LoginEvent.
 event<T>({Map? data}) async =>
     await nyEvent<T>(params: data, events: Nylo.events());
+
+/// Dump a message to the console.
+/// Example:
+/// ```dart
+/// dump("Hello World");
+/// ```
+dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
+    NyLogger.dump(value, tag, alwaysPrint: alwaysPrint);
