@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:developer';
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
