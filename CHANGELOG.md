@@ -1,3 +1,7 @@
+## [5.30.1] - 2024-01-13
+
+* Patch for `_loggerPrint` function to resolve https://github.com/nylo-core/nylo/issues/96
+
 ## [5.30.0] - 2024-01-13
 
 * New `dump` function added for printing out data in a readable format.
