@@ -74,6 +74,20 @@ class MetroService {
             return "";
           }
 
+          if (file.contains("final Map<Type, dynamic> controllers")) {
+            RegExp reg =
+                RegExp(r'final Map<Type, dynamic> controllers = \{([^}]*)\};');
+            String temp = """
+final Map<Type, dynamic> controllers = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+  $controllerName: () => $controllerName(),
+};""";
+
+            return file.replaceFirst(
+              RegExp(r'final Map<Type, dynamic> controllers = \{([^}]*)\};'),
+              temp,
+            );
+          }
+
           if (file.contains(
               "final Map<Type, BaseController Function()> controllers")) {
             RegExp reg = RegExp(
@@ -571,6 +585,20 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
           String apiServiceName = "${name.pascalCase}ApiService";
           if (file.contains(apiServiceName)) {
             return "";
+          }
+
+          if (file.contains("final Map<Type, dynamic> apiDecoders =")) {
+            RegExp reg =
+                RegExp(r'final Map<Type, dynamic> apiDecoders = \{([^}]*)\};');
+            String temp = """
+final Map<Type, dynamic> apiDecoders = {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]}
+  $apiServiceName: $apiServiceName(),
+};""";
+
+            return file.replaceFirst(
+              RegExp(r'final Map<Type, dynamic> apiDecoders = \{([^}]*)\};'),
+              temp,
+            );
           }
 
           if (file.contains("final Map<Type, BaseApiService> apiDecoders =")) {

@@ -1,3 +1,26 @@
+## [5.31.0] - 2024-01-15
+
+* You can now set an API service as a singleton in your project. 
+* Add `setRetry` to `api` helper
+* Add `setRetryDelay` to `api` helper
+* Add `setShouldSetAuthHeaders` to `api` helper
+* Change `immortal` to `singleton` in `NyController`
+* Add new validation helpers:
+* date_age_is_younger - usage e.g. `date_age_is_younger:18` - This will check if the date is younger than the given age.
+* date_age_is_older - usage e.g. `date_age_is_older:30` - This will check if the date is older than the given age.
+* date_in_past - usage e.g. `date_in_past` - This will check if the date is in the past.
+* date_in_future - usage e.g. `date_in_future` - This will check if the date is in the future.
+* Refactor `apiDecoders` and `apiControllers` in `Nylo` class to support singletons.
+* Tweaks to `MetroService` to support singletons.
+* Add `skeletonizer` package to pubspec.yaml
+* New `view(BuildContext context)` method added to `NyState` class - This can be used to create the view for your widget.
+* New `loading(BuildContext context)` method added to `NyState` class - This can be used to create the loading widget for your widget.
+* Update `max` and `min` validation rules to now validate Strings, Numbers, Lists and Maps.
+* Added more docs to NyApiService
+* `isDebuggingEnabled` added to `Nylo` class - This will check if the app is running in debug mode.
+* `isEnvProduction` added to `Nylo` class - This will check if the app is running in production mode.
+* `isEnvDeveloping` added to `Nylo` class - This will check if the app is running in development mode.
+
 ## [5.30.1] - 2024-01-13
 
 * Patch for `_loggerPrint` function to resolve https://github.com/nylo-core/nylo/issues/96

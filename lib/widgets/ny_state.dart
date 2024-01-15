@@ -11,6 +11,7 @@ import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/validation/ny_validator.dart';
 import 'package:nylo_support/widgets/event_bus/update_state.dart';
 import 'package:nylo_support/widgets/ny_stateful_widget.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Base NyState
@@ -40,7 +41,10 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   dynamic stateData;
 
   /// If set, the [boot] method will not be called.
-  bool requiresBoot = true;
+  bool get requiresBoot => true;
+
+  /// Enable the [Skeletonizer] widget.
+  bool get useSkeletonizer => false;
 
   /// Check if the [initState] has already been loaded.
   bool initialLoad = true;
@@ -64,7 +68,6 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     }
 
     WidgetsBinding.instance.addPostFrameCallback((_) async {
-      initialLoad = false;
       if (allowStateUpdates) {
         List<EventBusHistoryEntry> eventHistory = eventBus!.history
             .where((element) =>
@@ -81,6 +84,22 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
         });
       }
       await this.init();
+      if (!requiresBoot) {
+        initialLoad = false;
+        return;
+      }
+
+      awaitData(
+        perform: () async {
+          try {
+            await boot();
+            initialLoad = false;
+          } on UnimplementedError {
+            initialLoad = false;
+          }
+        },
+        shouldSetStateBefore: false,
+      );
     });
   }
 
@@ -234,17 +253,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   ///
   /// * [init] is called in the [initState] method.
   /// This method is async so you can call methods that are Futures.
-  init() async {
-    if (!requiresBoot) {
-      return;
-    }
-    awaitData(
-      perform: () async {
-        await boot();
-      },
-      shouldSetStateBefore: false,
-    );
-  }
+  init() async {}
 
   /// Reboot your widget.
   ///
@@ -265,13 +274,47 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// @override
   ///   Widget build(BuildContext context) {
   ///     return Scaffold(
-  ///       body: SafeAreaWidget(
+  ///       body: SafeArea(
   ///        child: afterLoad(child: () => Container()
   ///        )
   ///     );
   ///  }
   /// This will then only display the widget after the boot method has completed.
-  boot() async {}
+  boot() async {
+    throw UnimplementedError();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (initialLoad == true || isLoading()) {
+      return loading(context);
+    }
+    return view(context);
+  }
+
+  /// Display your widget.
+  Widget view(BuildContext context) {
+    throw UnimplementedError();
+  }
+
+  /// Display a loading widget.
+  Widget loading(BuildContext context) {
+    if (!useSkeletonizer) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: Nylo.appLoader(),
+          ),
+        ),
+      );
+    }
+    return Scaffold(
+      body: Skeletonizer(
+        enabled: true,
+        child: view(context),
+      ),
+    );
+  }
 
   /// Pop the current widget from the stack.
   pop({dynamic result}) {

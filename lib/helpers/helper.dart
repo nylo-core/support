@@ -487,6 +487,9 @@ Future<dynamic> nyApi<T>(
     int? perPage,
     String queryParamPage = "page",
     String? queryParamPerPage,
+    int? retry = 0,
+    Duration? retryDelay,
+    bool? shouldSetAuthHeaders,
     List<Type> events = const []}) async {
   assert(apiDecoders.containsKey(T),
       'Your config/decoders.dart is missing this class ${T.toString()} in apiDecoders.');
@@ -519,6 +522,18 @@ Future<dynamic> nyApi<T>(
         paramPage: queryParamPage,
         paramPerPage: queryParamPerPage,
         perPage: perPage);
+  }
+
+  if (retry != null) {
+    apiService.setRetry(retry);
+  }
+
+  if (retryDelay != null) {
+    apiService.setRetryDelay(retryDelay);
+  }
+
+  if (shouldSetAuthHeaders != null) {
+    apiService.setShouldSetAuthHeaders(shouldSetAuthHeaders);
   }
 
   dynamic result = await request(apiService);
@@ -666,19 +681,26 @@ api<T extends NyApiService>(dynamic Function(T request) request,
         String? queryNamePage,
         String? queryNamePerPage,
         int? perPage,
+        int? retry,
+        Duration? retryDelay,
+        bool? shouldSetAuthHeaders,
         List<Type> events = const []}) async =>
     await nyApi<T>(
-        request: request,
-        apiDecoders: Nylo.apiDecoders(),
-        context: context,
-        headers: headers,
-        bearerToken: bearerToken,
-        baseUrl: baseUrl,
-        events: events,
-        page: page,
-        perPage: perPage,
-        queryParamPage: queryNamePage ?? "page",
-        queryParamPerPage: queryNamePerPage);
+      request: request,
+      apiDecoders: Nylo.apiDecoders(),
+      context: context,
+      headers: headers,
+      bearerToken: bearerToken,
+      baseUrl: baseUrl,
+      events: events,
+      page: page,
+      perPage: perPage,
+      queryParamPage: queryNamePage ?? "page",
+      queryParamPerPage: queryNamePerPage,
+      retry: retry,
+      retryDelay: retryDelay,
+      shouldSetAuthHeaders: shouldSetAuthHeaders,
+    );
 
 /// Event helper for Nylo
 /// Example:

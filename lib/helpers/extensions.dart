@@ -500,6 +500,24 @@ extension NySingleChildRenderObjectWidget on SingleChildRenderObjectWidget {
   }
 }
 
+/// Extensions for [String]
+extension NyString on String {
+  /// dump the value to the console.
+  /// [tag] is optional.
+  /// [alwaysPrint] is optional.
+  dump({String? tag, bool alwaysPrint = false}) {
+    NyLogger.dump(this.toString(), tag, alwaysPrint: alwaysPrint);
+  }
+
+  /// dump the value to the console and exit the app.
+  /// [tag] is optional.
+  dd({String? tag}) {
+    NyLogger.dump(this.toString(), tag);
+    exit(0);
+  }
+}
+
+/// Extensions for [StatelessWidget]
 extension NyStatelessWidget on StatelessWidget {
   /// Route to a new page.
   InkWell onTapRoute(String routeName,

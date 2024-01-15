@@ -6,6 +6,7 @@ import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_meta.dart';
 import 'package:nylo_support/events/events.dart';
 import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/networking/ny_api_service.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
 import 'package:nylo_support/router/observers/ny_route_history_observer.dart';
@@ -25,7 +26,8 @@ class Nylo {
   NyRouter? router;
   Map<Type, NyEvent> _events = {};
   Map<String, dynamic> _validationRules = {};
-  final Map<Type, NyApiService> _apiDecoders = {};
+  final Map<Type, NyApiService Function()> _apiDecoders = {};
+  final Map<Type, NyApiService> _singletonApiDecoders = {};
   List<BaseThemeConfig> _appThemes = [];
   List<NavigatorObserver> _navigatorObservers = [];
   Widget Function({
@@ -35,8 +37,8 @@ class Nylo {
     Function? onDismiss,
   })? _toastNotification;
   Map<Type, dynamic> _modelDecoders = {};
-  Map<Type, dynamic> _controllers = {};
-  Map<Type, dynamic> _liveControllers = {};
+  Map<Type, dynamic> _controllerDecoders = {};
+  Map<Type, dynamic> _singletonControllers = {};
 
   /// Create a new Nylo instance.
   Nylo({this.router, bool useNyRouteObserver = true})
@@ -81,20 +83,22 @@ class Nylo {
   dynamic getController(dynamic controller) {
     if (controller == null) return null;
 
-    dynamic controllerValue = _controllers[controller];
-    if (controllerValue == null) return null;
+    dynamic controllerValue = _controllerDecoders[controller];
+    if (controllerValue == null) {
+      if (!_singletonControllers.containsKey(controller)) return null;
+    }
 
-    if (_liveControllers.containsKey(controller))
-      return _liveControllers[controller];
+    if (_singletonControllers.containsKey(controller))
+      return _singletonControllers[controller];
 
     if (controllerValue is NyController) return controllerValue;
 
     dynamic controllerFound = controllerValue();
     if (!(controllerFound is NyController)) return null;
 
-    if (controllerFound.immortal) {
-      _liveControllers[controller] = controllerFound;
-      return _liveControllers[controller];
+    if (controllerFound.singleton) {
+      _singletonControllers[controller] = controllerFound;
+      return _singletonControllers[controller];
     }
     return controllerFound;
   }
@@ -156,12 +160,20 @@ class Nylo {
   }
 
   /// Set API decoders
-  addApiDecoders(Map<Type, NyApiService> apiDecoders) {
-    _apiDecoders.addAll(apiDecoders);
+  addApiDecoders(Map<Type, dynamic> apiDecoders) {
+    apiDecoders.entries.forEach((apiDecoder) {
+      if (apiDecoder.value is NyApiService Function()) {
+        _apiDecoders.addAll({apiDecoder.key: apiDecoder.value});
+      }
+
+      if (apiDecoder.value is NyApiService) {
+        _singletonApiDecoders.addAll({apiDecoder.key: apiDecoder.value});
+      }
+    });
   }
 
   /// Get API decoders
-  Map<Type, NyApiService> getApiDecoders() => _apiDecoders;
+  Map<Type, NyApiService Function()> getApiDecoders() => _apiDecoders;
 
   /// Add [events] to Nylo
   addEvents(Map<Type, NyEvent> events) async {
@@ -221,7 +233,18 @@ class Nylo {
 
   /// Add Controllers to your Nylo project.
   addControllers(Map<Type, dynamic> controllers) {
-    _controllers.addAll(controllers);
+    controllers.entries.forEach((controllerDecoder) {
+      if (controllerDecoder.value is NyController Function()) {
+        _controllerDecoders
+            .addAll({controllerDecoder.key: controllerDecoder.value});
+      }
+
+      if (controllerDecoder.value is NyController) {
+        _singletonControllers
+            .addAll({controllerDecoder.key: controllerDecoder.value});
+      }
+    });
+
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.set("nylo", this);
     }
@@ -274,8 +297,14 @@ class Nylo {
   /// Get events
   static Map<Type, NyEvent> events() => instance.getEvents();
 
-  /// Get model decoders
-  static Map<Type, NyApiService> apiDecoders() => instance.getApiDecoders();
+  /// Get api decoders
+  static Map<Type, NyApiService> apiDecoders() {
+    Map<Type, NyApiService> apiDecoders = {};
+    instance._apiDecoders.entries
+        .forEach((e) => apiDecoders.addAll({e.key: e.value()}));
+    apiDecoders.addAll(instance._singletonApiDecoders);
+    return apiDecoders;
+  }
 
   /// Add a navigator observer.
   addNavigatorObserver(NavigatorObserver observer) {
@@ -343,6 +372,26 @@ class Nylo {
   /// Get the current locale
   static String getLocale() {
     return NyLocalization.instance.locale.languageCode;
+  }
+
+  /// Check if the app is in debug mode
+  static bool isDebuggingEnabled() {
+    return getEnv('APP_DEBUG', defaultValue: false);
+  }
+
+  /// Check if the app is in production
+  static bool isEnvProduction() {
+    return getEnv('APP_ENV') == 'production';
+  }
+
+  /// Check if the app is in developing
+  static bool isEnvDeveloping() {
+    return getEnv('APP_ENV') == 'developing';
+  }
+
+  /// Check if [Nylo] is initialized
+  static bool isInitialized() {
+    return Backpack.instance.isNyloInitialized();
   }
 
   /// Check if the current route is [routeName]

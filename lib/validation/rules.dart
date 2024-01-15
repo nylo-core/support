@@ -1,5 +1,7 @@
 import 'package:nylo_support/alerts/toast_enums.dart';
 import 'package:nylo_support/alerts/toast_notification.dart';
+import 'package:nylo_support/helpers/extensions.dart';
+import 'package:nylo_support/helpers/helper.dart';
 import 'package:validated/validated.dart' as validate;
 
 /// BASE ValidationRule class
@@ -161,7 +163,7 @@ class ContainsRule extends ValidationRule {
   @override
   bool handle(Map<String, dynamic> info) {
     super.handle(info);
-    RegExp regExp = RegExp(r'contains:([A-z0-9, ]+)');
+    RegExp regExp = RegExp(this.signature + r':([A-z0-9, ]+)');
     String match = regExp.firstMatch(info['rule'])!.group(1) ?? "";
     List<String> listMatches = match.split(",");
 
@@ -276,6 +278,68 @@ class NumericRule extends ValidationRule {
   }
 }
 
+/// DATE AGE IS YOUNGER RULE
+class DateAgeIsYoungerRule extends ValidationRule {
+  DateAgeIsYoungerRule(String attribute)
+      : super(signature: "date_age_is_younger", attribute: attribute);
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    RegExp regExp = RegExp(this.signature + r':([0-9]+)');
+    String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
+    int intMatch = int.parse(match);
+    info.dump();
+    this.description =
+        "The $attribute must be younger than $intMatch years old.";
+    this.textFieldMessage = "Must be younger than $intMatch years old.";
+    super.handle(info);
+    dynamic date = info['data'];
+    if (date is String) {
+      DateTime? dateParsed = DateTime.tryParse(date);
+      if (dateParsed == null) {
+        NyLogger.error('Date is not valid');
+        return false;
+      }
+      return dateParsed.isAgeYounger(intMatch) ?? false;
+    }
+    if (date is DateTime) {
+      return date.isAgeYounger(intMatch) ?? false;
+    }
+    return false;
+  }
+}
+
+/// DATE AGE IS OLDER RULE
+class DateAgeIsOlderRule extends ValidationRule {
+  DateAgeIsOlderRule(String attribute)
+      : super(signature: "date_age_is_older", attribute: attribute);
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    RegExp regExp = RegExp(this.signature + r':([0-9]+)');
+    String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
+    int intMatch = int.parse(match);
+
+    this.description =
+        "The ${this.attribute} must be older than $intMatch years old.";
+    this.textFieldMessage = "Must be older than $intMatch years old.";
+    super.handle(info);
+    dynamic date = info['data'];
+    if (date is String) {
+      DateTime? dateParsed = DateTime.tryParse(date);
+      if (dateParsed == null) {
+        NyLogger.error('Date is not valid');
+        return false;
+      }
+      return dateParsed.isAgeOlder(intMatch) ?? false;
+    }
+    if (date is DateTime) {
+      return date.isAgeOlder(intMatch) ?? false;
+    }
+    return false;
+  }
+}
+
 /// REGEX RULE
 class RegexRule extends ValidationRule {
   RegexRule(String attribute)
@@ -295,26 +359,118 @@ class RegexRule extends ValidationRule {
   }
 }
 
-/// MAX RULE
-class MaxRule extends ValidationRule {
-  MaxRule(String attribute)
+/// DATE IN FUTURE RULE
+class DateInFutureRule extends ValidationRule {
+  DateInFutureRule(String attribute)
       : super(
-            attribute: attribute,
-            signature: "max",
-            description: "",
-            textFieldMessage: "");
+            signature: "date_in_future",
+            description: "The $attribute field must be in the future",
+            textFieldMessage: "Must be in the future");
 
   @override
   bool handle(Map<String, dynamic> info) {
-    RegExp regExp = RegExp(r'max:([0-9]+)');
+    super.handle(info);
+    dynamic date = info['data'];
+
+    if (date is String) {
+      DateTime? dateParsed = DateTime.tryParse(date);
+      if (dateParsed == null) {
+        return false;
+      }
+      return dateParsed.isInFuture();
+    }
+
+    if (date is DateTime) {
+      return date.isInFuture();
+    }
+    return false;
+  }
+}
+
+/// DATE IN PAST RULE
+class DateInPastRule extends ValidationRule {
+  DateInPastRule(String attribute)
+      : super(
+            signature: "date_in_past",
+            description: "The $attribute field must be in the past",
+            textFieldMessage: "Must not be in the future");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    super.handle(info);
+    dynamic date = info['data'];
+
+    if (date is String) {
+      DateTime? dateParsed = DateTime.tryParse(date);
+      if (dateParsed == null) {
+        return false;
+      }
+      return dateParsed.isInPast();
+    }
+
+    if (date is DateTime) {
+      return date.isInPast();
+    }
+    return false;
+  }
+}
+
+/// MAX RULE
+class MaxRule extends ValidationRule {
+  MaxRule(String attribute) : super(attribute: attribute, signature: "max");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    RegExp regExp = RegExp(this.signature + r':([0-9]+)');
     String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
     int intMatch = int.parse(match);
-    this.description =
-        "The $attribute must have a maximum length of $intMatch characters.";
-    this.textFieldMessage = "Must be a maximum of $intMatch characters.";
-    super.handle(info);
 
-    return (info['data'].toString().length < intMatch);
+    dynamic data = info['data'];
+    if (data is String) {
+      // Check if the string is a number
+      if (double.tryParse(data) != null) {
+        this.description = "$attribute must be a maximum of $intMatch.";
+        this.textFieldMessage = "Must be a maximum of $intMatch.";
+        super.handle(info);
+        return (double.tryParse(data)! < intMatch);
+      } else {
+        this.description =
+            "$attribute must be a maximum length of $intMatch characters.";
+        this.textFieldMessage = "Must be a maximum of $intMatch characters.";
+        super.handle(info);
+        return (data.length < intMatch);
+      }
+    }
+
+    if (data is int) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data < intMatch);
+    }
+
+    if (data is List) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data.length < intMatch);
+    }
+
+    if (data is Map) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data.length < intMatch);
+    }
+
+    if (data is double) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data < intMatch);
+    }
+
+    return false;
   }
 }
 
@@ -329,14 +485,51 @@ class MinRule extends ValidationRule {
 
   @override
   bool handle(Map<String, dynamic> info) {
-    RegExp regExp = RegExp(r'min:([0-9]+)');
+    RegExp regExp = RegExp(this.signature + r':([0-9]+)');
     String match = regExp.firstMatch(info['rule'])?.group(1) ?? "";
     int intMatch = int.parse(match);
     this.description =
         "The $attribute must have a minimum length of $intMatch characters.";
     this.textFieldMessage = "Must be a minimum of $intMatch characters.";
     super.handle(info);
-    return (info['data'].toString().length > intMatch);
+
+    dynamic data = info['data'];
+    if (data is String) {
+      this.description =
+          "$attribute must be a maximum length of $intMatch characters.";
+      this.textFieldMessage = "Must be a maximum of $intMatch characters.";
+      super.handle(info);
+      return (data.length > intMatch);
+    }
+
+    if (data is int) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data > intMatch);
+    }
+
+    if (data is List) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data.length > intMatch);
+    }
+
+    if (data is Map) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data.length > intMatch);
+    }
+
+    if (data is double) {
+      this.description = "$attribute must be a maximum of $intMatch.";
+      this.textFieldMessage = "Must be a maximum of $intMatch.";
+      super.handle(info);
+      return (data > intMatch);
+    }
+    return false;
   }
 }
 

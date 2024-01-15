@@ -14,8 +14,8 @@ class NyController extends BaseController {
   /// The name of the state
   String? state;
 
-  /// Set this to true if you want to keep the state of the controller
-  bool immortal = false;
+  /// Set this to true if you want to use a singleton controller
+  bool get singleton => false;
 
   NyController({this.context, this.request}) : super(context: context);
 

@@ -5,18 +5,37 @@ import 'package:nylo_support/networking/models/default_response.dart';
 
 /// Base API Service class
 class DioApiService {
+  /// Dio instance
   late Dio _api;
 
+  /// Build context
   BuildContext? _context;
+
+  /// Base options for the request
   BaseOptions? baseOptions;
 
+  /// Base URL for the request
   final String baseUrl = "";
+
+  /// Use interceptors
   bool get useInterceptors => interceptors.isNotEmpty;
+
+  /// Use HTTP on response
   final bool useHttpOnResponse = true;
+
+  /// Interceptors for the request
   final Map<Type, Interceptor> interceptors = {};
+
+  /// Decoders for morphing json into models
   final Map<Type, dynamic>? decoders = {};
+
+  /// how many times should the request retry
   int retry = 0;
+
+  /// how long should the request wait before retrying
   Duration retryDelay = Duration(seconds: 1);
+
+  /// should the request retry if the [retryIf] callback returns true
   bool shouldSetAuthHeaders = true;
 
   DioApiService(BuildContext? context) {
@@ -45,6 +64,21 @@ class DioApiService {
   /// Set a [baseUrl] for the request.
   setBaseUrl(String baseUrl) {
     _api.options.baseUrl = baseUrl;
+  }
+
+  /// Set how many times the request should [retry] if it fails.
+  setRetry(int retry) {
+    this.retry = retry;
+  }
+
+  /// Set the [Duration] how long the request should wait before retrying.
+  setRetryDelay(Duration retryDelay) {
+    this.retryDelay = retryDelay;
+  }
+
+  /// Set if the request should [shouldSetAuthHeaders] if the [shouldRefreshToken] returns true.
+  setShouldSetAuthHeaders(bool shouldSetAuthHeaders) {
+    this.shouldSetAuthHeaders = shouldSetAuthHeaders;
   }
 
   /// Apply a pagination query to the HTTP request
