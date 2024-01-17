@@ -21,7 +21,8 @@ class NyRequest {
     _args!.data = data;
   }
 
-  /// Returns data passed as an argument to a route
+  /// Returns data passed as an argument to a page
+  /// e.g. routeTo("/my-page", data: {"hello": "world"})
   dynamic data({String? key}) {
     if (_args == null) {
       return null;
@@ -40,9 +41,24 @@ class NyRequest {
     return data;
   }
 
-  /// Returns query params passed to a route
-  dynamic queryParameters() =>
-      (_queryParameters == null ? null : _queryParameters!.data);
+  /// Returns the queryParameters passed to a page
+  /// e.g. /my-page?hello=world
+  dynamic queryParameters({String? key}) {
+    if (_queryParameters == null) {
+      return null;
+    }
+
+    dynamic data = _queryParameters!.data;
+    if (key != null && data is Map) {
+      if (data.containsKey(key)) {
+        return data[key];
+      } else {
+        return null;
+      }
+    }
+
+    return data;
+  }
 }
 
 /// Nylo's base controller class
@@ -54,12 +70,13 @@ abstract class BaseController {
   BaseController({this.context, this.request, this.state = "/"});
 
   /// Returns any data passed through a [Navigator] or [routeTo] method.
-  dynamic data({String? key}) => this.request!.data(key: key);
+  dynamic data({String? key}) => this.request?.data(key: key);
 
   /// Returns any query parameters passed in a route
   /// e.g. /my-page?hello=world
   /// Result {"hello": "world"}
-  dynamic queryParameters() => this.request!.queryParameters();
+  dynamic queryParameters({String? key}) =>
+      this.request?.queryParameters(key: key);
 
   /// Initialize your controller with this method.
   /// It contains same [BuildContext] as the [NyStatefulWidget].

@@ -522,6 +522,7 @@ extension NyStatelessWidget on StatelessWidget {
   /// Route to a new page.
   InkWell onTapRoute(String routeName,
       {dynamic data,
+      Map<String, dynamic>? queryParameters,
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
@@ -532,6 +533,7 @@ extension NyStatelessWidget on StatelessWidget {
       onTap: () async {
         await routeTo(routeName,
             data: data,
+            queryParameters: queryParameters,
             navigationType: navigationType,
             result: result,
             removeUntilPredicate: removeUntilPredicate,

@@ -34,6 +34,14 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
     return null;
   }
 
+  /// Get queryParameters from the [NyStatefulWidget] controller.
+  dynamic queryParameters({String? key}) {
+    if (widget is NyStatefulWidget) {
+      return (widget as NyStatefulWidget).controller.queryParameters(key: key);
+    }
+    return null;
+  }
+
   /// The [stateName] is used as the ID for the [UpdateState] class.
   String? stateName;
 

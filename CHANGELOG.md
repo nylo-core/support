@@ -1,3 +1,11 @@
+## [5.32.0] - 2024-01-17
+
+* Add `queryParameters` to `routeTo` helper
+* Add `queryParameters` to `NyState` helper
+* Add `queryParameters` to `NyRequest` class
+* Add `queryParameters` to `onTapRoute` helper
+* Add `bottomNavFlag` to Strings
+
 ## [5.31.0] - 2024-01-15
 
 * You can now set an API service as a singleton in your project. 

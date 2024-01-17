@@ -231,10 +231,28 @@ class NyRouter {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
 
-    _checkAndThrowRouteNotFound(name, args, navigationType);
+    Uri? uriSettingName;
+    try {
+      uriSettingName = Uri.parse(name);
+    } on FormatException catch (e) {
+      NyLogger.error(e.toString());
+    }
 
-    return await _navigate(name, args, navigationType, result,
-            removeUntilPredicate, pageTransitionType, pageTransitionSettings)
+    String routeName = name;
+    if (uriSettingName != null) {
+      routeName = uriSettingName.path;
+    }
+
+    NyQueryParameters? nyQueryParameters;
+    if (uriSettingName != null && uriSettingName.queryParameters.isNotEmpty) {
+      nyQueryParameters = NyQueryParameters(uriSettingName.queryParameters);
+    }
+
+    _checkAndThrowRouteNotFound(routeName, args, navigationType);
+
+    return await _navigate(routeName, args, navigationType, result,
+            removeUntilPredicate, pageTransitionType, pageTransitionSettings,
+            queryParameters: nyQueryParameters)
         .then((value) => value as T);
   }
 
@@ -258,10 +276,12 @@ class NyRouter {
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
       PageTransitionType? pageTransitionType,
-      PageTransitionSettings? pageTransitionSettings) async {
+      PageTransitionSettings? pageTransitionSettings,
+      {NyQueryParameters? queryParameters}) async {
     final argsWrapper = ArgumentsWrapper(
       baseArguments: args,
       pageTransitionType: pageTransitionType,
+      queryParameters: queryParameters,
       pageTransitionSettings: pageTransitionSettings,
     );
 
@@ -661,6 +681,7 @@ class NyRouter {
 /// See https://pub.dev/packages/page_transition to learn more.
 routeTo(String routeName,
     {dynamic data,
+    Map<String, dynamic>? queryParameters,
     NavigationType navigationType = NavigationType.push,
     dynamic result,
     bool Function(Route<dynamic> route)? removeUntilPredicate,
@@ -668,6 +689,10 @@ routeTo(String routeName,
     PageTransitionType? pageTransition,
     Function(dynamic value)? onPop}) async {
   NyArgument nyArgument = NyArgument(data);
+  if (queryParameters != null) {
+    routeName =
+        Uri(path: routeName, queryParameters: queryParameters).toString();
+  }
   await NyNavigator.instance.router
       .navigate(routeName,
           args: nyArgument,

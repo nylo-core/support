@@ -9,6 +9,7 @@ const String jsonFlag = 'json';
 const String urlFlag = 'url';
 const String authPageFlag = 'auth';
 const String initialPageFlag = 'initial';
+const String bottomNavFlag = 'bottom-nav';
 
 // options
 const String postmanCollectionOption = 'postman';
