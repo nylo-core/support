@@ -295,7 +295,30 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   @override
   Widget build(BuildContext context) {
     if (initialLoad == true || isLoading()) {
-      return loading(context);
+      try {
+        Widget loadingWidget = loading(context);
+        if (!useSkeletonizer) {
+          return loadingWidget;
+        }
+        return Skeletonizer(
+          enabled: true,
+          child: loadingWidget,
+        );
+      } on UnimplementedError {
+        if (!useSkeletonizer) {
+          return Scaffold(
+            body: SafeArea(
+              child: Center(
+                child: Nylo.appLoader(),
+              ),
+            ),
+          );
+        }
+        return Skeletonizer(
+          enabled: true,
+          child: view(context),
+        );
+      }
     }
     return view(context);
   }
@@ -307,21 +330,7 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   /// Display a loading widget.
   Widget loading(BuildContext context) {
-    if (!useSkeletonizer) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Nylo.appLoader(),
-          ),
-        ),
-      );
-    }
-    return Scaffold(
-      body: Skeletonizer(
-        enabled: true,
-        child: view(context),
-      ),
-    );
+    throw UnimplementedError();
   }
 
   /// Pop the current widget from the stack.

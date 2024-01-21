@@ -1,3 +1,7 @@
+## [5.33.0] - 2024-01-21
+
+* Update `build` method in `NyState` to Skeletonize the `loading(BuildContext context)` widget
+ 
 ## [5.32.0] - 2024-01-17
 
 * Add `queryParameters` to `routeTo` helper
