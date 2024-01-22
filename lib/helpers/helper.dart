@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -420,6 +421,7 @@ class NyLogger {
       Backpack.instance.set('SHOW_LOG', false);
     }
     if (!Backpack.instance.isNyloInitialized()) {
+      print('${type != null ? "$type " : ""}$message');
       return;
     }
     String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
@@ -489,6 +491,7 @@ Future<dynamic> nyApi<T>(
     String? queryParamPerPage,
     int? retry = 0,
     Duration? retryDelay,
+    bool Function(DioException dioException)? retryIf,
     bool? shouldSetAuthHeaders,
     List<Type> events = const []}) async {
   assert(apiDecoders.containsKey(T),
@@ -513,6 +516,11 @@ Future<dynamic> nyApi<T>(
   // add baseUrl
   if (baseUrl != null) {
     apiService.setBaseUrl(baseUrl);
+  }
+
+  // add retryIf
+  if (retryIf != null) {
+    apiService.setRetryIf(retryIf);
   }
 
   /// [queryParamPage] by default is 'page'
@@ -683,6 +691,7 @@ api<T extends NyApiService>(dynamic Function(T request) request,
         int? perPage,
         int? retry,
         Duration? retryDelay,
+        bool Function(DioException dioException)? retryIf,
         bool? shouldSetAuthHeaders,
         List<Type> events = const []}) async =>
     await nyApi<T>(
@@ -699,6 +708,7 @@ api<T extends NyApiService>(dynamic Function(T request) request,
       queryParamPerPage: queryNamePerPage,
       retry: retry,
       retryDelay: retryDelay,
+      retryIf: retryIf,
       shouldSetAuthHeaders: shouldSetAuthHeaders,
     );
 

@@ -23,6 +23,9 @@ class DioApiService {
   /// Use HTTP on response
   final bool useHttpOnResponse = true;
 
+  /// Check if the request is [_retrying]
+  bool _retrying = false;
+
   /// Interceptors for the request
   final Map<Type, Interceptor> interceptors = {};
 
@@ -34,6 +37,9 @@ class DioApiService {
 
   /// how long should the request wait before retrying
   Duration retryDelay = Duration(seconds: 1);
+
+  /// should the request retry if the [retryIf] callback returns true
+  bool Function(DioException dioException)? retryIf;
 
   /// should the request retry if the [retryIf] callback returns true
   bool shouldSetAuthHeaders = true;
@@ -74,6 +80,11 @@ class DioApiService {
   /// Set the [Duration] how long the request should wait before retrying.
   setRetryDelay(Duration retryDelay) {
     this.retryDelay = retryDelay;
+  }
+
+  /// Set if the request should [shouldRetry] if the [retryIf] returns true.
+  setRetryIf(bool Function(DioException dioException) retryIf) {
+    this.retryIf = retryIf;
   }
 
   /// Set if the request should [shouldSetAuthHeaders] if the [shouldRefreshToken] returns true.
@@ -176,29 +187,34 @@ class DioApiService {
     } on DioException catch (dioException) {
       int nyRetries = retry ?? this.retry;
       Duration nyRetryDelay = retryDelay ?? this.retryDelay;
+      bool Function(DioException dioException)? retryIfFinal = this.retryIf;
       if (retryIf != null) {
-        bool nyRetryIf = retryIf(dioException);
-        if (nyRetryIf == false) {
-          shouldRetry = false;
-        }
+        retryIfFinal = retryIf;
       }
-      if (shouldRetry == true && nyRetries > 0) {
+      if (retryIfFinal != null) {
+        shouldRetry = retryIfFinal(dioException);
+      }
+      if (_retrying == false && shouldRetry == true && nyRetries > 0) {
+        _retrying = true;
         for (var i = 0; i < nyRetries; i++) {
           await Future.delayed(nyRetryDelay);
           NyLogger.debug("[${i + 1}] Retrying request...");
           dynamic response = await network(
-              request: request,
-              handleSuccess: handleSuccess,
-              handleFailure: handleFailure,
-              bearerToken: bearerToken,
-              baseUrl: baseUrl,
-              useUndefinedResponse: useUndefinedResponse,
-              headers: headers,
-              shouldRetry: false);
+            request: request,
+            handleSuccess: handleSuccess,
+            handleFailure: handleFailure,
+            bearerToken: bearerToken,
+            baseUrl: baseUrl,
+            useUndefinedResponse: useUndefinedResponse,
+            headers: headers,
+            shouldRetry: false,
+          );
           if (response != null) {
+            _retrying = false;
             return response;
           }
         }
+        _retrying = false;
       }
 
       NyLogger.error(dioException.toString());

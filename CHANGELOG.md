@@ -1,3 +1,8 @@
+## [5.34.0] - 2024-01-22
+
+* Add `setRetryIf` to DioApiService
+* Add `retryIf` to `api` helper
+
 ## [5.33.0] - 2024-01-21
 
 * Update `build` method in `NyState` to Skeletonize the `loading(BuildContext context)` widget
