@@ -420,12 +420,12 @@ class NyLogger {
     if (showLog) {
       Backpack.instance.set('SHOW_LOG', false);
     }
-    if (!Backpack.instance.isNyloInitialized()) {
+    try {
+      String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
+      print('[$dateTimeFormatted] ${type != null ? "$type " : ""}$message');
+    } on Exception catch (_) {
       print('${type != null ? "$type " : ""}$message');
-      return;
     }
-    String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
-    print('[$dateTimeFormatted] ${type != null ? "$type " : ""}$message');
   }
 }
 

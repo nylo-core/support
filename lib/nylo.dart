@@ -1,3 +1,4 @@
+import 'package:intl/intl.dart';
 import 'package:nylo_support/controllers/ny_controller.dart';
 import 'package:nylo_support/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
@@ -258,6 +259,7 @@ class Nylo {
       defaultValue: '.env',
     );
     await dotenv.load(fileName: ENV_FILE);
+    Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
 
     Nylo _nylo = Nylo();
 

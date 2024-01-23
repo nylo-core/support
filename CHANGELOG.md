@@ -1,3 +1,7 @@
+## [5.34.1] - 2024-01-23
+
+* Set `Intl.defaultLocale` in Nylo class
+ 
 ## [5.34.0] - 2024-01-22
 
 * Add `setRetryIf` to DioApiService
