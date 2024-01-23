@@ -1,3 +1,11 @@
+## [5.35.0] - 2024-01-23
+
+* Add new `sleep` helper
+* Add `connectionTimeout` to network helper
+* Add `receiveTimeout` to network helper
+* Add `sendTimeout` to network helper
+* New parameter `baseOptions` added to `NyApiService` constructor
+ 
 ## [5.34.1] - 2024-01-23
 
 * Set `Intl.defaultLocale` in Nylo class

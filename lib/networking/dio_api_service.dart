@@ -44,8 +44,26 @@ class DioApiService {
   /// should the request retry if the [retryIf] callback returns true
   bool shouldSetAuthHeaders = true;
 
-  DioApiService(BuildContext? context) {
+  DioApiService(BuildContext? context,
+      {BaseOptions Function(BaseOptions baseOptions)? baseOptions}) {
     _context = context;
+    if (baseOptions != null) {
+      BaseOptions baseOptionsFinal = BaseOptions();
+      this.baseOptions = baseOptions(baseOptionsFinal);
+      if (this.baseOptions?.baseUrl == null ||
+          this.baseOptions?.baseUrl == '') {
+        this.baseOptions?.baseUrl = this.baseUrl;
+      }
+    } else {
+      this.baseOptions = BaseOptions(
+        baseUrl: baseUrl,
+        headers: {
+          "Content-type": "application/json",
+          "Accept": "application/json",
+        },
+        connectTimeout: Duration(seconds: 5),
+      );
+    }
     init();
   }
 
@@ -104,15 +122,6 @@ class DioApiService {
 
   /// Initialize class
   void init() {
-    baseOptions = BaseOptions(
-      baseUrl: baseUrl,
-      headers: {
-        "Content-type": "application/json",
-        "Accept": "application/json",
-      },
-      connectTimeout: Duration(seconds: 5),
-    );
-
     _api = Dio(baseOptions);
 
     if (useInterceptors) {
@@ -143,6 +152,9 @@ class DioApiService {
       int? retry,
       Duration? retryDelay,
       bool Function(DioException dioException)? retryIf,
+      Duration? connectionTimeout,
+      Duration? receiveTimeout,
+      Duration? sendTimeout,
       Map<String, dynamic>? headers}) async {
     if (headers == null) {
       headers = {};
@@ -172,6 +184,15 @@ class DioApiService {
       String oldBaseUrl = _api.options.baseUrl;
       if (baseUrl != null) {
         _api.options.baseUrl = baseUrl;
+      }
+      if (connectionTimeout != null) {
+        _api.options.connectTimeout = connectionTimeout;
+      }
+      if (receiveTimeout != null) {
+        _api.options.receiveTimeout = receiveTimeout;
+      }
+      if (sendTimeout != null) {
+        _api.options.sendTimeout = sendTimeout;
       }
       Response response = await request(_api);
       _api.options.headers = oldHeader; // reset headers
