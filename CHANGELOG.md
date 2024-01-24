@@ -1,3 +1,7 @@
+## [5.35.1] - 2024-01-24
+
+* Small refactor to `NyRouteGuard` class
+
 ## [5.35.0] - 2024-01-23
 
 * Add new `sleep` helper

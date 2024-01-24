@@ -10,13 +10,13 @@ abstract class RouteGuard {
   /// last route.
   Future<bool> canOpen(
     BuildContext? context,
-    NyArgument? args,
+    NyArgument? data,
   );
 
   /// This method is called after the [canOpen] returns false.
   /// Provide an action that should occur.
   /// E.g. routeTo('login');
-  Future<void> redirectTo(BuildContext? context, NyArgument? args);
+  Future<void> redirectTo(BuildContext? context, NyArgument? data);
 }
 
 /// Base class for Nylo's [RouteGuard].
@@ -58,7 +58,7 @@ class NyRouteGuard extends RouteGuard {
       true;
 
   @override
-  Future<void> redirectTo(BuildContext? context, NyArgument? args) async {
+  Future<void> redirectTo(BuildContext? context, NyArgument? data) async {
     return;
   }
 }
