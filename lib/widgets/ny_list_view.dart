@@ -1,7 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:nylo_support/localization/app_localization.dart';
+import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 /// The NyListView widget is a wrapper for the ListView widget.
 /// It provides a simple way to display a list of items.
@@ -44,6 +46,7 @@ class NyListView<T> extends StatefulWidget {
     this.keyboardDismissBehavior,
     this.restorationId,
     this.clipBehavior,
+    this.useSkeletonizer,
   })  : kind = "builder",
         separatorBuilder = null,
         super(key: key);
@@ -75,6 +78,7 @@ class NyListView<T> extends StatefulWidget {
   final String? restorationId;
   final Clip? clipBehavior;
   final String? stateName;
+  final bool? useSkeletonizer;
 
   @override
   _NyListViewState<T> createState() => _NyListViewState<T>(stateName);
@@ -107,6 +111,7 @@ class NyListView<T> extends StatefulWidget {
     this.keyboardDismissBehavior,
     this.restorationId,
     this.clipBehavior,
+    this.useSkeletonizer,
   })  : kind = "separated",
         super(key: key);
 }
@@ -136,6 +141,11 @@ class _NyListViewState<T> extends NyState<NyListView> {
 
   @override
   Widget build(BuildContext context) {
+    Widget loadingWidget = widget.loading ?? Nylo.appLoader();
+    if (widget.useSkeletonizer == true) {
+      loadingWidget = Skeletonizer(child: loadingWidget);
+    }
+
     return afterLoad(
         child: () {
           if (_data.isEmpty) {
@@ -220,6 +230,6 @@ class _NyListViewState<T> extends NyState<NyListView> {
               }
           }
         },
-        loading: widget.loading);
+        loading: loadingWidget);
   }
 }

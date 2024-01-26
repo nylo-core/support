@@ -1,5 +1,6 @@
 import 'package:nylo_support/events/auth_user_event.dart';
 import 'package:nylo_support/helpers/backpack.dart';
+import 'package:nylo_support/helpers/extensions.dart';
 import 'package:nylo_support/helpers/helper.dart';
 
 /// Authentication class
@@ -35,6 +36,26 @@ class Auth {
 
   /// Check if a user is logged in for a given [key].
   static Future<bool> loggedIn({String? key}) async {
-    return (await user()) != null;
+    return (await user(key: key)) != null;
+  }
+
+  /// Login a model into the app.
+  /// [key] that the user was stored under.
+  /// [toModel] is a function that converts the data into a model.
+  /// the [data] parameter will contain the data that was stored in the storage.
+  /// Example:
+  /// ```dart
+  /// await Auth.loginModel('my_auth_key', (data) => Customer.fromJson(data));
+  /// ```
+  static loginModel(String key, Model Function(dynamic data) toModel) async {
+    dynamic object = await NyStorage.read(key);
+    if (object == null) return;
+
+    if (object is String) {
+      object = object.toJson();
+    }
+    Model model = toModel(object);
+
+    Backpack.instance.set(key, model);
   }
 }

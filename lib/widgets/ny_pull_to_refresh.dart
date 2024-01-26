@@ -4,6 +4,7 @@ import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 /// NyPullToRefresh is a widget that shows a list of items with a pull to refresh.
 /// Example:
@@ -44,6 +45,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.restorationId,
     this.headerStyle,
     this.clipBehavior,
+    this.useSkeletonizer,
   })  : kind = "builder",
         separatorBuilder = null,
         super(key: key);
@@ -78,6 +80,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
     this.restorationId,
     this.headerStyle,
     this.clipBehavior,
+    this.useSkeletonizer,
   })  : kind = "separated",
         super(key: key);
 
@@ -110,6 +113,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final String? headerStyle;
   final Clip? clipBehavior;
   final Widget? loading;
+  final bool? useSkeletonizer;
 
   @override
   _NyPullToRefreshState<T> createState() => _NyPullToRefreshState<T>(stateName);
@@ -186,143 +190,150 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
 
   @override
   Widget build(BuildContext context) {
-    return afterLoad(child: () {
-      if (_data.isEmpty) {
-        Widget emptyChild = Container(
-          alignment: Alignment.center,
-          child: Text("No results found".tr()),
-        );
-        if (widget.empty != null) {
-          emptyChild = widget.empty!;
-        }
+    Widget loadingWidget = widget.loading ?? Nylo.appLoader();
+    if (widget.useSkeletonizer == true) {
+      loadingWidget = Skeletonizer(child: loadingWidget);
+    }
 
-        return SmartRefresher(
-          enablePullDown: true,
-          enablePullUp: false,
-          header: headerType(),
-          footer: CustomFooter(
-            builder: (BuildContext context, LoadStatus? mode) {
-              Widget body;
-              if (mode == LoadStatus.idle) {
-                body = Text("Pull up load".tr());
-              } else if (mode == LoadStatus.loading) {
-                body = widget.loading ?? Nylo.appLoader();
-              } else if (mode == LoadStatus.failed) {
-                body = Text("Failed to load more results".tr());
-              } else if (mode == LoadStatus.canLoading) {
-                body = Text("Release to load more".tr());
-              } else {
-                body = SizedBox.shrink();
-              }
-              return Container(
-                height: 55.0,
-                child: Center(child: body),
-              );
-            },
-          ),
-          controller: _refreshController,
-          onRefresh: _onRefresh,
-          onLoading: null,
-          child: emptyChild,
-        );
-      }
-
-      Widget child = SizedBox.shrink();
-      switch (widget.kind) {
-        case "builder":
-          {
-            child = ListView.builder(
-                scrollDirection: widget.scrollDirection ?? Axis.vertical,
-                reverse: widget.reverse ?? false,
-                controller: widget.controller,
-                primary: widget.primary,
-                physics: widget.physics,
-                shrinkWrap: widget.shrinkWrap ?? false,
-                findChildIndexCallback: widget.findChildIndexCallback,
-                addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-                addRepaintBoundaries: widget.addRepaintBoundaries,
-                addSemanticIndexes: widget.addSemanticIndexes,
-                cacheExtent: widget.cacheExtent,
-                dragStartBehavior:
-                    widget.dragStartBehavior ?? DragStartBehavior.start,
-                keyboardDismissBehavior: widget.keyboardDismissBehavior ??
-                    ScrollViewKeyboardDismissBehavior.manual,
-                restorationId: widget.restorationId,
-                clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-                padding: widget.padding,
-                itemCount: _data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  dynamic model = (_data[index] as T);
-                  return widget.child(context, model);
-                });
-            break;
-          }
-        case "separated":
-          {
-            child = ListView.separated(
-              scrollDirection: widget.scrollDirection ?? Axis.vertical,
-              reverse: widget.reverse ?? false,
-              controller: widget.controller,
-              primary: widget.primary,
-              physics: widget.physics,
-              shrinkWrap: widget.shrinkWrap ?? false,
-              findChildIndexCallback: widget.findChildIndexCallback,
-              addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
-              addRepaintBoundaries: widget.addRepaintBoundaries,
-              addSemanticIndexes: widget.addSemanticIndexes,
-              cacheExtent: widget.cacheExtent,
-              padding: widget.padding,
-              dragStartBehavior:
-                  widget.dragStartBehavior ?? DragStartBehavior.start,
-              keyboardDismissBehavior: widget.keyboardDismissBehavior ??
-                  ScrollViewKeyboardDismissBehavior.manual,
-              restorationId: widget.restorationId,
-              clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-              itemCount: _data.length,
-              itemBuilder: (BuildContext context, int index) {
-                dynamic model = (_data[index] as T);
-                return widget.child(context, model);
-              },
-              separatorBuilder: (BuildContext context, int index) {
-                if (widget.separatorBuilder != null) {
-                  return widget.separatorBuilder!(context, index);
-                }
-                return Divider();
-              },
+    return afterLoad(
+        child: () {
+          if (_data.isEmpty) {
+            Widget emptyChild = Container(
+              alignment: Alignment.center,
+              child: Text("No results found".tr()),
             );
-            break;
-          }
-      }
-      return SmartRefresher(
-        enablePullDown: true,
-        enablePullUp: true,
-        header: headerType(),
-        footer: CustomFooter(
-          builder: (BuildContext context, LoadStatus? mode) {
-            Widget body;
-            if (mode == LoadStatus.idle) {
-              body = Text("Pull up load".tr());
-            } else if (mode == LoadStatus.loading) {
-              body = widget.loading ?? Nylo.appLoader();
-            } else if (mode == LoadStatus.failed) {
-              body = Text("Failed to load more results".tr());
-            } else if (mode == LoadStatus.canLoading) {
-              body = Text("Release to load more".tr());
-            } else {
-              body = SizedBox.shrink();
+            if (widget.empty != null) {
+              emptyChild = widget.empty!;
             }
-            return Container(
-              height: 55.0,
-              child: Center(child: body),
+
+            return SmartRefresher(
+              enablePullDown: true,
+              enablePullUp: false,
+              header: headerType(),
+              footer: CustomFooter(
+                builder: (BuildContext context, LoadStatus? mode) {
+                  Widget body;
+                  if (mode == LoadStatus.idle) {
+                    body = Text("Pull up load".tr());
+                  } else if (mode == LoadStatus.loading) {
+                    body = widget.loading ?? Nylo.appLoader();
+                  } else if (mode == LoadStatus.failed) {
+                    body = Text("Failed to load more results".tr());
+                  } else if (mode == LoadStatus.canLoading) {
+                    body = Text("Release to load more".tr());
+                  } else {
+                    body = SizedBox.shrink();
+                  }
+                  return Container(
+                    height: 55.0,
+                    child: Center(child: body),
+                  );
+                },
+              ),
+              controller: _refreshController,
+              onRefresh: _onRefresh,
+              onLoading: null,
+              child: emptyChild,
             );
-          },
-        ),
-        controller: _refreshController,
-        onRefresh: _onRefresh,
-        onLoading: _onLoading,
-        child: child,
-      );
-    });
+          }
+
+          Widget child = SizedBox.shrink();
+          switch (widget.kind) {
+            case "builder":
+              {
+                child = ListView.builder(
+                    scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                    reverse: widget.reverse ?? false,
+                    controller: widget.controller,
+                    primary: widget.primary,
+                    physics: widget.physics,
+                    shrinkWrap: widget.shrinkWrap ?? false,
+                    findChildIndexCallback: widget.findChildIndexCallback,
+                    addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+                    addRepaintBoundaries: widget.addRepaintBoundaries,
+                    addSemanticIndexes: widget.addSemanticIndexes,
+                    cacheExtent: widget.cacheExtent,
+                    dragStartBehavior:
+                        widget.dragStartBehavior ?? DragStartBehavior.start,
+                    keyboardDismissBehavior: widget.keyboardDismissBehavior ??
+                        ScrollViewKeyboardDismissBehavior.manual,
+                    restorationId: widget.restorationId,
+                    clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
+                    padding: widget.padding,
+                    itemCount: _data.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      dynamic model = (_data[index] as T);
+                      return widget.child(context, model);
+                    });
+                break;
+              }
+            case "separated":
+              {
+                child = ListView.separated(
+                  scrollDirection: widget.scrollDirection ?? Axis.vertical,
+                  reverse: widget.reverse ?? false,
+                  controller: widget.controller,
+                  primary: widget.primary,
+                  physics: widget.physics,
+                  shrinkWrap: widget.shrinkWrap ?? false,
+                  findChildIndexCallback: widget.findChildIndexCallback,
+                  addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
+                  addRepaintBoundaries: widget.addRepaintBoundaries,
+                  addSemanticIndexes: widget.addSemanticIndexes,
+                  cacheExtent: widget.cacheExtent,
+                  padding: widget.padding,
+                  dragStartBehavior:
+                      widget.dragStartBehavior ?? DragStartBehavior.start,
+                  keyboardDismissBehavior: widget.keyboardDismissBehavior ??
+                      ScrollViewKeyboardDismissBehavior.manual,
+                  restorationId: widget.restorationId,
+                  clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
+                  itemCount: _data.length,
+                  itemBuilder: (BuildContext context, int index) {
+                    dynamic model = (_data[index] as T);
+                    return widget.child(context, model);
+                  },
+                  separatorBuilder: (BuildContext context, int index) {
+                    if (widget.separatorBuilder != null) {
+                      return widget.separatorBuilder!(context, index);
+                    }
+                    return Divider();
+                  },
+                );
+                break;
+              }
+          }
+          return SmartRefresher(
+            enablePullDown: true,
+            enablePullUp: true,
+            header: headerType(),
+            footer: CustomFooter(
+              builder: (BuildContext context, LoadStatus? mode) {
+                Widget body;
+                if (mode == LoadStatus.idle) {
+                  body = Text("Pull up load".tr());
+                } else if (mode == LoadStatus.loading) {
+                  body = widget.loading ?? Nylo.appLoader();
+                } else if (mode == LoadStatus.failed) {
+                  body = Text("Failed to load more results".tr());
+                } else if (mode == LoadStatus.canLoading) {
+                  body = Text("Release to load more".tr());
+                } else {
+                  body = SizedBox.shrink();
+                }
+                return Container(
+                  height: 55.0,
+                  child: Center(child: body),
+                );
+              },
+            ),
+            controller: _refreshController,
+            onRefresh: _onRefresh,
+            onLoading: _onLoading,
+            child: child,
+          );
+        },
+        loading: loadingWidget);
   }
 
   /// Returns the header type

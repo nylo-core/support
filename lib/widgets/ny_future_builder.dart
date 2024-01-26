@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:nylo_support/nylo.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 
 /// Simple way to render Future's in your project.
 ///
@@ -15,6 +16,7 @@ class NyFutureBuilder<T> extends StatelessWidget {
       required this.future,
       required this.child,
       this.loading,
+      this.useSkeletonizer,
       this.onError})
       : super(key: key);
 
@@ -22,6 +24,7 @@ class NyFutureBuilder<T> extends StatelessWidget {
   final Widget Function(BuildContext context, T? data) child;
   final Widget Function(AsyncSnapshot snapshot)? onError;
   final Widget? loading;
+  final bool? useSkeletonizer;
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +38,11 @@ class NyFutureBuilder<T> extends StatelessWidget {
           case ConnectionState.waiting:
             {
               if (loading != null) {
+                if (useSkeletonizer == true) {
+                  return Skeletonizer(
+                    child: loading!,
+                  );
+                }
                 return loading!;
               }
               return Nylo.appLoader();

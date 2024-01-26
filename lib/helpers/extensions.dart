@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart'
@@ -68,6 +69,9 @@ extension NyStr on String? {
     NyLogger.dump(this ?? "", tag);
     exit(0);
   }
+
+  /// jsonDecode a [String].
+  Map<String, dynamic> toJson() => jsonDecode(this ?? "{}");
 }
 
 /// Extensions for [int]

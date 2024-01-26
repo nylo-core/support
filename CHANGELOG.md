@@ -1,3 +1,11 @@
+## [5.36.0] - 2024-01-26
+
+* Add new `toJson` extension for Strings
+* Add `useSkeletonizer` to `NyPullToRefresh` widget
+* Add `useSkeletonizer` to `NyListView` widget
+* Add `useSkeletonizer` to NyFutureBuilder widget
+* Update pubspec.yaml
+
 ## [5.35.1] - 2024-01-24
 
 * Small refactor to `NyRouteGuard` class
