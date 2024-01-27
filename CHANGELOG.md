@@ -1,3 +1,8 @@
+## [5.37.0] - 2024-01-27
+
+* Add new `toDateTime` extension for Strings
+* Update pubspec.yaml
+
 ## [5.36.0] - 2024-01-26
 
 * Add new `toJson` extension for Strings

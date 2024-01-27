@@ -72,6 +72,9 @@ extension NyStr on String? {
 
   /// jsonDecode a [String].
   Map<String, dynamic> toJson() => jsonDecode(this ?? "{}");
+
+  /// Attempt to convert a [String] to a [DateTime].
+  DateTime toDateTime() => DateTime.parse(this ?? "");
 }
 
 /// Extensions for [int]
