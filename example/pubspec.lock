@@ -5,10 +5,10 @@ packages:
     dependency: transitive
     description:
       name: animate_do
-      sha256: cbbaa22f8e022ba905077d90e022b40bd3f0da5e72ba8c3465f203166caa952c
+      sha256: "7d176dee8acff0bcd298bef8e5520c25f93062fcac79b8d76b3f70dd263f0c5b"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   async:
     dependency: transitive
     description:
@@ -227,7 +227,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "5.36.0"
+    version: "5.38.0"
   page_transition:
     dependency: transitive
     description:

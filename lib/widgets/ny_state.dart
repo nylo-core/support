@@ -26,6 +26,9 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
   /// Helper to get the [EventBus].
   EventBus? get eventBus => Backpack.instance.read("event_bus");
 
+  /// Should the initial loader be displayed.
+  bool get showInitialLoader => true;
+
   /// Get data from the [NyStatefulWidget] controller.
   dynamic data({String? key}) {
     if (widget is NyStatefulWidget) {
@@ -294,30 +297,32 @@ abstract class NyState<T extends StatefulWidget> extends State<T> {
 
   @override
   Widget build(BuildContext context) {
-    if (initialLoad == true || isLoading()) {
-      try {
-        Widget loadingWidget = loading(context);
-        if (!useSkeletonizer) {
-          return loadingWidget;
-        }
-        return Skeletonizer(
-          enabled: true,
-          child: loadingWidget,
-        );
-      } on UnimplementedError {
-        if (!useSkeletonizer) {
-          return Scaffold(
-            body: SafeArea(
-              child: Center(
-                child: Nylo.appLoader(),
+    if (showInitialLoader) {
+      if (initialLoad == true || isLoading()) {
+        try {
+          Widget loadingWidget = loading(context);
+          if (!useSkeletonizer) {
+            return loadingWidget;
+          }
+          return Skeletonizer(
+            enabled: true,
+            child: loadingWidget,
+          );
+        } on UnimplementedError {
+          if (!useSkeletonizer) {
+            return Scaffold(
+              body: SafeArea(
+                child: Center(
+                  child: Nylo.appLoader(),
+                ),
               ),
-            ),
+            );
+          }
+          return Skeletonizer(
+            enabled: true,
+            child: view(context),
           );
         }
-        return Skeletonizer(
-          enabled: true,
-          child: view(context),
-        );
       }
     }
     return view(context);

@@ -1,3 +1,7 @@
+## [5.38.0] - 2024-01-28
+
+* New `showInitialLoader` property added to `NyState` class
+
 ## [5.37.0] - 2024-01-27
 
 * Add new `toDateTime` extension for Strings
