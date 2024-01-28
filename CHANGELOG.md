@@ -1,3 +1,8 @@
+## [5.38.1] - 2024-01-28
+
+* Change `sleep` to use seconds instead of milliseconds
+* Rename `toJson` to `parseJson` on String extension
+
 ## [5.38.0] - 2024-01-28
 
 * New `showInitialLoader` property added to `NyState` class

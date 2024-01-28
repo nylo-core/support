@@ -732,6 +732,6 @@ dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
     NyLogger.dump(value, tag, alwaysPrint: alwaysPrint);
 
 /// Sleep for a given amount of milliseconds.
-sleep(int milliseconds) async {
-  await Future.delayed(Duration(milliseconds: milliseconds));
+sleep(int seconds) async {
+  await Future.delayed(Duration(seconds: seconds));
 }

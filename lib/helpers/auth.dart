@@ -52,7 +52,12 @@ class Auth {
     if (object == null) return;
 
     if (object is String) {
-      object = object.toJson();
+      try {
+        object = object.parseJson();
+      } on Exception catch (e) {
+        dump(e.toString());
+        return;
+      }
     }
     Model model = toModel(object);
 
