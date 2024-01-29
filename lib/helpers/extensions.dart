@@ -1118,13 +1118,35 @@ extension NyBackpack<T> on String {
 
   /// Read a StorageKey value from NyStorage
   Future<T?> read<T>({dynamic defaultValue}) async {
-    return await fromStorage(defaultValue: defaultValue);
+    return await fromStorage<T>(defaultValue: defaultValue);
+  }
+
+  /// Read a JSON value from NyStorage
+  Future<T?> readJson<T>({dynamic defaultValue}) async {
+    T? response = await NyStorage.readJson<T>(this, defaultValue: defaultValue);
+    if (response == null) return null;
+    try {
+      return response;
+    } catch (e) {
+      NyLogger.error(e);
+      return null;
+    }
   }
 
   /// Store a value in NyStorage
   /// You can also store a value in the backpack by setting [inBackpack] to true
   store(dynamic value, {bool inBackpack = false}) async {
     return await NyStorage.store(this, value, inBackpack: inBackpack);
+  }
+
+  /// Store a JSON value in NyStorage
+  /// You can also store a value in the backpack by setting [inBackpack] to true
+  storeJson(dynamic value, {bool inBackpack = false}) async {
+    try {
+      return await NyStorage.storeJson(this, value, inBackpack: inBackpack);
+    } catch (e) {
+      NyLogger.error(e);
+    }
   }
 
   /// Add a value to a collection in NyStorage

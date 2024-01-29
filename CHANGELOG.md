@@ -1,3 +1,9 @@
+## [5.39.0] - 2024-01-29
+
+* Add new `updateCollectionByIndex` method in `NyStorage` class
+* Add new `readJson` method in `NyStorage` class
+* Add new `storeJson` method in `NyStorage` class
+ 
 ## [5.38.1] - 2024-01-28
 
 * Change `sleep` to use seconds instead of milliseconds
