@@ -1,3 +1,11 @@
+## [5.40.0] - 2024-02-01
+
+* Add `isMorning` extension to DateTime
+* Add `isAfternoon` extension to DateTime
+* Add `isEvening` extension to DateTime
+* Add `isNight` extension to DateTime
+* Update pubspec.yaml
+
 ## [5.39.0] - 2024-01-29
 
 * Add new `updateCollectionByIndex` method in `NyStorage` class

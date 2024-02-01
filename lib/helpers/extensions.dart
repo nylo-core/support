@@ -144,6 +144,34 @@ extension NyDateTime on DateTime? {
     return this.isInPast();
   }
 
+  /// Check if the date is in the morning.
+  bool isMorning() {
+    if (this == null) return false;
+    if (this?.hour == null) return false;
+    return this!.hour >= 0 && this!.hour < 12;
+  }
+
+  /// Check if the date is in the afternoon.
+  bool isAfternoon() {
+    if (this == null) return false;
+    if (this?.hour == null) return false;
+    return this!.hour >= 12 && this!.hour < 18;
+  }
+
+  /// Check if the date is in the evening.
+  bool isEvening() {
+    if (this == null) return false;
+    if (this?.hour == null) return false;
+    return this!.hour >= 18 && this!.hour < 24;
+  }
+
+  /// Check if the date is in the night.
+  bool isNight() {
+    if (this == null) return false;
+    if (this?.hour == null) return false;
+    return this!.hour >= 0 && this!.hour < 6;
+  }
+
   /// Format [DateTime] to DateTimeString - yyyy-MM-dd HH:mm:ss
   String? toDateTimeString() {
     if (this == null) return null;
