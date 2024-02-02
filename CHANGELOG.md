@@ -1,3 +1,7 @@
+## [5.40.1] - 2024-02-02
+
+* Update pubspec.yaml
+
 ## [5.40.0] - 2024-02-01
 
 * Add `isMorning` extension to DateTime
