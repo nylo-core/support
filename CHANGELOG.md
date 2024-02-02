@@ -1,3 +1,8 @@
+## [5.41.0] - 2024-02-02
+
+* New `beforeRefresh` method added to NyPullToRefresh widget
+* New `afterRefresh(dynamic data)` method added to NyListView widget
+
 ## [5.40.1] - 2024-02-02
 
 * Update pubspec.yaml
