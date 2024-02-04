@@ -1,3 +1,8 @@
+## [5.42.0] - 2024-02-04
+
+* Add `NyLanguageSwitcher` widget
+* Add check in app_localization.dart to see if an existing language is set
+
 ## [5.41.0] - 2024-02-02
 
 * New `beforeRefresh` method added to NyPullToRefresh widget

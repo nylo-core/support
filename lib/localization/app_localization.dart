@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import '/widgets/ny_language_switcher.dart';
 
 /// Locale Types
 enum LocaleType { device, asDefined }
@@ -93,6 +94,12 @@ class NyLocalization {
       }
     } else {
       _locale = Locale(_langList[0]);
+    }
+
+    Map<String, dynamic>? nyLangSwitcherLanguage =
+        await NyLanguageSwitcher.currentLanguage();
+    if (nyLangSwitcherLanguage != null) {
+      _locale = Locale(nyLangSwitcherLanguage.entries.first.key);
     }
 
     if (_assetsDir == null && valuesAsMap == null) {
