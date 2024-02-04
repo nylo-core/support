@@ -19,6 +19,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
   NyPullToRefresh({
     Key? key,
     this.onRefresh,
+    this.beforeRefresh,
+    this.afterRefresh,
     required this.child,
     required this.data,
     this.empty,
@@ -53,6 +55,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
   NyPullToRefresh.separated({
     Key? key,
     this.onRefresh,
+    this.beforeRefresh,
+    this.afterRefresh,
     required this.data,
     this.transform,
     required this.child,
@@ -88,6 +92,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final String? stateName;
   final IndexedWidgetBuilder? separatorBuilder;
   final Function()? onRefresh;
+  final Function()? beforeRefresh;
+  final Function(dynamic data)? afterRefresh;
   final Future Function(int iteration) data;
   final Widget Function(BuildContext context, dynamic data) child;
   final Widget? empty;
@@ -139,11 +145,17 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
   _onRefresh() async {
     _iteration = 1;
     _data = [];
-
+    if (widget.beforeRefresh != null) {
+      await widget.beforeRefresh!();
+    }
     List<T>? newData = await widget.data(_iteration);
     if (newData == null) _refreshController.loadNoData();
 
     _data = newData!;
+
+    if (widget.afterRefresh != null) {
+      _data = widget.afterRefresh!(_data);
+    }
 
     if (widget.onRefresh == null) {
       _refreshController.refreshCompleted(resetFooterState: true);

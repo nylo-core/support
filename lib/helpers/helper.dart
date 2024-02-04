@@ -175,6 +175,22 @@ class NyStorage {
     }
   }
 
+  /// Saves a JSON [object] to local storage.
+  static Future storeJson(String key, object, {bool inBackpack = false}) async {
+    if (inBackpack == true) {
+      Backpack.instance.set(key, object);
+    }
+
+    try {
+      return await StorageManager.storage
+          .write(key: key, value: jsonEncode(object));
+    } on Exception catch (e) {
+      NyLogger.error(e.toString());
+      NyLogger.error(
+          '[NyStorage.store] Failed to store $object to local storage. Please ensure that the object is a valid JSON object.');
+    }
+  }
+
   /// Read a value from the local storage
   static Future<dynamic> read<T>(String key, {dynamic defaultValue}) async {
     String? data = await StorageManager.storage.read(key: key);
@@ -204,8 +220,6 @@ class NyStorage {
 
     if (T.toString() != 'dynamic') {
       try {
-        String? data = await StorageManager.storage.read(key: key);
-        if (data == null) return null;
         return dataToModel<T>(data: jsonDecode(data));
       } on Exception catch (e) {
         NyLogger.error(e.toString());
@@ -215,12 +229,49 @@ class NyStorage {
     return data;
   }
 
+  /// Read a JSON value from the local storage
+  static Future<dynamic> readJson<T>(String key, {dynamic defaultValue}) async {
+    String? data = await StorageManager.storage.read(key: key);
+    if (data == null) {
+      return defaultValue;
+    }
+
+    try {
+      return jsonDecode(data);
+    } on Exception catch (e) {
+      NyLogger.error(e.toString());
+      return null;
+    }
+  }
+
   /// Deletes all keys with associated values.
   static Future deleteAll({bool andFromBackpack = false}) async {
     if (andFromBackpack == true) {
       Backpack.instance.deleteAll();
     }
     await StorageManager.storage.deleteAll();
+  }
+
+  /// Update a value in the local storage by [index].
+  static Future<bool> updateCollectionByIndex<T>(
+      int index, T Function(T item) object,
+      {required String key}) async {
+    List<T> collection = await readCollection<T>(key);
+
+    // Check if the collection is empty or the index is out of bounds
+    if (collection.isEmpty || index < 0 || index >= collection.length) {
+      NyLogger.error(
+          '[NyStorage.updateCollectionByIndex] The collection is empty or the index is out of bounds.');
+      return false;
+    }
+
+    // Update the item
+    T newItem = object(collection[index]);
+
+    collection[index] = newItem;
+
+    await saveCollection<T>(key, collection);
+    return true;
   }
 
   /// Decrypts and returns all keys with associated values.
@@ -331,7 +382,8 @@ Map<String, dynamic>? _objectToJson(dynamic object) {
   try {
     Map<String, dynamic> json = object.toJson();
     return json;
-  } on NoSuchMethodError catch (_) {
+  } on NoSuchMethodError catch (e) {
+    NyLogger.debug(e.toString());
     NyLogger.error(
         '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
   }

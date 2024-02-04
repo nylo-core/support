@@ -1,3 +1,26 @@
+## [5.41.0] - 2024-02-02
+
+* New `beforeRefresh` method added to NyPullToRefresh widget
+* New `afterRefresh(dynamic data)` method added to NyListView widget
+
+## [5.40.1] - 2024-02-02
+
+* Update pubspec.yaml
+
+## [5.40.0] - 2024-02-01
+
+* Add `isMorning` extension to DateTime
+* Add `isAfternoon` extension to DateTime
+* Add `isEvening` extension to DateTime
+* Add `isNight` extension to DateTime
+* Update pubspec.yaml
+
+## [5.39.0] - 2024-01-29
+
+* Add new `updateCollectionByIndex` method in `NyStorage` class
+* Add new `readJson` method in `NyStorage` class
+* Add new `storeJson` method in `NyStorage` class
+ 
 ## [5.38.1] - 2024-01-28
 
 * Change `sleep` to use seconds instead of milliseconds
