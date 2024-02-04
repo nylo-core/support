@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import '/helpers/helper.dart';
 import '/widgets/ny_language_switcher.dart';
 
 /// Locale Types
@@ -112,17 +113,29 @@ class NyLocalization {
 
     if (_assetsDir != null) {
       _assetsDir = assetsDirectory;
-      _values = await _initLanguage(_locale!.languageCode);
+      _values = await _initLanguage(_locale!.languageCode,
+          defaultLanguageCode: languageCode);
     } else {
       _values = valuesAsMap;
     }
   }
 
   /// Loads language Map<key, value>
-  _initLanguage(String languageCode) async {
+  _initLanguage(String languageCode, {String? defaultLanguageCode}) async {
     String filePath = "$_assetsDir$languageCode.json";
-    String content = await rootBundle.loadString(filePath);
-    return json.decode(content);
+    try {
+      String content = await rootBundle.loadString(filePath);
+      return json.decode(content);
+    } catch (e) {
+      NyLogger.error(
+          "Language file not found: $filePath. Loading default language file: $defaultLanguageCode.");
+      if (defaultLanguageCode != null) {
+        String filePath = "$_assetsDir$defaultLanguageCode.json";
+        String content = await rootBundle.loadString(filePath);
+        return json.decode(content);
+      }
+      throw Exception('Language file not found');
+    }
   }
 
   /// translates a word

@@ -1,3 +1,7 @@
+## [5.42.1] - 2024-02-04
+
+* Fix `_initLanguage` method in `app_localization.dart`
+ 
 ## [5.42.0] - 2024-02-04
 
 * Add `NyLanguageSwitcher` widget
