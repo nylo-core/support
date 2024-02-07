@@ -1,3 +1,7 @@
+## [5.43.1] - 2024-02-07
+
+* Fix `NyListView.grid` Widget
+
 ## [5.43.0] - 2024-02-07
 
 * Ability to set a Grid view in `NyListView` e.g. `NyListView.grid()`

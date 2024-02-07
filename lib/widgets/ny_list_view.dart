@@ -277,32 +277,40 @@ class _NyListViewState<T> extends NyState<NyListView> {
               {
                 int crossAxisCount = widget.crossAxisCount ?? 1;
                 if (widget.header != null) {
-                  return StaggeredGrid.count(
-                      crossAxisCount: crossAxisCount,
-                      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
-                      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
-                      children: [
-                        StaggeredGridTile.fit(
-                            crossAxisCellCount: crossAxisCount,
-                            child: widget.header!),
-                        ..._data
+                  return ListView(
+                    children: [
+                      StaggeredGrid.count(
+                          crossAxisCount: crossAxisCount,
+                          mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                          crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                          children: [
+                            StaggeredGridTile.fit(
+                                crossAxisCellCount: crossAxisCount,
+                                child: widget.header!),
+                            ..._data
+                                .map((item) => StaggeredGridTile.fit(
+                                      crossAxisCellCount: 1,
+                                      child: widget.child(context, item),
+                                    ))
+                                .toList(),
+                          ]),
+                    ],
+                  );
+                } else {
+                  return ListView(
+                    children: [
+                      StaggeredGrid.count(
+                        crossAxisCount: widget.crossAxisCount ?? 1,
+                        mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                        crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                        children: _data
                             .map((item) => StaggeredGridTile.fit(
                                   crossAxisCellCount: 1,
                                   child: widget.child(context, item),
                                 ))
                             .toList(),
-                      ]);
-                } else {
-                  return StaggeredGrid.count(
-                    crossAxisCount: widget.crossAxisCount ?? 1,
-                    mainAxisSpacing: widget.mainAxisSpacing ?? 0,
-                    crossAxisSpacing: widget.crossAxisSpacing ?? 0,
-                    children: _data
-                        .map((item) => StaggeredGridTile.fit(
-                              crossAxisCellCount: 1,
-                              child: widget.child(context, item),
-                            ))
-                        .toList(),
+                      ),
+                    ],
                   );
                 }
               }
