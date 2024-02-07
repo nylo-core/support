@@ -34,4 +34,14 @@ class ArgumentsWrapper {
         'QueryParameters: $queryParameters, '
         'pageTransitionType: $pageTransitionType}';
   }
+
+  /// Get the data from the baseArguments
+  dynamic getData() {
+    return {
+      "data": baseArguments?.data,
+      "queryParameters": queryParameters?.data,
+      "pageTransitionType": pageTransitionType,
+      "pageTransitionSettings": pageTransitionSettings
+    };
+  }
 }

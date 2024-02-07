@@ -1,8 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/widgets/ny_state.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
+import '/localization/app_localization.dart';
+import '/nylo.dart';
+import '/widgets/ny_state.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
@@ -16,79 +17,128 @@ import 'package:skeletonizer/skeletonizer.dart';
 /// })
 /// ```
 class NyPullToRefresh<T> extends StatefulWidget {
-  NyPullToRefresh({
-    Key? key,
-    this.onRefresh,
-    this.beforeRefresh,
-    this.afterRefresh,
-    required this.child,
-    required this.data,
-    this.empty,
-    this.loading,
-    this.stateName,
-    this.transform,
-    this.scrollDirection,
-    this.reverse,
-    this.controller,
-    this.primary,
-    this.physics,
-    this.shrinkWrap,
-    this.padding = EdgeInsets.zero,
-    this.itemExtent,
-    this.prototypeItem,
-    this.findChildIndexCallback,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.cacheExtent,
-    this.semanticChildCount,
-    this.dragStartBehavior,
-    this.keyboardDismissBehavior,
-    this.restorationId,
-    this.headerStyle,
-    this.clipBehavior,
-    this.useSkeletonizer,
-  })  : kind = "builder",
+  NyPullToRefresh(
+      {Key? key,
+      this.onRefresh,
+      this.beforeRefresh,
+      this.afterRefresh,
+      required this.child,
+      required this.data,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.transform,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding = EdgeInsets.zero,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.headerStyle,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "builder",
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
         separatorBuilder = null,
         super(key: key);
 
-  NyPullToRefresh.separated({
-    Key? key,
-    this.onRefresh,
-    this.beforeRefresh,
-    this.afterRefresh,
-    required this.data,
-    this.transform,
-    required this.child,
-    required this.separatorBuilder,
-    this.empty,
-    this.loading,
-    this.stateName,
-    this.scrollDirection,
-    this.reverse,
-    this.controller,
-    this.primary,
-    this.physics,
-    this.shrinkWrap,
-    this.padding = EdgeInsets.zero,
-    this.itemExtent,
-    this.prototypeItem,
-    this.findChildIndexCallback,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.cacheExtent,
-    this.semanticChildCount,
-    this.dragStartBehavior,
-    this.keyboardDismissBehavior,
-    this.restorationId,
-    this.headerStyle,
-    this.clipBehavior,
-    this.useSkeletonizer,
-  })  : kind = "separated",
+  NyPullToRefresh.separated(
+      {Key? key,
+      this.onRefresh,
+      this.beforeRefresh,
+      this.afterRefresh,
+      required this.data,
+      this.transform,
+      required this.child,
+      required this.separatorBuilder,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding = EdgeInsets.zero,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.headerStyle,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "separated",
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        super(key: key);
+
+  NyPullToRefresh.grid(
+      {Key? key,
+      this.crossAxisCount = 2,
+      this.mainAxisSpacing = 0,
+      this.crossAxisSpacing = 0,
+      this.onRefresh,
+      this.beforeRefresh,
+      this.afterRefresh,
+      required this.data,
+      this.transform,
+      required this.child,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding = EdgeInsets.zero,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.headerStyle,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "grid",
+        separatorBuilder = null,
         super(key: key);
 
   final String kind;
+  final Widget? header;
   final String? stateName;
   final IndexedWidgetBuilder? separatorBuilder;
   final Function()? onRefresh;
@@ -120,6 +170,9 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final Clip? clipBehavior;
   final Widget? loading;
   final bool? useSkeletonizer;
+  final int? crossAxisCount;
+  final double? mainAxisSpacing;
+  final double? crossAxisSpacing;
 
   @override
   _NyPullToRefreshState<T> createState() => _NyPullToRefreshState<T>(stateName);
@@ -312,6 +365,40 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                     return Divider();
                   },
                 );
+                break;
+              }
+            case "grid":
+              {
+                int crossAxisCount = widget.crossAxisCount ?? 1;
+                if (widget.header != null) {
+                  child = StaggeredGrid.count(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                      children: [
+                        StaggeredGridTile.fit(
+                            crossAxisCellCount: crossAxisCount,
+                            child: widget.header!),
+                        ..._data
+                            .map((item) => StaggeredGridTile.fit(
+                                  crossAxisCellCount: 1,
+                                  child: widget.child(context, item),
+                                ))
+                            .toList(),
+                      ]);
+                } else {
+                  child = StaggeredGrid.count(
+                    crossAxisCount: crossAxisCount,
+                    mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                    crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                    children: _data
+                        .map((item) => StaggeredGridTile.fit(
+                              crossAxisCellCount: 1,
+                              child: widget.child(context, item),
+                            ))
+                        .toList(),
+                  );
+                }
                 break;
               }
           }

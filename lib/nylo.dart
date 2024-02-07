@@ -10,6 +10,8 @@ import 'package:nylo_support/helpers/backpack.dart';
 import 'package:nylo_support/helpers/helper.dart';
 import 'package:nylo_support/networking/ny_api_service.dart';
 import 'package:nylo_support/plugin/nylo_plugin.dart';
+import 'package:nylo_support/router/models/arguments_wrapper.dart';
+import 'package:nylo_support/router/models/ny_argument.dart';
 import 'package:nylo_support/router/observers/ny_route_history_observer.dart';
 import 'package:nylo_support/router/router.dart';
 import 'package:nylo_support/themes/base_color_styles.dart';
@@ -332,8 +334,25 @@ class Nylo {
   }
 
   /// Get the route history.
-  static List<Route<dynamic>> getRouteHistory() {
-    return NyNavigator.instance.router.getRouteHistory();
+  static List<dynamic> getRouteHistory() {
+    List<Map<String, dynamic>> list = [];
+    List<Route<dynamic>> history =
+        NyNavigator.instance.router.getRouteHistory();
+    history.forEach((route) {
+      dynamic data = route.settings.arguments;
+      if (data is ArgumentsWrapper) {
+        data = data.getData();
+      }
+      if (data is NyArgument) {
+        data = data.data;
+      }
+      list.add({
+        "name": route.settings.name,
+        "arguments": data,
+        "route": route,
+      });
+    });
+    return list;
   }
 
   /// Remove a route from the route history.
@@ -353,7 +372,12 @@ class Nylo {
 
   /// Get current route arguments
   static dynamic getCurrentRouteArguments() {
-    return NyNavigator.instance.router.getCurrentRoute()?.settings.arguments;
+    dynamic argumentsWrapper =
+        NyNavigator.instance.router.getCurrentRoute()?.settings.arguments;
+    if (argumentsWrapper is ArgumentsWrapper) {
+      return argumentsWrapper.getData();
+    }
+    return argumentsWrapper;
   }
 
   /// Get previous route name
@@ -363,7 +387,12 @@ class Nylo {
 
   /// Get previous route arguments
   static dynamic getPreviousRouteArguments() {
-    return NyNavigator.instance.router.getPreviousRoute()?.settings.arguments;
+    dynamic argumentsWrapper =
+        NyNavigator.instance.router.getPreviousRoute()?.settings.arguments;
+    if (argumentsWrapper is ArgumentsWrapper) {
+      return argumentsWrapper.getData();
+    }
+    return argumentsWrapper;
   }
 
   /// Get previous route

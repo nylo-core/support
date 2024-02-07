@@ -1,3 +1,12 @@
+## [5.43.0] - 2024-02-07
+
+* Ability to set a Grid view in `NyListView` e.g. `NyListView.grid()`
+* Ability to set a Grid view in `NyPullToRefresh` e.g. `NyPullToRefresh.grid()`
+* Change `getRouteHistory` to return a `list` of the route history 
+* Change `getCurrentRouteArguments` to return a `map` of the current route arguments
+* Change `getPreviousRouteArguments` to return a `map` of the previous route arguments
+* Add `flutter_staggered_grid_view` to pubspec.yaml
+
 ## [5.42.1] - 2024-02-04
 
 * Fix `_initLanguage` method in `app_localization.dart`

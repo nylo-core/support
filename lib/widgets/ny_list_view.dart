@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/widgets/ny_state.dart';
@@ -19,41 +20,10 @@ import 'package:skeletonizer/skeletonizer.dart';
 ///  The [data] is fetched from the data function.
 ///  The [child] is the widget that will be displayed for each item in the list.
 class NyListView<T> extends StatefulWidget {
-  NyListView({
-    Key? key,
-    required this.child,
-    required this.data,
-    this.transform,
-    this.empty,
-    this.loading,
-    this.stateName,
-    this.scrollDirection,
-    this.reverse,
-    this.controller,
-    this.primary,
-    this.physics,
-    this.shrinkWrap,
-    this.padding,
-    this.itemExtent,
-    this.prototypeItem,
-    this.findChildIndexCallback,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.cacheExtent,
-    this.semanticChildCount,
-    this.dragStartBehavior,
-    this.keyboardDismissBehavior,
-    this.restorationId,
-    this.clipBehavior,
-    this.useSkeletonizer,
-  })  : kind = "builder",
-        separatorBuilder = null,
-        super(key: key);
-
   final Future Function() data;
   final dynamic Function(List<T> data)? transform;
   final Widget Function(BuildContext context, dynamic data) child;
+  final Widget? header;
   final Widget? empty;
   final Widget? loading;
   final String kind;
@@ -79,40 +49,119 @@ class NyListView<T> extends StatefulWidget {
   final Clip? clipBehavior;
   final String? stateName;
   final bool? useSkeletonizer;
+  final int? crossAxisCount;
+  final double? mainAxisSpacing;
+  final double? crossAxisSpacing;
 
   @override
   _NyListViewState<T> createState() => _NyListViewState<T>(stateName);
 
-  NyListView.separated({
-    Key? key,
-    required this.data,
-    this.transform,
-    required this.child,
-    required this.separatorBuilder,
-    this.empty,
-    this.loading,
-    this.stateName,
-    this.scrollDirection,
-    this.reverse,
-    this.controller,
-    this.primary,
-    this.physics,
-    this.shrinkWrap,
-    this.padding,
-    this.itemExtent,
-    this.prototypeItem,
-    this.findChildIndexCallback,
-    this.addAutomaticKeepAlives = true,
-    this.addRepaintBoundaries = true,
-    this.addSemanticIndexes = true,
-    this.cacheExtent,
-    this.semanticChildCount,
-    this.dragStartBehavior,
-    this.keyboardDismissBehavior,
-    this.restorationId,
-    this.clipBehavior,
-    this.useSkeletonizer,
-  })  : kind = "separated",
+  NyListView(
+      {Key? key,
+      required this.child,
+      required this.data,
+      this.transform,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "builder",
+        separatorBuilder = null,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        super(key: key);
+
+  NyListView.separated(
+      {Key? key,
+      required this.data,
+      this.transform,
+      required this.child,
+      required this.separatorBuilder,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "separated",
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null,
+        super(key: key);
+
+  NyListView.grid(
+      {Key? key,
+      this.crossAxisCount = 2,
+      this.mainAxisSpacing = 1.0,
+      this.crossAxisSpacing = 1.0,
+      required this.child,
+      required this.data,
+      this.transform,
+      this.empty,
+      this.loading,
+      this.stateName,
+      this.scrollDirection,
+      this.reverse,
+      this.controller,
+      this.primary,
+      this.physics,
+      this.shrinkWrap,
+      this.padding,
+      this.itemExtent,
+      this.prototypeItem,
+      this.findChildIndexCallback,
+      this.addAutomaticKeepAlives = true,
+      this.addRepaintBoundaries = true,
+      this.addSemanticIndexes = true,
+      this.cacheExtent,
+      this.semanticChildCount,
+      this.dragStartBehavior,
+      this.keyboardDismissBehavior,
+      this.restorationId,
+      this.clipBehavior,
+      this.useSkeletonizer,
+      this.header})
+      : kind = "grid",
+        separatorBuilder = null,
         super(key: key);
 }
 
@@ -223,6 +272,39 @@ class _NyListViewState<T> extends NyState<NyListView> {
                     return Divider();
                   },
                 );
+              }
+            case "grid":
+              {
+                int crossAxisCount = widget.crossAxisCount ?? 1;
+                if (widget.header != null) {
+                  return StaggeredGrid.count(
+                      crossAxisCount: crossAxisCount,
+                      mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                      crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                      children: [
+                        StaggeredGridTile.fit(
+                            crossAxisCellCount: crossAxisCount,
+                            child: widget.header!),
+                        ..._data
+                            .map((item) => StaggeredGridTile.fit(
+                                  crossAxisCellCount: 1,
+                                  child: widget.child(context, item),
+                                ))
+                            .toList(),
+                      ]);
+                } else {
+                  return StaggeredGrid.count(
+                    crossAxisCount: widget.crossAxisCount ?? 1,
+                    mainAxisSpacing: widget.mainAxisSpacing ?? 0,
+                    crossAxisSpacing: widget.crossAxisSpacing ?? 0,
+                    children: _data
+                        .map((item) => StaggeredGridTile.fit(
+                              crossAxisCellCount: 1,
+                              child: widget.child(context, item),
+                            ))
+                        .toList(),
+                  );
+                }
               }
             default:
               {
