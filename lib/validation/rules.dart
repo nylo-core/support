@@ -586,6 +586,50 @@ class PostCodeUkRule extends ValidationRule {
   }
 }
 
+/// PasswordV1 RULE
+/// This rule is used to validate a password with the following requirements:
+/// - At least one upper case letter
+/// - At least one digit
+/// - Minimum of 8 characters
+class PasswordV1Rule extends ValidationRule {
+  PasswordV1Rule(String attribute)
+      : super(
+            attribute: attribute,
+            signature: "password_v1",
+            description: "The $attribute field is not a valid password",
+            textFieldMessage: "This value must be a valid password");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    RegExp regExp = RegExp(r'^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$');
+    super.handle(info);
+    return regExp.hasMatch(info['data'].toString());
+  }
+}
+
+/// PasswordV2 RULE
+/// This rule is used to validate a password with the following requirements:
+/// - At least one upper case letter
+/// - At least one digit
+/// - Minimum of 8 characters
+/// - At least one special character
+class PasswordV2Rule extends ValidationRule {
+  PasswordV2Rule(String attribute)
+      : super(
+            attribute: attribute,
+            signature: "password_v2",
+            description: "The $attribute field is not a valid password",
+            textFieldMessage: "This value must be a valid password");
+
+  @override
+  bool handle(Map<String, dynamic> info) {
+    RegExp regExp = RegExp(
+        r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$');
+    super.handle(info);
+    return regExp.hasMatch(info['data'].toString());
+  }
+}
+
 /// ZIPCODE US RULE
 class ZipCodeUsRule extends ValidationRule {
   ZipCodeUsRule(String attribute)

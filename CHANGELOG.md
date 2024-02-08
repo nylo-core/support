@@ -1,3 +1,12 @@
+## [5.44.0] - 2024-02-08
+
+* Add `NyTextField.emailAddress()` widget - This will create an email address text field
+* Add `NyTextField.password()` widget - This will create a password text field
+* Ability to set `passwordVisible` on `NyTextField` widget
+* Add `NyTextField.compact()` widget - This will create a compact text field
+* Add `password_v1` validation rule for checking if a password is valid
+* Add `password_v2` validation rule for checking if a password is valid
+
 ## [5.43.1] - 2024-02-07
 
 * Fix `NyListView.grid` Widget

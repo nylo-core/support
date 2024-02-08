@@ -28,4 +28,6 @@ final Map<String, dynamic> nyDefaultValidations = {
   "phone_number_uk": (attribute) => PhoneNumberUkRule(attribute),
   "zipcode_us": (attribute) => ZipCodeUsRule(attribute),
   "postcode_uk": (attribute) => PostCodeUkRule(attribute),
+  "password_v1": (attribute) => PasswordV1Rule(attribute),
+  "password_v2": (attribute) => PasswordV2Rule(attribute),
 };
