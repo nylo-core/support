@@ -1,3 +1,7 @@
+## [5.45.0] - 2024-02-12
+
+* New `StateAction` class for handling state actions
+
 ## [5.44.0] - 2024-02-08
 
 * Add `NyTextField.emailAddress()` widget - This will create an email address text field

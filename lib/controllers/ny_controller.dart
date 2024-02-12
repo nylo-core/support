@@ -167,7 +167,7 @@ class NyController extends BaseController {
         {"name": name, "perform": perform, "shouldSetState": shouldSetState});
   }
 
-  /// Perform a lock release
+  /// Perform a confirm action
   void confirmAction(Function() action,
       {required String title, String dismissText = "Cancel"}) async {
     updatePageState("confirm-action",
