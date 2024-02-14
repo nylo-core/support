@@ -1,3 +1,7 @@
+## [5.46.0] - 2024-02-14
+
+* Add `defaultValue` on the `match` function
+
 ## [5.45.0] - 2024-02-12
 
 * New `StateAction` class for handling state actions

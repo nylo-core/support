@@ -654,11 +654,16 @@ Color nyHexColor(String hexColor) {
 
 /// Match a value from a Map of data.
 /// It will return null if a match is not found.
-T? match<T>(dynamic value, Map<String, dynamic> Function() values) {
+T? match<T>(dynamic value, Map<String, dynamic> Function() values,
+    {dynamic defaultValue}) {
   Map<String, dynamic> check = values();
   if (!check.containsKey(value)) {
     NyLogger.error('The value "$value" does not match any values provided');
-    return null;
+    if (defaultValue != null) {
+      return defaultValue;
+    } else {
+      return null;
+    }
   }
   return check[value];
 }
