@@ -324,6 +324,17 @@ class NyStorage {
   /// Sets the [key] to null.
   static Future clear(String key) async => await NyStorage.store(key, null);
 
+  /// Delete item(s) from a collection using a where query.
+  static Future deleteFromCollectionWhere<T>(bool Function(dynamic value) where,
+      {required String key}) async {
+    List<T> collection = await readCollection<T>(key);
+    if (collection.isEmpty) return;
+
+    collection.removeWhere((value) => where(value));
+
+    await saveCollection<T>(key, collection);
+  }
+
   /// Delete an item of a collection using a [index] and the collection [key].
   static Future deleteFromCollection<T>(int index,
       {required String key}) async {

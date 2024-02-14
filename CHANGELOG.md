@@ -1,3 +1,7 @@
+## [5.47.0] - 2024-02-14
+
+* Add `deleteFromCollectionWhere` for NyStorage. E.g. `NyStorage.deleteFromCollectionWhere((value) => value == 1, key: "myKey");`
+
 ## [5.46.0] - 2024-02-14
 
 * Add `defaultValue` on the `match` function
