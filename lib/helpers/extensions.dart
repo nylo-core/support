@@ -46,12 +46,14 @@ import 'package:flutter/material.dart'
         TextWidthBasis,
         Theme,
         VerticalDivider;
+import 'package:get_time_ago/get_time_ago.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/router/router.dart';
-import 'package:nylo_support/widgets/ny_fader.dart';
+import 'package:nylo_support/nylo.dart';
+import '/helpers/backpack.dart';
+import '/helpers/helper.dart';
+import '/localization/app_localization.dart';
+import '/router/router.dart';
+import '/widgets/ny_fader.dart';
 import 'package:page_transition/page_transition.dart';
 import '/router/models/ny_page_transition_settings.dart';
 
@@ -284,6 +286,17 @@ extension NyDateTime on DateTime? {
       default:
         return '${day}th';
     }
+  }
+
+  // Format [DateTime] to a time ago.
+  // Example: 2 hours ago
+  String? toTimeAgoString() {
+    if (this == null) {
+      'DateTime is null'.dump();
+      return null;
+    }
+    ;
+    return GetTimeAgo.parse(this!, locale: Nylo.instance.locale);
   }
 
   /// Format [DateTime] to a short date - example "Mon 1st Jan"

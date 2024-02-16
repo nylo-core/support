@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/nylo.dart';
+import '/nylo.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 /// Simple way to render Future's in your project.

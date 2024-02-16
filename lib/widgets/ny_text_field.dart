@@ -1,10 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:nylo_support/exceptions/validation_exception.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/validation/ny_validator.dart';
-import 'package:nylo_support/widgets/ny_state.dart';
+import '/exceptions/validation_exception.dart';
+import '/localization/app_localization.dart';
+import '/validation/ny_validator.dart';
+import '/widgets/ny_state.dart';
 
 /// Nylo's Text Field Widget
 class NyTextField extends StatefulWidget {

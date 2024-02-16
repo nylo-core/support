@@ -1,4 +1,4 @@
-import 'package:nylo_support/helpers/helper.dart';
+import '/helpers/helper.dart';
 import 'package:rxdart/subjects.dart';
 
 import 'app_event.dart';

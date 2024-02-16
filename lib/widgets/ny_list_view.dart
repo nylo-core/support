@@ -1,9 +1,9 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/widgets/ny_state.dart';
+import '/localization/app_localization.dart';
+import '/nylo.dart';
+import '/widgets/ny_state.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 /// The NyListView widget is a wrapper for the ListView widget.

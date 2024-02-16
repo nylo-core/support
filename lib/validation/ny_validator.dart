@@ -1,9 +1,9 @@
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/metro/metro_service.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/validation/rules.dart';
-import 'package:nylo_support/validation/validations.dart';
+import '/helpers/backpack.dart';
+import '/metro/metro_service.dart';
+import '/nylo.dart';
+import '/validation/rules.dart';
+import '/validation/validations.dart';
 
 class NyValidator {
   /// NyValidator provides an easy way to validate data.

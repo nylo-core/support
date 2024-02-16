@@ -1,10 +1,10 @@
-import 'package:nylo_support/controllers/controller.dart';
-import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
-import 'package:nylo_support/router/models/ny_query_parameters.dart';
-import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
-import 'package:nylo_support/router/router.dart';
-import 'package:nylo_support/widgets/ny_page.dart';
-import 'package:nylo_support/widgets/ny_stateful_widget.dart';
+import '/controllers/controller.dart';
+import '/router/models/ny_page_transition_settings.dart';
+import '/router/models/ny_query_parameters.dart';
+import '/router/models/nyrouter_route_guard.dart';
+import '/router/router.dart';
+import '/widgets/ny_page.dart';
+import '/widgets/ny_stateful_widget.dart';
 import 'package:flutter/widgets.dart';
 import 'package:page_transition/page_transition.dart';
 import 'ny_argument.dart';

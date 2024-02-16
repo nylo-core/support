@@ -1,9 +1,9 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_enums.dart';
-import 'package:nylo_support/alerts/toast_notification.dart';
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/networking/dio_api_service.dart';
+import '/alerts/toast_enums.dart';
+import '/alerts/toast_notification.dart';
+import '/helpers/helper.dart';
+import '/networking/dio_api_service.dart';
 import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 
 class NyApiService extends DioApiService {

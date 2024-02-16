@@ -1,8 +1,8 @@
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/controllers/controller.dart';
-import 'package:nylo_support/controllers/ny_controller.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/nylo.dart';
+import '/controllers/controller.dart';
+import '/controllers/ny_controller.dart';
+import '/helpers/backpack.dart';
+import '/nylo.dart';
 
 /// StatefulWidget's include a [BaseController] to access from your child state.
 abstract class NyStatefulWidget<T extends BaseController>

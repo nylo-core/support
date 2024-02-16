@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_meta.dart';
-import 'package:nylo_support/helpers/extensions.dart';
-import 'package:nylo_support/localization/app_localization.dart';
+import '/alerts/toast_meta.dart';
+import '/helpers/extensions.dart';
+import '/localization/app_localization.dart';
 
 /// [DefaultToastNotification] a simple toast notification
 class DefaultToastNotification extends StatelessWidget {

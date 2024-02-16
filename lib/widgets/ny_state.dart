@@ -1,16 +1,16 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/event_bus/event_bus_plus.dart';
+import '/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_notification.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/validation/ny_validator.dart';
-import 'package:nylo_support/widgets/event_bus/update_state.dart';
-import 'package:nylo_support/widgets/ny_stateful_widget.dart';
+import '/alerts/toast_notification.dart';
+import '/helpers/backpack.dart';
+import '/helpers/helper.dart';
+import '/localization/app_localization.dart';
+import '/nylo.dart';
+import '/validation/ny_validator.dart';
+import '/widgets/event_bus/update_state.dart';
+import '/widgets/ny_stateful_widget.dart';
 import 'package:skeletonizer/skeletonizer.dart';
 
 abstract class NyState<T extends StatefulWidget> extends State<T> {

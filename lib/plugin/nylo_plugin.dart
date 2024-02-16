@@ -1,6 +1,6 @@
-import 'package:nylo_support/events/events.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/router/router.dart';
+import '/events/events.dart';
+import '/nylo.dart';
+import '/router/router.dart';
 
 /// [NyAppPlugin] interface class.
 abstract class NyAppPlugin {

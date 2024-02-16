@@ -1,7 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/networking/models/default_response.dart';
+import '/helpers/helper.dart';
+import '/networking/models/default_response.dart';
 
 /// Base API Service class
 class DioApiService {

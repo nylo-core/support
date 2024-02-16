@@ -1,6 +1,6 @@
 import 'dart:core';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_enums.dart';
+import '/alerts/toast_enums.dart';
 
 /// Toast Meta makes it easy to use pre-defined styles in the toast alert.
 class ToastMeta {

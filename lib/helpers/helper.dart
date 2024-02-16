@@ -1,18 +1,18 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
-import 'package:nylo_support/event_bus/event_bus_plus.dart';
+import '/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import 'package:nylo_support/events/events.dart';
-import 'package:nylo_support/helpers/auth.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/extensions.dart';
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/networking/ny_api_service.dart';
-import 'package:nylo_support/themes/base_theme_config.dart';
-import 'package:nylo_support/widgets/event_bus/update_state.dart';
+import '/events/events.dart';
+import '/helpers/auth.dart';
+import '/helpers/backpack.dart';
+import '/helpers/extensions.dart';
+import '/localization/app_localization.dart';
+import '/networking/ny_api_service.dart';
+import '/themes/base_theme_config.dart';
+import '/widgets/event_bus/update_state.dart';
 import 'package:theme_provider/theme_provider.dart';
 import '/nylo.dart';
 

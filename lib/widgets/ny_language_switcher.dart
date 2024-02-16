@@ -62,7 +62,7 @@ class NyLanguageSwitcher extends StatefulWidget {
   final Color? iconEnabledColor;
   final int elevation;
   final EdgeInsetsGeometry? padding;
-  final Function(String language)? onLanguageChange;
+  final Function(Map<String, dynamic> language)? onLanguageChange;
 
   static String state = "ny_lang_switcher";
 
@@ -817,6 +817,10 @@ class _NyLanguageSwitcherState extends NyState<NyLanguageSwitcher> {
 
     // store the language
     await NyLanguageSwitcher.storeLanguage(object: selectedLanguage);
+
+    if (widget.onLanguageChange != null) {
+      widget.onLanguageChange!(selectedLanguage!);
+    }
 
     setState(() {});
   }

@@ -1,7 +1,7 @@
-import 'package:nylo_support/alerts/toast_enums.dart';
-import 'package:nylo_support/alerts/toast_notification.dart';
-import 'package:nylo_support/helpers/extensions.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import '/alerts/toast_enums.dart';
+import '/alerts/toast_notification.dart';
+import '/helpers/extensions.dart';
+import '/helpers/helper.dart';
 import 'package:validated/validated.dart' as validate;
 
 /// BASE ValidationRule class

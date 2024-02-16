@@ -1,7 +1,7 @@
-import 'package:nylo_support/events/auth_user_event.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/extensions.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import '/events/auth_user_event.dart';
+import '/helpers/backpack.dart';
+import '/helpers/extensions.dart';
+import '/helpers/helper.dart';
 
 /// Authentication class
 /// Learn more: https://nylo.dev/docs/5.x/authentication

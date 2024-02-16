@@ -1,3 +1,8 @@
+## [5.48.0] - 2024-02-16
+
+* Add `toTimeAgoString` extension to DateTime
+* Fix `onLanguageChange` method in `NyLanguageSwitcher`
+
 ## [5.47.0] - 2024-02-14
 
 * Add `deleteFromCollectionWhere` for NyStorage. E.g. `NyStorage.deleteFromCollectionWhere((value) => value == 1, key: "myKey");`

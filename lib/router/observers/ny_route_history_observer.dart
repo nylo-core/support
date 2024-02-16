@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/nylo.dart';
+import '/nylo.dart';
 
 /// A [NavigatorObserver] that keeps track of the current route.
 class NyRouteHistoryObserver extends NavigatorObserver {

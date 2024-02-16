@@ -1,4 +1,4 @@
-import 'package:nylo_support/validation/rules.dart';
+import '/validation/rules.dart';
 
 /// Default validation rules for Nylo
 /// https://nylo.dev/docs/5.x/validation#validation-rules

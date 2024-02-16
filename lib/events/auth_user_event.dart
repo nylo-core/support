@@ -1,5 +1,5 @@
-import 'package:nylo_support/events/events.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import '/events/events.dart';
+import '/helpers/helper.dart';
 
 /// Authentication Event for users.
 class AuthUserEvent implements NyEvent {

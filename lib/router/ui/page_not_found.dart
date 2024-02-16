@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/localization/app_localization.dart';
+import '/localization/app_localization.dart';
 
 class PageNotFound extends StatelessWidget {
   const PageNotFound();

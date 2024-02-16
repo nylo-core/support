@@ -1,5 +1,5 @@
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/nylo.dart';
+import '/helpers/backpack.dart';
+import '/nylo.dart';
 
 /// Base class for Providers.
 abstract class NyProvider {

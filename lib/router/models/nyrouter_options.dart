@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
-import 'package:nylo_support/router/ui/page_not_found.dart';
+import '/router/models/ny_page_transition_settings.dart';
+import '/router/ui/page_not_found.dart';
 
 /// Options to configure a Nylo Router instance.
 class NyRouterOptions {

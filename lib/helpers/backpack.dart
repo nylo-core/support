@@ -1,7 +1,7 @@
 import 'dart:convert';
 
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/nylo.dart';
+import '/helpers/helper.dart';
+import '/nylo.dart';
 
 /// Backpack class for storing data
 /// This class is not designed to store huge amounts of data.

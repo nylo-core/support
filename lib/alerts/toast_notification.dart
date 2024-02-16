@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
-import 'package:nylo_support/alerts/default_toast_notification.dart';
-import 'package:nylo_support/alerts/toast_meta.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/nylo.dart';
+import '/alerts/default_toast_notification.dart';
+import '/alerts/toast_meta.dart';
+import '/helpers/backpack.dart';
+import '/nylo.dart';
 
 /// Display a new Toast notification to the user.
 /// Provide a valid [ToastNotificationStyleType]

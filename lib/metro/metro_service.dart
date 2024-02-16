@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'package:nylo_support/metro/constants/strings.dart';
-import 'package:nylo_support/metro/metro_console.dart';
-import 'package:nylo_support/metro/models/ny_command.dart';
-import 'package:nylo_support/metro/models/ny_template.dart';
+import '/metro/constants/strings.dart';
+import '/metro/metro_console.dart';
+import '/metro/models/ny_command.dart';
+import '/metro/models/ny_template.dart';
 import 'package:recase/recase.dart';
 import 'models/metro_project_file.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/alerts/toast_enums.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import '/alerts/toast_enums.dart';
+import '/helpers/helper.dart';
 import 'controller.dart';
 
 /// Base NyController

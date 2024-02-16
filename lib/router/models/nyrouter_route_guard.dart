@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/router/models/ny_argument.dart';
+import '/router/models/ny_argument.dart';
 
 /// Class interface
 abstract class RouteGuard {

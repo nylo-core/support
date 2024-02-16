@@ -1,5 +1,5 @@
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/validation/rules.dart';
+import '/localization/app_localization.dart';
+import '/validation/rules.dart';
 
 /// Default implementation of [ValidationException] which carries a [attribute] and [validationRule].
 class ValidationException implements Exception {

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/controllers/controller.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/nylo.dart';
-import 'package:nylo_support/widgets/ny_state.dart';
-import 'package:nylo_support/widgets/ny_stateful_widget.dart';
+import '/controllers/controller.dart';
+import '/helpers/backpack.dart';
+import '/nylo.dart';
+import '/widgets/ny_state.dart';
+import '/widgets/ny_stateful_widget.dart';
 import '/helpers/helper.dart';
 
 class _State extends NyState<NyPage> {

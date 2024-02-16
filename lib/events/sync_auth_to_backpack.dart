@@ -1,6 +1,6 @@
-import 'package:nylo_support/events/events.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/helper.dart';
+import '/events/events.dart';
+import '/helpers/backpack.dart';
+import '/helpers/helper.dart';
 
 /// Sync Authenticated User to the Backpack
 class SyncAuthToBackpackEvent<T> implements NyEvent {

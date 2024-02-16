@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/helpers/backpack.dart';
-import 'package:nylo_support/helpers/helper.dart';
-import 'package:nylo_support/router/errors/route_not_found.dart';
-import 'package:nylo_support/router/models/arguments_wrapper.dart';
-import 'package:nylo_support/router/models/ny_page_transition_settings.dart';
-import 'package:nylo_support/router/models/ny_query_parameters.dart';
-import 'package:nylo_support/router/models/nyrouter_route_guard.dart';
-import 'package:nylo_support/router/models/nyrouter_options.dart';
-import 'package:nylo_support/router/models/nyrouter_route.dart';
-import 'package:nylo_support/router/ui/page_not_found.dart';
+import '/helpers/backpack.dart';
+import '/helpers/helper.dart';
+import '/router/errors/route_not_found.dart';
+import '/router/models/arguments_wrapper.dart';
+import '/router/models/ny_page_transition_settings.dart';
+import '/router/models/ny_query_parameters.dart';
+import '/router/models/nyrouter_route_guard.dart';
+import '/router/models/nyrouter_options.dart';
+import '/router/models/nyrouter_route.dart';
+import '/router/ui/page_not_found.dart';
 import 'package:page_transition/page_transition.dart';
 import 'models/ny_argument.dart';
 
