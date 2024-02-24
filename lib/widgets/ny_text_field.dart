@@ -392,6 +392,7 @@ class _NyTextFieldState extends NyState<NyTextField> {
 
   /// validate the users input
   String? _validate() {
+    print("didChange: heree");
     if (didChange == false) return null;
     if (widget.validationRules == null) {
       return null;
@@ -429,7 +430,7 @@ class _NyTextFieldState extends NyState<NyTextField> {
           errorStyle: TextStyle(fontSize: 12),
           errorMaxLines: 2,
         );
-    decoration.copyWith(errorText: _validate());
+    decoration = decoration.copyWith(errorText: _validate());
     if (widget.passwordVisible == true) {
       decoration = decoration.copyWith(
         suffixIcon: Padding(

@@ -1,3 +1,8 @@
+## [5.48.1] - 2024-02-24
+
+* Fix `NyTextField` to use `validationRules`
+* Update `Dio` to 5.4.1
+
 ## [5.48.0] - 2024-02-16
 
 * Add `toTimeAgoString` extension to DateTime
