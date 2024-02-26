@@ -110,6 +110,36 @@ class DioApiService {
     this.shouldSetAuthHeaders = shouldSetAuthHeaders;
   }
 
+  /// Set the [baseOptions] for the request.
+  setOptions(BaseOptions baseOptions) {
+    _api.options = baseOptions;
+  }
+
+  /// Set the [connectTimeout] for the request.
+  setConnectTimeout(Duration duration) {
+    _api.options.connectTimeout = duration;
+  }
+
+  /// Set the [receiveTimeout] for the request.
+  setReceiveTimeout(Duration duration) {
+    _api.options.receiveTimeout = duration;
+  }
+
+  /// Set the [method] for the request.
+  setMethod(String method) {
+    _api.options.method = method;
+  }
+
+  /// Set the [sendTimeout] for the request.
+  setSendTimeout(Duration duration) {
+    _api.options.sendTimeout = duration;
+  }
+
+  /// Set the [contentType] for the request.
+  setContentType(String contentType) {
+    _api.options.contentType = contentType;
+  }
+
   /// Apply a pagination query to the HTTP request
   setPagination(int page,
       {String? paramPage, String? paramPerPage, String? perPage}) {

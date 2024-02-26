@@ -1,3 +1,11 @@
+## [5.49.0] - 2024-02-26
+
+* New method `setSendTimeout` added to NyApiService
+* New method `setReceiveTimeout` added to NyApiService
+* New method `setConnectTimeout` added to NyApiService
+* New method `setMethod` added to NyApiService
+* New method `setContentType` added to NyApiService
+
 ## [5.48.1] - 2024-02-24
 
 * Fix `NyTextField` to use `validationRules`
