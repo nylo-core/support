@@ -1,3 +1,7 @@
+## [5.50.0] - 2024-02-28
+
+* Add new `NyRichText` widget
+
 ## [5.49.1] - 2024-02-28
 
 * Remove debug print statement
