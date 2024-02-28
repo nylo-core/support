@@ -392,7 +392,6 @@ class _NyTextFieldState extends NyState<NyTextField> {
 
   /// validate the users input
   String? _validate() {
-    print("didChange: heree");
     if (didChange == false) return null;
     if (widget.validationRules == null) {
       return null;

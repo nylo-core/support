@@ -1,3 +1,7 @@
+## [5.49.1] - 2024-02-28
+
+* Remove debug print statement
+
 ## [5.49.0] - 2024-02-26
 
 * New method `setSendTimeout` added to NyApiService
