@@ -1,3 +1,8 @@
+## [5.51.0] - 2024-03-03
+
+* Add new `toSkeleton()` extension for `Widget`'s
+* New `NyScheduler` class added to the library
+
 ## [5.50.0] - 2024-02-28
 
 * Add new `NyRichText` widget

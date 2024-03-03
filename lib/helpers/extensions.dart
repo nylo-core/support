@@ -49,6 +49,7 @@ import 'package:flutter/material.dart'
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:intl/intl.dart' as intl;
 import 'package:nylo_support/nylo.dart';
+import 'package:skeletonizer/skeletonizer.dart';
 import '/helpers/backpack.dart';
 import '/helpers/helper.dart';
 import '/localization/app_localization.dart';
@@ -745,6 +746,32 @@ extension NyStatelessWidget on StatelessWidget {
       strength: strength,
       color: color,
       alignment: alignment,
+    );
+  }
+}
+
+/// Extensions for [Widget]
+extension NyWidget on Widget {
+  /// Make a widget a skeleton using the [Skeletonizer] package.
+  Skeletonizer toSkeleton({
+    Key? key,
+    bool? ignoreContainers,
+    bool? justifyMultiLineText,
+    Color? containersColor,
+    bool ignorePointers = true,
+    bool enabled = true,
+    PaintingEffect? effect,
+    TextBoneBorderRadius? textBoneBorderRadius,
+  }) {
+    return Skeletonizer(
+      child: this,
+      ignoreContainers: ignoreContainers,
+      enabled: enabled,
+      effect: effect,
+      textBoneBorderRadius: textBoneBorderRadius,
+      justifyMultiLineText: justifyMultiLineText,
+      containersColor: containersColor,
+      ignorePointers: ignorePointers,
     );
   }
 }

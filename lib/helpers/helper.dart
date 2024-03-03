@@ -154,6 +154,10 @@ class StorageManager {
 
 /// Base class to help manage local storage
 class NyStorage {
+  static FlutterSecureStorage manager() {
+    return StorageManager.storage;
+  }
+
   /// Saves an [object] to local storage.
   static Future store(String key, object, {bool inBackpack = false}) async {
     if (inBackpack == true) {
@@ -952,5 +956,124 @@ class StateAction {
   /// Provide an [action] and [data] to call a method in the [NyState].
   static void _updateState(String state, String action, dynamic data) {
     updateState(state, data: {"action": action, "data": data});
+  }
+}
+
+/// Nylo's Scheduler class
+/// This class is used to schedule tasks to run at a later time.
+class NyScheduler {
+  /// The prefix for the scheduler
+  static final prefix = "ny_scheduler_";
+
+  /// The secure storage instance
+  static final FlutterSecureStorage _secureStorage = NyStorage.manager();
+
+  /// Read a value from the local storage
+  /// Provide a [name] for the value you want to read.
+  static Future<String?> readValue(String name) async {
+    return await _secureStorage.read(key: prefix + name);
+  }
+
+  /// Read a boolean value from the local storage
+  /// Provide a [name] for the value you want to read.
+  static Future<bool> readBool(String name) async {
+    return (await readValue(prefix + name) ?? "") == "true";
+  }
+
+  /// Write a value to the local storage
+  /// Provide a [name] for the value and a [value] to write.
+  static Future writeValue(String name, String value) async {
+    return await _secureStorage.write(key: prefix + name, value: value);
+  }
+
+  /// Run a function once
+  /// Provide a [name] for the function and a [callback] to execute.
+  /// The function will only execute once.
+  ///
+  /// Example:
+  /// ```dart
+  /// NyScheduler.once("myFunction", () {
+  ///  print("This will only execute once");
+  ///  });
+  ///  ```
+  ///  The above example will only execute once.
+  ///  The next time you call NyScheduler.once("myFunction", () {}) it will not execute.
+  static taskOnce(String name, Function() callback) async {
+    String key = name + "_once";
+    bool alreadyExecuted = await readBool(key);
+    if (!alreadyExecuted) {
+      await callback();
+      await writeValue(key, "true");
+    }
+  }
+
+  /// Run a task daily
+  /// Provide a [name] for the function and a [callback] to execute.
+  /// The function will execute every day.
+  /// You can also provide an [endAt] date to stop the task from running.
+  /// You can also provide a [frequency] to run the task weekly, monthly or yearly.
+  /// Example:
+  /// ```dart
+  /// NyScheduler.taskDaily("myFunction", () {
+  ///   print("This will execute every day");
+  /// });
+  /// ```
+  /// The above example will execute every day.
+  static taskDaily(String name, Function() callback, {DateTime? endAt}) async {
+    if (endAt != null && !endAt.isInFuture()) {
+      return;
+    }
+
+    String key = name + "_daily";
+    String? lastTime = await readValue(key);
+
+    if (lastTime == null || lastTime.isEmpty) {
+      await _executeTaskAndSetDateTime(key, callback);
+      return;
+    }
+
+    DateTime todayDateTime = DateTime.now();
+    DateTime lastDateTime = DateTime.parse(lastTime);
+    Duration difference = todayDateTime.difference(lastDateTime);
+    bool canExecute = (difference.inDays >= 1);
+
+    if (canExecute) {
+      // set the time
+      await _executeTaskAndSetDateTime(key, callback);
+    }
+  }
+
+  /// Execute a task
+  static _executeTaskAndSetDateTime(String key, Function() callback) async {
+    DateTime dateTime = DateTime.now();
+    await writeValue(key, dateTime.toString());
+
+    await callback();
+  }
+
+  /// Run a task after date
+  /// Provide a [name] for the function and a [callback] to execute.
+  /// The function will execute after the [date] provided.
+  /// Example:
+  /// ```dart
+  /// NyScheduler.taskAfterDate("myFunction", () {
+  ///   print("This will execute after the date");
+  /// }, date: DateTime.now().add(Duration(days: 1)));
+  /// ```
+  /// The above example will execute after the date provided.
+  static taskOnceAfterDate(String name, Function() callback,
+      {required DateTime date}) async {
+    String key = name + "_after_date";
+
+    /// Check if we have already executed the task
+    bool alreadyExecuted = await readBool(key);
+    if (alreadyExecuted) {
+      return;
+    }
+
+    if (date.isInPast()) {
+      await callback();
+      await writeValue(key, "true");
+    }
   }
 }
