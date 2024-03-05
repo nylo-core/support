@@ -338,6 +338,21 @@ extension NyList on List? {
   }
 }
 
+/// Extensions for [List]
+extension NyListGeneric<T> on List<T> {
+
+  /// Toggle a value in list
+  /// if [value] exists, remove it
+  /// if [value] does not exist, add it
+  void toggleValue(T value) {
+    if (contains(value)) {
+      remove(value);
+      return;
+    }
+    add(value);
+  }
+}
+
 /// Extensions for [Column]
 extension NyColumn on Column {
   /// Add padding to the column.

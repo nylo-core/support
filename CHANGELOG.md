@@ -1,3 +1,7 @@
+## [5.52.0] - 2024-03-05
+
+* Add new `toggleValue` method for `List`'s. This will toggle a value in a list. E.g. `myList.toggleValue(10);`
+
 ## [5.51.0] - 2024-03-03
 
 * Add new `toSkeleton()` extension for `Widget`'s
