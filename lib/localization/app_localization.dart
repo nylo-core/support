@@ -1,10 +1,9 @@
-// Base class to handle localization in the project
-
 import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import '/helpers/helper.dart';
 import '/widgets/ny_language_switcher.dart';
 
@@ -109,6 +108,10 @@ class NyLocalization {
         'You must define assetsDirectory or valuesAsMap',
       );
       return null;
+    }
+
+    if (_locale != null) {
+      initializeDateFormatting(_locale!.languageCode, null);
     }
 
     if (_assetsDir != null) {

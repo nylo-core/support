@@ -29,5 +29,10 @@ Future<Nylo> bootFinished(Nylo nylo, Map<Type, NyProvider> providers,
     await provider.afterBoot(nylo);
   }
   Backpack.instance.set(key, nylo);
+  try {
+    Nylo.canMonitorAppUsage();
+    await Nylo.appLaunched();
+  } on Exception catch (_) {}
+
   return nylo;
 }

@@ -488,10 +488,15 @@ class NyLogger {
       Backpack.instance.set('SHOW_LOG', false);
     }
     try {
-      String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
-      print('[$dateTimeFormatted] ${type != null ? "$type " : ""}$message');
-    } on Exception catch (_) {
-      print('${type != null ? "$type " : ""}$message');
+      if (Nylo.instance.shouldShowDateTimeInLogs()) {
+        String dateTimeFormatted = "${DateTime.now().toDateTimeString()}";
+        print('[$dateTimeFormatted] ${type != null ? "$type : " : ""}$message');
+        return;
+      }
+      print('${type != null ? "$type : " : ""}$message');
+    } on Exception catch (e) {
+      print(e.toString());
+      print('${type != null ? "$type : " : ""}$message');
     }
   }
 }
@@ -803,6 +808,9 @@ event<T>({Map? data}) async =>
 dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
     NyLogger.dump(value, tag, alwaysPrint: alwaysPrint);
 
+/// Get the DateTime.now() value.
+DateTime now() => DateTime.now();
+
 /// Sleep for a given amount of milliseconds.
 sleep(int seconds) async {
   await Future.delayed(Duration(seconds: seconds));
@@ -965,25 +973,34 @@ class NyScheduler {
   /// The prefix for the scheduler
   static final prefix = "ny_scheduler_";
 
+  /// The secure storage key
+  static String key(String name) => prefix + name;
+
   /// The secure storage instance
   static final FlutterSecureStorage _secureStorage = NyStorage.manager();
 
   /// Read a value from the local storage
   /// Provide a [name] for the value you want to read.
   static Future<String?> readValue(String name) async {
-    return await _secureStorage.read(key: prefix + name);
+    return await _secureStorage.read(key: key(name));
   }
 
   /// Read a boolean value from the local storage
   /// Provide a [name] for the value you want to read.
   static Future<bool> readBool(String name) async {
-    return (await readValue(prefix + name) ?? "") == "true";
+    return (await readValue(name) ?? "") == "true";
   }
 
   /// Write a value to the local storage
   /// Provide a [name] for the value and a [value] to write.
   static Future writeValue(String name, String value) async {
-    return await _secureStorage.write(key: prefix + name, value: value);
+    return await _secureStorage.write(key: key(name), value: value);
+  }
+
+  /// Write a bool value to the local storage
+  /// Provide a [name] for the value and a [value] to write.
+  static Future writeBool(String name, bool value) async {
+    return await writeValue(name, (value == true ? "true" : "false"));
   }
 
   /// Run a function once
@@ -1002,8 +1019,8 @@ class NyScheduler {
     String key = name + "_once";
     bool alreadyExecuted = await readBool(key);
     if (!alreadyExecuted) {
+      await writeBool(key, true);
       await callback();
-      await writeValue(key, "true");
     }
   }
 
@@ -1032,7 +1049,7 @@ class NyScheduler {
       return;
     }
 
-    DateTime todayDateTime = DateTime.now();
+    DateTime todayDateTime = now();
     DateTime lastDateTime = DateTime.parse(lastTime);
     Duration difference = todayDateTime.difference(lastDateTime);
     bool canExecute = (difference.inDays >= 1);
@@ -1063,17 +1080,139 @@ class NyScheduler {
   /// The above example will execute after the date provided.
   static taskOnceAfterDate(String name, Function() callback,
       {required DateTime date}) async {
-    String key = name + "_after_date";
-
-    /// Check if we have already executed the task
-    bool alreadyExecuted = await readBool(key);
-    if (alreadyExecuted) {
+    /// Check if the date is in the past
+    if (!date.isInPast()) {
       return;
     }
+    String key = name + "_after_date_" + date.toString();
 
-    if (date.isInPast()) {
+    /// Check if we have already executed the task
+    String keyExecuted = key + "_executed";
+    bool alreadyExecuted = await readBool(keyExecuted);
+
+    if (!alreadyExecuted) {
+      await writeBool(keyExecuted, true);
       await callback();
-      await writeValue(key, "true");
     }
+  }
+}
+
+/// Nylo's NyAppUsage class
+/// This class is used to monitor app usage.
+class NyAppUsage {
+  /// The prefix for the app usage
+  static final prefix = "ny_app_usage_";
+
+  /// The secure storage key
+  static String key(String name) => prefix + name;
+
+  /// The secure storage instance
+  static final FlutterSecureStorage _secureStorage = NyStorage.manager();
+
+  /// Read a value from the local storage
+  /// Provide a [name] for the value you want to read.
+  static Future<String?> readValue(String name) async {
+    return await _secureStorage.read(key: key(name));
+  }
+
+  /// Read a boolean value from the local storage
+  /// Provide a [name] for the value you want to read.
+  static Future<bool> readBool(String name) async {
+    return (await readValue(name) ?? "") == "true";
+  }
+
+  /// Write a value to the local storage
+  /// Provide a [name] for the value and a [value] to write.
+  static Future writeValue(String name, String value) async {
+    return await _secureStorage.write(key: key(name), value: value);
+  }
+
+  /// Reset launch count
+  static resetLaunchCount() async {
+    await useMonitoringMethod(() async {
+      await writeValue("launch_count", "0");
+    });
+  }
+
+  /// Reset first launch
+  static resetFirstLaunch() async {
+    await useMonitoringMethod(() async {
+      await writeValue("first_launch", DateTime.now().toString());
+    });
+  }
+
+  /// Reset first launch
+  static resetLastLaunch() async {
+    await useMonitoringMethod(() async {
+      await writeValue("last_launch", DateTime.now().toString());
+    });
+  }
+
+  /// Check if we can use this [method]
+  static useMonitoringMethod(Function() method) async {
+    Nylo.canMonitorAppUsage();
+    return await method();
+  }
+
+  /// App launched
+  /// This method will increment the app launch count.
+  static Future<void> appLaunched() async {
+    await useMonitoringMethod(() async {
+      await writeValue("last_launch", DateTime.now().toString());
+      int? count = await appLaunchCount();
+      if (count == null) {
+        await writeValue("first_launch", DateTime.now().toString());
+        await writeValue("launch_count", "1");
+        return;
+      }
+      count++;
+      await writeValue("launch_count", count.toString());
+    });
+  }
+
+  /// App launch count
+  /// This method will return the app launch count.
+  static Future<int?> appLaunchCount() async {
+    return await useMonitoringMethod(() async {
+      String? launchCount = await readValue("launch_count");
+      if (launchCount == null || launchCount.isEmpty) {
+        return null;
+      }
+
+      int count = int.parse(launchCount);
+      return count;
+    });
+  }
+
+  /// Days since first launch
+  static Future<int> appTotalDaysSinceFirstLaunch() async {
+    return await useMonitoringMethod(() async {
+      String? firstLaunch = await readValue("first_launch");
+      if (firstLaunch == null || firstLaunch.isEmpty) {
+        return 0;
+      }
+
+      DateTime firstLaunchDateTime = DateTime.parse(firstLaunch);
+      DateTime todayDateTime = DateTime.now();
+      Duration difference = todayDateTime.difference(firstLaunchDateTime);
+      return difference.inDays;
+    });
+  }
+
+  /// Days since first launch
+  static Future<DateTime?> appFirstLaunchDate() async {
+    return await useMonitoringMethod(() async {
+      String? firstLaunch = await readValue("first_launch");
+      if (firstLaunch == null || firstLaunch.isEmpty) {
+        return null;
+      }
+
+      try {
+        return DateTime.parse(firstLaunch);
+      } on Exception catch (e) {
+        NyLogger.error(e.toString());
+        return null;
+      }
+    });
   }
 }

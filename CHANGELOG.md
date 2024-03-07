@@ -1,3 +1,20 @@
+## [5.53.0] - 2024-03-07
+
+* Added `Future<void> wipeAllStorageData()` to `Nylo` class. Usage `Nylo.wipeAllStorageData()`
+* Added `scheduleOnceAfterDate(String name, Function() callback, {required DateTime date})` to `Nylo` class. Usage `Nylo.scheduleOnceAfterDate('my_task', () => print('Hello'), date: DateTime.now().add(Duration(days: 1)))`
+* Added `scheduleOnceDaily(String name, Function() callback, {DateTime? endAt})` to `Nylo` class. Usage `Nylo.scheduleDaily('my_task', () => print('Hello'), endAt: DateTime.now().add(Duration(days: 2)))`
+* Added `scheduleOnce(String name, Function() callback)` to `Nylo` class. Usage `Nylo.scheduleOnce('my_task', () => print('Run once'))`
+* Added `Future<DateTime?> appFirstLaunchDate()` to `Nylo` class. Usage `DateTime? dateTime = Nylo.appFirstLaunchDate()`
+* Added `Future<int> appTotalDaysSinceFirstLaunch()` to `Nylo` class. Usage `int days = Nylo.appTotalDaysSinceFirstLaunch()`
+* Added `Future<int?> appLaunchCount()` to `Nylo` class. Usage `int? count = Nylo.appLaunchCount()`
+* Added `Future<void> appLaunched()` to `Nylo` class. Usage `Nylo.appLaunched()`
+* Added `isSameDay(DateTime date)` to DateTime extension
+* Added new `NyAppUsage` class to the library
+* Added `monitorAppUsage()` to `Nylo` class. Usage `Nylo.monitorAppUsage()` - This will start monitoring the app usage like the first launch date, total days since first launch, launch count and more.
+* Added `showDateTimeInLogs()` to optional show the date and time in logs
+* Updated log method to add a ":" in-between log messages
+* Fix `withGap` extension for `Column` widgets
+
 ## [5.52.0] - 2024-03-05
 
 * Add new `toggleValue` method for `List`'s. This will toggle a value in a list. E.g. `myList.toggleValue(10);`

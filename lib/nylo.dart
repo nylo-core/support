@@ -1,3 +1,4 @@
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import '/controllers/ny_controller.dart';
 import '/event_bus/event_bus_plus.dart';
@@ -27,6 +28,8 @@ class Nylo {
   Widget _appLoader;
   Widget _appLogo;
   NyRouter? router;
+  bool? _monitorAppUsage;
+  bool? _showDateTimeInLogs;
   Map<Type, NyEvent> _events = {};
   Map<String, dynamic> _validationRules = {};
   final Map<Type, NyApiService Function()> _apiDecoders = {};
@@ -143,6 +146,26 @@ class Nylo {
   addThemes<T extends BaseColorStyles>(List<BaseThemeConfig<T>> themes) {
     _appThemes.addAll(themes);
   }
+
+  /// Set if the app should monitor app usage like:
+  /// - App launch count
+  /// - Days since first launch
+  /// If [_monitorAppUsage] is set to true, you'll be able to use the
+  /// functions from the [NyAppUsage] class.
+  monitorAppUsage() {
+    _monitorAppUsage = true;
+  }
+
+  /// Check if the app should monitor app usage
+  bool shouldMonitorAppUsage() => _monitorAppUsage ?? false;
+
+  /// Show date time in logs
+  showDateTimeInLogs() {
+    _showDateTimeInLogs = true;
+  }
+
+  /// Check if the app should show date time in logs
+  bool shouldShowDateTimeInLogs() => _showDateTimeInLogs ?? false;
 
   /// Add toast notification
   addToastNotification(
@@ -262,6 +285,7 @@ class Nylo {
     );
     await dotenv.load(fileName: ENV_FILE);
     Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
+    initializeDateFormatting(Intl.defaultLocale, null);
 
     Nylo _nylo = Nylo();
 
@@ -428,4 +452,59 @@ class Nylo {
   /// Check if the current route is [routeName]
   static bool isCurrentRoute(String routeName) =>
       getCurrentRouteName() == routeName;
+
+  /// Check if the app can monitor data
+  static canMonitorAppUsage() {
+    if (!Nylo.instance.shouldMonitorAppUsage()) {
+      throw Exception("""\n
+      You need to enable app usage monitoring in your Nylo instance.
+      Go to your app_provider.dart file and add the following line:
+      boot(Nylo nylo) async {
+      ...
+      nylo.monitorAppUsage(); // add this
+      """);
+    }
+  }
+
+  /// App launched - this method will increment the app launch count.
+  static Future<void> appLaunched() async {
+    await NyAppUsage.appLaunched();
+  }
+
+  /// App launch count - this method will return the app launch count.
+  static Future<int?> appLaunchCount() async {
+    return await NyAppUsage.appLaunchCount();
+  }
+
+  /// Days since first launch
+  static Future<int> appTotalDaysSinceFirstLaunch() async {
+    return await NyAppUsage.appTotalDaysSinceFirstLaunch();
+  }
+
+  /// Days since first launch
+  static Future<DateTime?> appFirstLaunchDate() async {
+    return await NyAppUsage.appFirstLaunchDate();
+  }
+
+  /// Schedule something to happen once
+  static scheduleOnce(String name, Function() callback) async {
+    await NyScheduler.taskOnce(name, callback);
+  }
+
+  /// Schedule something to happen once daily
+  static scheduleOnceDaily(String name, Function() callback,
+      {DateTime? endAt}) async {
+    await NyScheduler.taskDaily(name, callback, endAt: endAt);
+  }
+
+  /// Schedule something to happen once after a date
+  static scheduleOnceAfterDate(String name, Function() callback,
+      {required DateTime date}) async {
+    await NyScheduler.taskOnceAfterDate(name, callback, date: date);
+  }
+
+  /// Wipe all storage data
+  static Future<void> wipeAllStorageData() async {
+    await NyStorage.deleteAll(andFromBackpack: true);
+  }
 }

@@ -78,6 +78,9 @@ extension NyStr on String? {
 
   /// Attempt to convert a [String] to a [DateTime].
   DateTime toDateTime() => DateTime.parse(this ?? "");
+
+  /// Attempt to convert a [String] into a model by using your model decoders.
+  T toModel<T>() => dataToModel<T>(data: this.parseJson());
 }
 
 /// Extensions for [int]
@@ -312,6 +315,15 @@ extension NyDateTime on DateTime? {
     return intl.DateFormat(format, _locale).format(this!);
   }
 
+  /// Check if a date is the same day as another date.
+  /// [dateTime1] and [dateTime2] are the dates to compare.
+  bool isSameDay(DateTime dateTimeToCompare) {
+    if (this == null) return false;
+    return this!.year == dateTimeToCompare.year &&
+        this!.month == dateTimeToCompare.month &&
+        this!.day == dateTimeToCompare.day;
+  }
+
   /// dump the value to the console. [tag] is optional.
   dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
@@ -340,7 +352,6 @@ extension NyList on List? {
 
 /// Extensions for [List]
 extension NyListGeneric<T> on List<T> {
-
   /// Toggle a value in list
   /// if [value] exists, remove it
   /// if [value] does not exist, add it
@@ -388,7 +399,7 @@ extension NyColumn on Column {
     for (int i = 0; i < children.length; i++) {
       newChildren.add(children[i]);
       if (i < children.length - 1) {
-        newChildren.add(SizedBox(width: space));
+        newChildren.add(SizedBox(height: space));
       }
     }
 
