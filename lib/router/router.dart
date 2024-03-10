@@ -17,6 +17,9 @@ class NyNavigator {
   NyNavigator._privateConstructor();
 
   static final NyNavigator instance = NyNavigator._privateConstructor();
+
+  /// Prefix routes
+  Map<String, String> prefixRoutes = {};
 }
 
 typedef NyRouteView = Widget Function(
@@ -105,9 +108,59 @@ class NyRouter {
         .baseArguments as T?;
   }
 
-  /// Updates a named route.
+  /// Updates a named [route].
   updateRoute(NyRouterRoute route) {
     _routeNameMappings[route.name] = route;
+  }
+
+  /// Group routes
+  /// [settings] is a function that returns a map of settings.
+  /// [router] is a function that returns a router.
+  /// Example:
+  /// ```dart
+  /// group(() {
+  ///  return {
+  ///  'prefix': '/auth',
+  ///  'route_guards': [AuthGuard()]
+  ///  };
+  ///  }, (router) {
+  ///   router.route(AccountPage.path, (_) => AccountPage());
+  ///   router.route(AccountSettingsPage.path, (_) => AccountSettingsPage());
+  ///  });
+  group(Map<String, dynamic> Function() settings,
+      Function(NyRouter router) router) {
+    NyRouter nyRouter = NyRouter();
+    router(nyRouter);
+
+    List<NyRouteGuard> routeGuards = [];
+    String? prefix;
+    Map<String, dynamic> routeConfig = settings();
+    if (routeConfig.containsKey('route_guards') &&
+        routeConfig['route_guards'] is List<NyRouteGuard>) {
+      routeGuards = routeConfig['route_guards'] as List<NyRouteGuard>;
+    }
+
+    if (routeConfig.containsKey('prefix') && routeConfig['prefix'] is String) {
+      prefix = routeConfig['prefix'] as String;
+    }
+
+    nyRouter.getRegisteredRoutes().forEach((key, route) {
+      if (routeGuards.isNotEmpty) {
+        route.addRouteGuards(routeGuards);
+      }
+      if (prefix != null) {
+        NyNavigator.instance.prefixRoutes[key] = prefix;
+      }
+    });
+
+    setNyRoutes(nyRouter);
+
+    assert(
+        _routeNameMappings.entries
+                .where((element) => element.value.getInitialRoute() == true)
+                .length <=
+            1,
+        'Your project has more than one initial route defined, please check your router file.');
   }
 
   /// Add a new route with a widget.
@@ -302,29 +355,43 @@ class NyRouter {
       }
     }
 
+    String? pushName;
+    Map<String, String> routePrefixes = NyNavigator.instance.prefixRoutes;
+
+    if (routePrefixes.containsKey(name)) {
+      String? prefix = routePrefixes[name];
+      if (prefix != null) {
+        if (argsWrapper.baseArguments?.data == null) {
+          argsWrapper.baseArguments = NyArgument({});
+        }
+        argsWrapper.prefix = prefix;
+        pushName = (routePrefixes[name]! + name);
+      }
+    }
+
     switch (navigationType) {
       case NavigationType.push:
         return await this
             .navigatorKey!
             .currentState!
-            .pushNamed(name, arguments: argsWrapper);
+            .pushNamed(pushName ?? name, arguments: argsWrapper);
       case NavigationType.pushReplace:
-        return await this
-            .navigatorKey!
-            .currentState!
-            .pushReplacementNamed(name, result: result, arguments: argsWrapper);
+        return await this.navigatorKey!.currentState!.pushReplacementNamed(
+            pushName ?? name,
+            result: result,
+            arguments: argsWrapper);
       case NavigationType.pushAndRemoveUntil:
         return await this.navigatorKey!.currentState!.pushNamedAndRemoveUntil(
-            name, removeUntilPredicate!,
+            pushName ?? name, removeUntilPredicate!,
             arguments: argsWrapper);
       case NavigationType.popAndPushNamed:
-        return await this
-            .navigatorKey!
-            .currentState!
-            .popAndPushNamed(name, result: result, arguments: argsWrapper);
+        return await this.navigatorKey!.currentState!.popAndPushNamed(
+            pushName ?? name,
+            result: result,
+            arguments: argsWrapper);
       case NavigationType.pushAndForgetAll:
         return await this.navigatorKey!.currentState!.pushNamedAndRemoveUntil(
-              name,
+              pushName ?? name,
               (_) => false,
               arguments: argsWrapper,
             );
@@ -405,16 +472,18 @@ class NyRouter {
         routeName = uriSettingName.path;
       }
 
-      final NyRouterRoute? route = _routeNameMappings[routeName];
-
-      if (route == null) return null;
-
       ArgumentsWrapper? argumentsWrapper;
       if (settings.arguments is ArgumentsWrapper) {
         argumentsWrapper = settings.arguments as ArgumentsWrapper?;
       } else {
         argumentsWrapper = ArgumentsWrapper();
         argumentsWrapper.baseArguments = NyArgument(settings.arguments);
+      }
+
+      if (argumentsWrapper?.baseArguments?.data != null &&
+          argumentsWrapper?.prefix != null) {
+        String prefix = argumentsWrapper!.prefix!;
+        routeName = routeName.replaceFirst(prefix, "");
       }
 
       if (argumentsWrapper == null) {
@@ -433,6 +502,10 @@ class NyRouter {
       if (argumentsWrapper.pageTransitionSettings == null) {
         argumentsWrapper.pageTransitionSettings = PageTransitionSettings();
       }
+
+      final NyRouterRoute? route = _routeNameMappings[routeName];
+
+      if (route == null) return null;
 
       if (route.pageTransitionSettings == null) {
         route.pageTransitionSettings = PageTransitionSettings();
@@ -652,6 +725,7 @@ class NyRouter {
     return matchingBuilder;
   }
 
+  /// Unknown route generator.
   static RouteFactory unknownRouteGenerator() {
     return (settings) {
       return MaterialPageRoute(

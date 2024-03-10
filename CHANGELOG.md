@@ -1,3 +1,7 @@
+## [5.54.0] - 2024-03-10
+
+* Added `router.group` method
+
 ## [5.53.0] - 2024-03-07
 
 * Added `Future<void> wipeAllStorageData()` to `Nylo` class. Usage `Nylo.wipeAllStorageData()`

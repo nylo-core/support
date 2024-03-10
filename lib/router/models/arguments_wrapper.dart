@@ -8,11 +8,13 @@ class ArgumentsWrapper {
   NyQueryParameters? queryParameters;
   PageTransitionType? pageTransitionType;
   PageTransitionSettings? pageTransitionSettings;
+  String? prefix;
 
   ArgumentsWrapper(
       {this.baseArguments,
       this.queryParameters,
       this.pageTransitionType,
+      this.prefix,
       this.pageTransitionSettings});
 
   ArgumentsWrapper copyWith(
@@ -24,6 +26,7 @@ class ArgumentsWrapper {
         queryParameters: queryParameters ?? this.queryParameters,
         pageTransitionSettings:
             pageTransitionSettings ?? this.pageTransitionSettings,
+        prefix: prefix,
         pageTransitionType: pageTransitionType ?? this.pageTransitionType);
   }
 
@@ -32,6 +35,7 @@ class ArgumentsWrapper {
     return 'ArgumentsWrapper{baseArguments: $baseArguments, '
         'pageTransitionSettings: $pageTransitionSettings, '
         'QueryParameters: $queryParameters, '
+        'prefix: $prefix,'
         'pageTransitionType: $pageTransitionType}';
   }
 
@@ -41,7 +45,8 @@ class ArgumentsWrapper {
       "data": baseArguments?.data,
       "queryParameters": queryParameters?.data,
       "pageTransitionType": pageTransitionType,
-      "pageTransitionSettings": pageTransitionSettings
+      "pageTransitionSettings": pageTransitionSettings,
+      "prefix": prefix
     };
   }
 }
