@@ -52,6 +52,7 @@ class NyListView<T> extends StatefulWidget {
   final int? crossAxisCount;
   final double? mainAxisSpacing;
   final double? crossAxisSpacing;
+  final dynamic Function(List<T> items)? sort;
 
   @override
   _NyListViewState<T> createState() => _NyListViewState<T>(stateName);
@@ -84,7 +85,8 @@ class NyListView<T> extends StatefulWidget {
       this.restorationId,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "builder",
         separatorBuilder = null,
         crossAxisCount = null,
@@ -121,7 +123,8 @@ class NyListView<T> extends StatefulWidget {
       this.restorationId,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "separated",
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -159,7 +162,8 @@ class NyListView<T> extends StatefulWidget {
       this.restorationId,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "grid",
         separatorBuilder = null,
         super(key: key);
@@ -209,6 +213,11 @@ class _NyListViewState<T> extends NyState<NyListView> {
 
           if (widget.transform != null) {
             _data = widget.transform!(_data);
+          }
+
+          // sort the data
+          if (widget.sort != null) {
+            _data = widget.sort!(_data);
           }
 
           switch (widget.kind) {

@@ -218,7 +218,7 @@ class Nylo {
   Map<String, dynamic> getValidationRules() => _validationRules;
 
   /// Add [modelDecoders] to Nylo
-  addModelDecoders(Map<Type, dynamic> modelDecoders) async {
+  addModelDecoders(Map<Type, dynamic> modelDecoders) {
     _modelDecoders.addAll(modelDecoders);
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.set("nylo", this);

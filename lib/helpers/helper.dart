@@ -196,7 +196,8 @@ class NyStorage {
   }
 
   /// Read a value from the local storage
-  static Future<dynamic> read<T>(String key, {dynamic defaultValue}) async {
+  static Future<dynamic> read<T>(String key,
+      {dynamic defaultValue, Map<Type, dynamic>? modelDecoders}) async {
     String? data = await StorageManager.storage.read(key: key);
     if (data == null) {
       return defaultValue;
@@ -224,7 +225,8 @@ class NyStorage {
 
     if (T.toString() != 'dynamic') {
       try {
-        return dataToModel<T>(data: jsonDecode(data));
+        return dataToModel<T>(
+            data: jsonDecode(data), modelDecoders: modelDecoders);
       } on Exception catch (e) {
         NyLogger.error(e.toString());
         return null;
@@ -310,8 +312,9 @@ class NyStorage {
   }
 
   /// Read the collection values using a [key].
-  static Future<List<T>> readCollection<T>(String key) async {
-    String? data = await read(key);
+  static Future<List<T>> readCollection<T>(String key,
+      {Map<Type, dynamic>? modelDecoders}) async {
+    String? data = await read(key, modelDecoders: modelDecoders);
     if (data == null || data == "") return [];
 
     List<dynamic> listData = jsonDecode(data);
@@ -502,14 +505,19 @@ class NyLogger {
 }
 
 /// Return an object from your modelDecoders using [data].
-T dataToModel<T>({required dynamic data}) {
+T dataToModel<T>({required dynamic data, Map<Type, dynamic>? modelDecoders}) {
   assert(T != dynamic,
       "You must provide a Type from your modelDecoders from within your config/decoders.dart file");
+  if (modelDecoders != null && (modelDecoders.isNotEmpty)) {
+    assert(
+        modelDecoders.containsKey(T), "ModelDecoders not found for Type: $T");
+    return modelDecoders[T](data);
+  }
   Nylo nylo = Backpack.instance.nylo();
-  Map<Type, dynamic> modelDecoders = nylo.getModelDecoders();
-  assert(modelDecoders.containsKey(T),
+  Map<Type, dynamic> _modelDecoders = nylo.getModelDecoders();
+  assert(_modelDecoders.containsKey(T),
       "Your modelDecoders variable inside config/decoders.dart must contain a decoder for Type: $T");
-  return modelDecoders[T](data);
+  return _modelDecoders[T](data);
 }
 
 /// Returns the translation value from the [key] you provide.

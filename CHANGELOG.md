@@ -1,3 +1,12 @@
+## [5.55.0] - 2024-03-17
+
+* Added `sort` method to `NyPullToRefresh` widget
+* Added `sort` method to `NyListView` widget
+* New parameter `modelDecoders` on `NyStorage.read` to define the model decoders when reading from storage
+* New parameter `modelDecoders` on `NyStorage.readCollection` to define the model decoders when reading from storage
+* New parameter `modelDecoders` on `dataToModel` to define the model decoders when reading from storage
+* Remove `async` from `addModelDecoders` method
+
 ## [5.54.0] - 2024-03-10
 
 * Added `router.group` method

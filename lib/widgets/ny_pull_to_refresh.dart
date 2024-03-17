@@ -49,7 +49,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.headerStyle,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "builder",
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -90,7 +91,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.headerStyle,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "separated",
         crossAxisCount = null,
         mainAxisSpacing = null,
@@ -132,7 +134,8 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.headerStyle,
       this.clipBehavior,
       this.useSkeletonizer,
-      this.header})
+      this.header,
+      this.sort})
       : kind = "grid",
         separatorBuilder = null,
         super(key: key);
@@ -173,6 +176,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final int? crossAxisCount;
   final double? mainAxisSpacing;
   final double? crossAxisSpacing;
+  final List<dynamic> Function(dynamic items)? sort;
 
   @override
   _NyPullToRefreshState<T> createState() => _NyPullToRefreshState<T>(stateName);
@@ -181,11 +185,6 @@ class NyPullToRefresh<T> extends StatefulWidget {
 class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
   _NyPullToRefreshState(String? stateName) {
     this.stateName = stateName;
-  }
-
-  @override
-  stateUpdated(data) {
-    reboot();
   }
 
   int _iteration = 1;
@@ -300,6 +299,11 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
               onLoading: null,
               child: emptyChild,
             );
+          }
+
+          // sort the data
+          if (widget.sort != null) {
+            _data = widget.sort!(_data);
           }
 
           Widget child = SizedBox.shrink();
