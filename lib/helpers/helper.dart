@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
-import 'package:equatable/equatable.dart';
 import '/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -101,7 +100,7 @@ extension StringExtension on String {
 ///   };
 /// }
 /// This class can be used to authenticate a model and store the object in storage.
-abstract class Model extends Equatable {
+abstract class Model {
   /// Authenticate the model.
   Future<void> auth({String? key}) async {
     await Auth.set(this, key: key);
@@ -146,11 +145,6 @@ abstract class Model extends Equatable {
       Backpack.instance.set(key, this);
     }
   }
-
-  /// Props for the Equatable class
-  /// This is used to compare the model with another model.
-  @override
-  List<Object> get props => [];
 }
 
 /// Storage manager for Nylo.

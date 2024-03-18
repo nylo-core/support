@@ -1,3 +1,7 @@
+## [5.56.1] - 2024-03-18
+
+* Remove `Equatable` from `Model` class
+
 ## [5.56.0] - 2024-03-18
 
 * Add `Equatable` to `Model` class
