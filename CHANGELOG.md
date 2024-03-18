@@ -1,3 +1,8 @@
+## [5.56.0] - 2024-03-18
+
+* Add `Equatable` to `Model` class
+* Fix `modelDecoders` on NyStorage.addToCollection
+
 ## [5.55.0] - 2024-03-17
 
 * Added `sort` method to `NyPullToRefresh` widget

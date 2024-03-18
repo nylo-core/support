@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
+import 'package:equatable/equatable.dart';
 import '/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -100,7 +101,7 @@ extension StringExtension on String {
 ///   };
 /// }
 /// This class can be used to authenticate a model and store the object in storage.
-abstract class Model {
+abstract class Model extends Equatable {
   /// Authenticate the model.
   Future<void> auth({String? key}) async {
     await Auth.set(this, key: key);
@@ -145,6 +146,11 @@ abstract class Model {
       Backpack.instance.set(key, this);
     }
   }
+
+  /// Props for the Equatable class
+  /// This is used to compare the model with another model.
+  @override
+  List<Object> get props => [];
 }
 
 /// Storage manager for Nylo.
@@ -300,8 +306,11 @@ class NyStorage {
 
   /// Add a newItem to the collection using a [key].
   static Future addToCollection<T>(String key,
-      {required dynamic item, bool allowDuplicates = true}) async {
-    List<T> collection = await readCollection<T>(key);
+      {required dynamic item,
+      bool allowDuplicates = true,
+      Map<Type, dynamic>? modelDecoders}) async {
+    List<T> collection =
+        await readCollection<T>(key, modelDecoders: modelDecoders);
     if (allowDuplicates == false) {
       if (collection.any((collect) => collect == item)) {
         return;
@@ -314,7 +323,7 @@ class NyStorage {
   /// Read the collection values using a [key].
   static Future<List<T>> readCollection<T>(String key,
       {Map<Type, dynamic>? modelDecoders}) async {
-    String? data = await read(key, modelDecoders: modelDecoders);
+    String? data = await read(key);
     if (data == null || data == "") return [];
 
     List<dynamic> listData = jsonDecode(data);
@@ -322,7 +331,8 @@ class NyStorage {
     if (!["dynamic", "string", "double", "int"]
         .contains(T.toString().toLowerCase())) {
       return List.from(listData)
-          .map((json) => dataToModel<T>(data: json))
+          .map((json) =>
+              dataToModel<T>(data: json, modelDecoders: modelDecoders))
           .toList();
     }
     return List.from(listData).toList().cast();
