@@ -213,19 +213,10 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
           if (file.contains(routeName)) {
             return "";
           }
-          RegExp reg =
-              RegExp(r'appRouter\(\) => nyRoutes\(\(router\) {([^}]*)}\);');
-          if (reg.allMatches(file).map((e) => e.group(1)).toList().isEmpty) {
-            return "";
-          }
-          String temp =
-              """appRouter() => nyRoutes((router) {${reg.allMatches(file).map((e) => e.group(1)).toList()[0]} router.route(${name.pascalCase}Page.path, (context) => ${name.pascalCase}Page()$strAuthPage$strInitialPage);
-});""";
 
-          return file.replaceFirst(
-            RegExp(r'appRouter\(\) => nyRoutes\(\(router\) {([^}]*)}\);'),
-            temp,
-          );
+          RegExp reg = RegExp(r'\}\);(?![\s\S]*\}\);)');
+
+          return file.replaceFirst(reg, "  $routeName\n});");
         });
   }
 

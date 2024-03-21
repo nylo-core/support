@@ -188,11 +188,6 @@ class _NyListViewState<T> extends NyState<NyListView> {
   }
 
   @override
-  stateUpdated(data) {
-    reboot();
-  }
-
-  @override
   Widget build(BuildContext context) {
     Widget loadingWidget = widget.loading ?? Nylo.appLoader();
     if (widget.useSkeletonizer == true) {

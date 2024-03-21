@@ -27,7 +27,7 @@ class DioApiService {
   bool _retrying = false;
 
   /// Interceptors for the request
-  final Map<Type, Interceptor> interceptors = {};
+  Map<Type, Interceptor> get interceptors => {};
 
   /// Decoders for morphing json into models
   final Map<Type, dynamic>? decoders = {};

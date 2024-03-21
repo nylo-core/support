@@ -12,6 +12,12 @@ import '/router/ui/page_not_found.dart';
 import 'package:page_transition/page_transition.dart';
 import 'models/ny_argument.dart';
 
+/// Type definition for the route view.
+typedef RouteView = (String, Widget Function(BuildContext context));
+
+/// The NyNavigator class is a singleton class that manages the routing of the
+/// application. It is a thin layer on top of [Navigator] to help you encapsulate
+/// and manage routing at one place.
 class NyNavigator {
   NyRouter router = NyRouter();
   NyNavigator._privateConstructor();
@@ -161,6 +167,33 @@ class NyRouter {
                 .length <=
             1,
         'Your project has more than one initial route defined, please check your router file.');
+  }
+
+  /// Add a new route with a [RouteView].
+  NyRouterRoute add(RouteView routeView,
+      {PageTransitionType? transition,
+      PageTransitionSettings? pageTransitionSettings,
+      List<NyRouteGuard>? routeGuards,
+      bool initialRoute = false,
+      bool authPage = false}) {
+    NyRouterRoute nyRouterRoute = NyRouterRoute(
+        name: routeView.$1,
+        view: (context) => routeView.$2(context),
+        pageTransitionType: transition ?? PageTransitionType.rightToLeft,
+        pageTransitionSettings: pageTransitionSettings,
+        routeGuards: routeGuards,
+        initialRoute: initialRoute,
+        authPage: authPage);
+    this._addRoute(nyRouterRoute);
+
+    assert(
+        _routeNameMappings.entries
+                .where((element) => element.value.getInitialRoute() == true)
+                .length <=
+            1,
+        'Your project has more than one initial route defined, please check your router file.');
+
+    return nyRouterRoute;
   }
 
   /// Add a new route with a widget.

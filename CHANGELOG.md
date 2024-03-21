@@ -1,3 +1,11 @@
+## [5.57.0] - 2024-03-21
+
+* Update `NyListView` to use default state management
+* Added `router.add` so you can create routes easier
+* Change `NyApiService` to use getter on `interceptors`
+* Fix `MetroService` not automatically adding routes to router
+* Update pubspec.yaml
+
 ## [5.56.1] - 2024-03-18
 
 * Remove `Equatable` from `Model` class

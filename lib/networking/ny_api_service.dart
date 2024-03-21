@@ -18,10 +18,10 @@ class NyApiService extends DioApiService {
 
   /// Default interceptors
   @override
-  final interceptors = {
-    if (getEnv('APP_DEBUG', defaultValue: false) == true)
-      PrettyDioLogger: PrettyDioLogger()
-  };
+  Map<Type, Interceptor> get interceptors => {
+        if (getEnv('APP_DEBUG', defaultValue: false) == true)
+          PrettyDioLogger: PrettyDioLogger()
+      };
 
   /// Make a GET request
   Future<T?> get<T>(
