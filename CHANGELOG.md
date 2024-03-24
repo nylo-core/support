@@ -1,3 +1,9 @@
+## [5.58.0] - 2024-03-24
+
+* Refactor app_localization.dart file. Breaking changes to the way you set up your app localization.
+  * Removed `languagesList` parameter
+  * Removed `valuesAsMap` parameter
+
 ## [5.57.0] - 2024-03-21
 
 * Update `NyListView` to use default state management

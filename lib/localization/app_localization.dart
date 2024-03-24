@@ -10,6 +10,14 @@ import '/widgets/ny_language_switcher.dart';
 /// Locale Types
 enum LocaleType { device, asDefined }
 
+/// LocalizedApp
+/// A widget that reloads the app when the language is changed.
+/// Use this widget as the root of your app.
+/// ```dart
+/// void main() {
+///  runApp(LocalizedApp(child: MyApp()));
+///  }
+///  ```
 class LocalizedApp extends StatefulWidget {
   final Widget? child;
 
@@ -56,75 +64,60 @@ class NyLocalization {
 
   static final NyLocalization instance = NyLocalization._privateConstructor();
 
-  // Config Vars
   LocaleType? _localeType;
-  List<String> _langList = [];
   String? _assetsDir;
   Locale? _locale;
   Map<String, dynamic>? _values;
 
   /// init NyLocalization
-  Future<void> init({
-    LocaleType? localeType = LocaleType.asDefined,
-    String? languageCode,
-    List<String> languagesList = const ['en'],
-    String? assetsDirectory = 'lang/',
-    Map<String, String>? valuesAsMap,
-  }) async {
-    // --- assets directory --- //
-    if (assetsDirectory != null && !assetsDirectory.endsWith('/')) {
+  Future<void> init(
+      {LocaleType localeType = LocaleType.asDefined,
+      required String languageCode,
+      String assetsDirectory = 'lang/'}) async {
+    if (!assetsDirectory.endsWith('/')) {
       assetsDirectory = '$assetsDirectory/';
     }
     _assetsDir = assetsDirectory;
+    assert(_assetsDir != null, 'You must define assetsDirectory');
+    _localeType = localeType;
 
-    // --- locale type --- //
-    _localeType = localeType ?? LocaleType.device;
+    _locale = Locale(languageCode);
 
-    // --- language list --- //showToastNotification
-    _langList = languagesList;
-
-    if (languageCode != null) {
-      _locale = Locale(languageCode);
-    } else if (_localeType == LocaleType.device) {
+    if (_localeType == LocaleType.device) {
       Locale locale = PlatformDispatcher.instance.locale;
+      _locale = locale;
       if (locale.toString().contains(RegExp('[-_]'))) {
         _locale = Locale(locale.toString().split(RegExp('[-_]'))[0]);
-      } else {
-        _locale = locale;
       }
-    } else {
-      _locale = Locale(_langList[0]);
     }
 
+    /// Get the current language from the language switcher
+    /// if it's available.
     Map<String, dynamic>? nyLangSwitcherLanguage =
         await NyLanguageSwitcher.currentLanguage();
     if (nyLangSwitcherLanguage != null) {
       _locale = Locale(nyLangSwitcherLanguage.entries.first.key);
     }
 
-    if (_assetsDir == null && valuesAsMap == null) {
-      assert(
-        _assetsDir != null || valuesAsMap != null,
-        'You must define assetsDirectory or valuesAsMap',
-      );
-      return null;
+    if (_assetsDir == null) {
+      return;
     }
 
     if (_locale != null) {
       initializeDateFormatting(_locale!.languageCode, null);
     }
 
-    if (_assetsDir != null) {
-      _assetsDir = assetsDirectory;
-      _values = await _initLanguage(_locale!.languageCode,
-          defaultLanguageCode: languageCode);
-    } else {
-      _values = valuesAsMap;
+    if (_assetsDir == null) {
+      return;
     }
+    _assetsDir = assetsDirectory;
+    _values = await _initLanguage(_locale!.languageCode,
+        defaultLanguageCode: languageCode);
   }
 
-  /// Loads language Map<key, value>
-  _initLanguage(String languageCode, {String? defaultLanguageCode}) async {
+  /// Loads language file
+  dynamic _initLanguage(String languageCode,
+      {String? defaultLanguageCode}) async {
     String filePath = "$_assetsDir$languageCode.json";
     try {
       String content = await rootBundle.loadString(filePath);
@@ -209,10 +202,6 @@ class NyLocalization {
     required String language,
     bool restart = true,
   }) async {
-    if (language == "") {
-      language = _locale?.languageCode ?? _langList[0];
-    }
-
     _locale = Locale(language, "");
 
     String filePath = "$_assetsDir$language.json";
@@ -243,13 +232,15 @@ class NyLocalization {
       Directionality.of(context) == TextDirection.rtl;
 
   /// reloads the app
-  restart(BuildContext context) => LocalizedApp.restart(context);
+  void restart(BuildContext context) => LocalizedApp.restart(context);
 
   /// Returns language code as string
   String get languageCode => locale.languageCode;
 
   /// Returns locale code as Locale
-  Locale get locale => _locale ?? Locale(_langList[0]);
+  Locale get locale {
+    return _locale ?? Locale('en');
+  }
 
   /// Returns app delegates.
   /// used in app entry point e.g. MaterialApp()
@@ -259,9 +250,4 @@ class NyLocalization {
         GlobalCupertinoLocalizations.delegate,
         DefaultCupertinoLocalizations.delegate,
       ];
-
-  /// Returns app locales.
-  /// used in app entry point e.g. MaterialApp()
-  Iterable<Locale> locals() =>
-      _langList.map<Locale>((lang) => new Locale(lang, ''));
 }
