@@ -501,8 +501,7 @@ class NyLogger {
         return;
       }
       print('${type != null ? "$type : " : ""}$message');
-    } on Exception catch (e) {
-      print(e.toString());
+    } on Exception catch (_) {
       print('${type != null ? "$type : " : ""}$message');
     }
   }

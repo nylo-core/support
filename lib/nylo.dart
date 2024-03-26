@@ -1,4 +1,3 @@
-import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import '/controllers/ny_controller.dart';
 import '/event_bus/event_bus_plus.dart';
@@ -285,7 +284,6 @@ class Nylo {
     );
     await dotenv.load(fileName: ENV_FILE);
     Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
-    initializeDateFormatting(Intl.defaultLocale, null);
 
     Nylo _nylo = Nylo();
 

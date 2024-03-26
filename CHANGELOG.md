@@ -1,3 +1,10 @@
+## [5.59.0] - 2024-03-26
+
+* Remove `initializeDateFormatting` call in Nylo and app_localization.dart
+* Update `_loggerPrint` not to print `Exception` if the message is empty
+* Update `NyPullToRefresh`
+* Update pubspec.yaml
+
 ## [5.58.0] - 2024-03-24
 
 * Refactor app_localization.dart file. Breaking changes to the way you set up your app localization.

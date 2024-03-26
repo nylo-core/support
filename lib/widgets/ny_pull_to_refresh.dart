@@ -240,11 +240,6 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
   }
 
   @override
-  init() async {
-    super.init();
-  }
-
-  @override
   boot() async {
     _iteration = 1;
     _refreshController..refreshCompleted(resetFooterState: true);
@@ -280,7 +275,10 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                   if (mode == LoadStatus.idle) {
                     body = Text("Pull up load".tr());
                   } else if (mode == LoadStatus.loading) {
-                    body = widget.loading ?? Nylo.appLoader();
+                    if (widget.loading != null) {
+                      return widget.loading!;
+                    }
+                    body = Nylo.appLoader();
                   } else if (mode == LoadStatus.failed) {
                     body = Text("Failed to load more results".tr());
                   } else if (mode == LoadStatus.canLoading) {
@@ -416,7 +414,10 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                 if (mode == LoadStatus.idle) {
                   body = Text("Pull up load".tr());
                 } else if (mode == LoadStatus.loading) {
-                  body = widget.loading ?? Nylo.appLoader();
+                  if (widget.loading != null) {
+                    return widget.loading!;
+                  }
+                  body = Nylo.appLoader();
                 } else if (mode == LoadStatus.failed) {
                   body = Text("Failed to load more results".tr());
                 } else if (mode == LoadStatus.canLoading) {

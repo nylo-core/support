@@ -177,11 +177,6 @@ class _NyListViewState<T> extends NyState<NyListView> {
   List<T> _data = [];
 
   @override
-  init() async {
-    super.init();
-  }
-
-  @override
   boot() async {
     List<T> data = await widget.data();
     _data = data;
