@@ -1,3 +1,7 @@
+## [5.60.0] - 2024-03-26
+
+* Added `footerLoadingIcon` to `NyPullToRefresh` widget
+
 ## [5.59.0] - 2024-03-26
 
 * Remove `initializeDateFormatting` call in Nylo and app_localization.dart

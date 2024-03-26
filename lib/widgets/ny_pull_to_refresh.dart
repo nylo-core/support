@@ -50,6 +50,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.clipBehavior,
       this.useSkeletonizer,
       this.header,
+      this.footerLoadingIcon,
       this.sort})
       : kind = "builder",
         crossAxisCount = null,
@@ -92,6 +93,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.clipBehavior,
       this.useSkeletonizer,
       this.header,
+      this.footerLoadingIcon,
       this.sort})
       : kind = "separated",
         crossAxisCount = null,
@@ -135,6 +137,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
       this.clipBehavior,
       this.useSkeletonizer,
       this.header,
+      this.footerLoadingIcon,
       this.sort})
       : kind = "grid",
         separatorBuilder = null,
@@ -172,6 +175,7 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final String? headerStyle;
   final Clip? clipBehavior;
   final Widget? loading;
+  final Widget? footerLoadingIcon;
   final bool? useSkeletonizer;
   final int? crossAxisCount;
   final double? mainAxisSpacing;
@@ -275,10 +279,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                   if (mode == LoadStatus.idle) {
                     body = Text("Pull up load".tr());
                   } else if (mode == LoadStatus.loading) {
-                    if (widget.loading != null) {
-                      return widget.loading!;
-                    }
-                    body = Nylo.appLoader();
+                    body = widget.footerLoadingIcon ?? loadingWidget;
                   } else if (mode == LoadStatus.failed) {
                     body = Text("Failed to load more results".tr());
                   } else if (mode == LoadStatus.canLoading) {
@@ -414,10 +415,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                 if (mode == LoadStatus.idle) {
                   body = Text("Pull up load".tr());
                 } else if (mode == LoadStatus.loading) {
-                  if (widget.loading != null) {
-                    return widget.loading!;
-                  }
-                  body = Nylo.appLoader();
+                  body = widget.footerLoadingIcon ?? loadingWidget;
                 } else if (mode == LoadStatus.failed) {
                   body = Text("Failed to load more results".tr());
                 } else if (mode == LoadStatus.canLoading) {
