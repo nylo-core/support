@@ -1,3 +1,7 @@
+## [5.60.1] - 2024-03-28
+
+* Update pubspec.yaml
+
 ## [5.60.0] - 2024-03-26
 
 * Added `footerLoadingIcon` to `NyPullToRefresh` widget
