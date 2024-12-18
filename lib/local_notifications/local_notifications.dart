@@ -180,6 +180,7 @@ class PushNotification {
     String? threadIdentifier,
     String? categoryIdentifier,
     InterruptionLevel? interruptionLevel,
+    AndroidScheduleMode? androidScheduleMode,
   }) async {
     PushNotification pushNotification = PushNotification(
       title: title,
@@ -230,7 +231,7 @@ class PushNotification {
       pushNotification.addPayload(payload);
     }
     if (at != null) {
-      pushNotification.send(at: at);
+      pushNotification.send(at: at, androidScheduleMode: androidScheduleMode);
     }
     if (id != null) {
       pushNotification.addId(id);
@@ -398,7 +399,8 @@ class PushNotification {
   }
 
   /// Send the push notification
-  Future<void> send({DateTime? at}) async {
+  Future<void> send(
+      {DateTime? at, AndroidScheduleMode? androidScheduleMode}) async {
     await NyScheduler.taskOnce('push_notification_permissions', () async {
       // request permissions
       await requestPermissions();
@@ -427,7 +429,7 @@ class PushNotification {
           _body,
           tz.TZDateTime.parse(tz.local, sendAtDateTime),
           notificationDetails,
-          androidScheduleMode: AndroidScheduleMode.exact,
+          androidScheduleMode: androidScheduleMode ?? AndroidScheduleMode.exact,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: _payload,
