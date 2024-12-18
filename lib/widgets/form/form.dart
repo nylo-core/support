@@ -56,6 +56,8 @@ class NyForm extends StatefulWidget {
       this.validateOnFocusChange = false,
       this.header,
       this.footer,
+      this.headerSpacing = 10,
+      this.footerSpacing = 10,
       this.loading,
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
@@ -83,6 +85,8 @@ class NyForm extends StatefulWidget {
       this.validateOnFocusChange = false,
       this.header,
       this.footer,
+      this.headerSpacing = 10,
+      this.footerSpacing = 10,
       this.loading,
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
@@ -99,6 +103,12 @@ class NyForm extends StatefulWidget {
 
   /// The footer widget
   final Widget? footer;
+
+  /// The header spacing
+  final double headerSpacing;
+
+  /// The footer spacing
+  final double footerSpacing;
 
   /// The loading widget, defaults to skeleton
   final Widget? loading;
@@ -629,8 +639,10 @@ class _NyFormState extends NyState<NyForm> {
     if (widget.header != null || widget.footer != null) {
       return Column(
         children: [
+          if (widget.headerSpacing > 0) SizedBox(height: widget.headerSpacing),
           if (widget.header != null) widget.header!,
           widgetForm,
+          if (widget.footerSpacing > 0) SizedBox(height: widget.footerSpacing),
           if (widget.footer != null) widget.footer!,
         ],
       );

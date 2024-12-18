@@ -1,3 +1,7 @@
+## [6.12.0] - 2024-12-18
+
+* Add `headerSpacing` and `footerSpacing` to `NyForm`
+
 ## [6.11.0] - 2024-12-18
 
 * Fix stops in `NyFader`
