@@ -1,3 +1,8 @@
+## [6.11.0] - 2024-12-18
+
+* Fix stops in `NyFader`
+* Merge PR from [ruwiss](https://github.com/nylo-core/support/pull/32)
+
 ## [6.10.0] - 2024-12-16
 
 * New `NyTextStyle` class

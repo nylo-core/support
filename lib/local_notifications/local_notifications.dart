@@ -230,9 +230,6 @@ class PushNotification {
     if (payload != null) {
       pushNotification.addPayload(payload);
     }
-    if (at != null) {
-      pushNotification.send(at: at, androidScheduleMode: androidScheduleMode);
-    }
     if (id != null) {
       pushNotification.addId(id);
     }
@@ -395,7 +392,8 @@ class PushNotification {
     if (interruptionLevel != null) {
       pushNotification.addInterruptionLevel(interruptionLevel);
     }
-    await pushNotification.send(at: at);
+    await pushNotification.send(
+        at: at, androidScheduleMode: androidScheduleMode);
   }
 
   /// Send the push notification
@@ -429,7 +427,8 @@ class PushNotification {
           _body,
           tz.TZDateTime.parse(tz.local, sendAtDateTime),
           notificationDetails,
-          androidScheduleMode: androidScheduleMode ?? AndroidScheduleMode.exact,
+          androidScheduleMode:
+              androidScheduleMode ?? AndroidScheduleMode.exactAllowWhileIdle,
           uiLocalNotificationDateInterpretation:
               UILocalNotificationDateInterpretation.absoluteTime,
           payload: _payload,

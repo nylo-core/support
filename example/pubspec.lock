@@ -101,10 +101,10 @@ packages:
     dependency: transitive
     description:
       name: date_field
-      sha256: "57c0bc3818f5c66d796ccbd9eaa786ba6e915222859f0ff26d4a1d5ae4806b8e"
+      sha256: "8926b9d02f3f93cb3022255d81692be201f2fcf47313ad6ea3461f47142f0cf8"
       url: "https://pub.dev"
     source: hosted
-    version: "5.3.0"
+    version: "5.3.4"
   dbus:
     dependency: transitive
     description:
@@ -329,10 +329,10 @@ packages:
     dependency: transitive
     description:
       name: http_parser
-      sha256: "2aa08ce0341cc9b354a498388e30986515406668dbcc4f7c950c3e715496693b"
+      sha256: "76d306a1c3afb33fe82e2bbacad62a61f409b5634c915fceb0d799de1a913360"
       url: "https://pub.dev"
     source: hosted
-    version: "4.0.2"
+    version: "4.1.1"
   intl:
     dependency: transitive
     description:
@@ -411,7 +411,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.10.0"
+    version: "6.11.0"
   path:
     dependency: transitive
     description:
@@ -536,18 +536,18 @@ packages:
     dependency: transitive
     description:
       name: shared_preferences_android
-      sha256: "7f172d1b06de5da47b6264c2692ee2ead20bbbc246690427cdb4fc301cd0c549"
+      sha256: "02a7d8a9ef346c9af715811b01fbd8e27845ad2c41148eefd31321471b41863d"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.4"
+    version: "2.4.0"
   shared_preferences_foundation:
     dependency: transitive
     description:
       name: shared_preferences_foundation
-      sha256: "07e050c7cd39bad516f8d64c455f04508d09df104be326d8c02551590a0d513d"
+      sha256: "6a52cfcdaeac77cad8c97b539ff688ccfc458c007b4db12be584fbe5c0e49e03"
       url: "https://pub.dev"
     source: hosted
-    version: "2.5.3"
+    version: "2.5.4"
   shared_preferences_linux:
     dependency: transitive
     description:

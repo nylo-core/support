@@ -116,7 +116,7 @@ class NyFader extends StatelessWidget {
           Colors.transparent,
           color.withAlpha((255.0 * 0.2).round())
         ];
-        stops = [0, 0, 0.5, 1];
+        stops = [0, 0.5, 1];
         break;
     }
     return Stack(
