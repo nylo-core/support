@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import '/helpers/backpack.dart';
 import '/helpers/extensions.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,6 +29,9 @@ class NyCache {
   /// This method creates the cache directory if it doesn't exist.
   /// It's called automatically when getting an instance of the Cache.
   Future<void> _init() async {
+    if (kIsWeb) {
+      return;
+    }
     final Directory appDocDir = await getApplicationDocumentsDirectory();
     _cacheDirectory = Directory('${appDocDir.path}/$_cacheDir');
     if (!await _cacheDirectory.exists()) {

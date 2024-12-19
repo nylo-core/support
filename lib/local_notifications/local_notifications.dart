@@ -1,8 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 import 'dart:ui';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import '/helpers/helper.dart';
 import '/helpers/extensions.dart';
@@ -186,6 +186,9 @@ class PushNotification {
       title: title,
       body: body,
     );
+    if (kIsWeb) {
+      throw Exception("Push notifications are not supported on the web");
+    }
     if (Platform.isAndroid) {
       if (channelId == null) {
         pushNotification.addChannelId("default_channel");
@@ -399,6 +402,10 @@ class PushNotification {
   /// Send the push notification
   Future<void> send(
       {DateTime? at, AndroidScheduleMode? androidScheduleMode}) async {
+    if (kIsWeb) {
+      throw Exception("Push notifications are not supported on the web");
+    }
+
     await NyScheduler.taskOnce('push_notification_permissions', () async {
       // request permissions
       await requestPermissions();
@@ -935,6 +942,9 @@ class PushNotification {
     Color? ledColor,
     AudioAttributesUsage? audioAttributesUsage,
   }) async {
+    if (kIsWeb) {
+      throw Exception("Push notifications are not supported on the web");
+    }
     await Nylo.localNotifications(
         (FlutterLocalNotificationsPlugin localNotifications) async {
       if (Platform.isIOS) {

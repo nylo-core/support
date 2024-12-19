@@ -253,6 +253,9 @@ class Nylo {
   }) {
     _useLocalNotifications = true;
 
+    if (kIsWeb) {
+      return;
+    }
     late InitializationSettings initializationSettings;
     if (Platform.isAndroid) {
       initializationSettings = InitializationSettings(

@@ -1,3 +1,9 @@
+## [6.12.1] - 2024-12-19
+
+* Fix `useLocalNotifications` in `Nylo` class
+* Add `kIsWeb` check to `clearBadgeNumber`
+* Update `date_field` to ^6.0.0
+
 ## [6.12.0] - 2024-12-18
 
 * Add `headerSpacing` and `footerSpacing` to `NyForm`

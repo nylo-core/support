@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:nylo_support/router/router.dart';
 import '/event_bus/event_bus_plus.dart';
@@ -474,6 +475,9 @@ Future<T?> loadJson<T>(String fileName, {bool cache = true}) async {
 
 /// Clear badge number
 clearBadgeNumber() async {
+  if (kIsWeb) {
+    return;
+  }
   if (Platform.isAndroid || Platform.isIOS) {
     await AppBadgePlus.updateBadge(0);
   }
