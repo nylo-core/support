@@ -1,3 +1,8 @@
+## [6.12.2] - 2024-12-22
+
+* Fix stateName in NyState
+* Slight refactor to `NyBaseState`
+
 ## [6.12.1] - 2024-12-19
 
 * Fix `useLocalNotifications` in `Nylo` class

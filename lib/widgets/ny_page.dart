@@ -35,6 +35,9 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
       /// Set the state name if the widget is a NyStatefulWidget
       if (widget is NyStatefulWidget) {
         stateName = (widget as NyStatefulWidget).child.runtimeType.toString();
+        if (!(stateName?.contains("Closure:") ?? false)) {
+          stateName = "Closure: $stateName";
+        }
       }
 
       if (allowStateUpdates) {

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
-import '../helpers/ny_color.dart';
+import '/helpers/ny_color.dart';
 import '/helpers/loading_style.dart';
 import '/helpers/extensions.dart';
 import 'package:theme_provider/theme_provider.dart';
@@ -128,9 +128,8 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
         {
           Function()? setStateData = stateData['setState'];
           if (setStateData != null) {
-            setState(() {
-              setStateData();
-            });
+            setStateData();
+            setState(() {});
             return;
           }
           reboot();
