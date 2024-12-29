@@ -1,3 +1,7 @@
+## [6.13.1] - 2024-12-29
+
+* Fix form.dart
+
 ## [6.13.0] - 2024-12-29
 
 * Fix validation max and min rules

@@ -499,6 +499,7 @@ class _NyFormState extends NyState<NyForm> {
     }
 
     if (widget.form.getLoadData is! Future Function() &&
+        widget.form.getLoadData != null &&
         initialFormData == null) {
       initialFormData = widget.form.getLoadData!();
       widget.form.setData(initialFormData, refreshState: false);
