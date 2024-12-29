@@ -101,6 +101,24 @@ extension NyInt on int? {
   }
 }
 
+/// Extensions for List<Widget>
+extension NyListWidget on List<Widget> {
+  /// Add a gap between each child.
+  List<Widget> withGap(double space) {
+    assert(space >= 0, 'Space should be a non-negative value.');
+
+    List<Widget> newChildren = [];
+    for (int i = 0; i < length; i++) {
+      newChildren.add(this[i]);
+      if (i < length - 1) {
+        newChildren.add(SizedBox(height: space));
+      }
+    }
+
+    return newChildren;
+  }
+}
+
 /// Extensions for [Map]
 extension NyMap on Map? {
   /// dump the value to the console. [tag] is optional.

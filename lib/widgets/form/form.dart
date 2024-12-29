@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import '/widgets/ny_future_builder.dart';
 import '/helpers/extensions.dart';
 import '/helpers/loading_style.dart';
 import 'package:recase/recase.dart';
@@ -7,7 +8,6 @@ import '/forms/ny_login_form.dart';
 import '/helpers/helper.dart';
 import '/nylo.dart';
 import '/widgets/ny_form.dart';
-import '/widgets/ny_list_view.dart';
 import '/widgets/ny_state.dart';
 import '/widgets/ny_text_field.dart';
 import 'form_item.dart';
@@ -58,10 +58,12 @@ class NyForm extends StatefulWidget {
       this.footer,
       this.headerSpacing = 10,
       this.footerSpacing = 10,
-      this.loading,
+      @Deprecated('Use loadingStyle instead') this.loading,
+      LoadingStyle? loadingStyle,
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
         type = "form",
+        loadingStyle = loadingStyle ?? LoadingStyle.skeletonizer(),
         children = null;
 
   /// Create a form with children
@@ -87,9 +89,11 @@ class NyForm extends StatefulWidget {
       this.footer,
       this.headerSpacing = 10,
       this.footerSpacing = 10,
-      this.loading,
+      @Deprecated('Use loadingStyle instead') this.loading,
+      LoadingStyle? loadingStyle,
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
+        loadingStyle = loadingStyle ?? LoadingStyle.skeletonizer(),
         type = "list";
 
   /// The type of form
@@ -112,6 +116,9 @@ class NyForm extends StatefulWidget {
 
   /// The loading widget, defaults to skeleton
   final Widget? loading;
+
+  /// The loading style
+  final LoadingStyle loadingStyle;
 
   /// Get the state name
   static state(String stateName) {
@@ -302,7 +309,7 @@ class _NyFormState extends NyState<NyForm> {
       Map<String, dynamic> dummyData = widget.form.getDummyData;
       if (dummyData.containsKey(field.key)) {
         dummyDataValue = dummyData[field.key];
-        if (dummyDataValue != null) {
+        if (dummyDataValue != null && value == null) {
           widget.form
               .setFieldValue(field.key, dummyDataValue, refreshState: false);
         }
@@ -373,13 +380,11 @@ class _NyFormState extends NyState<NyForm> {
     if (data is Map && data.containsKey('action')) {
       if (data['action'] == 'refresh') {
         _construct();
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
       if (data['action'] == 'clear') {
         widget.form.clear(refreshState: false);
         _construct();
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
       if (data['action'] == 'setValue') {
@@ -390,7 +395,6 @@ class _NyFormState extends NyState<NyForm> {
         });
         _construct();
         setState(() {});
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
 
@@ -404,7 +408,6 @@ class _NyFormState extends NyState<NyForm> {
         });
         _construct();
         setState(() {});
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
       if (["hideField", "showField"].contains(data['action'])) {
@@ -422,7 +425,6 @@ class _NyFormState extends NyState<NyForm> {
           return child;
         });
         setState(() {});
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
 
@@ -430,7 +432,6 @@ class _NyFormState extends NyState<NyForm> {
         _construct();
         initialFormData = null;
         setState(() {});
-        NyListView.stateReset("${stateName!}_ny_grid");
         return;
       }
       return;
@@ -483,144 +484,69 @@ class _NyFormState extends NyState<NyForm> {
 
   @override
   Widget view(BuildContext context) {
-    dynamic data;
+    /// If the form has initial data, construct the form
+    if (initialFormData != null) {
+      _construct();
+      return _createWidget(IgnorePointer(
+        ignoring: widget.locked,
+        child: ListView(
+          physics: const NeverScrollableScrollPhysics(),
+          padding: EdgeInsets.zero,
+          shrinkWrap: true,
+          children: _createForm(),
+        ),
+      ));
+    }
+
+    if (widget.form.getLoadData is! Future Function() &&
+        initialFormData == null) {
+      initialFormData = widget.form.getLoadData!();
+      widget.form.setData(initialFormData, refreshState: false);
+    }
 
     if (widget.form.getLoadData is Future Function()) {
-      data = () async {
+      // ignore: prefer_function_declarations_over_variables
+      dynamic formData = () async {
         if (initialFormData == null) {
           dynamic data = await widget.form.getLoadData!();
           initialFormData = data;
-          widget.form.formReady();
           widget.form.setData(data, refreshState: false);
         }
         _construct();
-
-        List<Widget> items = [];
-        List<List<dynamic>> groupedItems = widget.form.groupedItems;
-        List<NyFormItem> childrenNotHidden = _children.where((test) {
-          if (test.field.hidden == false) {
-            return true;
-          }
-          if (showableFields.contains(test.field.name)) {
-            return true;
-          }
-          return false;
-        }).toList();
-
-        for (List<dynamic> listItems in groupedItems) {
-          if (listItems.length == 1) {
-            List<NyFormItem> allItems = childrenNotHidden
-                .where((test) => test.field.name == listItems[0])
-                .toList();
-            if (allItems.isNotEmpty) {
-              items.add(allItems.first);
-            }
-            continue;
-          }
-
-          List<Widget> childrenRowWidgets = [
-            for (String action in listItems)
-              (childrenNotHidden
-                      .where((test) => test.field.name == action)
-                      .isNotEmpty)
-                  ? Flexible(
-                      child: childrenNotHidden
-                              .where((test) => test.field.name == action)
-                              .isNotEmpty
-                          ? childrenNotHidden
-                              .where((test) => test.field.name == action)
-                              .first
-                          : const SizedBox.shrink())
-                  : const SizedBox.shrink()
-          ];
-
-          Row row = Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: childrenRowWidgets,
-          ).withGap(childrenRowWidgets
-                  .where((element) => element.runtimeType == SizedBox)
-                  .isNotEmpty
-              ? 0
-              : widget.mainAxisSpacing);
-
-          items.add(row);
-        }
-
-        return items;
+        return _createForm();
       };
-    } else {
-      if (widget.form.getLoadData is Function()) {
-        if (initialFormData == null) {
-          initialFormData = widget.form.getLoadData!();
-          widget.form.setData(widget.form.getLoadData!(), refreshState: false);
-        }
-        _construct();
-      }
-      data = () {
-        List<Widget> items = [];
-        List<List<dynamic>> groupedItems = widget.form.groupedItems;
-        List<NyFormItem> childrenNotHidden =
-            _children.where((test) => test.field.hidden == false).toList();
-        for (List<dynamic> listItems in groupedItems) {
-          if (listItems.length == 1) {
-            List<NyFormItem> allItems = childrenNotHidden
-                .where((test) => test.field.name == listItems[0])
-                .toList();
-            if (allItems.isNotEmpty) {
-              items.add(allItems.first);
-            }
-            continue;
-          }
 
-          List<Widget> childrenRowWidgets = [
-            for (String action in listItems)
-              (childrenNotHidden
-                      .where((test) => test.field.name == action)
-                      .isNotEmpty)
-                  ? Flexible(
-                      child: childrenNotHidden
-                              .where((test) => test.field.name == action)
-                              .isNotEmpty
-                          ? childrenNotHidden
-                              .where((test) => test.field.name == action)
-                              .first
-                          : const SizedBox.shrink())
-                  : const SizedBox.shrink()
-          ];
-
-          Row row = Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: childrenRowWidgets,
-          ).withGap(childrenRowWidgets
-                  .where((element) => element.runtimeType == SizedBox)
-                  .isNotEmpty
-              ? 0
-              : widget.mainAxisSpacing);
-
-          items.add(row);
-        }
-
-        return items;
-      };
-      widget.form.formReady();
+      return _createWidget(IgnorePointer(
+        ignoring: widget.locked,
+        child: NyFutureBuilder<List<Widget>>(
+            future: formData(),
+            child: (context, data) {
+              widget.form.formReady();
+              return ListView(
+                physics: const NeverScrollableScrollPhysics(),
+                shrinkWrap: true,
+                children: [if (data != null) ...data],
+              );
+            },
+            loadingStyle: LoadingStyle.normal(child: loadingWidget())),
+      ));
     }
 
-    Widget widgetForm = IgnorePointer(
-      ignoring: widget.locked,
-      child: NyListView.grid(
-        stateName: "${stateName!}_ny_grid",
-        mainAxisSpacing: widget.crossAxisSpacing,
-        crossAxisCount: 1,
-        physics: const NeverScrollableScrollPhysics(),
-        shrinkWrap: true,
-        child: (context, item) => item,
-        data: data,
-        loadingStyle: LoadingStyle.normal(child: loadingWidget()),
-      ),
-    );
+    _construct();
 
+    return _createWidget(IgnorePointer(
+      ignoring: widget.locked,
+      child: ListView(
+        physics: const NeverScrollableScrollPhysics(),
+        padding: EdgeInsets.zero,
+        shrinkWrap: true,
+        children: _createForm(),
+      ),
+    ));
+  }
+
+  /// Create the widget
+  Widget _createWidget(Widget widgetForm) {
     if (widget.type == "list") {
       return Column(
         children: [
@@ -656,14 +582,30 @@ class _NyFormState extends NyState<NyForm> {
     if (widget.loading != null) {
       return widget.loading!;
     }
+
+    return widget.loadingStyle.render(
+        child: Column(
+      children: _createForm(),
+    ));
+  }
+
+  List<Widget> _createForm() {
     List<Widget> items = [];
     List<List<dynamic>> groupedItems = widget.form.groupedItems;
+    List<NyFormItem> childrenNotHidden = _children.where((test) {
+      if (test.field.hidden == false) {
+        return true;
+      }
+      if (showableFields.contains(test.field.name)) {
+        return true;
+      }
+      return false;
+    }).toList();
 
     for (List<dynamic> listItems in groupedItems) {
       if (listItems.length == 1) {
-        List<NyFormItem> allItems = _children
-            .where((test) =>
-                test.field.name == listItems[0] && test.field.hidden == false)
+        List<NyFormItem> allItems = childrenNotHidden
+            .where((test) => test.field.name == listItems[0])
             .toList();
         if (allItems.isNotEmpty) {
           items.add(allItems.first);
@@ -671,30 +613,36 @@ class _NyFormState extends NyState<NyForm> {
         continue;
       }
 
+      List<Widget> childrenRowWidgets = [
+        for (String action in listItems)
+          (childrenNotHidden
+                  .where((test) => test.field.name == action)
+                  .isNotEmpty)
+              ? Flexible(
+                  child: childrenNotHidden
+                          .where((test) => test.field.name == action)
+                          .isNotEmpty
+                      ? childrenNotHidden
+                          .where((test) => test.field.name == action)
+                          .first
+                      : const SizedBox.shrink())
+              : const SizedBox.shrink()
+      ];
+
       Row row = Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          for (String action in listItems)
-            if (_children
-                .where((test) =>
-                    test.field.name == action && test.field.hidden == false)
-                .isNotEmpty)
-              Flexible(
-                  child: _children
-                      .where((test) =>
-                          test.field.name == action &&
-                          test.field.hidden == false)
-                      .first),
-        ],
-      ).withGap(widget.mainAxisSpacing);
+        children: childrenRowWidgets,
+      ).withGap(childrenRowWidgets
+              .where((element) => element.runtimeType == SizedBox)
+              .isNotEmpty
+          ? 0
+          : widget.mainAxisSpacing);
 
       items.add(row);
     }
 
-    return Column(
-      children: items,
-    ).withGap(widget.crossAxisSpacing).toSkeleton();
+    return items.withGap(widget.crossAxisSpacing);
   }
 }
 

@@ -448,35 +448,35 @@ class MaxRule extends ValidationRule {
           "$attribute must be a maximum length of $intMatch characters.";
       textFieldMessage = "Must be a maximum of $intMatch characters.";
       super.handle(info);
-      return (data.length < intMatch);
+      return (data.length <= intMatch);
     }
 
     if (data is int) {
       description = "$attribute must be a maximum of $intMatch.";
       textFieldMessage = "Must be a maximum of $intMatch.";
       super.handle(info);
-      return (data < intMatch);
+      return (data <= intMatch);
     }
 
     if (data is List) {
       description = "$attribute must be a maximum of $intMatch.";
       textFieldMessage = "Must be a maximum of $intMatch.";
       super.handle(info);
-      return (data.length < intMatch);
+      return (data.length <= intMatch);
     }
 
     if (data is Map) {
       description = "$attribute must be a maximum of $intMatch.";
       textFieldMessage = "Must be a maximum of $intMatch.";
       super.handle(info);
-      return (data.length < intMatch);
+      return (data.length <= intMatch);
     }
 
     if (data is double) {
       description = "$attribute must be a maximum of $intMatch.";
       textFieldMessage = "Must be a maximum of $intMatch.";
       super.handle(info);
-      return (data < intMatch);
+      return (data <= intMatch);
     }
 
     return false;
@@ -505,38 +505,38 @@ class MinRule extends ValidationRule {
     dynamic data = info['data'];
     if (data is String) {
       description =
-          "$attribute must be a maximum length of $intMatch characters.";
-      textFieldMessage = "Must be a maximum of $intMatch characters.";
+          "$attribute must be a minimum length of $intMatch characters.";
+      textFieldMessage = "Must be a minimum of $intMatch characters.";
       super.handle(info);
-      return (data.length > intMatch);
+      return (data.length >= intMatch);
     }
 
     if (data is int) {
-      description = "$attribute must be a maximum of $intMatch.";
-      textFieldMessage = "Must be a maximum of $intMatch.";
+      description = "$attribute must be a minimum of $intMatch.";
+      textFieldMessage = "Must be a minimum of $intMatch.";
       super.handle(info);
-      return (data > intMatch);
+      return (data >= intMatch);
     }
 
     if (data is List) {
-      description = "$attribute must be a maximum of $intMatch.";
-      textFieldMessage = "Must be a maximum of $intMatch.";
+      description = "$attribute must be a minimum of $intMatch.";
+      textFieldMessage = "Must be a minimum of $intMatch.";
       super.handle(info);
-      return (data.length > intMatch);
+      return (data.length >= intMatch);
     }
 
     if (data is Map) {
-      description = "$attribute must be a maximum of $intMatch.";
-      textFieldMessage = "Must be a maximum of $intMatch.";
+      description = "$attribute must be a minimum of $intMatch.";
+      textFieldMessage = "Must be a minimum of $intMatch.";
       super.handle(info);
-      return (data.length > intMatch);
+      return (data.length >= intMatch);
     }
 
     if (data is double) {
-      description = "$attribute must be a maximum of $intMatch.";
-      textFieldMessage = "Must be a maximum of $intMatch.";
+      description = "$attribute must be a minimum of $intMatch.";
+      textFieldMessage = "Must be a minimum of $intMatch.";
       super.handle(info);
-      return (data > intMatch);
+      return (data >= intMatch);
     }
     return false;
   }

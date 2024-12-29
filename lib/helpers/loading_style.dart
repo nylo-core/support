@@ -41,14 +41,15 @@ class LoadingStyle {
         skeletonizerEffect = null;
 
   /// Render the loading widget
-  Widget render() {
+  Widget render({Widget? child}) {
     switch (type) {
       case LoadingStyleType.normal:
-        return child ?? Nylo.appLoader();
+        if (child != null) return child;
+        return this.child ?? Nylo.appLoader();
       case LoadingStyleType.skeletonizer:
         return Skeletonizer(
           enabled: true,
-          child: child ?? Nylo.appLoader(),
+          child: child ?? (this.child ?? Nylo.appLoader()),
         );
       case LoadingStyleType.none:
         return SizedBox.shrink();

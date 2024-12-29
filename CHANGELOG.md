@@ -1,3 +1,10 @@
+## [6.13.0] - 2024-12-29
+
+* Fix validation max and min rules
+* New `init` method added to Forms
+* Small refactor to `NyForm` class
+* Update loadingStyle `render` method
+
 ## [6.12.2] - 2024-12-22
 
 * Fix stateName in NyState

@@ -142,6 +142,10 @@ class NyFormData {
       _keys.add(formField.key);
     }
 
+    if (init != null) {
+      initialData(init!);
+    }
+
     setData(allData, refreshState: false);
     if (getEnv('APP_ENV') != 'developing') {
       return;
@@ -238,6 +242,9 @@ class NyFormData {
 
   /// Returns the load data function for the form
   Function()? _loadData;
+
+  /// Initialize the form
+  Function()? get init => null;
 
   /// Check if the form is ready
   formReady() {
