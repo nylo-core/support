@@ -1,5 +1,7 @@
 import 'dart:core';
 import 'dart:convert';
+import '/helpers/ny_color.dart';
+
 import '/helpers/ny_logger.dart';
 import '/local_storage/local_storage.dart';
 import '/helpers/extensions.dart';
@@ -46,7 +48,7 @@ class NyLanguageSwitcher extends StatefulWidget {
       this.iconSize = 24,
       this.elevation = 8,
       this.langPath = 'lang',
-      this.textStyle = const TextStyle(color: Colors.black)});
+      this.textStyle});
 
   final Widget? icon;
   final Widget? hint;
@@ -56,7 +58,7 @@ class NyLanguageSwitcher extends StatefulWidget {
   final AlignmentGeometry dropdownAlignment;
   final Color? dropdownBgColor;
   final String langPath;
-  final TextStyle textStyle;
+  final TextStyle? textStyle;
   final double iconSize;
   final Function()? onTap;
   final BorderRadius? borderRadius;
@@ -98,7 +100,9 @@ class NyLanguageSwitcher extends StatefulWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               Text("Select your language".tr())
-                  .headingMedium()
+                  .headingMedium(
+                      color: NyColor(light: Colors.black, dark: Colors.white)
+                          .toColor(context))
                   .alignCenter()
                   .paddingOnly(top: 16, bottom: 8),
               Flexible(
@@ -114,7 +118,13 @@ class NyLanguageSwitcher extends StatefulWidget {
                         isChecked = true;
                       }
                       return ListTile(
-                        title: Text(data.value),
+                        title: Text(
+                          data.value,
+                          style: TextStyle(
+                              color: NyColor(
+                                      light: Colors.black, dark: Colors.white)
+                                  .toColor(context)),
+                        ),
                         trailing: isChecked ? const Icon(Icons.check) : null,
                         onTap: () async {
                           await NyLocalization.instance
@@ -771,7 +781,11 @@ class _NyLanguageSwitcherState extends NyState<NyLanguageSwitcher> {
       hint: widget.hint,
       elevation: widget.elevation,
       itemHeight: widget.itemHeight,
-      style: widget.textStyle,
+      style: widget.textStyle ??
+          TextStyle(
+            color: NyColor(light: Colors.black, dark: Colors.white)
+                .toColor(context),
+          ),
       onChanged: _onChange,
       icon: widget.icon,
       borderRadius: widget.borderRadius,
@@ -781,7 +795,13 @@ class _NyLanguageSwitcherState extends NyState<NyLanguageSwitcher> {
       items:
           languages.map<DropdownMenuItem<String>>((Map<String, dynamic> value) {
         MapEntry<String, dynamic> item = value.entries.first;
-        Widget child = Text(item.value);
+        Widget child = Text(
+          item.value,
+          style: TextStyle(
+            color: NyColor(light: Colors.black, dark: Colors.white)
+                .toColor(context),
+          ),
+        );
         if (widget.dropdownBuilder != null) {
           child = widget.dropdownBuilder!({
             "locale": item.key,

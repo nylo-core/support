@@ -1,3 +1,7 @@
+## [6.14.1] - 2024-12-31
+
+* Small fix for `NyLanguageSwitcher` to support dark mode
+
 ## [6.14.0] - 2024-12-31
 
 * Update copyright year
