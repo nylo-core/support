@@ -89,6 +89,12 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
           reset[index] = true;
           break;
         }
+      case 'update-tab':
+        {
+          int index = data['tab-index'];
+          currentIndex = index;
+          break;
+        }
       default:
         {}
     }
@@ -569,5 +575,10 @@ class NavigationHubStateActions extends StateActions {
   clearBadgeCount({required int tab}) async {
     await NyStorage.save(_navigationTabStateName(tab), 0);
     updateState(_navigationTabStateName(tab), data: 0);
+  }
+
+  /// Update the tab index
+  currentTabIndex(int tabIndex) {
+    updateState(state, data: {"action": "update-tab", "tab-index": tabIndex});
   }
 }

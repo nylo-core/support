@@ -1,3 +1,8 @@
+## [6.14.0] - 2024-12-31
+
+* Update copyright year
+* New `currentTabIndex` method added to `NavigationHubStateActions` to set the current tab index
+
 ## [6.13.1] - 2024-12-29
 
 * Fix form.dart
