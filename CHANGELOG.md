@@ -1,3 +1,7 @@
+## [6.14.3] - 2025-01-04
+
+* Update pubspec.yaml
+
 ## [6.14.2] - 2025-01-04
 
 * Fix updateState method when using NyPage.path

@@ -141,10 +141,10 @@ packages:
     dependency: transitive
     description:
       name: error_stack
-      sha256: f1f14820500d6b1931756758f8e6e899a0a0829b8b926ba04f141791cdf7b79e
+      sha256: "9b4b685fbee04cc4a72f0791663caac5838585d32f83e15ab64f9c8957ec506b"
       url: "https://pub.dev"
     source: hosted
-    version: "1.10.0"
+    version: "1.10.1"
   fake_async:
     dependency: transitive
     description:
@@ -411,7 +411,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.14.2"
+    version: "6.14.3"
   path:
     dependency: transitive
     description:
