@@ -377,8 +377,7 @@ void updateState<T>(dynamic name,
   }
   if (name is RouteView) {
     stateName =
-        "${name.$2.runtimeType.toString().replaceAll("BuildContext", "")}State"
-            .replaceAll("() => ", "() => _");
+        "Closure: ${"${name.$2.runtimeType.toString().replaceAll("BuildContext", "")}State".replaceAll("() => ", "() => _")}";
   }
 
   final event = UpdateState(data: dataUpdate, stateName: stateName);

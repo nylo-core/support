@@ -11,7 +11,7 @@ class NyController extends BaseController {
 
   /// Updates the page [state]
   /// Provide an [action] and [data] to call a method in the [NyState].
-  void updatePageState(String action, dynamic data) {
+  void _updatePageState(String action, dynamic data) {
     assert(state != null, "State cannot be null");
     if (state == null) return;
     updateState(state!, data: {"action": action, "data": data});
@@ -19,17 +19,17 @@ class NyController extends BaseController {
 
   /// Refreshes the page
   refreshPage() {
-    updatePageState("refresh-page", {"setState": () {}});
+    _updatePageState("refresh-page", {"setState": () {}});
   }
 
   /// Set the state of the page
   setState({required Function() setState}) {
-    updatePageState("set-state", {"setState": setState});
+    _updatePageState("set-state", {"setState": setState});
   }
 
   /// Pop the page
   pop({dynamic result}) {
-    updatePageState("pop", {"result": result});
+    _updatePageState("pop", {"result": result});
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you
@@ -38,7 +38,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-sorry", {
+    _updatePageState("toast-sorry", {
       "title": title ?? "Sorry",
       "description": description,
       "style": style ?? ToastNotificationStyleType.danger
@@ -51,7 +51,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-warning", {
+    _updatePageState("toast-warning", {
       "title": title ?? "Warning",
       "description": description,
       "style": style ?? ToastNotificationStyleType.warning
@@ -64,7 +64,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-info", {
+    _updatePageState("toast-info", {
       "title": title ?? "Info",
       "description": description,
       "style": style ?? ToastNotificationStyleType.info
@@ -77,7 +77,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-danger", {
+    _updatePageState("toast-danger", {
       "title": title ?? "Error",
       "description": description,
       "style": style ?? ToastNotificationStyleType.danger
@@ -90,7 +90,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-oops", {
+    _updatePageState("toast-oops", {
       "title": title ?? "Oops",
       "description": description,
       "style": style ?? ToastNotificationStyleType.danger
@@ -103,7 +103,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-success", {
+    _updatePageState("toast-success", {
       "title": title ?? "Success",
       "description": description,
       "style": style ?? ToastNotificationStyleType.success
@@ -115,7 +115,7 @@ class NyController extends BaseController {
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
-    updatePageState("toast-custom", {
+    _updatePageState("toast-custom", {
       "title": title ?? "",
       "description": description,
       "style": style ?? ToastNotificationStyleType.custom
@@ -134,7 +134,7 @@ class NyController extends BaseController {
       required Function()? onSuccess,
       Function(Exception exception)? onFailure,
       String? lockRelease}) {
-    updatePageState("validate", {
+    _updatePageState("validate", {
       "rules": rules,
       "data": data,
       "messages": messages,
@@ -149,7 +149,7 @@ class NyController extends BaseController {
 
   /// Update the language in the application
   void changeLanguage(String language, {bool restartState = true}) {
-    updatePageState("change-language", {
+    _updatePageState("change-language", {
       "language": language,
       "restartState": restartState,
     });
@@ -158,14 +158,14 @@ class NyController extends BaseController {
   /// Perform a lock release
   void lockRelease(String name,
       {required Function perform, bool shouldSetState = true}) async {
-    updatePageState("lock-release",
+    _updatePageState("lock-release",
         {"name": name, "perform": perform, "shouldSetState": shouldSetState});
   }
 
   /// Perform a confirm action
   void confirmAction(Function() action,
       {required String title, String dismissText = "Cancel"}) async {
-    updatePageState("confirm-action",
+    _updatePageState("confirm-action",
         {"action": action, "title": title, "dismissText": dismissText});
   }
 }

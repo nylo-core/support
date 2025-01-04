@@ -1,3 +1,10 @@
+## [6.14.2] - 2025-01-04
+
+* Fix updateState method when using NyPage.path
+* Small fix for route guards when using redirect
+* Make `updatePageState` private
+* Update pubspec.yaml
+
 ## [6.14.1] - 2024-12-31
 
 * Small fix for `NyLanguageSwitcher` to support dark mode

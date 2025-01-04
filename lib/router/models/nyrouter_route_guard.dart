@@ -81,7 +81,8 @@ class NyRouteGuard extends RouteGuard {
     if (data != null) {
       currentData = data;
     }
-    routeTo(path,
+
+    return PageRequest.redirect(path,
         data: currentData,
         queryParameters: queryParameters,
         navigationType: navigationType,
@@ -90,7 +91,6 @@ class NyRouteGuard extends RouteGuard {
         pageTransitionSettings: pageTransitionSettings,
         pageTransitionType: pageTransitionType,
         onPop: onPop);
-    return PageRequest.redirect();
   }
 }
 
@@ -100,18 +100,72 @@ class PageRequest {
   NyArgument? nyArgument;
   Map<String, String>? queryParameters;
   bool isRedirect = false;
+  RouteData? routeData;
 
   get data => nyArgument?.data;
 
   PageRequest({this.context, this.nyArgument, this.queryParameters});
 
   /// Redirect to a new route.
-  PageRequest.redirect() {
+  PageRequest.redirect(dynamic path,
+      {dynamic data,
+      Map<String, dynamic>? queryParameters,
+      NavigationType navigationType = NavigationType.pushReplace,
+      dynamic result,
+      bool Function(Route<dynamic> route)? removeUntilPredicate,
+      PageTransitionSettings? pageTransitionSettings,
+      PageTransitionType? pageTransitionType,
+      Function(dynamic value)? onPop}) {
     isRedirect = true;
+    routeData = RouteData(path,
+        data: data,
+        queryParameters: queryParameters,
+        navigationType: navigationType,
+        result: result,
+        removeUntilPredicate: removeUntilPredicate,
+        pageTransitionSettings: pageTransitionSettings,
+        pageTransitionType: pageTransitionType,
+        onPop: onPop);
   }
 
   /// Add data to the current route.
   addData(dynamic Function(dynamic data) currentData) {
     nyArgument?.setData((currentData(data)));
+  }
+}
+
+/// Route data class.
+class RouteData {
+  dynamic path;
+  dynamic data;
+  Map<String, dynamic>? queryParameters;
+  NavigationType navigationType = NavigationType.pushReplace;
+  dynamic result;
+  bool Function(Route<dynamic> route)? removeUntilPredicate;
+  PageTransitionSettings? pageTransitionSettings;
+  PageTransitionType? pageTransitionType;
+  Function(dynamic value)? onPop;
+
+  RouteData(this.path,
+      {this.data,
+      this.queryParameters,
+      this.navigationType = NavigationType.pushReplace,
+      this.result,
+      this.removeUntilPredicate,
+      this.pageTransitionSettings,
+      this.pageTransitionType,
+      this.onPop});
+
+  /// Redirect to a new route.
+  routeToPage() async {
+    await routeTo(path,
+        data: data,
+        queryParameters: queryParameters,
+        navigationType: navigationType,
+        result: result,
+        removeUntilPredicate: removeUntilPredicate,
+        pageTransitionSettings: pageTransitionSettings,
+        pageTransitionType: pageTransitionType,
+        onPop: onPop);
   }
 }

@@ -588,7 +588,10 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     } on Exception catch (e) {
       NyLogger.error(e.toString());
     }
-    hasInitComplete = true;
+    if (widget is NyStatefulWidget &&
+        (widget as NyStatefulWidget).controller.routeGuards.isEmpty) {
+      hasInitComplete = true;
+    }
     _updateLoadingState(
         shouldSetState: shouldSetStateAfter, name: name, value: false);
   }

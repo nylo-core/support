@@ -87,12 +87,9 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
           if (pageRequestFromRouteGuard?.isRedirect == true) {
             routeGuardsPassed = false;
           }
-          if (pageRequestFromRouteGuard?.data != null) {
-            (widget as NyStatefulWidget)
-                .controller
-                .request
-                ?.setData(pageRequestFromRouteGuard?.data);
-          }
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            pageRequestFromRouteGuard?.routeData?.routeToPage();
+          });
         }
         if (!routeGuardsPassed) {
           return;
