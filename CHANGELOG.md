@@ -1,3 +1,7 @@
+## [6.14.4] - 2025-01-06
+
+* Fix issue with `NyState`
+
 ## [6.14.3] - 2025-01-04
 
 * Update pubspec.yaml

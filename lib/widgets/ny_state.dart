@@ -35,6 +35,7 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
 
     if (!shouldLoadView) {
       init();
+      hasInitComplete = true;
       return;
     }
 
