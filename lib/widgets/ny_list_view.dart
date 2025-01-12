@@ -294,8 +294,12 @@ class _NyListViewState<T> extends NyState<NyListView> {
               restorationId: widget.restorationId,
               clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
               padding: widget.padding ?? EdgeInsets.zero,
-              itemCount: _data.length,
+              itemCount: _data.length + (widget.header != null ? 1 : 0),
               itemBuilder: (BuildContext context, int index) {
+                if (index == 0 && widget.header != null) {
+                  return widget.header!;
+                }
+                index = widget.header != null ? index - 1 : index;
                 dynamic model = (_data[index]);
                 return widget.child(context, model);
               });
@@ -321,8 +325,12 @@ class _NyListViewState<T> extends NyState<NyListView> {
             restorationId: widget.restorationId,
             clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
             padding: EdgeInsets.zero,
-            itemCount: _data.length,
+            itemCount: _data.length + (widget.header != null ? 1 : 0),
             itemBuilder: (BuildContext context, int index) {
+              if (index == 0 && widget.header != null) {
+                return widget.header!;
+              }
+              index = widget.header != null ? index - 1 : index;
               dynamic model = (_data[index]);
               return widget.child(context, model);
             },

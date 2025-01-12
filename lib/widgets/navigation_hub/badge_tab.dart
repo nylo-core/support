@@ -10,7 +10,7 @@ class BadgeTab extends StatefulWidget {
   const BadgeTab(
       {super.key,
       required this.state,
-      required this.icon,
+      this.icon,
       this.initialCount,
       this.backgroundColor,
       this.textColor,
@@ -25,10 +25,7 @@ class BadgeTab extends StatefulWidget {
 
   /// Create a BadgeTab from a NavigationTab
   BadgeTab.fromNavigationTab(NavigationTab page,
-      {super.key,
-      required Widget this.icon,
-      required int index,
-      String? stateName})
+      {super.key, required int index, this.icon, String? stateName})
       : state = (stateName ?? "${page.title}_navigation_tab_$index"),
         initialCount = page.meta['initialCount'],
         rememberCount = page.meta['rememberCount'],
@@ -85,14 +82,14 @@ class _BadgeTabState extends NyState<BadgeTab> {
             await NyStorage.save(stateName!, currentCount);
           }
         }
-        if (stateData != null) {
+        if (stateData != null && stateData is int) {
           currentCount = stateData!;
         }
       };
 
   @override
   LoadingStyle get loadingStyle =>
-      LoadingStyle.normal(child: widget.icon ?? Icon(Icons.home));
+      LoadingStyle.normal(child: widget.icon ?? SizedBox.shrink());
 
   @override
   stateUpdated(dynamic data) async {
@@ -104,8 +101,9 @@ class _BadgeTabState extends NyState<BadgeTab> {
 
   @override
   Widget view(BuildContext context) {
+    bool widgetIsText = widget.icon is Text;
     if (currentCount == 0) {
-      return widget.icon ?? Icon(Icons.home);
+      return widget.icon ?? SizedBox.shrink();
     }
     return Badge.count(
       count: currentCount,
@@ -116,9 +114,11 @@ class _BadgeTabState extends NyState<BadgeTab> {
       textStyle: widget.textStyle,
       padding: widget.padding,
       alignment: widget.alignment,
-      offset: widget.offset,
+      offset: widgetIsText == true && widget.offset == null
+          ? Offset(20, -10)
+          : widget.offset,
       isLabelVisible: widget.isLabelVisible ?? true,
-      child: widget.icon ?? Icon(Icons.home),
+      child: widget.icon,
     );
   }
 }

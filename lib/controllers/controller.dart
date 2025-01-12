@@ -71,7 +71,7 @@ abstract class BaseController {
 
   /// Returns any data passed through a [Navigator] or [routeTo] method.
   T? data<T>({dynamic defaultValue}) =>
-      request?.data(defaultValue: defaultValue);
+      request?.data(defaultValue: defaultValue) ?? defaultValue;
 
   /// Returns any query parameters passed in a route
   /// e.g. /my-page?hello=world

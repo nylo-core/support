@@ -2,12 +2,12 @@ import 'package:flutter/cupertino.dart';
 
 /// NavigationTab is a class that holds the title, page, icon, activeIcon, backgroundColor, tooltip, and meta data of a bottom navigation tab.
 class NavigationTab {
-  final String title;
-  final Widget page;
-  final Widget? icon;
-  final Widget? activeIcon;
-  final Color? backgroundColor;
-  final String? tooltip;
+  String? title;
+  Widget? page;
+  Widget? icon;
+  Widget? activeIcon;
+  Color? backgroundColor;
+  String? tooltip;
   final String? kind;
   final Map<String, dynamic> meta;
 
@@ -39,5 +39,35 @@ class NavigationTab {
       "initialCount": initialCount,
       "rememberCount": rememberCount,
     });
+  }
+
+  /// Update the page of the NavigationTab
+  updatePage(Widget page) {
+    this.page = page;
+  }
+
+  /// Update the title of the NavigationTab
+  updateTitle(String title) {
+    this.title = title;
+  }
+
+  /// Update the icon of the NavigationTab
+  updateIcon(Widget icon) {
+    this.icon = icon;
+  }
+
+  /// Update the active icon of the NavigationTab
+  updateActiveIcon(Widget activeIcon) {
+    this.activeIcon = activeIcon;
+  }
+
+  /// Update the background color of the NavigationTab
+  updateBackgroundColor(Color backgroundColor) {
+    this.backgroundColor = backgroundColor;
+  }
+
+  /// Update the tooltip of the NavigationTab
+  updateTooltip(String tooltip) {
+    this.tooltip = tooltip;
   }
 }

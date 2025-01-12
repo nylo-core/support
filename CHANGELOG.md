@@ -1,3 +1,13 @@
+## [6.15.0] - 2025-01-12
+
+* Make `updatePageState` public
+* Ensure `handleSuccess` handles responses within the correct status code range. Fixes [207](https://github.com/nylo-core/nylo/issues/207)
+* Fix `header` parameter in NyPullToRefresh and NyListView
+* Small fix for NyForm
+* Improvements to NavigationHub to support Text tabs and Icons
+* Updates to `NavigationTab` to support updating the Page, Title, Icon, Background Color and Tooltip
+* Update pubspec.yaml
+
 ## [6.14.4] - 2025-01-06
 
 * Fix issue with `NyState`

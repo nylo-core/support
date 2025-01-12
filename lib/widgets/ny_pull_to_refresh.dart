@@ -313,6 +313,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
         loading: loadingWidget);
   }
 
+  /// Display the child
   Widget displayChild(Widget loadingWidget) {
     if (_data.isEmpty) {
       Widget emptyChild = Container(
@@ -321,6 +322,15 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
       );
       if (widget.empty != null) {
         emptyChild = widget.empty!;
+      }
+
+      if (widget.header != null) {
+        emptyChild = Column(
+          children: [
+            widget.header!,
+            emptyChild,
+          ],
+        );
       }
 
       return SmartRefresher(
@@ -382,8 +392,12 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
               restorationId: widget.restorationId,
               clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
               padding: widget.padding,
-              itemCount: _data.length,
+              itemCount: _data.length + (widget.header != null ? 1 : 0),
               itemBuilder: (BuildContext context, int index) {
+                if (index == 0 && widget.header != null) {
+                  return widget.header!;
+                }
+                index = index - (widget.header != null ? 1 : 0);
                 dynamic model = (_data[index] as T);
                 return widget.child(context, model);
               });
@@ -410,12 +424,19 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
                 ScrollViewKeyboardDismissBehavior.manual,
             restorationId: widget.restorationId,
             clipBehavior: widget.clipBehavior ?? Clip.hardEdge,
-            itemCount: _data.length,
+            itemCount: _data.length + (widget.header != null ? 1 : 0),
             itemBuilder: (BuildContext context, int index) {
+              if (index == 0 && widget.header != null) {
+                return widget.header!;
+              }
+              index = index - (widget.header != null ? 1 : 0);
               dynamic model = (_data[index] as T);
               return widget.child(context, model);
             },
             separatorBuilder: (BuildContext context, int index) {
+              if (widget.header != null && index == 0) {
+                return SizedBox.shrink();
+              }
               if (widget.separatorBuilder != null) {
                 return widget.separatorBuilder!(context, index);
               }

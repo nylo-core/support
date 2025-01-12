@@ -201,6 +201,10 @@ class _NyFormState extends NyState<NyForm> {
 
   @override
   get init => () {
+        if (widget.form.updated?.hasListener ?? false) {
+          widget.form.updated?.close();
+        }
+
         widget.form.updated?.stream.listen((data) {
           String fieldSnakeCase = ReCase(data.$1).snakeCase;
           dynamic formData = widget.form.data(lowerCaseKeys: true);

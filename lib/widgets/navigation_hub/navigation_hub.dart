@@ -112,7 +112,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
         label: page.value.title,
         activeIcon: BadgeTab.fromNavigationTab(page.value,
             index: page.key,
-            icon: page.value.activeIcon ?? Icon(Icons.home),
+            icon: page.value.activeIcon,
             stateName: "${stateName}_navigation_tab_${page.key}"),
         backgroundColor: page.value.backgroundColor,
         tooltip: page.value.tooltip,
@@ -120,9 +120,9 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
     }
 
     return BottomNavigationBarItem(
-      icon: page.value.icon ?? Icon(Icons.home),
-      label: page.value.title,
-      activeIcon: page.value.activeIcon ?? Icon(Icons.home),
+      icon: page.value.icon ?? Text(page.value.title ?? ""),
+      label: page.value.icon == null ? "" : page.value.title,
+      activeIcon: page.value.activeIcon ?? Text(page.value.title ?? ""),
       backgroundColor: page.value.backgroundColor,
       tooltip: page.value.tooltip,
     );
@@ -139,7 +139,8 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
                   Navigator(
                     key: getNavigationKey(page),
                     onGenerateRoute: (settings) => MaterialPageRoute(
-                      builder: (context) => page.value.page,
+                      builder: (context) =>
+                          page.value.page ?? SizedBox.shrink(),
                       settings: settings,
                     ),
                   )
@@ -148,7 +149,8 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
                 key: getNavigationKey(pages.entries.elementAt(currentIndex)),
                 onGenerateRoute: (settings) => MaterialPageRoute(
                   builder: (context) =>
-                      (pages.entries.elementAt(currentIndex).value.page),
+                      (pages.entries.elementAt(currentIndex).value.page ??
+                          SizedBox.shrink()),
                   settings: settings,
                 ),
               ),
@@ -223,20 +225,26 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
               tabs: [
                 for (MapEntry page in pages.entries)
                   Tab(
-                    text: layout?.showSelectedLabels == false
+                    text: layout?.showSelectedLabels == false ||
+                            page.value.icon == null
                         ? null
                         : page.value.title,
                     icon: page.value.kind == "badge"
                         ? BadgeTab.fromNavigationTab(page.value,
                             index: page.key,
                             icon: currentIndex == page.key
-                                ? page.value.activeIcon ?? Icon(Icons.home)
-                                : page.value.icon ?? Icon(Icons.home),
+                                ? page.value.icon == null
+                                    ? Text(page.value.title)
+                                    : page.value.activeIcon
+                                : page.value.icon ?? Text(page.value.title),
                             stateName:
                                 "${stateName}_navigation_tab_${page.key}")
                         : currentIndex == page.key
-                            ? page.value.activeIcon ?? Icon(Icons.home)
-                            : page.value.icon ?? Icon(Icons.home),
+                            ? page.value.activeIcon
+                            : page.value.icon,
+                    child: page.value.icon == null && page.value.kind != "badge"
+                        ? Text(page.value.title)
+                        : null,
                   )
               ],
               onTap: onTap,
@@ -248,7 +256,8 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
                     Navigator(
                       key: getNavigationKey(page),
                       onGenerateRoute: (settings) => MaterialPageRoute(
-                        builder: (context) => (page.value.page),
+                        builder: (context) =>
+                            (page.value.page ?? SizedBox.shrink()),
                         settings: settings,
                       ),
                     )
@@ -260,7 +269,8 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
                       Navigator(
                         key: getNavigationKey(page),
                         onGenerateRoute: (settings) => MaterialPageRoute(
-                          builder: (context) => (page.value.page),
+                          builder: (context) =>
+                              (page.value.page ?? SizedBox.shrink()),
                           settings: settings,
                         ),
                       )
