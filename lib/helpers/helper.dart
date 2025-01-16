@@ -57,7 +57,13 @@ String getImageAsset(String imageName) =>
 /// Usage e.g. getPublicAsset('videos/welcome.mp4');
 ///
 /// Returns a [String].
-String getPublicAsset(String asset) => "${getEnv("ASSET_PATH_PUBLIC")}/$asset";
+String getPublicAsset(String asset) {
+  // remove the first slash if it exists
+  if (asset.startsWith('/')) {
+    asset = asset.substring(1);
+  }
+  return "${getEnv("ASSET_PATH_PUBLIC")}/$asset";
+}
 
 /// Returns a text theme for a app font.
 /// Returns a [TextTheme].

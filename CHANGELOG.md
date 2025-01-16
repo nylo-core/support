@@ -1,3 +1,7 @@
+## [6.16.1] - 2025-01-16
+
+* Small change to `getPublicAsset` to remove first slash if it exists
+
 ## [6.16.0] - 2025-01-16
 
 * Add `Field.capitalizeSentences` and `Field.capitalizeWords`
