@@ -431,6 +431,78 @@ class Field {
     }
   }
 
+  /// Field.capitalizeWords is a constructor that helps in managing capitalizeWords fields
+  Field.capitalizeWords(
+    this.key, {
+    this.value,
+    this.validate,
+    this.autofocus = false,
+    this.dummyData,
+    this.header,
+    this.footer,
+    this.titleStyle,
+    this.style,
+    this.metaData = const {},
+    this.hidden = false,
+    Widget? prefixIcon,
+    bool clearable = false,
+    Widget? clearIcon,
+  }) : cast = FormCast.capitalizeWords(
+          prefixIcon: prefixIcon,
+          clearable: clearable,
+          clearIcon: clearIcon,
+        ) {
+    if (style == null) return;
+
+    metaData = {};
+    if (style is String) {
+      style = style;
+      return;
+    }
+    if (style is Map) {
+      style as Map<String, dynamic>;
+      metaData!["decoration_style"] =
+          (style as Map<String, dynamic>).entries.first.value;
+      style = (style as Map<String, dynamic>).entries.first.key;
+    }
+  }
+
+  /// Field.capitalizeSentences is a constructor that helps in managing capitalizeSentences fields
+  Field.capitalizeSentences(
+    this.key, {
+    this.value,
+    this.validate,
+    this.autofocus = false,
+    this.dummyData,
+    this.header,
+    this.footer,
+    this.titleStyle,
+    this.style,
+    this.metaData = const {},
+    this.hidden = false,
+    Widget? prefixIcon,
+    bool clearable = false,
+    Widget? clearIcon,
+  }) : cast = FormCast.capitalizeSentences(
+          prefixIcon: prefixIcon,
+          clearable: clearable,
+          clearIcon: clearIcon,
+        ) {
+    if (style == null) return;
+
+    metaData = {};
+    if (style is String) {
+      style = style;
+      return;
+    }
+    if (style is Map) {
+      style as Map<String, dynamic>;
+      metaData!["decoration_style"] =
+          (style as Map<String, dynamic>).entries.first.value;
+      style = (style as Map<String, dynamic>).entries.first.key;
+    }
+  }
+
   /// Field.picker is a constructor that helps in managing picker fields
   Field.picker(
     this.key, {

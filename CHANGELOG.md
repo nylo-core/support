@@ -1,3 +1,7 @@
+## [6.16.0] - 2025-01-16
+
+* Add `Field.capitalizeSentences` and `Field.capitalizeWords`
+
 ## [6.15.0] - 2025-01-12
 
 * Make `updatePageState` public
