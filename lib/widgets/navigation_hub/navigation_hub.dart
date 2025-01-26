@@ -28,7 +28,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
   NavigationHubLayout? layout;
 
   /// The current index of the page
-  int currentIndex = 0;
+  int? currentIndex;
 
   /// The navigator keys
   Map<int, UniqueKey> navigatorKeys = {};
@@ -39,10 +39,13 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
   /// The reset map
   Map<int, bool> reset = {};
 
+  /// Get the current index
+  int get getCurrentIndex => currentIndex ?? 0;
+
   @override
   get init => () {
         int? activeTab = data(defaultValue: {"tab-index": 0})['tab-index'];
-        currentIndex = activeTab ?? 0;
+        currentIndex ??= activeTab ?? 0;
 
         if (pages is Future Function()) {
           awaitData(perform: () async {
@@ -128,73 +131,86 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
     );
   }
 
+  /// Helper to build the bottom nav widget
+  Widget bottomNavBuilder(
+      BuildContext context, Widget body, Widget? bottomNavigationBar) {
+    throw UnimplementedError();
+  }
+
   @override
   Widget view(BuildContext context) {
     Map<int, NavigationTab> pages = orderedPages;
     if (layout?.kind == "bottomNav") {
-      return Scaffold(
-        body: maintainState
-            ? IndexedStack(index: currentIndex, children: [
-                for (var page in pages.entries)
-                  Navigator(
-                    key: getNavigationKey(page),
-                    onGenerateRoute: (settings) => MaterialPageRoute(
-                      builder: (context) =>
-                          page.value.page ?? SizedBox.shrink(),
-                      settings: settings,
-                    ),
-                  )
-              ])
-            : Navigator(
-                key: getNavigationKey(pages.entries.elementAt(currentIndex)),
-                onGenerateRoute: (settings) => MaterialPageRoute(
-                  builder: (context) =>
-                      (pages.entries.elementAt(currentIndex).value.page ??
-                          SizedBox.shrink()),
-                  settings: settings,
-                ),
+      Widget body = maintainState
+          ? IndexedStack(index: currentIndex, children: [
+              for (var page in pages.entries)
+                Navigator(
+                  key: getNavigationKey(page),
+                  onGenerateRoute: (settings) => MaterialPageRoute(
+                    builder: (context) => page.value.page ?? SizedBox.shrink(),
+                    settings: settings,
+                  ),
+                )
+            ])
+          : Navigator(
+              key: getNavigationKey(pages.entries.elementAt(getCurrentIndex)),
+              onGenerateRoute: (settings) => MaterialPageRoute(
+                builder: (context) =>
+                    (pages.entries.elementAt(getCurrentIndex).value.page ??
+                        SizedBox.shrink()),
+                settings: settings,
               ),
-        bottomNavigationBar: BottomNavigationBar(
-          currentIndex: currentIndex,
-          onTap: onTap,
-          selectedLabelStyle: layout?.selectedLabelStyle ??
-              TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w600,
-              ),
-          unselectedLabelStyle: layout?.unselectedLabelStyle ??
-              TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.w400,
-              ),
-          showSelectedLabels: layout?.showSelectedLabels ?? true,
-          showUnselectedLabels: layout?.showUnselectedLabels ?? true,
-          selectedItemColor: layout?.selectedItemColor ?? Colors.black,
-          unselectedItemColor: layout?.unselectedItemColor ?? Colors.black,
-          selectedFontSize: layout?.selectedFontSize ?? 14.0,
-          unselectedFontSize: layout?.unselectedFontSize ?? 12.0,
-          iconSize: layout?.iconSize ?? 24.0,
-          elevation: layout?.elevation ?? 8.0,
-          backgroundColor: layout?.backgroundColor,
-          type: layout?.type ?? BottomNavigationBarType.fixed,
-          items: [
-            for (MapEntry<int, NavigationTab> page in pages.entries)
-              _getBottomNavigationBarItem(page),
-          ],
-        ),
+            );
+
+      Widget? bottomNavigationBar = BottomNavigationBar(
+        currentIndex: getCurrentIndex,
+        onTap: onTap,
+        selectedLabelStyle: layout?.selectedLabelStyle ??
+            TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w600,
+            ),
+        unselectedLabelStyle: layout?.unselectedLabelStyle ??
+            TextStyle(
+              color: Colors.black,
+              fontWeight: FontWeight.w400,
+            ),
+        showSelectedLabels: layout?.showSelectedLabels ?? true,
+        showUnselectedLabels: layout?.showUnselectedLabels ?? true,
+        selectedItemColor: layout?.selectedItemColor ?? Colors.black,
+        unselectedItemColor: layout?.unselectedItemColor ?? Colors.black,
+        selectedFontSize: layout?.selectedFontSize ?? 14.0,
+        unselectedFontSize: layout?.unselectedFontSize ?? 12.0,
+        iconSize: layout?.iconSize ?? 24.0,
+        elevation: layout?.elevation ?? 8.0,
+        backgroundColor: layout?.backgroundColor,
+        type: layout?.type ?? BottomNavigationBarType.fixed,
+        items: [
+          for (MapEntry<int, NavigationTab> page in pages.entries)
+            _getBottomNavigationBarItem(page),
+        ],
       );
+      try {
+        return bottomNavBuilder(context, body, bottomNavigationBar);
+      } on UnimplementedError catch (_) {
+        return Scaffold(
+          body: body,
+          bottomNavigationBar: bottomNavigationBar,
+        );
+      }
     }
+
     if (layout?.kind == "topNav") {
       return DefaultTabController(
         length: pages.length,
-        initialIndex: currentIndex,
+        initialIndex: getCurrentIndex,
         animationDuration: layout?.animationDuration,
         child: Scaffold(
           appBar: AppBar(
             backgroundColor: layout?.backgroundColor,
-            title: pages[currentIndex]?.title == null
+            title: pages[getCurrentIndex]?.title == null
                 ? null
-                : Text(pages[currentIndex]?.title ?? ""),
+                : Text(pages[getCurrentIndex]?.title ?? ""),
             toolbarHeight: (layout?.hideAppBarTitle ?? true) ? 0 : null,
             bottom: TabBar(
               isScrollable: layout?.isScrollable ?? false,
@@ -232,14 +248,14 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
                     icon: page.value.kind == "badge"
                         ? BadgeTab.fromNavigationTab(page.value,
                             index: page.key,
-                            icon: currentIndex == page.key
+                            icon: getCurrentIndex == page.key
                                 ? page.value.icon == null
                                     ? Text(page.value.title)
                                     : page.value.activeIcon
                                 : page.value.icon ?? Text(page.value.title),
                             stateName:
                                 "${stateName}_navigation_tab_${page.key}")
-                        : currentIndex == page.key
+                        : getCurrentIndex == page.key
                             ? page.value.activeIcon
                             : page.value.icon,
                     child: page.value.icon == null && page.value.kind != "badge"
@@ -251,7 +267,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
             ),
           ),
           body: maintainState
-              ? IndexedStack(index: currentIndex, children: [
+              ? IndexedStack(index: getCurrentIndex, children: [
                   for (var page in pages.entries)
                     Navigator(
                       key: getNavigationKey(page),

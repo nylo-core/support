@@ -161,6 +161,14 @@ extension NyBool on bool? {
   }
 }
 
+/// Extensions for [AssetImage]
+extension NyAssetImage on AssetImage {
+  /// Get the image from public/images
+  AssetImage localAsset() {
+    return AssetImage(getImageAsset(assetName));
+  }
+}
+
 /// Extensions for [DateTime]
 extension NyDateTime on DateTime? {
   /// Get the locale of the device.
@@ -200,6 +208,77 @@ extension NyDateTime on DateTime? {
     return this!.hour >= 0 && this!.hour < 6;
   }
 
+  /// Add years to a [DateTime]
+  DateTime addYears(int years) {
+    if (this == null) throw Exception("DateTime is null");
+    return DateTime(this!.year + years, this!.month, this!.day);
+  }
+
+  /// Subtract years from a [DateTime]
+  DateTime subtractYears(int years) {
+    if (this == null) throw Exception("DateTime is null");
+    return DateTime(this!.year - years, this!.month, this!.day);
+  }
+
+  /// Add months to a [DateTime]
+  DateTime addMonths(int months) {
+    if (this == null) throw Exception("DateTime is null");
+    return DateTime(this!.year, this!.month + months, this!.day);
+  }
+
+  /// Subtract months from a [DateTime]
+  DateTime subtractMonths(int months) {
+    if (this == null) throw Exception("DateTime is null");
+    return DateTime(this!.year, this!.month - months, this!.day);
+  }
+
+  /// Add days to a [DateTime]
+  DateTime addDays(int days) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.add(Duration(days: days));
+  }
+
+  /// Subtract days from a [DateTime]
+  DateTime subtractDays(int days) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.subtract(Duration(days: days));
+  }
+
+  /// Add hours to a [DateTime]
+  DateTime addHours(int hours) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.add(Duration(hours: hours));
+  }
+
+  /// Subtract hours from a [DateTime]
+  DateTime subtractHours(int hours) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.subtract(Duration(hours: hours));
+  }
+
+  DateTime addMinutes(int minutes) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.add(Duration(minutes: minutes));
+  }
+
+  /// Subtract minutes from a [DateTime]
+  DateTime subtractMinutes(int minutes) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.subtract(Duration(minutes: minutes));
+  }
+
+  /// Add seconds to a [DateTime]
+  DateTime addSeconds(int seconds) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.add(Duration(seconds: seconds));
+  }
+
+  /// Subtract seconds from a [DateTime]
+  DateTime subtractSeconds(int seconds) {
+    if (this == null) throw Exception("DateTime is null");
+    return this!.subtract(Duration(seconds: seconds));
+  }
+
   /// Format [DateTime] to DateTimeString - yyyy-MM-dd HH:mm:ss
   String? toDateTimeString() {
     if (this == null) return null;
@@ -207,9 +286,19 @@ extension NyDateTime on DateTime? {
   }
 
   /// Format [DateTime] to toDateString - yyyy-MM-dd
-  String? toDateString() {
+  String? toDateString({String format = "yyyy-MM-dd"}) {
     if (this == null) return null;
-    return intl.DateFormat("yyyy-MM-dd", _locale).format(this!);
+    return intl.DateFormat(format, _locale).format(this!);
+  }
+
+  /// Format [DateTime] to toDateString - yyyy-MM-dd
+  String? toDateStringUK({String format = "dd/MM/yyyy"}) {
+    return toDateString(format: format);
+  }
+
+  /// Format [DateTime] to toDateString - yyyy-MM-dd
+  String? toDateStringUS({String format = "MM/dd/yyyy"}) {
+    return toDateString(format: format);
   }
 
   /// Format [DateTime] to toTimeString - HH:mm or HH:mm:ss

@@ -1,3 +1,22 @@
+## [6.17.0] - 2025-01-26
+
+* Added comprehensive DateTime manipulation methods:
+  * Year operations: `addYears()` and `subtractYears()`
+  * Month operations: `addMonths()` and `subtractMonths()`
+  * Day operations: `addDays()` and `subtractDays()`
+  * Hour operations: `addHours()` and `subtractHours()`
+  * Minute operations: `addMinutes()` and `subtractMinutes()`
+  * Second operations: `addSeconds()` and `subtractSeconds()`
+* Update NavigationHub to support the following:
+  * Set a default current tab index: Override `currentIndex` in your `NavigationHub` class
+  * New `bottomNavBuilder` method to build the bottom navigation bar
+* DateTime extension: 
+  * Allow `toDateString` to accept a `String` format
+  * Add `toDateStringUK` to format the date in UK format
+  * Add `toDateStringUS` to format the date in US format
+* New `localAsset` method added to `AssetImage`
+* Update pubspec.yaml
+
 ## [6.16.1] - 2025-01-16
 
 * Small change to `getPublicAsset` to remove first slash if it exists
