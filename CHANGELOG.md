@@ -1,3 +1,8 @@
+## [6.17.1] - 2025-01-29
+
+* Fix small issue with `NavigationHub` not using the correct `icon` when active
+* Update pubspec.yaml
+
 ## [6.17.0] - 2025-01-26
 
 * Added comprehensive DateTime manipulation methods:

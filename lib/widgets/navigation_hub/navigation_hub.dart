@@ -110,7 +110,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
       return BottomNavigationBarItem(
         icon: BadgeTab.fromNavigationTab(page.value,
             index: page.key,
-            icon: page.value.activeIcon ?? Icon(Icons.home),
+            icon: page.value.icon ?? Icon(Icons.home),
             stateName: "${stateName}_navigation_tab_${page.key}"),
         label: page.value.title,
         activeIcon: BadgeTab.fromNavigationTab(page.value,
