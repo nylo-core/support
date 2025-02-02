@@ -1,3 +1,12 @@
+## [6.18.0] - 2025-02-02
+
+* Add new `NavigationTab.alert` widget for supporting alerts in the NavigationTab
+* New extension `toBool` and `tryParseBool` added to `String` class
+* New StateActions added to `NavigationHubStateActions`
+  * `alertEnableTab` - Enable the alert for a specific tab
+  * `alertDisableTab` - Disable the alert for a specific tab
+* Update pubspec.yaml
+
 ## [6.17.1] - 2025-01-29
 
 * Fix small issue with `NavigationHub` not using the correct `icon` when active

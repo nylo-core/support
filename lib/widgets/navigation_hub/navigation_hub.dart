@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:nylo_support/widgets/navigation_hub/alert_tab.dart';
 import '/helpers/extensions.dart';
 import '/local_storage/local_storage.dart';
 import '/widgets/navigation_hub/badge_tab.dart';
@@ -103,17 +104,33 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
     }
   }
 
-  /// Get the bottom navigation bar item
-  BottomNavigationBarItem _getBottomNavigationBarItem(
+  /// Build the bottom navigation bar item
+  BottomNavigationBarItem _buildBottomNavigationBarItem(
       MapEntry<int, NavigationTab> page) {
     if (page.value.kind == "badge") {
       return BottomNavigationBarItem(
         icon: BadgeTab.fromNavigationTab(page.value,
             index: page.key,
-            icon: page.value.icon ?? Icon(Icons.home),
+            icon: page.value.icon,
             stateName: "${stateName}_navigation_tab_${page.key}"),
         label: page.value.title,
         activeIcon: BadgeTab.fromNavigationTab(page.value,
+            index: page.key,
+            icon: page.value.activeIcon,
+            stateName: "${stateName}_navigation_tab_${page.key}"),
+        backgroundColor: page.value.backgroundColor,
+        tooltip: page.value.tooltip,
+      );
+    }
+
+    if (page.value.kind == "alert") {
+      return BottomNavigationBarItem(
+        icon: AlertTab.fromNavigationTab(page.value,
+            index: page.key,
+            icon: page.value.icon,
+            stateName: "${stateName}_navigation_tab_${page.key}"),
+        label: page.value.title,
+        activeIcon: AlertTab.fromNavigationTab(page.value,
             index: page.key,
             icon: page.value.activeIcon,
             stateName: "${stateName}_navigation_tab_${page.key}"),
@@ -187,7 +204,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
         type: layout?.type ?? BottomNavigationBarType.fixed,
         items: [
           for (MapEntry<int, NavigationTab> page in pages.entries)
-            _getBottomNavigationBarItem(page),
+            _buildBottomNavigationBarItem(page),
         ],
       );
       try {
@@ -240,28 +257,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
               textScaler: layout?.textScaler,
               tabs: [
                 for (MapEntry page in pages.entries)
-                  Tab(
-                    text: layout?.showSelectedLabels == false ||
-                            page.value.icon == null
-                        ? null
-                        : page.value.title,
-                    icon: page.value.kind == "badge"
-                        ? BadgeTab.fromNavigationTab(page.value,
-                            index: page.key,
-                            icon: getCurrentIndex == page.key
-                                ? page.value.icon == null
-                                    ? Text(page.value.title)
-                                    : page.value.activeIcon
-                                : page.value.icon ?? Text(page.value.title),
-                            stateName:
-                                "${stateName}_navigation_tab_${page.key}")
-                        : getCurrentIndex == page.key
-                            ? page.value.activeIcon
-                            : page.value.icon,
-                    child: page.value.icon == null && page.value.kind != "badge"
-                        ? Text(page.value.title)
-                        : null,
-                  )
+                  _buildTab(page.value, page.key),
               ],
               onTap: onTap,
             ),
@@ -296,6 +292,63 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
       );
     }
     throw Exception("Invalid layout type");
+  }
+
+  /// Build the tab icon
+  Widget? _buildTabIcon(NavigationTab page, int pageKey) {
+    String tabTitle = page.title ?? "";
+    if (page.kind == "badge") {
+      return BadgeTab.fromNavigationTab(page,
+          index: pageKey,
+          icon: getCurrentIndex == pageKey
+              ? page.icon == null
+                  ? Text(tabTitle)
+                  : page.activeIcon
+              : page.icon ?? Text(tabTitle),
+          stateName: "${stateName}_navigation_tab_$pageKey");
+    }
+
+    if (page.kind == "alert") {
+      return AlertTab.fromNavigationTab(page,
+          index: pageKey,
+          icon: getCurrentIndex == pageKey
+              ? page.icon == null
+                  ? Text(tabTitle)
+                  : page.activeIcon
+              : page.icon ?? Text(tabTitle),
+          stateName: "${stateName}_navigation_tab_$pageKey");
+    }
+
+    return getCurrentIndex == pageKey ? page.activeIcon : page.icon;
+  }
+
+  /// Build the tab text
+  String? _buildTabText(NavigationTab page) {
+    return layout?.showSelectedLabels == false || page.icon == null
+        ? null
+        : page.title;
+  }
+
+  /// Build the tab child
+  Widget? _buildTabChild(NavigationTab page) {
+    if (["badge", "alert"].contains(page.kind)) {
+      return null;
+    }
+
+    if (page.icon == null && layout?.showSelectedLabels == false) {
+      return Text(page.title ?? "");
+    }
+
+    return null;
+  }
+
+  /// Build the tab
+  _buildTab(NavigationTab page, int pageKey) {
+    return Tab(
+      text: _buildTabText(page),
+      icon: _buildTabIcon(page, pageKey),
+      child: _buildTabChild(page),
+    );
   }
 }
 
@@ -606,5 +659,19 @@ class NavigationHubStateActions extends StateActions {
   /// Update the tab index
   currentTabIndex(int tabIndex) {
     updateState(state, data: {"action": "update-tab", "tab-index": tabIndex});
+  }
+
+  /// Enable the alert for the [tab]
+  alertEnableTab({required int tab}) {
+    updateState(_navigationTabStateName(tab), data: {
+      "action": "enable",
+    });
+  }
+
+  /// Disable the alert for the [tab]
+  alertDisableTab({required int tab}) {
+    updateState(_navigationTabStateName(tab), data: {
+      "action": "disable",
+    });
   }
 }

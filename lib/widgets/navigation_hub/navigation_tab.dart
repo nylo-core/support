@@ -7,6 +7,7 @@ class NavigationTab {
   Widget? icon;
   Widget? activeIcon;
   Color? backgroundColor;
+  Color? alertColor;
   String? tooltip;
   final String? kind;
   final Map<String, dynamic> meta;
@@ -38,6 +39,25 @@ class NavigationTab {
     this.meta.addAll({
       "initialCount": initialCount,
       "rememberCount": rememberCount,
+    });
+  }
+
+  /// NavigationTab.alert is a class that holds the title, page, icon, activeIcon, backgroundColor, tooltip, and meta data of a bottom navigation tab with an alert.
+  NavigationTab.alert(
+      {required this.title,
+      required this.page,
+      this.icon,
+      this.activeIcon,
+      this.tooltip,
+      this.alertColor,
+      bool? alertEnabled,
+      bool? rememberAlert = true,
+      Map<String, dynamic>? meta})
+      : meta = {},
+        kind = "alert" {
+    this.meta.addAll({
+      "alertEnabled": alertEnabled,
+      "rememberAlert": rememberAlert,
     });
   }
 

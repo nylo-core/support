@@ -769,6 +769,28 @@ extension NyString on String {
     NyLogger.dump(toString(), tag);
     exit(0);
   }
+
+  /// Convert a string to boolean.
+  bool toBool() {
+    if (toLowerCase() == "true" || toLowerCase() == "1") {
+      return true;
+    }
+    if (toLowerCase() == "false" || toLowerCase() == "0") {
+      return false;
+    }
+    throw UnsupportedError("Cannot convert $this to a boolean");
+  }
+
+  /// Convert a string to boolean.
+  bool? tryParseBool() {
+    if (toLowerCase() == "true" || toLowerCase() == "1") {
+      return true;
+    }
+    if (toLowerCase() == "false" || toLowerCase() == "0") {
+      return false;
+    }
+    return null;
+  }
 }
 
 /// Extensions for [StatelessWidget]
