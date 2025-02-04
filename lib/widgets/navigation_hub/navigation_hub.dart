@@ -139,10 +139,20 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
       );
     }
 
+    TextStyle textStyle = TextStyle();
+    if (currentIndex == page.key) {
+      textStyle =
+          layout?.selectedLabelStyle?.copyWith() ?? textStyle.copyWith();
+      if (layout?.selectedItemColor != null) {
+        textStyle = textStyle.copyWith(color: layout?.selectedItemColor);
+      }
+    }
+    Widget textWidget = Text(page.value.title ?? "", style: textStyle);
+
     return BottomNavigationBarItem(
-      icon: page.value.icon ?? Text(page.value.title ?? ""),
+      icon: page.value.icon ?? textWidget,
       label: page.value.icon == null ? "" : page.value.title,
-      activeIcon: page.value.activeIcon ?? Text(page.value.title ?? ""),
+      activeIcon: page.value.activeIcon ?? textWidget,
       backgroundColor: page.value.backgroundColor,
       tooltip: page.value.tooltip,
     );
@@ -297,36 +307,44 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
   /// Build the tab icon
   Widget? _buildTabIcon(NavigationTab page, int pageKey) {
     String tabTitle = page.title ?? "";
+    bool isCurrentIndex = getCurrentIndex == pageKey;
+    Widget icon = page.icon ?? Text(tabTitle);
+
+    if (isCurrentIndex) {
+      icon = page.activeIcon ?? icon;
+    }
+
     if (page.kind == "badge") {
       return BadgeTab.fromNavigationTab(page,
           index: pageKey,
-          icon: getCurrentIndex == pageKey
-              ? page.icon == null
-                  ? Text(tabTitle)
-                  : page.activeIcon
-              : page.icon ?? Text(tabTitle),
+          icon: icon,
           stateName: "${stateName}_navigation_tab_$pageKey");
     }
 
     if (page.kind == "alert") {
       return AlertTab.fromNavigationTab(page,
           index: pageKey,
-          icon: getCurrentIndex == pageKey
-              ? page.icon == null
-                  ? Text(tabTitle)
-                  : page.activeIcon
-              : page.icon ?? Text(tabTitle),
+          icon: icon,
           stateName: "${stateName}_navigation_tab_$pageKey");
     }
 
+    if (getCurrentIndex == pageKey) {
+      return page.activeIcon ?? page.icon;
+    }
     return getCurrentIndex == pageKey ? page.activeIcon : page.icon;
   }
 
   /// Build the tab text
   String? _buildTabText(NavigationTab page) {
-    return layout?.showSelectedLabels == false || page.icon == null
-        ? null
-        : page.title;
+    if (layout?.showSelectedLabels == false) {
+      return null;
+    }
+
+    if (page.icon == null && ["badge", "alert"].contains(page.kind)) {
+      return null;
+    }
+
+    return page.title;
   }
 
   /// Build the tab child

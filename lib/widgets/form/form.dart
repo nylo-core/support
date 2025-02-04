@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '/widgets/ny_future_builder.dart';
@@ -201,10 +203,6 @@ class _NyFormState extends NyState<NyForm> {
 
   @override
   get init => () {
-        if (widget.form.updated?.hasListener ?? false) {
-          widget.form.updated?.close();
-        }
-
         widget.form.updated?.stream.listen((data) {
           String fieldSnakeCase = ReCase(data.$1).snakeCase;
           dynamic formData = widget.form.data(lowerCaseKeys: true);
@@ -343,6 +341,12 @@ class _NyFormState extends NyState<NyForm> {
         isHidden = isHiddenData[field.key];
       }
 
+      bool readOnly = false;
+      Map<String, dynamic> readOnlyData = widget.form.getReadOnlyData;
+      if (readOnlyData.containsKey(field.key)) {
+        readOnly = readOnlyData[field.key] ?? false;
+      }
+
       Field nyField = Field(
         field.key,
         value: value,
@@ -352,6 +356,7 @@ class _NyFormState extends NyState<NyForm> {
         footer: footerValue,
         metaData: metaDataValue,
         hidden: isHidden,
+        readOnly: readOnly,
       );
 
       NyFormItem formItem = NyFormItem(

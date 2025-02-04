@@ -1,3 +1,11 @@
+## [6.19.0] - 2025-02-04
+
+* Forms - Ability to set fields as `readOnly`
+  * Fix issue "stream has already been listened to" #215 
+* Fixes for NavigationHub
+* Small refactor to `Pullable` widget
+* Update pubspec.yaml
+
 ## [6.18.0] - 2025-02-02
 
 * Add new `NavigationTab.alert` widget for supporting alerts in the NavigationTab

@@ -76,6 +76,9 @@ class _BadgeTabState extends NyState<BadgeTab> {
         currentCount = (widget.initialCount ?? 0);
         if (stateName != null && widget.rememberCount == true) {
           dynamic badgeCountData = await NyStorage.read(stateName!);
+          if (badgeCountData.runtimeType.toString() != 'int') {
+            badgeCountData = null;
+          }
           if (badgeCountData != null) {
             currentCount = badgeCountData;
           } else {

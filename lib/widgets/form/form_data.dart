@@ -96,6 +96,14 @@ class NyFormData {
         _hiddenData[formField.key] = null;
       }
 
+      if (formField.readOnly != null) {
+        _readonlyData[formField.key] = formField.readOnly;
+      }
+
+      if (!_readonlyData.containsKey(formField.key)) {
+        _readonlyData[formField.key] = null;
+      }
+
       if (formField.metaData != null) {
         _metaData[formField.key] = formField.metaData;
       }
@@ -197,6 +205,9 @@ class NyFormData {
   /// The hidden data for the form
   final Map<String, dynamic> _hiddenData = {};
 
+  /// The readonly data for the form
+  final Map<String, dynamic> _readonlyData = {};
+
   /// Get the grouped items for the form
   List<List> get groupedItems => _groupedItems;
 
@@ -221,6 +232,9 @@ class NyFormData {
   /// Get the hidden data for the form
   Map<String, dynamic> get getHiddenData => _hiddenData;
 
+  /// Get the readonly data for the form
+  Map<String, dynamic> get getReadOnlyData => _readonlyData;
+
   /// Get the style data for the form
   Map<String, dynamic> get getStyle => _style;
 
@@ -229,7 +243,9 @@ class NyFormData {
   String? _getAutoFocusedField;
 
   /// StreamController for the form
-  final StreamController<dynamic>? updated = StreamController<dynamic>();
+  StreamController<dynamic>? get updated {
+    return StreamController.broadcast();
+  }
 
   /// Validate the form
   Map<String, dynamic> validate() => _validate;

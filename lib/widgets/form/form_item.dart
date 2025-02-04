@@ -100,34 +100,45 @@ class NyFormItem extends StatelessWidget {
 
     // check if the field is a datetime field
     if (field.cast.type == "datetime") {
-      return NyFormDateTimePicker.fromField(
-        field,
-        onChanged,
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: NyFormDateTimePicker.fromField(
+          field,
+          onChanged,
+        ),
       );
     }
 
     // check if the field is a picker field
     if (field.cast.type == "picker") {
-      return NyFormPicker.fromField(
-        field,
-        onChanged,
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: NyFormPicker.fromField(
+          field,
+          onChanged,
+        ),
       );
     }
 
     // check if the field is a chip field
     if (field.cast.type == "chip") {
-      return match(
-          fieldStyle,
-          () => {
-                "compact": NyFormChip.compact(
-                  field,
-                  onChanged,
-                ),
-              },
-          defaultValue: NyFormChip.fromField(
-            field,
-            onChanged,
-          ));
+      late Widget chipWidget;
+      if (fieldStyle == "compact") {
+        chipWidget = NyFormChip.compact(
+          field,
+          onChanged,
+        );
+      } else {
+        chipWidget = NyFormChip.fromField(
+          field,
+          onChanged,
+        );
+      }
+
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: chipWidget,
+      );
     }
 
     // check if the field is a checkbox field
@@ -154,9 +165,13 @@ class NyFormItem extends StatelessWidget {
             .forEach((key, value) => field.cast.metaData[key] = value);
         field.cast = formCast;
       }
-      return NyFormCheckbox.fromField(
-        field,
-        onChanged,
+
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: NyFormCheckbox.fromField(
+          field,
+          onChanged,
+        ),
       );
     }
 
@@ -184,9 +199,12 @@ class NyFormItem extends StatelessWidget {
             .forEach((key, value) => field.cast.metaData[key] = value);
         field.cast = formCast;
       }
-      return NyFormSwitchBox.fromField(
-        field,
-        onChanged,
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: NyFormSwitchBox.fromField(
+          field,
+          onChanged,
+        ),
       );
     }
 
@@ -215,6 +233,7 @@ class NyFormItem extends StatelessWidget {
     switch (fieldStyle) {
       case "compact":
         nyTextField = NyTextField.compact(
+          readOnly: field.readOnly ?? false,
           controller: textEditingController,
           hintText: field.name,
           textCapitalization: textCapitalization,
@@ -238,6 +257,7 @@ class NyFormItem extends StatelessWidget {
       default:
         {
           nyTextField = NyTextField(
+            readOnly: field.readOnly ?? false,
             controller: textEditingController,
             hintText: field.name,
             textCapitalization: textCapitalization,

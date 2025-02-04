@@ -283,6 +283,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
   }) : cast = cast ?? FormCast() {
     if (style == null) return;
 
@@ -312,6 +313,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -349,6 +351,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
   }) : cast = FormCast.currency(currency.toLowerCase()) {
     if (style == null) return;
 
@@ -379,6 +382,7 @@ class Field {
     this.metaData = const {},
     this.hidden = false,
     bool viewable = false,
+    this.readOnly,
   }) : cast = FormCast.password(viewable: viewable) {
     if (style == null) return;
 
@@ -408,6 +412,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -444,6 +449,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -480,6 +486,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -516,6 +523,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     required List<String> options,
     BottomModalSheetStyle? bottomModalSheetStyle,
   }) : cast = FormCast.picker(
@@ -548,6 +556,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     bool decimal = false,
   }) : cast = FormCast.number(decimal: decimal) {
     if (style == null) return;
@@ -578,6 +587,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -618,6 +628,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -653,6 +664,7 @@ class Field {
       this.style,
       this.metaData = const {},
       this.hidden = false,
+      this.readOnly,
       TextAreaSize textAreaSize = TextAreaSize.sm})
       : cast = FormCast.textArea(textAreaSize: textAreaSize) {
     if (style == null) return;
@@ -683,6 +695,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     Widget? prefixIcon,
     bool clearable = false,
     Widget? clearIcon,
@@ -719,6 +732,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     MouseCursor? mouseCursor,
     Color? activeColor,
     Color? fillColor,
@@ -807,6 +821,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     MouseCursor? mouseCursor,
     Color? activeColor,
     Color? fillColor,
@@ -895,6 +910,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     TextStyle? dateTextStyle,
     VoidCallback? onTap,
     FocusNode? focusNode,
@@ -958,6 +974,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     TextStyle? dateTextStyle,
     VoidCallback? onTap,
     FocusNode? focusNode,
@@ -1021,6 +1038,7 @@ class Field {
     this.style,
     this.metaData = const {},
     this.hidden = false,
+    this.readOnly,
     required List<dynamic> options,
     Color? backgroundColor,
     Color? selectedColor,
@@ -1109,6 +1127,9 @@ class Field {
 
   /// Hidden field
   bool? hidden = false;
+
+  /// Readonly field
+  bool? readOnly;
 
   /// Hide the field
   hide() {

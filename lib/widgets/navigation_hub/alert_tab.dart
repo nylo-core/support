@@ -82,6 +82,9 @@ class AlertTabState extends NyState<AlertTab> {
 
         if (stateName != null && widget.rememberAlert == true) {
           dynamic alertData = await NyStorage.read(stateName!);
+          if (alertData.runtimeType.toString() != 'bool') {
+            alertData = null;
+          }
 
           if (alertData == null) {
             if (widget.alertEnabled != null) {
