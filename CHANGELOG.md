@@ -1,3 +1,7 @@
+## [6.19.1] - 2025-02-05
+
+* Update pubspec.yaml
+
 ## [6.19.0] - 2025-02-04
 
 * Forms - Ability to set fields as `readOnly`
