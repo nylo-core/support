@@ -159,9 +159,9 @@ class NyFormData {
       return;
     }
     Map<String, dynamic> allDummyData = getDummyData;
-    for (var data in allDummyData.entries) {
-      if (data.value != null) {
-        setFieldValue(data.key, data.value, refreshState: false);
+    for (var dummyData in allDummyData.entries) {
+      if (dummyData.value != null) {
+        setFieldValue(dummyData.key, dummyData.value, refreshState: false);
       }
     }
   }

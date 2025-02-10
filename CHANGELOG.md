@@ -1,3 +1,8 @@
+## [6.19.2] - 2025-02-10
+
+* Fix issue with Forms setting dummyData even if app env is not dev
+* Update pubspec.yaml
+
 ## [6.19.1] - 2025-02-05
 
 * Update pubspec.yaml

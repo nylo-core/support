@@ -308,12 +308,14 @@ class _NyFormState extends NyState<NyForm> {
       }
 
       String? dummyDataValue;
-      Map<String, dynamic> dummyData = widget.form.getDummyData;
-      if (dummyData.containsKey(field.key)) {
-        dummyDataValue = dummyData[field.key];
-        if (dummyDataValue != null && value == null) {
-          widget.form
-              .setFieldValue(field.key, dummyDataValue, refreshState: false);
+      if (Nylo.isEnvDeveloping()) {
+        Map<String, dynamic> dummyData = widget.form.getDummyData;
+        if (dummyData.containsKey(field.key)) {
+          dummyDataValue = dummyData[field.key];
+          if (dummyDataValue != null && value == null) {
+            widget.form
+                .setFieldValue(field.key, dummyDataValue, refreshState: false);
+          }
         }
       }
 

@@ -87,7 +87,7 @@ class NyTextField extends StatefulWidget {
   final DecoratorTextField? decorator;
 
   /// Default Text Field
-  NyTextField(
+  const NyTextField(
       {super.key,
       required this.controller,
       this.labelText,
@@ -162,17 +162,10 @@ class NyTextField extends StatefulWidget {
       this.maskMatch,
       this.maskedReturnValue,
       this.decorator,
-      this.type}) {
-    if (Nylo.isEnvDeveloping()) {
-      String dummyDataValue = dummyData ?? "";
-      if (controller.text.isEmpty && dummyDataValue.isNotEmpty) {
-        controller.text = dummyDataValue;
-      }
-    }
-  }
+      this.type});
 
   /// Compact Text Field
-  NyTextField.compact({
+  const NyTextField.compact({
     super.key,
     this.passwordVisible,
     this.labelText,
@@ -247,17 +240,10 @@ class NyTextField extends StatefulWidget {
     this.maskedReturnValue,
     this.decorator,
     this.type = 'compact',
-  }) : passwordViewable = false {
-    if (Nylo.isEnvDeveloping()) {
-      String dummyDataValue = dummyData ?? "";
-      if (controller.text.isEmpty && dummyDataValue.isNotEmpty) {
-        controller.text = dummyDataValue;
-      }
-    }
-  }
+  }) : passwordViewable = false;
 
   /// Password Text Field
-  NyTextField.password({
+  const NyTextField.password({
     super.key,
     this.passwordVisible,
     this.labelText = "Password",
@@ -333,17 +319,10 @@ class NyTextField extends StatefulWidget {
     this.maskedReturnValue,
     this.decorator,
     this.type = 'password',
-  }) {
-    if (Nylo.isEnvDeveloping()) {
-      String dummyDataValue = dummyData ?? "";
-      if (controller.text.isEmpty && dummyDataValue.isNotEmpty) {
-        controller.text = dummyDataValue;
-      }
-    }
-  }
+  });
 
   /// Email Address Text Field
-  NyTextField.emailAddress({
+  const NyTextField.emailAddress({
     super.key,
     this.labelText = "Email Address",
     required this.controller,
@@ -419,14 +398,7 @@ class NyTextField extends StatefulWidget {
     this.maskedReturnValue,
     this.decorator,
     this.type = 'email-address',
-  }) {
-    if (Nylo.isEnvDeveloping()) {
-      String dummyDataValue = dummyData ?? "";
-      if (controller.text.isEmpty && dummyDataValue.isNotEmpty) {
-        controller.text = dummyDataValue;
-      }
-    }
-  }
+  });
 
   /// Copy with method
   NyTextField copyWith({
@@ -723,6 +695,14 @@ class _NyTextFieldState extends NyState<NyTextField> {
   @override
   void initState() {
     super.initState();
+
+    // if (Nylo.isEnvDeveloping()) {
+    //   String dummyDataValue = widget.dummyData ?? "";
+    //   if (widget.controller.text.isEmpty && dummyDataValue.isNotEmpty) {
+    //     widget.controller.text = dummyDataValue;
+    //   }
+    // }
+
     _obscured = widget.obscureText;
     if (widget.passwordVisible == true) {
       _obscured = true;
