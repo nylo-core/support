@@ -3,14 +3,18 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:nylo_support/localization/app_localization.dart';
 import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
+import 'package:recase/recase.dart';
+
 import '/widgets/form/validation.dart';
 import '/widgets/ny_text_field.dart';
 import 'form/casts.dart';
-export 'form/form.dart';
+
 export 'form/casts.dart';
-export 'form/validation.dart';
+export 'form/form.dart';
 export 'form/form_data.dart';
+export 'form/validation.dart';
 
 /// [FormSubmitCallback] is a typedef that helps in managing form submit callbacks
 typedef FormSubmitCallback = (dynamic, Function(dynamic data))?;
@@ -272,6 +276,7 @@ extension NyFieldStyle on String {
 class Field {
   Field(
     this.key, {
+    this.label,
     this.value,
     FormCast? cast,
     this.validate,
@@ -303,6 +308,7 @@ class Field {
   /// Field.text is a constructor that helps in managing text fields
   Field.text(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -340,6 +346,7 @@ class Field {
   /// Field.currency is a constructor that helps in managing currency fields
   Field.currency(
     this.key, {
+    this.label,
     required String currency,
     this.value,
     this.validate,
@@ -371,6 +378,7 @@ class Field {
   /// Field.password is a constructor that helps in managing password fields
   Field.password(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -402,6 +410,7 @@ class Field {
   /// Field.email is a constructor that helps in managing password fields
   Field.email(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -439,6 +448,7 @@ class Field {
   /// Field.capitalizeWords is a constructor that helps in managing capitalizeWords fields
   Field.capitalizeWords(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -476,6 +486,7 @@ class Field {
   /// Field.capitalizeSentences is a constructor that helps in managing capitalizeSentences fields
   Field.capitalizeSentences(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -513,6 +524,7 @@ class Field {
   /// Field.picker is a constructor that helps in managing picker fields
   Field.picker(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -546,6 +558,7 @@ class Field {
   /// Field.number is a constructor that helps in managing number fields
   Field.number(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -577,6 +590,7 @@ class Field {
   /// Field.mask is a constructor that helps in managing mask fields
   Field.mask(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -618,6 +632,7 @@ class Field {
   /// Field.url is a constructor that helps in managing url fields
   Field.url(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -654,7 +669,8 @@ class Field {
 
   /// Field.textArea is a constructor that helps in managing textArea fields
   Field.textArea(this.key,
-      {this.value,
+      {this.label,
+      this.value,
       this.validate,
       this.autofocus = false,
       this.dummyData,
@@ -685,6 +701,7 @@ class Field {
   /// Field.phoneNumber is a constructor that helps in managing phoneNumber fields
   Field.phoneNumber(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -722,6 +739,7 @@ class Field {
   /// Field.checkbox is a constructor that helps in managing textArea fields
   Field.checkbox(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -811,6 +829,7 @@ class Field {
   /// Field.switchBox is a constructor that helps in managing switch fields
   Field.switchBox(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -900,6 +919,7 @@ class Field {
   /// Field.datetime is a constructor that helps in managing datetime fields
   Field.datetime(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -964,6 +984,7 @@ class Field {
   /// Field.date is a constructor that helps in managing date fields
   Field.date(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -1028,6 +1049,7 @@ class Field {
   /// Field.chips is a constructor that helps in managing chips fields
   Field.chips(
     this.key, {
+    this.label,
     this.value,
     this.validate,
     this.autofocus = false,
@@ -1092,6 +1114,10 @@ class Field {
   /// The key of the field
   String key;
 
+  /// The label of the field
+  /// If the label is not provided, the key will be used as the label
+  String? label;
+
   /// The value of the field
   dynamic value;
 
@@ -1111,7 +1137,7 @@ class Field {
   dynamic style;
 
   /// Get the name of the field
-  String get name => key;
+  String get name => label?.tr() ?? key.titleCase.tr();
 
   /// Get the header of the field
   Widget? header;

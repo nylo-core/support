@@ -17,6 +17,7 @@ class NyFormData {
       if (formField is List) {
         for (Field field in formField) {
           allData.addAll(fieldData(field));
+          _labels[field.key] = field.label;
           _cast[field.key] = field.cast;
           _validate[field.key] = field.validate;
           _dummyData[field.key] = field.dummyData;
@@ -148,6 +149,7 @@ class NyFormData {
       }
 
       _keys.add(formField.key);
+      _labels[formField.key] = formField.label;
     }
 
     if (init != null) {
@@ -181,6 +183,9 @@ class NyFormData {
   /// The grouped items for the form
   final List<List> _groupedItems = [];
 
+  /// The labels for the form
+  final Map<String, String?> _labels = {};
+
   /// The cast for the form
   final Map<String, FormCast?> _cast = {};
 
@@ -210,6 +215,9 @@ class NyFormData {
 
   /// Get the grouped items for the form
   List<List> get groupedItems => _groupedItems;
+
+  /// Get the labels for the form
+  Map<String, String?> get getLabels => _labels;
 
   /// Get the cast data for the form
   Map<String, FormCast?> get getCast => _cast;

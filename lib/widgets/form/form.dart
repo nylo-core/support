@@ -319,6 +319,12 @@ class _NyFormState extends NyState<NyForm> {
         }
       }
 
+      String? label;
+      Map<String, dynamic> labelData = widget.form.getLabels;
+      if (labelData.containsKey(field.key)) {
+        label = labelData[field.key];
+      }
+
       Widget? headerValue;
       Map<String, dynamic> headerData = widget.form.getHeaderData;
       if (headerData.containsKey(field.key)) {
@@ -351,6 +357,7 @@ class _NyFormState extends NyState<NyForm> {
 
       Field nyField = Field(
         field.key,
+        label: label,
         value: value,
         cast: fieldCast,
         autofocus: autofocus,
@@ -399,7 +406,7 @@ class _NyFormState extends NyState<NyForm> {
         return;
       }
       if (data['action'] == 'setValue') {
-        _children = _children.update((child) => child.field.name == data['key'],
+        _children = _children.update((child) => child.field.key == data['key'],
             (child) {
           child.field.value = data['value'];
           return child;
@@ -410,7 +417,7 @@ class _NyFormState extends NyState<NyForm> {
       }
 
       if (data['action'] == 'setOptions') {
-        _children = _children.update((child) => child.field.name == data['key'],
+        _children = _children.update((child) => child.field.key == data['key'],
             (child) {
           if (child.field.cast.type == "picker") {
             child.field.cast.metaData!['options'] = data['value'];
@@ -425,7 +432,7 @@ class _NyFormState extends NyState<NyForm> {
         String field = data['field'];
 
         _children =
-            _children.update((child) => child.field.name == field, (child) {
+            _children.update((child) => child.field.key == field, (child) {
           if (data['action'] == 'hideField') {
             child.field.hide();
             showableFields.remove(field);
@@ -608,7 +615,7 @@ class _NyFormState extends NyState<NyForm> {
       if (test.field.hidden == false) {
         return true;
       }
-      if (showableFields.contains(test.field.name)) {
+      if (showableFields.contains(test.field.key)) {
         return true;
       }
       return false;
@@ -617,7 +624,7 @@ class _NyFormState extends NyState<NyForm> {
     for (List<dynamic> listItems in groupedItems) {
       if (listItems.length == 1) {
         List<NyFormItem> allItems = childrenNotHidden
-            .where((test) => test.field.name == listItems[0])
+            .where((test) => test.field.key == listItems[0])
             .toList();
         if (allItems.isNotEmpty) {
           items.add(allItems.first);
@@ -628,14 +635,14 @@ class _NyFormState extends NyState<NyForm> {
       List<Widget> childrenRowWidgets = [
         for (String action in listItems)
           (childrenNotHidden
-                  .where((test) => test.field.name == action)
+                  .where((test) => test.field.key == action)
                   .isNotEmpty)
               ? Flexible(
                   child: childrenNotHidden
-                          .where((test) => test.field.name == action)
+                          .where((test) => test.field.key == action)
                           .isNotEmpty
                       ? childrenNotHidden
-                          .where((test) => test.field.name == action)
+                          .where((test) => test.field.key == action)
                           .first
                       : const SizedBox.shrink())
               : const SizedBox.shrink()
