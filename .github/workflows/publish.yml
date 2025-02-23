@@ -28,11 +28,12 @@ jobs:
         run: flutter pub publish --dry-run
 
       - name: Publish package
-        uses: k-paxian/dart-package-publisher@v1.5.1
+        uses: k-paxian/dart-package-publisher@master
         with:
           credentialJson: ${{ secrets.CREDENTIAL_SECRET }} 
           flutter: true
           skipTests: true
+          flutterBranch: 6.x
 
       - name: Update nylo.dev
         uses: fjogeleit/http-request-action@v1
