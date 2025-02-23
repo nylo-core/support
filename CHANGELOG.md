@@ -1,3 +1,13 @@
+## [6.19.3] - 2025-02-23
+
+* Fix issue when resetting the `NyPullToRefresh` widget
+* Added new `stateAction()` helper to allow you to send state actions to the `NyState` or `NyPage` class
+* New `whenStateAction(Map<String, Function()> actions)` method added to `NyState` and `NyPage` classes to handle state actions
+  * E.g. `whenStateAction({"showDialog": () => showDialog()})`
+* New `Map<String, Function()> get stateActions => {}` getter added to `NyState` and `NyPage` classes to handle state actions
+  * E.g. `Map<String, Function()> get stateActions => {"showDialog": () => showDialog()};` 
+* Update pubspec.yaml
+
 ## [6.19.2] - 2025-02-10
 
 * Fix issue with Forms setting dummyData even if app env is not dev

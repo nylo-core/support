@@ -52,6 +52,7 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
           if (event.stateName != stateName) return;
 
           await stateUpdated(event.data);
+          await _whenStateAction(event.data);
           setState(() {});
         });
       }
@@ -134,5 +135,21 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
       }
     }
     return view(context);
+  }
+
+  /// Handle a state action for the current state
+  Future _whenStateAction(dynamic data) async {
+    if (data is! Map) {
+      return;
+    }
+
+    if (!(data.containsKey('action'))) {
+      return;
+    }
+
+    String action = data['action'];
+    if (stateActions.containsKey(action)) {
+      await stateActions[action]!();
+    }
   }
 }

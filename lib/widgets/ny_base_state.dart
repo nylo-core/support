@@ -837,6 +837,26 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
         light: light ?? Colors.grey.shade100, dark: dark ?? Colors.black38)!;
   }
 
+  /// Get the state actions
+  Map<String, Function()> get stateActions => _stateActions;
+
+  /// state actions variable
+  Map<String, Function()> _stateActions = {};
+
+  /// Handle what happens when an action is called
+  /// [actions] is a map of actions
+  ///
+  /// E.g.
+  /// whenStateAction({
+  ///  'logout': () async {
+  ///     await Auth.logout();
+  ///     routeToInitial();
+  ///  }
+  ///  });
+  whenStateAction(Map<String, Function()> actions) {
+    _stateActions = actions;
+  }
+
   /// When the theme is in [light] mode, return [light] function, else return [dark] function
   // ignore: avoid_shadowing_type_parameters
   T whenTheme<T>({

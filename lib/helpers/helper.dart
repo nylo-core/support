@@ -390,6 +390,12 @@ void updateState<T>(dynamic name,
   eventBus.fire(event);
 }
 
+/// Send a state action to a [NyState] or [NyPage] in your application.
+/// Provide the [state] and the [action] you want to send.
+stateAction(String action, {required dynamic state}) {
+  updateState(state, data: {"action": action});
+}
+
 /// api helper
 /// Example:
 /// ```dart
