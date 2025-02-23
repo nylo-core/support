@@ -22,7 +22,7 @@ jobs:
         run: flutter pub get
 
       - name: Format code
-        run: dart format --fix .
+        run: dart format .
 
       - name: Check publish warnings
         run: dart pub publish --dry-run
