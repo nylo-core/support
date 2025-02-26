@@ -205,8 +205,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
     if (!data.containsKey('action') || data['action'] == null) return;
 
     if (data["action"] == "reset") {
-      _data = [];
-      _iteration = 1;
+      setLoading(true);
       reboot();
     }
   }
