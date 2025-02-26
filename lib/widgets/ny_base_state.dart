@@ -733,11 +733,12 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// E.g.
   /// confirmAction(() {
   ///  ... perform action
-  ///  }, title: "Confirm Action", dismissText: "Cancel");
+  ///  }, title: "Delete account?", dismissText: "Cancel");
   confirmAction(
     Function() action, {
     required String title,
     String dismissText = "Cancel",
+    String confirmText = "Yes",
     CupertinoThemeData? cupertinoThemeData,
     ThemeData? themeData,
     Color barrierColor = kCupertinoModalBarrierColor,
@@ -798,7 +799,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
                 action();
               },
               child: Text(
-                title,
+                confirmText,
               ),
             ),
             TextButton(

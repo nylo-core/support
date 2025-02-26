@@ -1,3 +1,7 @@
+## [6.19.4] - 2025-02-26
+
+* Update pubspec.yaml
+
 ## [6.19.3] - 2025-02-23
 
 * Fix issue when resetting the `NyPullToRefresh` widget
