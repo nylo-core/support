@@ -2,18 +2,16 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/widgets/navigation_hub/alert_tab.dart';
+import '/widgets/ny_widgets.dart';
+import '/widgets/navigation_hub/alert_tab.dart';
 import '/helpers/extensions.dart';
 import '/local_storage/local_storage.dart';
 import '/widgets/navigation_hub/badge_tab.dart';
 
 import '/helpers/helper.dart';
 import '/router/router.dart';
-import '/widgets/ny_state.dart';
 
-import 'navigation_tab.dart';
-
-abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
+abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
   NavigationHub(this.pages);
 
   /// Generate the pages
@@ -42,6 +40,9 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyState<T> {
 
   /// Get the current index
   int get getCurrentIndex => currentIndex ?? 0;
+
+  @override
+  bool get stateManaged => true;
 
   @override
   get init => () {

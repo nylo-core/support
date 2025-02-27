@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:nylo_support/helpers/ny_color.dart';
 import 'package:nylo_support/helpers/ny_text_style.dart';
 import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
+
 import '/helpers/extensions.dart';
 import '/localization/app_localization.dart';
 import '/widgets/fields/field_base_state.dart';
 import '/widgets/ny_form.dart';
-import 'package:recase/recase.dart';
 
 /// A [NyFormPicker] widget for Form Fields
 class NyFormPicker extends StatefulWidget {
@@ -107,7 +107,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                             left: 0,
                             top: 5,
                             child: Text(
-                              widget.field.name.titleCase.tr(),
+                              widget.field.name,
                               style: TextStyle(
                                   fontSize: 10,
                                   color: color(
@@ -125,7 +125,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                       children: [
                         Flexible(
                           child: Text(
-                            "${"Select".tr()} ${widget.field.name.tr()}",
+                            "${"Select".tr()} ${widget.field.name}",
                             textAlign:
                                 width < 200 ? TextAlign.left : TextAlign.center,
                             maxLines: 2,
@@ -228,7 +228,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      widget.field.name.tr(),
+                      widget.field.name,
                       textAlign: TextAlign.center,
                       style: titleTextStyle,
                     ).paddingOnly(top: 10),

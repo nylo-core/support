@@ -17,6 +17,7 @@ class NyFormData {
       if (formField is List) {
         for (Field field in formField) {
           allData.addAll(fieldData(field));
+          _labels[field.key] = field.label;
           _cast[field.key] = field.cast;
           _validate[field.key] = field.validate;
           _dummyData[field.key] = field.dummyData;
@@ -148,6 +149,7 @@ class NyFormData {
       }
 
       _keys.add(formField.key);
+      _labels[formField.key] = formField.label;
     }
 
     if (init != null) {
@@ -181,6 +183,9 @@ class NyFormData {
   /// The grouped items for the form
   final List<List> _groupedItems = [];
 
+  /// The labels for the form
+  final Map<String, String?> _labels = {};
+
   /// The cast for the form
   final Map<String, FormCast?> _cast = {};
 
@@ -210,6 +215,9 @@ class NyFormData {
 
   /// Get the grouped items for the form
   List<List> get groupedItems => _groupedItems;
+
+  /// Get the labels for the form
+  Map<String, String?> get getLabels => _labels;
 
   /// Get the cast data for the form
   Map<String, FormCast?> get getCast => _cast;
@@ -244,8 +252,10 @@ class NyFormData {
 
   /// StreamController for the form
   StreamController<dynamic>? get updated {
-    return StreamController.broadcast();
+    return _updatedStream;
   }
+
+  StreamController<dynamic>? _updatedStream;
 
   /// Validate the form
   Map<String, dynamic> validate() => _validate;
@@ -267,11 +277,19 @@ class NyFormData {
     _ready.add(true);
   }
 
+  /// Initialize the stream for the form
+  initializeStream() {
+    _updatedStream = StreamController.broadcast();
+  }
+
   /// StreamController for the form to check if it is ready
   final StreamController<bool> _ready = StreamController<bool>.broadcast();
 
   /// Stream for the form
   Stream<bool> get isReady => _ready.stream;
+
+  /// Submit button widget
+  Widget? get submitButton => null;
 
   /// Load data for the form
   initialData(Function() loadData, {bool refreshState = false}) {
@@ -422,6 +440,11 @@ class NyFormData {
     if (lowerCaseKeys == true) {
       Map<String, dynamic> newData = {};
       for (var entry in _data.entries) {
+        // check if it's a widget
+        if (_cast[entry.key]?.type == "widget") {
+          continue;
+        }
+
         newData[entry.key.toLowerCase().replaceAll(" ", "_")] = entry.value;
       }
       return newData;
@@ -441,6 +464,10 @@ class NyFormData {
       // convert all keys to lowercase with underscores
       Map<String, dynamic> newData = {};
       for (var entry in currentData.entries) {
+        if (_cast[entry.key]?.type == "widget") {
+          continue;
+        }
+
         newData[entry.key.toLowerCase().replaceAll(" ", "_")] = entry.value;
       }
       onSuccess(newData);

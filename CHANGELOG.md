@@ -1,3 +1,15 @@
+## [6.20.0] - 2025-02-27
+
+* Added `label` to Forms. E.g. `Field.email('Email', label: 'Email Address')`
+* Added `Radio` to Forms. E.g. `Field.radio("Favourite Color", options: ["Red", "Blue", "Green"])`
+* Added `Widget` to Forms. E.g. `Field.widget(child: MyWidget())`
+* Add `submitButton` to `NyFormData` Read more [here](https://nylo.dev/docs/6.x/forms#submit-button)
+* Add ny_networking.dart, ny_router.dart, ny_alerts.dart, ny_helpers.dart to make it easier to import the different parts of the library
+* Update sleep method to support micro seconds. E.g. `sleep(0, 500)` will sleep for 500 microseconds
+* Small bug fix for `NavigationTab.alerts`
+* Merge PR from [israelins85](https://github.com/nylo-core/support/pull/35)
+* Update pubspec.yaml
+
 ## [6.19.4] - 2025-02-26
 
 * Update pubspec.yaml

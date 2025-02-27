@@ -1,9 +1,10 @@
 import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/formatters/phone_input_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+import 'package:nylo_support/widgets/fields/form_radio.dart';
 import 'package:nylo_support/widgets/fields/form_switch_box.dart';
-import 'package:recase/recase.dart';
 
 import '/helpers/currency_input_matcher.dart';
 import '/helpers/helper.dart';
@@ -59,10 +60,10 @@ class NyFormItem extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    String fieldNameSnakeCase = field.name.snakeCase;
+    String fieldKey = field.key;
     // ignore: prefer_function_declarations_over_variables
     Function(dynamic value)? onChanged = (dynamic value) {
-      updated?.add((fieldNameSnakeCase, value));
+      updated?.add((fieldKey, value));
       this.onChanged!(value);
     };
 
@@ -118,6 +119,24 @@ class NyFormItem extends StatelessWidget {
           onChanged,
         ),
       );
+    }
+
+    // check if the field is a picker field
+    if (field.cast.type == "radio") {
+      return IgnorePointer(
+        ignoring: field.readOnly ?? false,
+        child: NyFormRadio.fromField(
+          field,
+          onChanged,
+        ),
+      );
+    }
+
+    // check if the field is a widget field
+    if (field.cast.type == "widget") {
+      return IgnorePointer(
+          ignoring: field.readOnly ?? false,
+          child: field.cast.metaData!['child'] as Widget);
     }
 
     // check if the field is a chip field

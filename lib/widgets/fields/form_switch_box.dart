@@ -1,9 +1,8 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:nylo_support/localization/app_localization.dart';
+
 import '/widgets/fields/field_base_state.dart';
 import '/widgets/ny_form.dart';
-import 'package:recase/recase.dart';
 
 /// A [NyFormSwitchBox] widget for Form Fields
 class NyFormSwitchBox extends StatefulWidget {
@@ -145,14 +144,14 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
     Widget? title = getFieldMeta('title', null);
 
     title ??= Text(
-      widget.field.name.titleCase.tr(),
+      widget.field.name,
       style: TextStyle(
         color: color(light: Colors.black, dark: Colors.white),
       ),
     );
     if (title is Text && (title.data == null || title.data!.isEmpty)) {
       title = Text(
-        widget.field.name.titleCase.tr(),
+        widget.field.name,
         style: TextStyle(
           color: color(light: Colors.black, dark: Colors.white),
         ),

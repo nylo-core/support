@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/localization/app_localization.dart';
+
 import '/widgets/fields/field_base_state.dart';
 import '/widgets/ny_form.dart';
-import 'package:recase/recase.dart';
 
 /// A [NyFormCheckbox] widget for Form Fields
 class NyFormCheckbox extends StatefulWidget {
@@ -118,15 +117,10 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
   Widget view(BuildContext context) {
     Widget? title = getFieldMeta('title', null);
 
-    title ??= Text(
-      widget.field.name.titleCase.tr(),
-      style: TextStyle(
-        color: color(light: Colors.black, dark: Colors.white),
-      ),
-    );
-    if (title is Text && (title.data == null || title.data!.isEmpty)) {
+    if (title == null ||
+        (title is Text && (title.data == null || title.data!.isEmpty))) {
       title = Text(
-        widget.field.name.titleCase.tr(),
+        widget.field.name,
         style: TextStyle(
           color: color(light: Colors.black, dark: Colors.white),
         ),

@@ -101,6 +101,8 @@ class AlertTabState extends NyState<AlertTab> {
           _alertEnabled = alertData;
           await NyStorage.save(stateName!, _alertEnabled);
           return;
+        } else {
+          _alertEnabled = widget.alertEnabled;
         }
 
         _alertEnabled ??= false;
