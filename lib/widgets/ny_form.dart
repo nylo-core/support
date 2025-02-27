@@ -1,10 +1,13 @@
+import 'dart:math';
+
 import 'package:date_field/date_field.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart' as intl;
-import 'package:nylo_support/localization/app_localization.dart';
-import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
+import '/localization/app_localization.dart';
+import '/widgets/styles/bottom_modal_sheet_style.dart';
+import '/widgets/styles/ny_radio_tile_style.dart';
 import 'package:recase/recase.dart';
 
 import '/widgets/form/validation.dart';
@@ -540,6 +543,53 @@ class Field {
     BottomModalSheetStyle? bottomModalSheetStyle,
   }) : cast = FormCast.picker(
             options: options, bottomModalSheetStyle: bottomModalSheetStyle) {
+    if (style == null) return;
+
+    metaData = {};
+    if (style is String) {
+      style = style;
+      return;
+    }
+    if (style is Map) {
+      style as Map<String, dynamic>;
+      metaData!["decoration_style"] =
+          (style as Map<String, dynamic>).entries.first.value;
+      style = (style as Map<String, dynamic>).entries.first.key;
+    }
+  }
+
+  /// Field.widget is a constructor that helps in managing widget fields
+  Field.widget({required Widget child})
+      : cast = FormCast.widget(
+          child: child,
+        ),
+        autofocus = false {
+    key = _randomKey();
+  }
+
+  /// Generate a random key
+  String _randomKey() {
+    return Random().nextInt(100000).toString();
+  }
+
+  /// Field.radio is a constructor that helps in managing radio fields
+  Field.radio(
+    this.key, {
+    this.label,
+    this.value,
+    this.validate,
+    this.autofocus = false,
+    this.dummyData,
+    this.header,
+    this.footer,
+    this.style,
+    this.metaData = const {},
+    this.hidden = false,
+    this.readOnly,
+    required List<String> options,
+    NyRadioTileStyle? nyRadioTileStyle,
+  }) : cast = FormCast.radio(
+            options: options, nyRadioTileStyle: nyRadioTileStyle) {
     if (style == null) return;
 
     metaData = {};
@@ -1112,7 +1162,7 @@ class Field {
   }
 
   /// The key of the field
-  String key;
+  late String key;
 
   /// The label of the field
   /// If the label is not provided, the key will be used as the label

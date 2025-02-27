@@ -464,9 +464,21 @@ dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
 /// Get the DateTime.now() value.
 DateTime now() => DateTime.now();
 
-/// Sleep for a given amount of seconds.
-sleep(int seconds) async {
-  await Future.delayed(Duration(seconds: seconds));
+/// Delays execution for the specified duration.
+///
+/// Parameters:
+///   [seconds]: Integer seconds to sleep (backward compatible usage)
+///   [microseconds]: Optional microseconds to sleep
+///
+/// Examples:
+///   await sleep(2);                // Sleeps for 2 seconds
+///   await sleep(0, 500);           // Sleeps for 500 microseconds
+///   await sleep(1, 500000);        // Sleeps for 1.5 seconds
+Future<void> sleep(int seconds, [int microseconds = 0]) async {
+  await Future.delayed(Duration(
+    seconds: seconds,
+    microseconds: microseconds,
+  ));
 }
 
 /// Load a json file from the assets folder.

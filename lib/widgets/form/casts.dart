@@ -3,6 +3,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
+import 'package:nylo_support/widgets/styles/ny_radio_tile_style.dart';
 import '/widgets/ny_form.dart';
 
 /// FormCast is a class that helps in managing form casts
@@ -139,6 +140,15 @@ class FormCast {
     metaData['onFocusChange'] = onFocusChange;
     metaData['enableFeedback'] = enableFeedback;
     metaData['checkboxSemanticLabel'] = checkboxSemanticLabel;
+  }
+
+  /// Cast to a widget
+  FormCast.widget({
+    required Widget child,
+  }) {
+    type = "widget";
+    metaData = {};
+    metaData['child'] = child;
   }
 
   /// Cast to a switchBox
@@ -412,6 +422,31 @@ class FormCast {
     metaData['bm_titleTextStyle'] = bottomModalSheetStyle?.titleStyle;
     metaData['bm_itemStyle'] = bottomModalSheetStyle?.itemStyle;
     metaData['bm_clearButtonStyle'] = bottomModalSheetStyle?.clearButtonStyle;
+  }
+
+  /// Cast to a radio
+  FormCast.radio({
+    required List<dynamic> options,
+    NyRadioTileStyle? nyRadioTileStyle,
+  }) {
+    type = "radio";
+    metaData = {};
+    metaData['options'] = options;
+
+    // NyRadioTileStyle
+    metaData['titleStyle'] = nyRadioTileStyle?.titleStyle;
+    metaData['listTileStyle'] = nyRadioTileStyle?.listTileStyle;
+    metaData['hideTitle'] = nyRadioTileStyle?.hideTitle;
+    metaData['tileColor'] = nyRadioTileStyle?.tileColor;
+    metaData['selectedColor'] = nyRadioTileStyle?.selectedColor;
+    metaData['shape'] = nyRadioTileStyle?.shape;
+    metaData['contentPadding'] = nyRadioTileStyle?.contentPadding;
+    metaData['activeColor'] = nyRadioTileStyle?.activeColor;
+    metaData['fillColor'] = nyRadioTileStyle?.fillColor;
+    metaData['hoverColor'] = nyRadioTileStyle?.hoverColor;
+    metaData['overlayColor'] = nyRadioTileStyle?.overlayColor;
+    metaData['splashRadius'] = nyRadioTileStyle?.splashRadius;
+    metaData['mouseCursor'] = nyRadioTileStyle?.mouseCursor;
   }
 
   /// Cast to a chips

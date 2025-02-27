@@ -57,7 +57,7 @@ class NyForm extends StatefulWidget {
       this.onChanged,
       this.validateOnFocusChange = false,
       this.header,
-      this.footer,
+      Widget? footer,
       this.headerSpacing = 10,
       this.footerSpacing = 10,
       @Deprecated('Use loadingStyle instead') this.loading,
@@ -65,6 +65,7 @@ class NyForm extends StatefulWidget {
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
         type = "form",
+        footer = footer ?? form.submitButton,
         loadingStyle = loadingStyle ?? LoadingStyle.skeletonizer(),
         children = null;
 
@@ -88,13 +89,14 @@ class NyForm extends StatefulWidget {
       this.onChanged,
       this.validateOnFocusChange = false,
       this.header,
-      this.footer,
+      Widget? footer,
       this.headerSpacing = 10,
       this.footerSpacing = 10,
       @Deprecated('Use loadingStyle instead') this.loading,
       LoadingStyle? loadingStyle,
       this.locked = false})
       : form = form..setData(initialData ?? {}, refreshState: false),
+        footer = footer ?? form.submitButton,
         loadingStyle = loadingStyle ?? LoadingStyle.skeletonizer(),
         type = "list";
 
@@ -203,14 +205,14 @@ class _NyFormState extends NyState<NyForm> {
 
   @override
   get init => () {
+        widget.form.initializeStream();
+
         widget.form.updated?.stream.listen((data) {
           String fieldSnakeCase = ReCase(data.$1).snakeCase;
           dynamic formData = widget.form.data(lowerCaseKeys: true);
           widget.form.onChange(fieldSnakeCase, formData);
           if (widget.onChanged != null) {
-            setState(() {
-              widget.onChanged!(fieldSnakeCase, formData);
-            });
+            widget.onChanged!(fieldSnakeCase, formData);
           }
         });
 
@@ -368,7 +370,7 @@ class _NyFormState extends NyState<NyForm> {
         readOnly: readOnly,
       );
 
-      NyFormItem formItem = NyFormItem(
+      return NyFormItem(
           field: nyField,
           validationRules: validationRules,
           validationMessage: validationMessage,
@@ -388,8 +390,6 @@ class _NyFormState extends NyState<NyForm> {
             widget.form
                 .setFieldValue(field.key, fieldValue, refreshState: false);
           });
-
-      return formItem;
     }).toList();
   }
 
