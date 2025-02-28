@@ -1,3 +1,7 @@
+## [6.20.1] - 2025-02-28
+
+* Add `ny_future_builder.dart` to `ny_widgets` library
+
 ## [6.20.0] - 2025-02-27
 
 * Added `label` to Forms. E.g. `Field.email('Email', label: 'Email Address')`
