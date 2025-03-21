@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
-import 'package:nylo_support/router/router.dart';
+import '/router/router.dart';
 import '/event_bus/event_bus_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -503,6 +503,16 @@ clearBadgeNumber() async {
   }
   if (Platform.isAndroid || Platform.isIOS) {
     await AppBadgePlus.updateBadge(0);
+  }
+}
+
+/// Set badge number
+setBadgeNumber(int number) async {
+  if (kIsWeb) {
+    return;
+  }
+  if (Platform.isAndroid || Platform.isIOS) {
+    await AppBadgePlus.updateBadge(number);
   }
 }
 

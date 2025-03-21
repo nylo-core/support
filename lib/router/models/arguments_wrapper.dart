@@ -6,6 +6,7 @@ import '/router/page_transition/page_transition.dart';
 class ArgumentsWrapper {
   NyArgument? baseArguments;
   NyQueryParameters? queryParameters;
+  TransitionType? transitionType;
   PageTransitionType? pageTransitionType;
   PageTransitionSettings? pageTransitionSettings;
   String? prefix;
@@ -13,6 +14,7 @@ class ArgumentsWrapper {
   ArgumentsWrapper(
       {this.baseArguments,
       this.queryParameters,
+      this.transitionType,
       this.pageTransitionType,
       this.prefix,
       this.pageTransitionSettings});
@@ -20,10 +22,12 @@ class ArgumentsWrapper {
   ArgumentsWrapper copyWith(
       {NyArgument? baseArguments,
       NyQueryParameters? queryParameters,
+        TransitionType? transitionType,
       PageTransitionType? pageTransitionType}) {
     return ArgumentsWrapper(
         baseArguments: baseArguments ?? this.baseArguments,
         queryParameters: queryParameters ?? this.queryParameters,
+        transitionType: transitionType ?? this.transitionType,
         pageTransitionSettings:
             pageTransitionSettings ?? pageTransitionSettings,
         prefix: prefix,

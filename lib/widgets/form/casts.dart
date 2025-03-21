@@ -2,8 +2,8 @@ import 'package:date_field/date_field.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
-import 'package:nylo_support/widgets/styles/ny_radio_tile_style.dart';
+import '/widgets/styles/bottom_modal_sheet_style.dart';
+import '/widgets/styles/ny_radio_tile_style.dart';
 import '/widgets/ny_form.dart';
 
 /// FormCast is a class that helps in managing form casts

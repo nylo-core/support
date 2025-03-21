@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
+import '/router/page_transition/page_transition.dart';
 import '/router/router.dart';
-import '/router/page_transition/src/enum.dart';
 import '/router/models/ny_argument.dart';
 import 'ny_page_transition_settings.dart';
 import 'ny_query_parameters.dart';
@@ -26,6 +26,7 @@ abstract class RouteGuard {
 ///   AuthRouteGuard();
 ///
 ///   @override
+// ignore: unintended_html_in_doc_comment
 ///   Future<PageRequest?> onRequest(PageRequest pageRequest) async {
 ///
 ///     // Check if user is authenticated
@@ -142,6 +143,7 @@ class RouteData {
   NavigationType navigationType = NavigationType.pushReplace;
   dynamic result;
   bool Function(Route<dynamic> route)? removeUntilPredicate;
+  TransitionType? transitionType;
   PageTransitionSettings? pageTransitionSettings;
   PageTransitionType? pageTransitionType;
   Function(dynamic value)? onPop;
@@ -154,6 +156,7 @@ class RouteData {
       this.removeUntilPredicate,
       this.pageTransitionSettings,
       this.pageTransitionType,
+      this.transitionType,
       this.onPop});
 
   /// Redirect to a new route.
@@ -164,7 +167,10 @@ class RouteData {
         navigationType: navigationType,
         result: result,
         removeUntilPredicate: removeUntilPredicate,
+        transitionType: transitionType,
+        // ignore: deprecated_member_use_from_same_package
         pageTransitionSettings: pageTransitionSettings,
+        // ignore: deprecated_member_use_from_same_package
         pageTransitionType: pageTransitionType,
         onPop: onPop);
   }

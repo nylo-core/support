@@ -3,8 +3,8 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_multi_formatter/formatters/phone_input_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
-import 'package:nylo_support/widgets/fields/form_radio.dart';
-import 'package:nylo_support/widgets/fields/form_switch_box.dart';
+import '/widgets/fields/form_radio.dart';
+import '/widgets/fields/form_switch_box.dart';
 
 import '/helpers/currency_input_matcher.dart';
 import '/helpers/helper.dart';

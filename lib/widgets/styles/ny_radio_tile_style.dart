@@ -1,5 +1,5 @@
 import 'package:flutter/cupertino.dart';
-import 'package:nylo_support/helpers/ny_text_style.dart';
+import '/helpers/ny_text_style.dart';
 import '/helpers/ny_color.dart';
 
 /// NyRadioTileStyle

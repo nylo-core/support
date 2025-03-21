@@ -1,3 +1,12 @@
+## [6.21.0] - 2025-03-21
+
+* Small fix for `BadgeTab`
+* Refactor imports to not include `package:nylo_support`
+* New PageTransitionTypes: scale, rotate, size, rightToLeftWithFade, leftToRightWithFade, leftToRightJoined, rightToLeftJoined, topToBottomJoined, bottomToTopJoined, leftToRightPop, rightToLeftPop, topToBottomPop, bottomToTopPop, sharedAxisHorizontal, sharedAxisVertical, sharedAxisScale
+* New `TransitionType` added for route transitions. E.g. `routeTo(HomePage.path, transitionType: TransitionType.fade())`
+* Ability to `setBadgeNumber` of app icon
+* Update pubspec.yaml
+
 ## [6.20.1] - 2025-02-28
 
 * Add `ny_future_builder.dart` to `ny_widgets` library

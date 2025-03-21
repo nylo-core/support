@@ -96,9 +96,11 @@ class _BadgeTabState extends NyState<BadgeTab> {
 
   @override
   stateUpdated(dynamic data) async {
-    currentCount = data;
-    if (widget.rememberCount == true) {
-      await NyStorage.save(stateName!, data);
+    if (data.runtimeType.toString() == 'int') {
+      currentCount = data;
+      if (widget.rememberCount == true) {
+        await NyStorage.save(stateName!, data);
+      }
     }
   }
 

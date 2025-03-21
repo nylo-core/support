@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/localization/app_localization.dart';
+import '/localization/app_localization.dart';
 import '/helpers/extensions.dart';
 import '/widgets/fields/field_base_state.dart';
 import '/widgets/ny_form.dart';

@@ -1,3 +1,6 @@
+import 'dart:io';
+
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '/nylo.dart';
 import '/helpers/ny_logger.dart';
@@ -311,6 +314,7 @@ class NyRouter {
 
     List<NyRouteGuard> routeGuards = [];
     String? prefix;
+    TransitionType? transitionType;
     PageTransitionType? transition;
     PageTransitionSettings? pageTransitionSettings;
 
@@ -324,6 +328,11 @@ class NyRouter {
       prefix = routeConfig['prefix'] as String;
     }
 
+    if (routeConfig.containsKey('transition_type') &&
+        routeConfig['transition_type'] is TransitionType) {
+      transitionType = routeConfig['transition_type'] as TransitionType;
+    }
+
     if (routeConfig.containsKey('transition') &&
         routeConfig['transition'] is PageTransitionType) {
       transition = routeConfig['transition'] as PageTransitionType;
@@ -333,6 +342,11 @@ class NyRouter {
         routeConfig['transition_settings'] is PageTransitionSettings) {
       pageTransitionSettings =
           routeConfig['transition_settings'] as PageTransitionSettings;
+    }
+
+    if (transitionType != null) {
+      transition = transitionType.pageTransitionType;
+      pageTransitionSettings = transitionType.pageTransitionSettings;
     }
 
     nyRouter.getRegisteredRoutes().forEach((key, NyRouterRoute route) {
@@ -363,21 +377,33 @@ class NyRouter {
 
   /// Add a new route with a [RouteView].
   NyRouterRoute add(RouteView routeView,
-      {PageTransitionType? transition,
+      {TransitionType? transitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+      PageTransitionType? transition,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition settings.\nE.g. TransitionType.fadeIn(curve: Curves.easeIn)')
       PageTransitionSettings? pageTransitionSettings,
       List<NyRouteGuard>? routeGuards,
       bool initialRoute = false,
       bool unknownRoute = false,
       bool authenticatedRoute = false}) {
+    if (transitionType != null) {
+      transition = transitionType.pageTransitionType;
+      pageTransitionSettings = transitionType.pageTransitionSettings;
+    }
+
     NyRouterRoute nyRouterRoute = NyRouterRoute(
-        name: routeView.$1,
-        view: (context) => routeView.$2(context),
-        pageTransitionType: transition,
-        pageTransitionSettings: pageTransitionSettings,
-        routeGuards: routeGuards,
-        initialRoute: initialRoute,
-        unknownRoute: unknownRoute,
-        authPage: authenticatedRoute);
+      name: routeView.$1,
+      view: (context) => routeView.$2(context),
+      transitionType: transitionType,
+      pageTransitionType: transition,
+      pageTransitionSettings: pageTransitionSettings,
+      routeGuards: routeGuards,
+      initialRoute: initialRoute,
+      unknownRoute: unknownRoute,
+      authPage: authenticatedRoute,
+    );
     _addRoute(nyRouterRoute, unknownRoute: unknownRoute);
 
     assert(
@@ -392,15 +418,26 @@ class NyRouter {
 
   /// Add a new route with a widget.
   NyRouterRoute route(String name, NyRouteView view,
-      {PageTransitionType? transition,
+      {TransitionType? transitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+      PageTransitionType? transition,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition settings.\nE.g. TransitionType.fadeIn(curve: Curves.easeIn)')
       PageTransitionSettings? pageTransitionSettings,
       List<NyRouteGuard>? routeGuards,
       bool initialRoute = false,
       bool unknownRoute = false,
       bool authenticatedRoute = false}) {
+    if (transitionType != null) {
+      transition = transitionType.pageTransitionType;
+      pageTransitionSettings = transitionType.pageTransitionSettings;
+    }
+
     NyRouterRoute nyRouterRoute = NyRouterRoute(
       name: name,
       view: view,
+      transitionType: transitionType,
       pageTransitionType: transition,
       pageTransitionSettings: pageTransitionSettings,
       routeGuards: routeGuards,
@@ -546,15 +583,23 @@ class NyRouter {
   ///
   /// [removeUntilPredicate] should be provided if using
   /// [NavigationType.pushAndRemoveUntil] strategy.
-  Future<T> navigate<T>(String name,
-      {NyArgument? args,
-      NavigationType navigationType = NavigationType.push,
-      dynamic result,
-      bool Function(Route<dynamic> route)? removeUntilPredicate,
-      PageTransitionType? pageTransitionType,
-      PageTransitionSettings? pageTransitionSettings}) async {
+  Future<T> navigate<T>(
+    String name, {
+    NyArgument? args,
+    NavigationType navigationType = NavigationType.push,
+    dynamic result,
+    bool Function(Route<dynamic> route)? removeUntilPredicate,
+    TransitionType? transitionType,
+    PageTransitionType? pageTransitionType,
+    PageTransitionSettings? pageTransitionSettings,
+  }) async {
     assert(navigationType != NavigationType.pushAndRemoveUntil ||
         removeUntilPredicate != null);
+
+    if (transitionType != null) {
+      pageTransitionType = transitionType.pageTransitionType;
+      pageTransitionSettings = transitionType.pageTransitionSettings;
+    }
 
     Uri? uriSettingName;
     try {
@@ -799,6 +844,17 @@ class NyRouter {
         Nylo.instance.onDeepLinkAction!(route.name, queryParameters?.data);
       }
 
+      PageTransitionType? pageTransitionType;
+      if (route.pageTransitionType != null) {
+        pageTransitionType = route.pageTransitionType;
+      }
+      if (route.getTransitionType != null) {
+        pageTransitionType = route.getTransitionType?.pageTransitionType;
+      }
+      if (argumentsWrapper.pageTransitionType != null) {
+        pageTransitionType = argumentsWrapper.pageTransitionType;
+      }
+
       return PageTransition(
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -813,8 +869,7 @@ class NyRouter {
           return route!.builder(context, baseArgs ?? route.defaultArgs,
               queryParameters ?? route.queryParameters);
         }),
-        type: argumentsWrapper.pageTransitionType ??
-            (route.pageTransitionType ?? PageTransitionType.rightToLeft),
+        type: pageTransitionType ?? PageTransitionType.rightToLeft,
         settings: settings,
         duration: _getPageTransitionDuration(route, argumentsWrapper),
         alignment: _getPageTransitionAlignment(route, argumentsWrapper),
@@ -891,6 +946,17 @@ class NyRouter {
         Nylo.instance.onDeepLinkAction!(route.name, queryParameters?.data);
       }
 
+      PageTransitionType? pageTransitionType;
+      if (route.pageTransitionType != null) {
+        pageTransitionType = route.pageTransitionType;
+      }
+      if (route.getTransitionType != null) {
+        pageTransitionType = route.getTransitionType?.pageTransitionType;
+      }
+      if (argumentsWrapper.pageTransitionType != null) {
+        pageTransitionType = argumentsWrapper.pageTransitionType;
+      }
+
       return PageTransition(
         child: StatefulBuilder(
             builder: (BuildContext context, StateSetter setState) {
@@ -905,8 +971,7 @@ class NyRouter {
           return route.builder(context, baseArgs ?? route.defaultArgs,
               queryParameters ?? route.queryParameters);
         }),
-        type: argumentsWrapper.pageTransitionType ??
-            (route.pageTransitionType ?? PageTransitionType.rightToLeft),
+        type: pageTransitionType ?? PageTransitionType.rightToLeft,
         settings: settings,
         duration: _getPageTransitionDuration(route, argumentsWrapper),
         alignment: _getPageTransitionAlignment(route, argumentsWrapper),
@@ -926,29 +991,55 @@ class NyRouter {
   /// Used to retrieve the correct Duration value for the [PageTransition] constructor.
   Duration _getPageTransitionDuration(
       NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
-    Duration duration = options.pageTransitionSettings.duration!;
+    Duration? duration = options.pageTransitionSettings.duration;
 
     if (route.pageTransitionSettings?.duration != null) {
-      duration = route.pageTransitionSettings!.duration!;
+      duration = route.pageTransitionSettings?.duration;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.duration != null) {
+      duration = route.getTransitionType!.pageTransitionSettings!.duration!;
     }
     if (argumentsWrapper.pageTransitionSettings?.duration != null) {
-      duration = argumentsWrapper.pageTransitionSettings!.duration!;
+      duration = argumentsWrapper.pageTransitionSettings?.duration;
     }
-    return duration;
+
+    if (kIsWeb) {
+      return const Duration(milliseconds: 200);
+    }
+
+    if (Platform.isIOS && duration == null) {
+      return const Duration(milliseconds: 330);
+    }
+
+    return duration ?? Duration(milliseconds: 270);
   }
 
   /// Used to retrieve the correct ReversedDuration value for the [PageTransition] constructor.
   Duration _getPageTransitionReversedDuration(
       NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
-    Duration duration = options.pageTransitionSettings.reverseDuration!;
+    Duration? duration = options.pageTransitionSettings.reverseDuration;
 
     if (route.pageTransitionSettings?.reverseDuration != null) {
-      duration = route.pageTransitionSettings!.reverseDuration!;
+      duration = route.pageTransitionSettings?.reverseDuration;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.reverseDuration !=
+        null) {
+      duration =
+          route.getTransitionType!.pageTransitionSettings!.reverseDuration!;
     }
     if (argumentsWrapper.pageTransitionSettings?.reverseDuration != null) {
-      duration = argumentsWrapper.pageTransitionSettings!.reverseDuration!;
+      duration = argumentsWrapper.pageTransitionSettings?.reverseDuration;
     }
-    return duration;
+
+    if (kIsWeb) {
+      return const Duration(milliseconds: 200);
+    }
+
+    if (Platform.isIOS && duration == null) {
+      return const Duration(milliseconds: 330);
+    }
+
+    return duration ?? Duration(milliseconds: 270);
   }
 
   /// Used to retrieve the correct ChildCurrent value for the [PageTransition] constructor.
@@ -958,6 +1049,9 @@ class NyRouter {
 
     if (route.pageTransitionSettings?.childCurrent != null) {
       widget = route.pageTransitionSettings!.childCurrent;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.childCurrent != null) {
+      widget = route.getTransitionType!.pageTransitionSettings!.childCurrent!;
     }
     if (argumentsWrapper.pageTransitionSettings?.childCurrent != null) {
       widget = argumentsWrapper.pageTransitionSettings!.childCurrent;
@@ -973,6 +1067,9 @@ class NyRouter {
     if (route.pageTransitionSettings?.context != null) {
       buildContext = route.pageTransitionSettings!.context;
     }
+    if (route.getTransitionType?.pageTransitionSettings?.context != null) {
+      buildContext = route.getTransitionType!.pageTransitionSettings!.context!;
+    }
     if (argumentsWrapper.pageTransitionSettings?.context != null) {
       buildContext = argumentsWrapper.pageTransitionSettings!.context;
     }
@@ -987,6 +1084,9 @@ class NyRouter {
     if (route.pageTransitionSettings?.inheritTheme != null) {
       boolVal = route.pageTransitionSettings!.inheritTheme!;
     }
+    if (route.getTransitionType?.pageTransitionSettings?.inheritTheme != null) {
+      boolVal = route.getTransitionType!.pageTransitionSettings!.inheritTheme!;
+    }
     if (argumentsWrapper.pageTransitionSettings?.inheritTheme != null) {
       boolVal = argumentsWrapper.pageTransitionSettings!.inheritTheme!;
     }
@@ -996,15 +1096,27 @@ class NyRouter {
   /// Used to retrieve the correct Curve value for the [PageTransition] constructor.
   Curve _getPageTransitionCurve(
       NyRouterRoute route, ArgumentsWrapper argumentsWrapper) {
-    Curve curve = options.pageTransitionSettings.curve!;
+    Curve? curve = options.pageTransitionSettings.curve;
 
     if (route.pageTransitionSettings?.curve != null) {
-      curve = route.pageTransitionSettings!.curve!;
+      curve = route.pageTransitionSettings?.curve;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.curve != null) {
+      curve = route.getTransitionType?.pageTransitionSettings?.curve;
     }
     if (argumentsWrapper.pageTransitionSettings?.curve != null) {
-      curve = argumentsWrapper.pageTransitionSettings!.curve!;
+      curve = argumentsWrapper.pageTransitionSettings?.curve;
     }
-    return curve;
+
+    if (kIsWeb) {
+      return Curves.easeInOut;
+    }
+
+    if (Platform.isIOS) {
+      return Curves.easeInOut;
+    }
+
+    return curve ?? Curves.fastOutSlowIn;
   }
 
   /// Used to retrieve the correct Alignment value for the [PageTransition] constructor.
@@ -1014,6 +1126,9 @@ class NyRouter {
 
     if (route.pageTransitionSettings?.alignment != null) {
       alignment = route.pageTransitionSettings!.alignment;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.alignment != null) {
+      alignment = route.getTransitionType!.pageTransitionSettings!.alignment!;
     }
     if (argumentsWrapper.pageTransitionSettings?.alignment != null) {
       alignment = argumentsWrapper.pageTransitionSettings!.alignment;
@@ -1029,6 +1144,11 @@ class NyRouter {
     if (route.pageTransitionSettings?.fullscreenDialog != null) {
       fullscreenDialog = route.pageTransitionSettings!.fullscreenDialog!;
     }
+    if (route.getTransitionType?.pageTransitionSettings?.fullscreenDialog !=
+        null) {
+      fullscreenDialog =
+          route.getTransitionType!.pageTransitionSettings!.fullscreenDialog!;
+    }
     if (argumentsWrapper.pageTransitionSettings?.fullscreenDialog != null) {
       fullscreenDialog =
           argumentsWrapper.pageTransitionSettings!.fullscreenDialog!;
@@ -1043,6 +1163,9 @@ class NyRouter {
 
     if (route.pageTransitionSettings?.opaque != null) {
       opaque = route.pageTransitionSettings!.opaque!;
+    }
+    if (route.getTransitionType?.pageTransitionSettings?.opaque != null) {
+      opaque = route.getTransitionType!.pageTransitionSettings!.opaque!;
     }
     if (argumentsWrapper.pageTransitionSettings?.opaque != null) {
       opaque = argumentsWrapper.pageTransitionSettings!.opaque!;
@@ -1085,9 +1208,9 @@ class NyRouter {
 /// NavigationType.push, NavigationType.pushReplace,
 /// NavigationType.pushAndRemoveUntil or NavigationType.popAndPushNamed
 ///
-/// [pageTransitionType] allows you to assign a transition type for when
-/// navigating to the new route. E.g. [PageTransitionType.fade] or
-/// [PageTransitionType.bottomToTop].
+/// [transitionType] allows you to assign a transition type for when
+/// navigating to the new route. E.g. [TransitionType.fade()] or
+/// [TransitionType.bottomToTop()].
 /// See https://pub.dev/packages/page_transition to learn more.
 routeTo(dynamic routeName,
     {dynamic data,
@@ -1095,12 +1218,22 @@ routeTo(dynamic routeName,
     NavigationType navigationType = NavigationType.push,
     dynamic result,
     bool Function(Route<dynamic> route)? removeUntilPredicate,
-    PageTransitionSettings? pageTransitionSettings,
+    TransitionType? transitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
     PageTransitionType? pageTransitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition settings.\nE.g. TransitionType.fadeIn(curve: Curves.easeIn)')
+    PageTransitionSettings? pageTransitionSettings,
     int? tabIndex,
     Function(dynamic value)? onPop}) async {
   if (routeName is RouteView) {
     routeName = routeName.$1;
+  }
+
+  if (transitionType != null) {
+    pageTransitionType = transitionType.pageTransitionType;
+    pageTransitionSettings = transitionType.pageTransitionSettings;
   }
 
   if (tabIndex != null) {
@@ -1137,8 +1270,13 @@ routeIf(bool condition, dynamic routeName,
     NavigationType navigationType = NavigationType.push,
     dynamic result,
     bool Function(Route<dynamic> route)? removeUntilPredicate,
+    TransitionType? transitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+    PageTransitionType? pageTransitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
     PageTransitionSettings? pageTransitionSettings,
-    PageTransitionType? pageTransition,
     Function(dynamic value)? onPop}) async {
   if (!condition) return;
   await routeTo(routeName,
@@ -1147,20 +1285,29 @@ routeIf(bool condition, dynamic routeName,
       navigationType: navigationType,
       result: result,
       removeUntilPredicate: removeUntilPredicate,
+      transitionType: transitionType,
+      // ignore: deprecated_member_use_from_same_package
       pageTransitionSettings: pageTransitionSettings,
-      pageTransitionType: pageTransition,
+      // ignore: deprecated_member_use_from_same_package
+      pageTransitionType: pageTransitionType,
       onPop: onPop);
 }
 
 /// Navigate to the auth route.
-routeToAuthenticatedRoute(
-    {dynamic data,
-    NavigationType navigationType = NavigationType.pushAndForgetAll,
-    dynamic result,
-    bool Function(Route<dynamic> route)? removeUntilPredicate,
-    PageTransitionSettings? pageTransitionSettings,
-    PageTransitionType? pageTransitionType,
-    Function(dynamic value)? onPop}) async {
+routeToAuthenticatedRoute({
+  dynamic data,
+  NavigationType navigationType = NavigationType.pushAndForgetAll,
+  dynamic result,
+  bool Function(Route<dynamic> route)? removeUntilPredicate,
+  TransitionType? transitionType,
+  @Deprecated(
+      'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+  PageTransitionType? pageTransitionType,
+  @Deprecated(
+      'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+  PageTransitionSettings? pageTransitionSettings,
+  Function(dynamic value)? onPop,
+}) async {
   NyArgument nyArgument = NyArgument(data);
   String? route = NyNavigator.instance.router.getAuthRouteName();
   if (route == null) {
@@ -1173,6 +1320,7 @@ routeToAuthenticatedRoute(
           navigationType: navigationType,
           result: result,
           removeUntilPredicate: removeUntilPredicate,
+          transitionType: transitionType,
           pageTransitionType: pageTransitionType,
           pageTransitionSettings: pageTransitionSettings)
       .then((v) => onPop != null ? onPop(v) : (v) {});
@@ -1184,8 +1332,13 @@ routeToInitial(
     NavigationType navigationType = NavigationType.pushAndForgetAll,
     dynamic result,
     bool Function(Route<dynamic> route)? removeUntilPredicate,
-    PageTransitionSettings? pageTransitionSettings,
+    TransitionType? transitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
     PageTransitionType? pageTransitionType,
+    @Deprecated(
+        'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
+    PageTransitionSettings? pageTransitionSettings,
     Function(dynamic value)? onPop}) async {
   NyArgument nyArgument = NyArgument(data);
   String route = NyNavigator.instance.router.getInitialRouteName();
@@ -1196,6 +1349,7 @@ routeToInitial(
           navigationType: navigationType,
           result: result,
           removeUntilPredicate: removeUntilPredicate,
+          transitionType: transitionType,
           pageTransitionType: pageTransitionType,
           pageTransitionSettings: pageTransitionSettings)
       .then((v) => onPop != null ? onPop(v) : (v) {});

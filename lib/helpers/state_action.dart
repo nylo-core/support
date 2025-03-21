@@ -1,5 +1,5 @@
-import 'package:nylo_support/helpers/extensions.dart';
-import 'package:nylo_support/router/router.dart';
+import '/helpers/extensions.dart';
+import '/router/router.dart';
 
 import '/alerts/toast_enums.dart';
 import 'helper.dart';

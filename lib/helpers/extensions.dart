@@ -691,8 +691,13 @@ extension NySingleChildRenderObjectWidget on SingleChildRenderObjectWidget {
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
-      PageTransitionSettings? pageTransitionSettings,
+      TransitionType? transitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
       PageTransitionType? pageTransitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition settings.\nE.g. TransitionType.fadeIn(curve: Curves.easeIn)')
+      PageTransitionSettings? pageTransitionSettings,
       Function(dynamic value)? onPop}) {
     if (routeName is RouteView) {
       routeName = routeName.name;
@@ -704,7 +709,10 @@ extension NySingleChildRenderObjectWidget on SingleChildRenderObjectWidget {
             navigationType: navigationType,
             result: result,
             removeUntilPredicate: removeUntilPredicate,
+            transitionType: transitionType,
+            // ignore: deprecated_member_use_from_same_package
             pageTransitionSettings: pageTransitionSettings,
+            // ignore: deprecated_member_use_from_same_package
             pageTransitionType: pageTransitionType,
             onPop: onPop);
       },
@@ -802,8 +810,13 @@ extension NyStatelessWidget on StatelessWidget {
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
-      PageTransitionSettings? pageTransitionSettings,
+      TransitionType? transitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition type.\nE.g. TransitionType.fadeIn()')
       PageTransitionType? pageTransitionType,
+      @Deprecated(
+          'Use transitionType instead to specify the page transition settings.\nE.g. TransitionType.fadeIn(curve: Curves.easeIn)')
+      PageTransitionSettings? pageTransitionSettings,
       Function(dynamic value)? onPop}) {
     if (routeName is RouteView) {
       routeName = routeName.name;
@@ -816,7 +829,10 @@ extension NyStatelessWidget on StatelessWidget {
             navigationType: navigationType,
             result: result,
             removeUntilPredicate: removeUntilPredicate,
+            transitionType: transitionType,
+            // ignore: deprecated_member_use_from_same_package
             pageTransitionSettings: pageTransitionSettings,
+            // ignore: deprecated_member_use_from_same_package
             pageTransitionType: pageTransitionType,
             onPop: onPop);
       },
@@ -2418,6 +2434,7 @@ extension RouteViewExt on RouteView {
       NavigationType navigationType = NavigationType.push,
       dynamic result,
       bool Function(Route<dynamic> route)? removeUntilPredicate,
+      TransitionType? transitionType,
       PageTransitionSettings? pageTransitionSettings,
       PageTransitionType? pageTransitionType,
       Function(dynamic value)? onPop}) {
@@ -2427,7 +2444,10 @@ extension RouteViewExt on RouteView {
         navigationType: navigationType,
         result: result,
         removeUntilPredicate: removeUntilPredicate,
+        transitionType: transitionType,
+        // ignore: deprecated_member_use_from_same_package
         pageTransitionSettings: pageTransitionSettings,
+        // ignore: deprecated_member_use_from_same_package
         pageTransitionType: pageTransitionType,
         onPop: onPop);
   }

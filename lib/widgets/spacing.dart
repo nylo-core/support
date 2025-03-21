@@ -1,26 +1,47 @@
 import 'package:flutter/material.dart';
 
-/// Simple way to add spacing between widgets.
+/// A utility widget that creates consistent spacing between UI elements.
+///
+/// The [Spacing] class provides a clean way to add vertical or horizontal
+/// spacing between widgets without manually creating [SizedBox] instances.
+/// It supports two direction types and can be easily used within any widget tree.
+///
+/// Example usage:
+/// ```dart
+/// Column(
+///   children: [
+///     Text('First item'),
+///     Spacing.vertical(16), // 16 logical pixels of vertical space
+///     Text('Second item'),
+///   ],
+/// )
+/// ```
 class Spacing extends StatelessWidget {
-  const Spacing.vertical(double value, {super.key})
-      : _value = value,
-        _type = "vertical";
+  /// Creates vertical spacing with the specified [height].
+  ///
+  /// The [height] parameter defines the amount of vertical space in logical pixels.
+  const Spacing.vertical(double height, {super.key})
+      : _height = height,
+        _width = null;
 
-  const Spacing.horizontal(double value, {super.key})
-      : _value = value,
-        _type = "horizontal";
+  /// Creates horizontal spacing with the specified [width].
+  ///
+  /// The [width] parameter defines the amount of horizontal space in logical pixels.
+  const Spacing.horizontal(double width, {super.key})
+      : _width = width,
+        _height = null;
 
-  final String _type;
-  final double? _value;
+  /// The width of horizontal spacing (null for vertical spacing).
+  final double? _width;
+
+  /// The height of vertical spacing (null for horizontal spacing).
+  final double? _height;
 
   @override
   Widget build(BuildContext context) {
-    if (_type == "horizontal") {
-      return SizedBox(width: _value);
-    }
-    if (_type == "vertical") {
-      return SizedBox(height: _value);
-    }
-    throw Exception("Invalid spacing type");
+    return SizedBox(
+      width: _width,
+      height: _height,
+    );
   }
 }

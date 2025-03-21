@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/helpers/ny_color.dart';
-import 'package:nylo_support/helpers/ny_text_style.dart';
-import 'package:nylo_support/widgets/styles/bottom_modal_sheet_style.dart';
+import '/helpers/ny_color.dart';
+import '/helpers/ny_text_style.dart';
+import '/widgets/styles/bottom_modal_sheet_style.dart';
 
 import '/helpers/extensions.dart';
 import '/localization/app_localization.dart';

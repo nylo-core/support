@@ -24,6 +24,8 @@ class NyRouterRoute {
   final NyArgument? defaultArgs;
   final NyQueryParameters? queryParameters;
   final NyRouteView view;
+  TransitionType? _transitionType;
+  TransitionType? get getTransitionType => _transitionType;
   PageTransitionType? pageTransitionType;
   PageTransitionSettings? pageTransitionSettings;
   bool _initialRoute, _authPage, _unknownRoute;
@@ -35,6 +37,7 @@ class NyRouterRoute {
       this.defaultArgs,
       this.queryParameters,
       List<RouteGuard>? routeGuards,
+      TransitionType? transitionType,
       this.pageTransitionType,
       this.pageTransitionSettings,
       initialRoute = false,
@@ -42,7 +45,8 @@ class NyRouterRoute {
       authPage = false})
       : _initialRoute = initialRoute,
         _unknownRoute = unknownRoute,
-        _authPage = authPage {
+        _authPage = authPage,
+        _transitionType = transitionType {
     _routeGuards.addAll(routeGuards ?? []);
     builder = (context, arg, queryParameters) {
       Widget widget = view(context);
@@ -61,6 +65,13 @@ class NyRouterRoute {
       }
       return widget;
     };
+  }
+
+  /// Add a transition type to the route.
+  NyRouterRoute transitionType(TransitionType transitionType) {
+    _transitionType = transitionType;
+    NyNavigator.instance.router.updateRoute(this);
+    return this;
   }
 
   /// Add a transition to the route.

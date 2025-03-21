@@ -436,8 +436,6 @@ class PushNotification {
           notificationDetails,
           androidScheduleMode:
               androidScheduleMode ?? AndroidScheduleMode.exactAllowWhileIdle,
-          uiLocalNotificationDateInterpretation:
-              UILocalNotificationDateInterpretation.absoluteTime,
           payload: _payload,
         );
       });

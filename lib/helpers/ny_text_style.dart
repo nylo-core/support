@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/helpers/ny_color.dart';
+import '/helpers/ny_color.dart';
 
 /// Helper to define text styles
 class NyTextStyle {
