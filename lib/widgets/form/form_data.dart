@@ -280,6 +280,7 @@ class NyFormData {
   /// Initialize the stream for the form
   initializeStream() {
     _updatedStream = StreamController.broadcast();
+    return _updatedStream;
   }
 
   /// StreamController for the form to check if it is ready

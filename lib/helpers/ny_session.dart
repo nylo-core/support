@@ -1,6 +1,15 @@
 import 'backpack.dart';
 
-NySession session(String name) => NySession(name: name);
+/// Create a new session
+NySession session(String name, [Map<String, dynamic> items = const {}]) {
+  NySession nySession = NySession(name: name);
+  if (items.isNotEmpty) {
+    for (MapEntry key in items.entries) {
+      nySession.add(key.key, key.value);
+    }
+  }
+  return nySession;
+}
 
 class NySession {
   String name;
@@ -36,7 +45,11 @@ class NySession {
   }
 
   /// Get all the session data
-  Map<String, dynamic>? data() {
-    return Backpack.instance.sessionData(name);
+  Map<String, dynamic>? data([String? key]) {
+    Map<String, dynamic>? sessionData = Backpack.instance.sessionData(name);
+    if (key != null) {
+      return {key: sessionData?[key]};
+    }
+    return sessionData;
   }
 }

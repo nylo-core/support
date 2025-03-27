@@ -1,3 +1,10 @@
+## [6.22.0] - 2025-03-27
+
+* Update: `session` helper to support 'items'. E.g. `session('onboarding', {"first_name": "john"})`, now session will contain `{"first_name": "john"}`
+* Update: `session` helper 'data' method to support `data([String? key])` to get the session data. E.g. `session('onboarding').data('first_name')`
+* Fix: Cannot add new events after calling close in NyForm [231](https://github.com/nylo-core/nylo/issues/231)
+* Update pubspec.yaml
+
 ## [6.21.0] - 2025-03-21
 
 * Small fix for `BadgeTab`

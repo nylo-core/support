@@ -45,6 +45,7 @@ class NyFormItem extends StatelessWidget {
   final Function(dynamic value)? onChanged;
   final NyTextField Function(NyTextField nyTextField)? style;
   final bool validateOnFocusChange;
+  final StreamController? updated;
 
   /// Returns the textEditingController for the form item
   TextEditingController get textEditingController {
@@ -56,14 +57,14 @@ class NyFormItem extends StatelessWidget {
     return controller;
   }
 
-  final StreamController<dynamic>? updated;
-
   @override
   Widget build(BuildContext context) {
     String fieldKey = field.key;
     // ignore: prefer_function_declarations_over_variables
     Function(dynamic value)? onChanged = (dynamic value) {
-      updated?.add((fieldKey, value));
+      if (!(updated?.isClosed ?? true)) {
+        updated?.add((fieldKey, value));
+      }
       this.onChanged!(value);
     };
 

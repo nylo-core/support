@@ -190,6 +190,7 @@ class NyForm extends StatefulWidget {
 class _NyFormState extends NyState<NyForm> {
   List<NyFormItem> _children = [];
   dynamic initialFormData;
+  StreamController? _updatedStream;
 
   _NyFormState(NyFormData form) {
     stateName = "form_${form.stateName}";
@@ -198,16 +199,14 @@ class _NyFormState extends NyState<NyForm> {
   @override
   void dispose() {
     super.dispose();
-    widget.form.updated?.close();
+    _updatedStream?.close();
   }
-
-  bool runOnce = true;
 
   @override
   get init => () {
-        widget.form.initializeStream();
+        _updatedStream = widget.form.initializeStream();
 
-        widget.form.updated?.stream.listen((data) {
+        _updatedStream?.stream.listen((data) {
           String fieldSnakeCase = ReCase(data.$1).snakeCase;
           dynamic formData = widget.form.data(lowerCaseKeys: true);
           widget.form.onChange(fieldSnakeCase, formData);
@@ -380,7 +379,7 @@ class _NyFormState extends NyState<NyForm> {
           fieldStyle: fieldStyle,
           formStyle: nyFormStyle,
           style: style,
-          updated: widget.form.updated,
+          updated: _updatedStream,
           onChanged: (dynamic fieldValue) {
             if (fieldValue is DateTime) {
               widget.form

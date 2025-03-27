@@ -22,7 +22,7 @@ class ArgumentsWrapper {
   ArgumentsWrapper copyWith(
       {NyArgument? baseArguments,
       NyQueryParameters? queryParameters,
-        TransitionType? transitionType,
+      TransitionType? transitionType,
       PageTransitionType? pageTransitionType}) {
     return ArgumentsWrapper(
         baseArguments: baseArguments ?? this.baseArguments,
