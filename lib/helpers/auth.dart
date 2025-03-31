@@ -51,7 +51,9 @@ class Auth {
     }
     await NyStorage.saveJson(
       key(),
-      data,
+      data ??= {
+        "date": DateTime.now().toIso8601String(),
+      },
       inBackpack: true,
     );
   }

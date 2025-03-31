@@ -6,7 +6,6 @@ import '/helpers/model.dart';
 import '/helpers/ny_logger.dart';
 import '/helpers/backpack.dart';
 import '/helpers/helper.dart';
-import '/nylo.dart';
 
 /// Storage configuration for Nylo.
 /// You can set the storage options for each platform.
@@ -91,7 +90,7 @@ class NyStorage {
       return await manager().write(key: key, value: jsonEncode(json));
     } on NoSuchMethodError catch (_) {
       NyLogger.error(
-          '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
+          '[NyStorage.save] ${object.runtimeType.toString()} model needs to implement the toJson() method.');
     }
   }
 
@@ -103,18 +102,14 @@ class NyStorage {
 
     try {
       await manager().write(key: "${key}_runtime_type", value: "json");
-      if (object == null && key == Nylo.authKey()) {
-        return await manager().write(
-            key: key,
-            value: jsonEncode({
-              "date": DateTime.now().toIso8601String(),
-            }));
-      }
-      return await manager().write(key: key, value: jsonEncode(object));
+      return await manager().write(
+        key: key,
+        value: jsonEncode(object),
+      );
     } on Exception catch (e) {
       NyLogger.error(e.toString());
       NyLogger.error(
-          '[NyStorage.store] Failed to store $object to local storage. Please ensure that the object is a valid JSON object.');
+          '[NyStorage.saveJson] Failed to save $object to local storage. Please ensure that the object is a valid JSON object.');
     }
   }
 

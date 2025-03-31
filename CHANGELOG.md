@@ -1,3 +1,7 @@
+## [6.22.1] - 2025-03-31
+
+* Fix: `Auth.authenticate` method not setting the correct object data for the `Backpack` class
+
 ## [6.22.0] - 2025-03-27
 
 * Update: `session` helper to support 'items'. E.g. `session('onboarding', {"first_name": "john"})`, now session will contain `{"first_name": "john"}`
