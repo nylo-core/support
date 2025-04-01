@@ -1,3 +1,9 @@
+## [6.23.0] - 2025-04-01
+
+* Added: `toTimestamp()` helper for `DateTime` to convert to a timestamp
+* Tidy: `NyTextField` class
+* Fix: `NyPage` stateName if not given correct closure name
+ 
 ## [6.22.1] - 2025-03-31
 
 * Fix: `Auth.authenticate` method not setting the correct object data for the `Backpack` class

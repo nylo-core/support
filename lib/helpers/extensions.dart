@@ -301,6 +301,12 @@ extension NyDateTime on DateTime? {
     return toDateString(format: format);
   }
 
+  /// Format [DateTime] to Unix timestamp
+  String? toTimestamp() {
+    if (this == null) return null;
+    return this!.millisecondsSinceEpoch.toString();
+  }
+
   /// Format [DateTime] to toTimeString - HH:mm or HH:mm:ss
   String? toTimeString({bool withSeconds = false}) {
     if (this == null) return null;

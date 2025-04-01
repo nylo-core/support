@@ -696,13 +696,6 @@ class _NyTextFieldState extends NyState<NyTextField> {
   void initState() {
     super.initState();
 
-    // if (Nylo.isEnvDeveloping()) {
-    //   String dummyDataValue = widget.dummyData ?? "";
-    //   if (widget.controller.text.isEmpty && dummyDataValue.isNotEmpty) {
-    //     widget.controller.text = dummyDataValue;
-    //   }
-    // }
-
     _obscured = widget.obscureText;
     if (widget.passwordVisible == true) {
       _obscured = true;
