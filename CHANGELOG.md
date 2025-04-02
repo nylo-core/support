@@ -1,3 +1,7 @@
+## [6.24.0] - 2025-04-02
+
+* Merge PR contribution from [voytech-net](https://github.com/voytech-net) #37 
+
 ## [6.23.0] - 2025-04-01
 
 * Added: `toTimestamp()` helper for `DateTime` to convert to a timestamp

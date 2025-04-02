@@ -156,7 +156,10 @@ class NyBaseApiService {
   /// You can return a different value using this callback.
   handleResponse<T>(Response response,
       {Function(Response response)? handleSuccess}) {
-    bool wasSuccessful = response.statusCode >= 200 && response.statusCode < 300;
+    bool wasSuccessful = false;
+    if (response.statusCode != null) {
+      wasSuccessful = response.statusCode! >= 200 && response.statusCode! < 300;
+    }
 
     if (wasSuccessful == true && handleSuccess != null) {
       return handleSuccess(response);
