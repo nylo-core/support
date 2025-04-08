@@ -240,6 +240,7 @@ class DioApiService {
       }
       if (await shouldRefreshToken()) {
         await refreshToken(Dio());
+        bearerToken = await getRefreshedToken();
       }
 
       if (bearerToken != null) {
@@ -438,6 +439,11 @@ class DioApiService {
   /// You can use this to perform a request without affecting the
   /// original [Dio] instance.
   refreshToken(Dio dio) async {}
+
+  /// Fetches refreshed token
+  getRefreshedToken() async {
+    return null;
+  }
 
   /// Check if the users auth token should be refreshed.
   /// This method is called before every request.
