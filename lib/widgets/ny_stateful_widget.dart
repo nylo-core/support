@@ -52,10 +52,20 @@ abstract class NyStatefulWidget<T extends BaseController>
   }
 
   /// Returns query params
-  dynamic queryParameters() {
+  dynamic queryParameters({String? key}) {
     if (this.controller.request == null) {
       return null;
     }
-    return this.controller.request!.queryParameters();
+    return this.controller.request!.queryParameters(key: key);
+  }
+
+  /// Check if the [queryParameters] contains a specific key.
+  bool hasQueryParameter(String key) {
+    final queryParametersData = queryParameters();
+    if (queryParametersData == null) return false;
+    if (queryParametersData is Map) {
+      return queryParametersData.containsKey(key);
+    }
+    return false;
   }
 }

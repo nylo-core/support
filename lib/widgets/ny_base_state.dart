@@ -106,6 +106,16 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     return null;
   }
 
+  /// Check if the [queryParameters] contains a specific key.
+  bool hasQueryParameter(String key) {
+    final queryParametersData = queryParameters();
+    if (queryParametersData == null) return false;
+    if (queryParametersData is Map) {
+      return queryParametersData.containsKey(key);
+    }
+    return false;
+  }
+
   /// When you call [updateState], this method will be called within your
   /// State. The [data] parameter will contain any data passed from the
   /// updateState method.

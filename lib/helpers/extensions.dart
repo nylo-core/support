@@ -2413,6 +2413,21 @@ extension RouteViewExt on RouteView {
     return path;
   }
 
+  /// Add query parameters to the path.
+  String withQueryParams(Map<String, dynamic> args) {
+    String path = this.$1;
+    // build the query string
+    String queryString =
+        args.entries.map((entry) => "${entry.key}=${entry.value}").join("&");
+    // add the query string to the path
+    if (path.contains("?")) {
+      path = path.replaceAll("?", "?$queryString&");
+    } else {
+      path = "$path?$queryString";
+    }
+    return path;
+  }
+
   /// Get the state name of the route.
   String stateName() {
     String fullPath = this.$2.toString();

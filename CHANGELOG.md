@@ -1,3 +1,12 @@
+## [6.25.0] - 2025-04-08
+
+* Added: `makeCommand` to MetroService class. This will allow you to create a custom command in your project.
+* Added: `addPackages` method to MetroService
+* Added: `dev` parameter to `addPackages` and `addPackage` methods
+* Added: `withQueryParams` to RouteView class
+* Added: `hasQueryParameter(String key)` to NyState class. This will allow you to check if a query parameter exists in the current route.
+* Update: `runProcess` to connect all streams to the process
+
 ## [6.24.0] - 2025-04-02
 
 * Merge PR contribution from [voytech-net](https://github.com/voytech-net) #37 

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 import '/metro/constants/strings.dart';
 import '/metro/metro_console.dart';
@@ -37,7 +38,6 @@ class MetroService {
     }
 
     argumentsForAction.removeAt(0);
-
     await nyCommand.action!(argumentsForAction);
   }
 
@@ -327,19 +327,49 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
   }
 
   /// Runs a process
-  static runProcess(String command) async {
+  static Future<int> runProcess(String command) async {
     List<String> commands = command.split(" ");
 
     final processArguments = commands.getRange(1, commands.length).toList();
-    final process = await Process.start(commands.first, processArguments,
-        runInShell: false);
-    await stdout.addStream(process.stdout);
-    await stderr.addStream(process.stderr);
+
+    final process =
+        await Process.start(commands.first, processArguments, runInShell: true);
+
+    // Connect all streams
+    process.stdout.pipe(stdout);
+    process.stderr.pipe(stderr);
+    stdin.pipe(process.stdin); // This pipes stdin to the child process
+
+    final exitCode = await process.exitCode;
+
+    if (exitCode != 0) {
+      MetroConsole.writeInRed("Error: $exitCode");
+    }
+
+    return exitCode;
   }
 
   /// Add a package to your pubspec.yaml file.
-  static addPackage(String package) async {
-    await runProcess("dart pub add $package");
+  static addPackage(String package, {String? version, bool dev = false}) async {
+    String command = "dart pub add";
+    if (dev) {
+      command += " --dev";
+    }
+    command += " $package";
+    if (version != null) {
+      command += ":$version";
+    }
+    await runProcess(command);
+  }
+
+  /// Add a packages to your pubspec.yaml file.
+  static addPackages(List<String> packages, {bool dev = false}) async {
+    String command = "dart pub add";
+    if (dev) {
+      command += " --dev";
+    }
+    command += " ${packages.join(" ")}";
+    await runProcess(command);
   }
 
   /// Creates a new Model.
@@ -442,6 +472,63 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
     await _createNewFile(filePath, value, onSuccess: () {
       MetroConsole.writeInGreen('[Config] ${name.snakeCase} created 🎉');
     });
+  }
+
+  /// Creates a new command file.
+  static makeCommand(String commandName, String value,
+      {String folderPath = commandsFolder,
+      bool forceCreate = false,
+      String? creationPath,
+      String? category}) async {
+    String name = commandName.replaceAll(RegExp(r'(_?command)'), "");
+    ReCase nameReCase = ReCase(name);
+
+    // create missing directories in the project
+    await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // Check custom_commands.json file exists
+    String customCommandsFilePath = "$folderPath/custom_commands.json";
+    if (!await hasFile(customCommandsFilePath)) {
+      await _createNewFile(customCommandsFilePath, "[]");
+    }
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath, className: name, creationPath: creationPath);
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value, onSuccess: () async {
+      MetroConsole.writeInGreen('[Command] ${name.snakeCase} created 🎉');
+    });
+
+    // Add to custom_commands.json
+    String commandJson = jsonEncode({
+      "name": nameReCase.snakeCase,
+      "category": category ?? "app",
+      "script": "${nameReCase.snakeCase}.dart"
+    });
+
+    try {
+      File file = File(customCommandsFilePath);
+
+      String customCommandsFile = await loadAsset(customCommandsFilePath);
+
+      List<dynamic> commands = jsonDecode(customCommandsFile);
+      if (!commands.any((command) => command["name"] == nameReCase.snakeCase)) {
+        commands.add(jsonDecode(commandJson));
+      }
+      String updatedCommands = jsonEncode(commands);
+
+      // format json file
+      String formattedJson = const JsonEncoder.withIndent('  ')
+          .convert(jsonDecode(updatedCommands));
+
+      await file.writeAsString(formattedJson);
+    } catch (e) {
+      MetroConsole.writeInRed(
+          '[Command] ${name.snakeCase} failed to create command: $e');
+      return;
+    }
   }
 
   /// Creates a new Stateful Widget.
@@ -919,11 +1006,86 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
                 forceCreate: (hasForceFlag ?? false));
             break;
           }
+        case commandsFolder:
+          {
+            if (templateName.contains("_command")) {
+              templateName = templateName.replaceAll("_command", "");
+            }
+            String category = 'app';
+            if (template.options.containsKey('category')) {
+              category = template.options['category'];
+            }
+            await makeCommand(templateName, template.stub,
+                forceCreate: (hasForceFlag ?? false), category: category);
+            break;
+          }
         default:
           {
             continue;
           }
       }
+    }
+  }
+
+  /// Discovers custom commands from a JSON file.
+  static Future<List<NyCommand>> discoverCustomCommands() async {
+    try {
+      final configFile = File('lib/app/commands/custom_commands.json');
+      if (await configFile.exists()) {
+        final jsonStr = await configFile.readAsString();
+        final List<dynamic> commandConfigs = jsonDecode(jsonStr);
+
+        // Remove any duplicate commands from commandConfigs
+        final Set<String> commandNames = {};
+        commandConfigs.removeWhere((config) {
+          final name = config['name'];
+          if (commandNames.contains(name)) {
+            return true; // Remove duplicate
+          } else {
+            commandNames.add(name);
+            return false; // Keep unique
+          }
+        });
+
+        // List of commands
+        List<NyCommand> allCommands = commandConfigs.map<NyCommand>((config) {
+          assert(config['name'] != null,
+              'Command "name" is required in custom_commands.json');
+          assert(config['script'] != null,
+              'Command "script" is required in custom_commands.json');
+          return NyCommand(
+            name: config['name'],
+            category:
+                config.containsKey('category') ? config['category'] : "app",
+            action: (args) => _executeCommandScript(config['script'], args),
+          );
+        }).toList();
+
+        // Sort commands by category
+        allCommands.sort((a, b) {
+          if (a.category == b.category) {
+            return (a.name ?? "").compareTo(b.name ?? "");
+          }
+          return (a.category ?? "").compareTo(b.category ?? "");
+        });
+
+        return allCommands;
+      }
+    } catch (e) {
+      MetroConsole.writeInRed(
+          'Error loading custom commands: $e\n\nMake sure to create a custom_commands.json file in the lib/app/commands directory.');
+    }
+    return [];
+  }
+
+  /// Executes a command script.
+  static Future<void> _executeCommandScript(
+      String scriptPath, List<String> args) async {
+    final script = File('lib/app/commands/$scriptPath');
+    if (await script.exists()) {
+      await runProcess('dart run ${script.path} ${args.join(' ')}');
+    } else {
+      MetroConsole.writeInRed('Command script not found: $scriptPath');
     }
   }
 }

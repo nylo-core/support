@@ -1206,7 +1206,8 @@ class NyRouter {
 ///
 /// [navigationType] can be assigned with the following:
 /// NavigationType.push, NavigationType.pushReplace,
-/// NavigationType.pushAndRemoveUntil or NavigationType.popAndPushNamed
+/// NavigationType.pushAndRemoveUntil, NavigationType.popAndPushNamed or
+/// NavigationType.pushAndForgetAll.
 ///
 /// [transitionType] allows you to assign a transition type for when
 /// navigating to the new route. E.g. [TransitionType.fade()] or

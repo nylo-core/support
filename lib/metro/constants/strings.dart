@@ -13,6 +13,7 @@ const String bottomNavFlag = 'bottom-nav';
 
 // options
 const String postmanCollectionOption = 'postman';
+const String commandCategoryOption = 'category';
 
 // folders
 const String yamlPath = 'pubspec.yaml';
@@ -29,6 +30,7 @@ const String networkingInterceptorsFolder =
     'lib/app/networking/dio/interceptors';
 const String bootstrapFolder = 'lib/bootstrap';
 const String configFolder = 'lib/config';
+const String commandsFolder = 'lib/app/commands';
 const String themeColorsFolder = 'lib/resources/themes/styles';
 const String routeGuardsFolder = 'lib/routes/guards';
 const String publicAssetsImagesFolder = 'public/images';
@@ -49,3 +51,5 @@ String makeImportPathBootstrap(String name) =>
     "import '/bootstrap/$name.dart';";
 String makeImportPathInterceptor(String name) =>
     "import '/app/networking/dio/interceptors/$name.dart';";
+String makeImportPathCommand(String name) =>
+    "import '/app/commands/$name.dart';";
