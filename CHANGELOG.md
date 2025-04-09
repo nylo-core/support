@@ -1,3 +1,7 @@
+## [6.25.1] - 2025-04-09
+
+* Fix `NyStorage.read` method
+
 ## [6.25.0] - 2025-04-08
 
 * Added: `makeCommand` to MetroService class. This will allow you to create a custom command in your project.

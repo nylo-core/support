@@ -122,14 +122,13 @@ class NyStorage {
     if (data == null) {
       return defaultValue;
     }
-
     if (runtimeType != null && modelDecoders == null) {
       switch (runtimeType.toLowerCase()) {
         case 'int':
           return int.parse(data);
         case 'double':
           return double.parse(data);
-        case 'String':
+        case 'string':
           return data;
         case 'bool':
           return data == 'true';
