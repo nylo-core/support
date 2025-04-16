@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import '/localization/app_localization.dart';
+import '/helpers/backpack.dart';
 import '/widgets/ny_widgets.dart';
 import '/widgets/navigation_hub/alert_tab.dart';
 import '/helpers/extensions.dart';
@@ -49,12 +51,17 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
         int? activeTab = data(defaultValue: {"tab-index": 0})['tab-index'];
         currentIndex ??= activeTab ?? 0;
 
+        // Store current tab index and total pages count for navigation helpers
+        Backpack.instance.save('${stateName}_current_tab', currentIndex);
+
         if (pages is Future Function()) {
           awaitData(perform: () async {
             _pages = await pages();
+            Backpack.instance.save('${stateName}_total_pages', _pages.length);
           });
         } else {
           _pages = pages();
+          Backpack.instance.save('${stateName}_total_pages', _pages.length);
         }
       };
 
@@ -98,6 +105,8 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
         {
           int index = data['tab-index'];
           currentIndex = index;
+          // Store current tab index for navigation helpers
+          Backpack.instance.save('${stateName}_current_tab', index);
           break;
         }
       default:
@@ -168,6 +177,11 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
   @override
   Widget view(BuildContext context) {
     Map<int, NavigationTab> pages = orderedPages;
+
+    if (layout?.kind == "journey") {
+      return _buildJourneyLayout(context, pages);
+    }
+
     if (layout?.kind == "bottomNav") {
       Widget body = maintainState
           ? IndexedStack(index: currentIndex, children: [
@@ -303,6 +317,178 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       );
     }
     throw Exception("Invalid layout type");
+  }
+
+  /// Build journey layout
+  Widget _buildJourneyLayout(
+      BuildContext context, Map<int, NavigationTab> pages) {
+    int totalPages = pages.length;
+    int currentPage = getCurrentIndex;
+    bool isFirstPage = currentPage == 0;
+    bool isLastPage = currentPage == totalPages - 1;
+    NavigationTab currentTab = pages[currentPage]!;
+
+    // Progress indicator
+    Widget? progressIndicator;
+    if (layout?.showProgressIndicator == true) {
+      progressIndicator = Padding(
+        padding: layout?.progressIndicatorPadding ?? EdgeInsets.zero,
+        child: LinearProgressIndicator(
+          value: (currentPage + 1) / totalPages,
+          backgroundColor:
+              layout?.progressIndicatorBackgroundColor ?? Colors.grey.shade300,
+          color:
+              layout?.progressIndicatorColor ?? Theme.of(context).primaryColor,
+          minHeight: layout?.progressIndicatorHeight ?? 4.0,
+        ),
+      );
+    }
+
+    // Navigation buttons
+    Widget navigationButtons = Padding(
+      padding: layout?.buttonPadding ??
+          EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+      child: _buildJourneyButtons(
+          context, isFirstPage, isLastPage, currentPage, totalPages),
+    );
+
+    Widget content = Column(
+      children: [
+        // Top progress indicator
+        if (layout?.showProgressIndicator == true &&
+            layout?.progressIndicatorPosition == ProgressIndicatorPosition.top)
+          progressIndicator!,
+
+        // Main content
+        Expanded(
+          child: Navigator(
+            key: getNavigationKey(MapEntry(currentPage, currentTab)),
+            onGenerateRoute: (settings) => MaterialPageRoute(
+              builder: (context) => currentTab.page ?? SizedBox.shrink(),
+              settings: settings,
+            ),
+          ),
+        ),
+
+        // Bottom progress indicator
+        if (layout?.showProgressIndicator == true &&
+            layout?.progressIndicatorPosition ==
+                ProgressIndicatorPosition.bottom)
+          progressIndicator!,
+
+        // Navigation buttons
+        navigationButtons,
+      ],
+    );
+
+    // Apply SafeArea if needed
+    final bool useSafeArea = layout?.useSafeArea ?? true;
+
+    return Scaffold(
+      backgroundColor: layout?.backgroundColor,
+      body: useSafeArea ? SafeArea(child: content) : content,
+    );
+  }
+
+  /// Build journey navigation buttons
+  Widget _buildJourneyButtons(BuildContext context, bool isFirstPage,
+      bool isLastPage, int currentPage, int totalPages) {
+    Widget? backButton;
+    if (layout?.showBackButton == true && !isFirstPage) {
+      backButton = TextButton.icon(
+        icon: Icon(layout?.backButtonIcon ?? Icons.arrow_back),
+        label: layout?.showButtonText == true
+            ? Text(
+                layout?.backButtonText ?? 'Back',
+                style: layout?.backButtonTextStyle,
+              )
+            : SizedBox.shrink(),
+        onPressed: () => onTap(currentPage - 1),
+      );
+    } else if (layout?.showBackButton == true) {
+      // Show disabled back button on first page
+      backButton = TextButton.icon(
+        icon: Icon(layout?.backButtonIcon ?? Icons.arrow_back),
+        label: layout?.showButtonText == true
+            ? Text(
+                (layout?.backButtonText ?? 'Back').tr(),
+                style:
+                    layout?.backButtonTextStyle?.copyWith(color: Colors.grey) ??
+                        TextStyle(color: Colors.grey),
+              )
+            : SizedBox.shrink(),
+        onPressed: null,
+      );
+    }
+
+    Widget? nextButton;
+    if (layout?.showNextButton == true) {
+      nextButton = TextButton.icon(
+        icon: Icon(layout?.nextButtonIcon ?? Icons.arrow_forward),
+        label: layout?.showButtonText == true
+            ? Text(
+                (isLastPage
+                        ? layout?.completeButtonText ?? 'Finish'
+                        : layout?.nextButtonText ?? 'Next')
+                    .tr(),
+                style: isLastPage
+                    ? layout?.completeButtonTextStyle
+                    : layout?.nextButtonTextStyle,
+              )
+            : SizedBox.shrink(),
+        onPressed: isLastPage && layout?.onComplete == null
+            ? null
+            : () {
+                if (isLastPage) {
+                  // Call onComplete callback if provided
+                  layout?.onComplete?.call();
+                } else {
+                  onTap(currentPage + 1);
+                }
+              },
+      );
+    }
+
+    // Button layout
+    switch (layout?.buttonLayout) {
+      case JourneyButtonLayout.spaceBetween:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            backButton ?? SizedBox.shrink(),
+            nextButton ?? SizedBox.shrink(),
+          ],
+        );
+
+      case JourneyButtonLayout.nextRight:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            backButton ?? SizedBox.shrink(),
+            const SizedBox(width: 8),
+            nextButton ?? SizedBox.shrink(),
+          ],
+        );
+
+      case JourneyButtonLayout.center:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            backButton ?? SizedBox.shrink(),
+            const SizedBox(width: 16),
+            nextButton ?? SizedBox.shrink(),
+          ],
+        );
+
+      default:
+        return Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            backButton ?? SizedBox.shrink(),
+            nextButton ?? SizedBox.shrink(),
+          ],
+        );
+    }
   }
 
   /// Build the tab icon
@@ -555,6 +741,72 @@ class NavigationHubLayout {
   /// The duration of the animation when the selected tab changes.
   Duration? animationDuration;
 
+  /// Whether to show a progress indicator for journey
+  bool? showProgressIndicator;
+
+  /// The position of the progress indicator
+  ProgressIndicatorPosition? progressIndicatorPosition;
+
+  /// The color of the progress indicator
+  Color? progressIndicatorColor;
+
+  /// The background color of the progress indicator
+  Color? progressIndicatorBackgroundColor;
+
+  /// The height of the progress indicator
+  double? progressIndicatorHeight;
+
+  /// The padding of the progress indicator
+  EdgeInsets? progressIndicatorPadding;
+
+  /// Whether to show the back button
+  bool? showBackButton;
+
+  /// The back button icon
+  IconData? backButtonIcon;
+
+  /// The text for the back button
+  String? backButtonText;
+
+  /// The style of the back button text
+  TextStyle? backButtonTextStyle;
+
+  /// The text for the next button
+  String? nextButtonText;
+
+  /// The text for the complete button
+  String? completeButtonText;
+
+  /// The style of the complete button text
+  TextStyle? completeButtonTextStyle;
+
+  /// The complete button icon
+  IconData? completeButtonIcon;
+
+  /// The style of the next button text
+  TextStyle? nextButtonTextStyle;
+
+  /// The next button icon
+  IconData? nextButtonIcon;
+
+  /// Whether to show button text
+  bool? showButtonText;
+
+  /// Whether to show the next button
+  bool? showNextButton;
+
+  /// Button layout
+  JourneyButtonLayout? buttonLayout;
+
+  /// Use safe area
+  bool? useSafeArea;
+
+  /// The padding of the buttons
+  EdgeInsets? buttonPadding;
+
+  /// On complete callback
+  Function()? onComplete;
+
   /// Create a bottom navigation layout
   NavigationHubLayout.bottomNav({
     this.elevation,
@@ -612,6 +864,57 @@ class NavigationHubLayout {
       this.overlayColorState}) {
     kind = "topNav";
   }
+
+  /// Create a journey navigation layout
+  NavigationHubLayout.journey(
+      {this.backgroundColor,
+      this.showProgressIndicator = true,
+      this.progressIndicatorPosition = ProgressIndicatorPosition.top,
+      this.progressIndicatorColor,
+      this.progressIndicatorBackgroundColor,
+      this.progressIndicatorHeight = 4.0,
+      this.progressIndicatorPadding =
+          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+      this.showBackButton = false,
+      this.backButtonIcon = Icons.arrow_back,
+      this.backButtonText = 'Back',
+      this.backButtonTextStyle,
+      this.nextButtonText = 'Next',
+      this.nextButtonTextStyle,
+      this.nextButtonIcon = Icons.arrow_forward,
+      this.completeButtonText = 'Finish',
+      this.completeButtonTextStyle,
+      this.completeButtonIcon = Icons.check,
+      this.showButtonText = true,
+      this.showNextButton = false,
+      this.buttonLayout = JourneyButtonLayout.spaceBetween,
+      this.animationDuration = const Duration(milliseconds: 300),
+      this.useSafeArea = true,
+      this.onComplete,
+      this.buttonPadding = EdgeInsets.zero}) {
+    kind = "journey";
+  }
+}
+
+/// The position of the progress indicator in the journey layout
+enum ProgressIndicatorPosition {
+  /// Show the progress indicator at the top of the page
+  top,
+
+  /// Show the progress indicator at the bottom of the page
+  bottom
+}
+
+/// The layout of the journey buttons
+enum JourneyButtonLayout {
+  /// Show the back and next buttons at the bottom with space between
+  spaceBetween,
+
+  /// Show the back and next buttons at the bottom with the next button on the right
+  nextRight,
+
+  /// Show the back and next buttons at the bottom centered
+  center
 }
 
 /// Mixin for the page controls
@@ -692,5 +995,44 @@ class NavigationHubStateActions extends StateActions {
     updateState(_navigationTabStateName(tab), data: {
       "action": "disable",
     });
+  }
+
+  /// Navigate to the next page in a journey layout
+  /// Returns true if navigation was successful, false if already at last page
+  Future<bool> nextPage() async {
+    // Get current page index
+    dynamic currentData = Backpack.instance.read('${state}_current_tab');
+    int currentIndex = (currentData is int) ? currentData : 0;
+
+    // Get total pages count (requires storing this value)
+    dynamic totalPagesData =
+        await Backpack.instance.read('${state}_total_pages');
+    int? totalPages = totalPagesData is int ? totalPagesData : null;
+
+    // If we don't know total pages, we can't validate if we're at the end
+    // So we'll just try to navigate to the next page
+    if (totalPages == null || currentIndex < totalPages - 1) {
+      updateState(state,
+          data: {"action": "update-tab", "tab-index": currentIndex + 1});
+      return true;
+    }
+
+    return false; // Already at last page
+  }
+
+  /// Navigate to the previous page in a journey layout
+  /// Returns true if navigation was successful, false if already at first page
+  Future<bool> previousPage() async {
+    // Get current page index
+    dynamic currentData = await Backpack.instance.read('${state}_current_tab');
+    int currentIndex = (currentData is int) ? currentData : 0;
+
+    if (currentIndex > 0) {
+      updateState(state,
+          data: {"action": "update-tab", "tab-index": currentIndex - 1});
+      return true;
+    }
+
+    return false; // Already at first page
   }
 }

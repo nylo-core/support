@@ -556,6 +556,31 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
     });
   }
 
+  /// Creates a new Journey Widget.
+  static makeJourneyWidget(String className, String value,
+      {String folderPath = widgetsFolder,
+      bool forceCreate = false,
+      String? creationPath}) async {
+    String name = className.replaceAll(RegExp(r'(_?widget)'), "");
+
+    // create missing directories in the project
+    await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    // create file path
+    String filePath = createPathForDartFile(
+        folderPath: folderPath,
+        className: name,
+        prefix: 'widget',
+        creationPath: creationPath);
+
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(filePath, value, onSuccess: () {
+      MetroConsole.writeInGreen(
+          '[Journey Widget] ${name.snakeCase} created 🎉');
+    });
+  }
+
   /// Creates a new State Managed Widget.
   static makeStateManagedWidget(String className, String value,
       {String folderPath = widgetsFolder,

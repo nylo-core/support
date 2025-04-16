@@ -61,6 +61,12 @@ class NavigationTab {
     });
   }
 
+  /// NavigationTab.journey is a class that holds the page of a journey navigation tab.
+  NavigationTab.journey({required this.page})
+      : title = null,
+        kind = "journey",
+        meta = {};
+
   /// Update the page of the NavigationTab
   updatePage(Widget page) {
     this.page = page;

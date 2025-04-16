@@ -14,6 +14,7 @@ const String bottomNavFlag = 'bottom-nav';
 // options
 const String postmanCollectionOption = 'postman';
 const String commandCategoryOption = 'category';
+const String parentOption = 'parent';
 
 // folders
 const String yamlPath = 'pubspec.yaml';

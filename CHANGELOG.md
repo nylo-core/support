@@ -1,3 +1,12 @@
+## [6.26.0] - 2025-04-16
+
+* Added: `JourneyState` class to help manage `NavigationHubLayout.journey`
+* Added: `JourneyHelper` class to help manage JourneyState's
+* Added: `makeJourneyWidget` method to `MetroService` class
+* Added: `parentOption` to constants
+* Added: `syncToStorage` method to NySession class. This will sync the session data to storage
+* Added: `syncFromStorage` method to NySession class. This will sync the session data from storage
+
 ## [6.25.1] - 2025-04-09
 
 * Fix `NyStorage.read` method

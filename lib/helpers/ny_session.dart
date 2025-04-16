@@ -1,3 +1,4 @@
+import '/local_storage/local_storage.dart';
 import 'backpack.dart';
 
 /// Create a new session
@@ -51,5 +52,25 @@ class NySession {
       return {key: sessionData?[key]};
     }
     return sessionData;
+  }
+
+  /// Sync to Storage
+  Future syncToStorage() async {
+    Map<String, dynamic>? sessionData = data();
+    if (sessionData == null) {
+      return;
+    }
+    await NyStorage.saveJson("${name}_session", sessionData);
+  }
+
+  /// Sync from Storage
+  Future syncFromStorage() async {
+    final sessionData = await NyStorage.readJson("${name}_session");
+    if (sessionData == null) {
+      return;
+    }
+    for (MapEntry key in sessionData.entries) {
+      add(key.key, key.value);
+    }
   }
 }
