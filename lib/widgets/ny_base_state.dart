@@ -849,10 +849,10 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Get the state actions
-  Map<String, Function()> get stateActions => _stateActions;
+  Map<String, Function> get stateActions => _stateActions;
 
   /// state actions variable
-  Map<String, Function()> _stateActions = {};
+  Map<String, Function> _stateActions = {};
 
   /// Handle what happens when an action is called
   /// [actions] is a map of actions
@@ -864,7 +864,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   ///     routeToInitial();
   ///  }
   ///  });
-  whenStateAction(Map<String, Function()> actions) {
+  whenStateAction(Map<String, Function> actions) {
     _stateActions = actions;
   }
 

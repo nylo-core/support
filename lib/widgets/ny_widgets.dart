@@ -23,3 +23,5 @@ export 'styles/bottom_modal_sheet_style.dart';
 export 'ny_future_builder.dart';
 export 'navigation_hub/journey_helper.dart';
 export 'navigation_hub/journey_state.dart';
+export 'navigation_hub/journey_progress_style.dart';
+export 'navigation_hub/journey_button_style.dart';

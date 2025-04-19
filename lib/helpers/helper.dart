@@ -392,8 +392,8 @@ void updateState<T>(dynamic name,
 
 /// Send a state action to a [NyState] or [NyPage] in your application.
 /// Provide the [state] and the [action] you want to send.
-stateAction(String action, {required dynamic state}) {
-  updateState(state, data: {"action": action});
+stateAction(String action, {required dynamic state, dynamic data}) {
+  updateState(state, data: {"action": action, "data": data});
 }
 
 /// api helper

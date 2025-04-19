@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '/widgets/navigation_hub/journey_progress_style.dart';
 import '/widgets/ny_state.dart';
 import '/widgets/navigation_hub/journey_helper.dart';
 import '/widgets/navigation_hub/navigation_hub.dart';
@@ -128,12 +129,10 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
     required Widget content,
     Widget? nextButton,
     Widget? backButton,
-    bool showProgress = false,
     ProgressIndicatorPosition progressPosition = ProgressIndicatorPosition.top,
-    Color? progressIndicatorColor,
-    Color? progressIndicatorBackgroundColor,
-    double? progressIndicatorHeight,
+    JourneyProgressStyle? progressStyle,
     EdgeInsetsGeometry contentPadding = const EdgeInsets.all(16.0),
+    EdgeInsets? progressIndicatorPadding,
     Widget? header,
     Widget? footer,
     CrossAxisAlignment crossAxisAlignment = CrossAxisAlignment.center,
@@ -146,11 +145,10 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
       isLastStep: isLastStep,
       nextButton: nextButton,
       backButton: backButton,
-      showProgress: showProgress,
+      showProgress: progressStyle != null ? true : false,
       progressIndicatorPosition: progressPosition,
-      progressIndicatorColor: progressIndicatorColor,
-      progressIndicatorBackgroundColor: progressIndicatorBackgroundColor,
-      progressIndicatorHeight: progressIndicatorHeight,
+      progressStyle: progressStyle ?? const JourneyProgressStyle.linear(),
+      progressIndicatorPadding: progressIndicatorPadding,
       contentPadding: contentPadding,
       header: header,
       footer: footer,
@@ -163,9 +161,10 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
     required Widget content,
     Widget? nextButton,
     Widget? backButton,
-    bool showProgress = true,
     ProgressIndicatorPosition progressPosition = ProgressIndicatorPosition.top,
+    JourneyProgressStyle? progressStyle,
     EdgeInsetsGeometry contentPadding = const EdgeInsets.all(16.0),
+    EdgeInsets? progressIndicatorPadding,
     Widget? header,
     Widget? footer,
     Color? backgroundColor,
@@ -180,8 +179,9 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
           content: content,
           nextButton: nextButton,
           backButton: backButton,
-          showProgress: showProgress,
           progressPosition: progressPosition,
+          progressStyle: progressStyle,
+          progressIndicatorPadding: progressIndicatorPadding,
           contentPadding: contentPadding,
           header: header,
           footer: footer,
@@ -218,15 +218,6 @@ class JourneyContent extends StatelessWidget {
   /// Whether to show the progress indicator
   final bool showProgress;
 
-  /// The color of the progress indicator
-  final Color? progressIndicatorColor;
-
-  /// The background color of the progress indicator
-  final Color? progressIndicatorBackgroundColor;
-
-  /// The height of the progress indicator
-  final double? progressIndicatorHeight;
-
   /// The padding of the progress indicator
   final EdgeInsets? progressIndicatorPadding;
 
@@ -245,6 +236,9 @@ class JourneyContent extends StatelessWidget {
   /// The cross axis alignment of the content
   final CrossAxisAlignment crossAxisAlignment;
 
+  /// The style of the progress indicator
+  final JourneyProgressStyle progressStyle;
+
   const JourneyContent({
     super.key,
     required this.content,
@@ -255,10 +249,8 @@ class JourneyContent extends StatelessWidget {
     this.nextButton,
     this.backButton,
     this.showProgress = true,
-    this.progressIndicatorColor,
-    this.progressIndicatorBackgroundColor,
-    this.progressIndicatorHeight,
     this.progressIndicatorPadding,
+    this.progressStyle = const JourneyProgressStyle.linear(),
     this.progressIndicatorPosition = ProgressIndicatorPosition.top,
     this.contentPadding = const EdgeInsets.all(16.0),
     this.header,
@@ -274,13 +266,7 @@ class JourneyContent extends StatelessWidget {
       progressIndicator = Padding(
         padding: progressIndicatorPadding ??
             (const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0)),
-        child: LinearProgressIndicator(
-          value: (currentStep + 1) / totalSteps,
-          backgroundColor:
-              progressIndicatorBackgroundColor ?? Colors.grey.shade300,
-          color: progressIndicatorColor ?? Theme.of(context).primaryColor,
-          minHeight: progressIndicatorHeight ?? 4.0,
-        ),
+        child: _buildProgressIndicator(context),
       );
     }
 
@@ -327,5 +313,11 @@ class JourneyContent extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  /// Builds the appropriate progress indicator based on style
+  Widget _buildProgressIndicator(BuildContext context) {
+    // Use the build method from the progressStyle object to handle different style types
+    return progressStyle.build(context, currentStep, totalSteps);
   }
 }

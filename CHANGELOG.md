@@ -1,3 +1,16 @@
+## [6.27.0] - 2025-04-19
+
+* Small breaking change to `stateActions`: 
+  * Was: `Map<String, Function()> get stateActions`
+  * Now: `Map<String, Function> get stateActions`
+* Added: `JourneyProgressStyle? progressStyle;` to journey widget
+* Added: `JourneyButtonStyle? buttonStyle;` to journey widget
+* Added: `backgroundGradient` to bottomNav, topNav and journey widget
+* Updated: `stateAction` to support new `data` parameter
+* New progress styles added to `JourneyProgressStyle` - `linear`, `dots`, `numbered`, `segments`, `circular`, `timeline`, `custom`
+* New `JourneyButtonStyle` added to `JourneyState` - `default`, `primary`, `secondary`, `tertiary`
+* New `JourneyButtonStyle` added to `JourneyState` - `standard`, `minimal`, `outlined`, `contained`, `custom`
+
 ## [6.26.0] - 2025-04-16
 
 * Added: `JourneyState` class to help manage `NavigationHubLayout.journey`

@@ -12,7 +12,7 @@ class StateAction {
       return state;
     }
     if (state is RouteView) {
-      return state.nyPageName();
+      return state.stateName();
     }
     return "";
   }

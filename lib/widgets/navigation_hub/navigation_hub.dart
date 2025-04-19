@@ -2,7 +2,6 @@ import 'dart:async';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import '/localization/app_localization.dart';
 import '/helpers/backpack.dart';
 import '/widgets/ny_widgets.dart';
 import '/widgets/navigation_hub/alert_tab.dart';
@@ -333,14 +332,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     if (layout?.showProgressIndicator == true) {
       progressIndicator = Padding(
         padding: layout?.progressIndicatorPadding ?? EdgeInsets.zero,
-        child: LinearProgressIndicator(
-          value: (currentPage + 1) / totalPages,
-          backgroundColor:
-              layout?.progressIndicatorBackgroundColor ?? Colors.grey.shade300,
-          color:
-              layout?.progressIndicatorColor ?? Theme.of(context).primaryColor,
-          minHeight: layout?.progressIndicatorHeight ?? 4.0,
-        ),
+        child: _buildProgressIndicator(context, currentPage, totalPages),
       );
     }
 
@@ -384,110 +376,97 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     // Apply SafeArea if needed
     final bool useSafeArea = layout?.useSafeArea ?? true;
 
+    if (layout?.backgroundGradient != null) {
+      return Scaffold(
+        body: Container(
+          decoration: BoxDecoration(gradient: layout?.backgroundGradient),
+          child: useSafeArea ? SafeArea(child: content) : content,
+        ),
+      );
+    }
+
     return Scaffold(
       backgroundColor: layout?.backgroundColor,
       body: useSafeArea ? SafeArea(child: content) : content,
     );
   }
 
+  /// Builds the appropriate progress indicator based on style
+  Widget _buildProgressIndicator(
+      BuildContext context, int currentStep, int totalSteps) {
+    // Use the build method from JourneyProgressStyle
+    if (layout?.progressStyle != null) {
+      return layout!.progressStyle!.build(context, currentStep, totalSteps);
+    } else {
+      // Default fallback to linear progress indicator if no style is set
+      return LinearProgressIndicator(
+        value: (currentStep + 1) / totalSteps,
+        minHeight: 4.0,
+      );
+    }
+  }
+
   /// Build journey navigation buttons
   Widget _buildJourneyButtons(BuildContext context, bool isFirstPage,
       bool isLastPage, int currentPage, int totalPages) {
-    Widget? backButton;
-    if (layout?.showBackButton == true && !isFirstPage) {
-      backButton = TextButton.icon(
-        icon: Icon(layout?.backButtonIcon ?? Icons.arrow_back),
-        label: layout?.showButtonText == true
-            ? Text(
-                layout?.backButtonText ?? 'Back',
-                style: layout?.backButtonTextStyle,
-              )
-            : SizedBox.shrink(),
-        onPressed: () => onTap(currentPage - 1),
-      );
-    } else if (layout?.showBackButton == true) {
-      // Show disabled back button on first page
-      backButton = TextButton.icon(
-        icon: Icon(layout?.backButtonIcon ?? Icons.arrow_back),
-        label: layout?.showButtonText == true
-            ? Text(
-                (layout?.backButtonText ?? 'Back').tr(),
-                style:
-                    layout?.backButtonTextStyle?.copyWith(color: Colors.grey) ??
-                        TextStyle(color: Colors.grey),
-              )
-            : SizedBox.shrink(),
-        onPressed: null,
+    if (layout?.buttonStyle != null) {
+      return Row(
+        mainAxisAlignment: _getButtonRowAlignment(),
+        children: [
+          // Back button
+          layout?.showBackButton != false
+              ? layout!.buttonStyle!.buildBackButton(
+                  context,
+                  isFirstPage
+                      ? null
+                      : () {
+                          Backpack.instance.save(
+                              '${stateName}_current_tab', currentPage - 1);
+                          onTap(currentPage - 1);
+                        })
+              : const SizedBox.shrink(),
+
+          // Spacing between buttons based on layout type
+          if (layout?.buttonLayout == JourneyButtonLayout.center)
+            const SizedBox(width: 16),
+          if (layout?.buttonLayout == JourneyButtonLayout.nextRight)
+            const SizedBox(width: 8),
+
+          // Next/Complete button
+          layout?.showNextButton != false
+              ? layout!.buttonStyle!.buildNextButton(
+                  context,
+                  isLastPage && layout?.onComplete == null
+                      ? null
+                      : () {
+                          Backpack.instance.save(
+                              '${stateName}_current_tab', currentPage + 1);
+                          if (isLastPage) {
+                            layout?.onComplete?.call();
+                          } else {
+                            onTap(currentPage + 1);
+                          }
+                        },
+                  isLastPage)
+              : const SizedBox.shrink(),
+        ],
       );
     }
 
-    Widget? nextButton;
-    if (layout?.showNextButton == true) {
-      nextButton = TextButton.icon(
-        icon: Icon(layout?.nextButtonIcon ?? Icons.arrow_forward),
-        label: layout?.showButtonText == true
-            ? Text(
-                (isLastPage
-                        ? layout?.completeButtonText ?? 'Finish'
-                        : layout?.nextButtonText ?? 'Next')
-                    .tr(),
-                style: isLastPage
-                    ? layout?.completeButtonTextStyle
-                    : layout?.nextButtonTextStyle,
-              )
-            : SizedBox.shrink(),
-        onPressed: isLastPage && layout?.onComplete == null
-            ? null
-            : () {
-                if (isLastPage) {
-                  // Call onComplete callback if provided
-                  layout?.onComplete?.call();
-                } else {
-                  onTap(currentPage + 1);
-                }
-              },
-      );
-    }
+    return SizedBox.shrink();
+  }
 
-    // Button layout
+  /// Helper method to get button row alignment based on buttonLayout
+  MainAxisAlignment _getButtonRowAlignment() {
     switch (layout?.buttonLayout) {
       case JourneyButtonLayout.spaceBetween:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            backButton ?? SizedBox.shrink(),
-            nextButton ?? SizedBox.shrink(),
-          ],
-        );
-
+        return MainAxisAlignment.spaceBetween;
       case JourneyButtonLayout.nextRight:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [
-            backButton ?? SizedBox.shrink(),
-            const SizedBox(width: 8),
-            nextButton ?? SizedBox.shrink(),
-          ],
-        );
-
+        return MainAxisAlignment.end;
       case JourneyButtonLayout.center:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            backButton ?? SizedBox.shrink(),
-            const SizedBox(width: 16),
-            nextButton ?? SizedBox.shrink(),
-          ],
-        );
-
+        return MainAxisAlignment.center;
       default:
-        return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            backButton ?? SizedBox.shrink(),
-            nextButton ?? SizedBox.shrink(),
-          ],
-        );
+        return MainAxisAlignment.spaceBetween;
     }
   }
 
@@ -580,6 +559,11 @@ class NavigationHubLayout {
   /// [items] have [BottomNavigationBarItem.backgroundColor] set, the [items]'
   /// backgroundColor will splash and overwrite this color.
   Color? backgroundColor;
+
+  /// The gradient background of the navigation layout.
+  ///
+  /// If set, this will take precedence over [backgroundColor].
+  Gradient? backgroundGradient;
 
   /// The size of all of the [BottomNavigationBarItem] icons.
   ///
@@ -747,17 +731,11 @@ class NavigationHubLayout {
   /// The position of the progress indicator
   ProgressIndicatorPosition? progressIndicatorPosition;
 
-  /// The color of the progress indicator
-  Color? progressIndicatorColor;
-
-  /// The background color of the progress indicator
-  Color? progressIndicatorBackgroundColor;
-
-  /// The height of the progress indicator
-  double? progressIndicatorHeight;
-
   /// The padding of the progress indicator
   EdgeInsets? progressIndicatorPadding;
+
+  /// The style of the progress indicator
+  JourneyProgressStyle? progressStyle;
 
   /// Whether to show the back button
   bool? showBackButton;
@@ -807,12 +785,16 @@ class NavigationHubLayout {
   /// On complete callback
   Function()? onComplete;
 
+  /// The style of journey buttons
+  JourneyButtonStyle? buttonStyle;
+
   /// Create a bottom navigation layout
   NavigationHubLayout.bottomNav({
     this.elevation,
     this.type,
     Color? fixedColor,
     this.backgroundColor,
+    this.backgroundGradient,
     this.iconSize = 24.0,
     this.selectedItemColor,
     this.unselectedItemColor,
@@ -845,6 +827,7 @@ class NavigationHubLayout {
       this.dividerColor = const Color(0xEEEEEEFF),
       this.dividerHeight,
       this.backgroundColor,
+      this.backgroundGradient,
       this.labelColor,
       this.labelStyle,
       this.labelPadding,
@@ -866,32 +849,22 @@ class NavigationHubLayout {
   }
 
   /// Create a journey navigation layout
-  NavigationHubLayout.journey(
-      {this.backgroundColor,
-      this.showProgressIndicator = true,
-      this.progressIndicatorPosition = ProgressIndicatorPosition.top,
-      this.progressIndicatorColor,
-      this.progressIndicatorBackgroundColor,
-      this.progressIndicatorHeight = 4.0,
-      this.progressIndicatorPadding =
-          const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
-      this.showBackButton = false,
-      this.backButtonIcon = Icons.arrow_back,
-      this.backButtonText = 'Back',
-      this.backButtonTextStyle,
-      this.nextButtonText = 'Next',
-      this.nextButtonTextStyle,
-      this.nextButtonIcon = Icons.arrow_forward,
-      this.completeButtonText = 'Finish',
-      this.completeButtonTextStyle,
-      this.completeButtonIcon = Icons.check,
-      this.showButtonText = true,
-      this.showNextButton = false,
-      this.buttonLayout = JourneyButtonLayout.spaceBetween,
-      this.animationDuration = const Duration(milliseconds: 300),
-      this.useSafeArea = true,
-      this.onComplete,
-      this.buttonPadding = EdgeInsets.zero}) {
+  NavigationHubLayout.journey({
+    this.backgroundColor,
+    this.backgroundGradient,
+    this.showProgressIndicator = true,
+    this.progressIndicatorPosition = ProgressIndicatorPosition.top,
+    this.progressIndicatorPadding =
+        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
+    this.buttonLayout = JourneyButtonLayout.spaceBetween,
+    this.animationDuration = const Duration(milliseconds: 300),
+    this.useSafeArea = true,
+    this.buttonPadding =
+        const EdgeInsets.symmetric(horizontal: 16.0, vertical: 16.0),
+    this.progressStyle = const JourneyProgressStyle.linear(),
+    this.onComplete,
+    this.buttonStyle,
+  }) {
     kind = "journey";
   }
 }
