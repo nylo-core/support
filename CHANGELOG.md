@@ -1,3 +1,10 @@
+## [6.28.0] - 2025-04-24
+
+* Added: `nylo.broadcastEvents()`to broadcast events to all listeners.
+* Added: `listenOn` to listen to events in your app. E.g. `listenOn<MyEvent>((event) {  });`
+* Added: `listen` helper in NyPage and NyState to listen to events in your app. E.g. `listen<MyEvent>((event) {  });`
+* Updated: `event` helper to support new `broadcast` parameter. E.g. `event<MyEvent>(data: {...}, broadcast: true);`
+
 ## [6.27.0] - 2025-04-19
 
 * Small breaking change to `stateActions`: 

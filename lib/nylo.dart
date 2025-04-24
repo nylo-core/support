@@ -71,6 +71,7 @@ class Nylo {
       _onDidReceiveBackgroundNotificationResponse;
   NyCache? _cache;
   bool isFlutterLocalNotificationsInitialized = false;
+  bool? _broadcastEvents;
 
   /// Get the cache instance
   NyCache? get getCache => _cache;
@@ -291,6 +292,14 @@ class Nylo {
 
   /// Check if the app should show date time in logs
   bool shouldShowDateTimeInLogs() => _showDateTimeInLogs ?? false;
+
+  /// Set if you want to broadcast all events
+  broadcastEvents([bool broadcast = true]) {
+    _broadcastEvents = broadcast;
+  }
+
+  /// Check if the app should broadcast events
+  bool shouldBroadcastEvents() => _broadcastEvents ?? false;
 
   /// Add toast notification
   addToastNotification(

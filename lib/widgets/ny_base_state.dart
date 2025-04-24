@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
+import '/events/events.dart';
 import '/helpers/ny_color.dart';
 import '/helpers/loading_style.dart';
 import '/helpers/extensions.dart';
@@ -69,6 +70,19 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Override the loading state.
   bool overrideLoading = false;
+
+  /// Keep track of event subscriptions
+  final List<NyEventSubscription> _eventSubscriptions = [];
+
+  /// Listen to an event with a callback function
+  /// Returns a subscription reference that can be used to cancel later
+  NyEventSubscription listen<E extends NyEvent>(Function(Map? data) callback) {
+    final listener = NyEventCallbackListener(callback);
+    NyEventBus().on<E>(listener);
+    final subscription = NyEventSubscription<E>(listener);
+    _eventSubscriptions.add(subscription);
+    return subscription;
+  }
 
   /// Initialize your widget in [init].
   ///
@@ -264,6 +278,12 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     eventSubscription?.cancel();
     _lockMap = {};
     _loadingMap = {};
+
+    for (var subscription in _eventSubscriptions) {
+      subscription.cancel();
+    }
+    _eventSubscriptions.clear();
+
     super.dispose();
   }
 

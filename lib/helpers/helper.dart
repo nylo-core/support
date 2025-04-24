@@ -110,34 +110,33 @@ String trans(String key, {Map<String, String>? arguments}) =>
     NyLocalization.instance.translate(key, arguments);
 
 /// Event helper
-nyEvent<T>({
-  Map? params,
-  Map<Type, NyEvent> events = const {},
-}) async {
+nyEvent<T>(
+    {Map? params,
+    Map<Type, NyEvent> events = const {},
+    bool? broadcast}) async {
   assert(T.toString() != 'dynamic',
       'You must provide an Event type for this method.\nE.g. event<LoginEvent>({"User": "#1 User"});');
 
   Map<Type, NyEvent> appEvents = events;
 
-  if (events.isEmpty && Backpack.instance.read('nylo') != null) {
-    appEvents = Backpack.instance.read('nylo').getEvents();
+  Nylo? nylo;
+  if (Backpack.instance.read('nylo') != null) {
+    nylo = Backpack.instance.read('nylo');
   }
+
+  if (events.isEmpty && nylo != null) {
+    appEvents = nylo.getEvents();
+  }
+
+  broadcast ??= nylo?.shouldBroadcastEvents();
+
   assert(appEvents.containsKey(T),
       'Your config/events.dart is missing this class ${T.toString()}');
 
   NyEvent nyEvent = appEvents[T]!;
-  Map<dynamic, NyListener> listeners = nyEvent.listeners;
 
-  if (listeners.isEmpty) {
-    return;
-  }
-  for (NyListener listener in listeners.values.toList()) {
-    listener.setEvent(nyEvent);
-    dynamic result = await listener.handle(params);
-    if (result != null && result == false) {
-      break;
-    }
-  }
+  // Use the extension method
+  await nyEvent.fireAll(params, broadcast: broadcast ?? false);
 }
 
 /// API helper
@@ -244,7 +243,7 @@ Future<dynamic> nyApi<T>(
       if (nyEvent == null) {
         continue;
       }
-      Map<dynamic, NyListener> listeners = nyEvent.listeners;
+      Map listeners = nyEvent.listeners;
 
       if (listeners.isEmpty) {
         return;
@@ -450,8 +449,8 @@ api<T extends NyApiService>(dynamic Function(T request) request,
 ///  });
 ///  ```
 ///  The above example will send an event to LoginEvent.
-event<T>({Map? data}) async =>
-    await nyEvent<T>(params: data, events: Nylo.events());
+event<T>({Map? data, bool? broadcast}) async =>
+    await nyEvent<T>(params: data, events: Nylo.events(), broadcast: broadcast);
 
 /// Dump a message to the console.
 /// Example:
