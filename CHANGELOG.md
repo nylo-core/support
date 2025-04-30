@@ -1,3 +1,7 @@
+## [6.28.1] - 2025-04-30
+
+* Fix: `_whenStateAction` method in `NyState`
+
 ## [6.28.0] - 2025-04-24
 
 * Added: `nylo.broadcastEvents()`to broadcast events to all listeners.

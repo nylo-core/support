@@ -60,8 +60,24 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
     }
 
     String action = data['action'];
+    dynamic actionData = data.containsKey('data') ? data['data'] : null;
+
     if (stateActions.containsKey(action)) {
-      await stateActions[action]!();
+      final function = stateActions[action]!;
+
+      String functionString = function.runtimeType.toString();
+
+      // Determine if the function takes parameters based on its toString representation
+      bool hasParameters = functionString.contains("(dynamic)") ||
+          functionString.contains("(Object?)") ||
+          !functionString.contains("()");
+
+      if (hasParameters) {
+        await Function.apply(function, [actionData]);
+        return;
+      }
+
+      await Function.apply(function, []);
     }
   }
 }
