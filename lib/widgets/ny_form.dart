@@ -393,8 +393,9 @@ class Field {
     this.metaData = const {},
     this.hidden = false,
     bool viewable = false,
+    Widget? prefixIcon,
     this.readOnly,
-  }) : cast = FormCast.password(viewable: viewable) {
+  }) : cast = FormCast.password(viewable: viewable, prefixIcon: prefixIcon) {
     if (style == null) return;
 
     metaData = {};

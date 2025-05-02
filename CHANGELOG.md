@@ -1,3 +1,8 @@
+## [6.28.2] - 2025-05-02
+
+* Add: export 'form_chips and form_radio' to ny_widgets.dart
+* Add: `prefixIcon` to Field.password
+
 ## [6.28.1] - 2025-04-30
 
 * Fix: `_whenStateAction` method in `NyState`

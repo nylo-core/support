@@ -514,10 +514,13 @@ class FormCast {
   }
 
   /// Cast to a password
-  FormCast.password({bool viewable = false}) {
+  FormCast.password({bool viewable = false, Widget? prefixIcon}) {
     type = "password";
     if (viewable) {
       type = "password:viewable";
     }
+
+    metaData = {};
+    metaData['prefixIcon'] = prefixIcon;
   }
 }
