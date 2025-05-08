@@ -1,3 +1,7 @@
+## [6.28.3] - 2025-05-08
+
+* Fix: `Field.date` not using the correct display format
+
 ## [6.28.2] - 2025-05-02
 
 * Add: export 'form_chips and form_radio' to ny_widgets.dart
