@@ -1,3 +1,7 @@
+## [6.28.4] - 2025-05-13
+
+* Update pubspec.yaml 
+
 ## [6.28.3] - 2025-05-08
 
 * Fix: `Field.date` not using the correct display format

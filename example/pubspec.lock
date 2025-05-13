@@ -13,10 +13,10 @@ packages:
     dependency: transitive
     description:
       name: app_badge_plus
-      sha256: "3b319d12719ecd4fd2c44099f1ce1df622eff7d958f3c99776b17313bfcf25e3"
+      sha256: cbbb03cdac77c89c1494534fc2397e7f54deb84d2f968af9f8caaecbc54e86e7
       url: "https://pub.dev"
     source: hosted
-    version: "1.2.1"
+    version: "1.2.3"
   args:
     dependency: transitive
     description:
@@ -194,10 +194,10 @@ packages:
     dependency: transitive
     description:
       name: flutter_local_notifications
-      sha256: "33b3e0269ae9d51669957a923f2376bee96299b09915d856395af8c4238aebfa"
+      sha256: ebc86e2ff6a9ca5bc1943e675fef02b5ddaa1a99b4ef980cac576fcfc65959aa
       url: "https://pub.dev"
     source: hosted
-    version: "19.1.0"
+    version: "19.2.0"
   flutter_local_notifications_linux:
     dependency: transitive
     description:
@@ -321,10 +321,10 @@ packages:
     dependency: transitive
     description:
       name: get_time_ago
-      sha256: "3bf66b9de4ddf8f9f3621f384ea67fe5c861126e7102df00444e9008b5508287"
+      sha256: "1c6ccc877e480eee559987411ec5242cecc088d45fc821f0d8aec98bbf4f210e"
       url: "https://pub.dev"
     source: hosted
-    version: "2.3.0"
+    version: "2.3.1"
   http:
     dependency: transitive
     description:
@@ -419,7 +419,7 @@ packages:
       path: ".."
       relative: true
     source: path
-    version: "6.28.1"
+    version: "6.28.4"
   path:
     dependency: transitive
     description:
