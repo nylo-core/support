@@ -30,7 +30,7 @@ dependencies:
   equatable: ^2.0.7
   rxdart: ^0.28.0
   pretty_dio_logger: ^1.4.0
-  intl: ^0.19.0
+  intl: ^0.20.2
   skeletonizer: ^2.0.1
   error_stack: ^1.10.3
   date_field: ^6.0.3+1
@@ -42,6 +42,9 @@ dependencies:
   app_badge_plus: ^1.2.3
   mask_text_input_formatter: ^2.9.0
   uuid: ^4.5.1
+  ffi: ^2.1.4
+  win32: ^5.13.0
+  characters: ^1.2.1
   flutter_web_plugins:
     sdk: flutter
   flutter_localizations:
