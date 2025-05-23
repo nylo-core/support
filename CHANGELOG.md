@@ -1,3 +1,8 @@
+## [6.28.5] - 2025-05-23
+
+* Fix: `getEnv` helper to return an empty string if a variable is set like this `APP_WEBSITE=""`
+* Update pubspec.yaml
+
 ## [6.28.4] - 2025-05-13
 
 * Update pubspec.yaml 

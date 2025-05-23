@@ -43,6 +43,10 @@ dynamic getEnv(String key, {dynamic defaultValue}) {
     return false;
   }
 
+  if (value == '""') {
+    return '';
+  }
+
   return value.toString();
 }
 

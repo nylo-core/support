@@ -1,6 +1,6 @@
 name: nylo_support
 description: Support library for the Nylo framework. This library supports routing, widgets, localization, cli, storage and more.
-version: 6.28.4
+version: 6.28.5
 homepage: https://nylo.dev
 repository: https://github.com/nylo-core/support/tree/6.x
 issue_tracker: https://github.com/nylo-core/support/issues
@@ -31,14 +31,14 @@ dependencies:
   rxdart: ^0.28.0
   pretty_dio_logger: ^1.4.0
   intl: ^0.19.0
-  skeletonizer: ^1.4.3
+  skeletonizer: ^2.0.1
   error_stack: ^1.10.3
   date_field: ^6.0.3+1
   flutter_multi_formatter: ^2.13.7
-  flutter_local_notifications: ^19.2.0
+  flutter_local_notifications: ^19.2.1
   path_provider: ^2.1.5
   timezone: ^0.10.1
-  flutter_timezone: ^4.1.0
+  flutter_timezone: ^4.1.1
   app_badge_plus: ^1.2.3
   mask_text_input_formatter: ^2.9.0
   uuid: ^4.5.1
