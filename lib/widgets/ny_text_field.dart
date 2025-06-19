@@ -846,7 +846,9 @@ class _NyTextFieldState extends NyState<NyTextField> {
           icon: widget.clearIcon ?? const Icon(Icons.close),
           onPressed: () {
             widget.controller.clear();
-            widget.onChanged!("");
+            if (widget.onChanged != null) {
+              widget.onChanged!("");
+            }
           },
         ),
       );

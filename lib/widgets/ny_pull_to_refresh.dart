@@ -177,8 +177,13 @@ class NyPullToRefresh<T> extends StatefulWidget {
   final List<dynamic> Function(dynamic items)? sort;
 
   /// Resets the state
-  static stateReset(String stateName) {
+  static void stateReset(String stateName) {
     updateState(stateName, data: {"action": "reset", "data": {}});
+  }
+
+  /// Removes an item from the list at the given index
+  static void removeFromIndex(String stateName, int index) {
+    updateState(stateName, data: {"action": "removeFromIndex", "index": index});
   }
 
   @override
@@ -209,6 +214,17 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
       reboot();
     }
   }
+
+  @override
+  Map<String, Function> get stateActions => {
+        'removeFromIndex': (data) {
+          if (data is! Map || !data.containsKey('index')) return;
+          int index = data['index'];
+          if (index < 0 || index >= _data.length) return;
+          _data.removeAt(index);
+          setState(() {});
+        },
+      };
 
   /// Refresh the list
   _onRefresh() async {

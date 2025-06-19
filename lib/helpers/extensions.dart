@@ -633,6 +633,14 @@ extension NyColumn on Column {
       child: this,
     );
   }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(
+      visible: condition,
+      child: this,
+    );
+  }
 }
 
 /// Extensions for [Image]
@@ -766,6 +774,14 @@ extension NySingleChildRenderObjectWidget on SingleChildRenderObjectWidget {
       child: this,
     );
   }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(
+      visible: condition,
+      child: this,
+    );
+  }
 }
 
 /// Extensions for [String]
@@ -773,13 +789,13 @@ extension NyString on String {
   /// dump the value to the console.
   /// [tag] is optional.
   /// [alwaysPrint] is optional.
-  dump({String? tag, bool alwaysPrint = false}) {
+  void dump({String? tag, bool alwaysPrint = false}) {
     NyLogger.dump(toString(), tag, alwaysPrint: alwaysPrint);
   }
 
   /// dump the value to the console and exit the app.
   /// [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump(toString(), tag);
     exit(0);
   }
@@ -883,6 +899,14 @@ extension NyStatelessWidget on StatelessWidget {
   }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(
+      visible: condition,
       child: this,
     );
   }
@@ -1145,6 +1169,14 @@ extension NyBoxScrollView on BoxScrollView {
       child: this,
     );
   }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(
+      visible: condition,
+      child: this,
+    );
+  }
 }
 
 /// Extensions for [Row]
@@ -1242,6 +1274,14 @@ extension NyRow on Row {
         textBaseline: textBaseline,
         children: newChildren,
       ),
+    );
+  }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(
+      visible: condition,
+      child: this,
     );
   }
 }

@@ -1209,12 +1209,12 @@ class Field {
   bool? readOnly;
 
   /// Hide the field
-  hide() {
+  void hide() {
     hidden = true;
   }
 
   /// Show the field
-  show() {
+  void show() {
     hidden = false;
   }
 

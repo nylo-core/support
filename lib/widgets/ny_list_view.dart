@@ -7,23 +7,78 @@ import '/widgets/ny_state.dart';
 import '/localization/app_localization.dart';
 import '/nylo.dart';
 
+// Helper class for item position checks
+class NyListViewItemHelper {
+  final int index;
+  final int totalItems;
+
+  const NyListViewItemHelper({
+    required this.index,
+    required this.totalItems,
+  });
+
+  bool isFirst() => index == 0;
+  bool isLast() => index == totalItems - 1;
+  bool isOdd() => index % 2 == 1;
+  bool isEven() => index % 2 == 0;
+  bool isAt(int position) => index == position;
+  bool isInRange(int start, int end) => index >= start && index <= end;
+  bool isMultipleOf(int divisor) => index % divisor == 0;
+  double get progress => totalItems > 1 ? index / (totalItems - 1) : 0.0;
+}
+
+// Type-safe function signatures
+typedef NyChildBuilder<T> = Widget Function(BuildContext context, T data);
+typedef NyChildBuilderWithIndex<T> = Widget Function(
+    BuildContext context, T data, int index);
+typedef NyChildBuilderWithHelper<T> = Widget Function(
+    BuildContext context, T data, int index, NyListViewItemHelper helper);
+
 /// The NyListView widget is a wrapper for the ListView widget.
-/// It provides a simple way to display a list of items.
-/// Example:
+/// It provides a simple way to display a list of items with full type safety.
+///
+/// **Basic Example (backwards compatible):**
 /// ```dart
-/// NyListView(
-///  data: () async => [1,2,3,4,5],
-///  child: (context, data) {
-///   return Text(data.toString());
-///  })
-///  ```
-///  The above example will display a list of numbers.
-///  The [data] is fetched from the data function.
-///  The [child] is the widget that will be displayed for each item in the list.
+/// NyListView<String>(
+///  data: () => ['Item 1', 'Item 2', 'Item 3'],
+///  child: (context, data) => Text(data), // data is dynamic (backwards compatible)
+/// )
+/// ```
+///
+/// **Type-safe Examples:**
+/// ```dart
+/// NyListView<String>(
+///  data: () => ['Item 1', 'Item 2', 'Item 3'],
+///  childTyped: (context, String data) => Text(data), // data is String (type-safe)
+/// )
+///
+/// NyListView<String>(
+///  data: () => ['Item 1', 'Item 2', 'Item 3'],
+///  childTypedWithIndex: (context, String data, int index) => Text('$data at $index'),
+/// )
+///
+/// NyListView<String>(
+///  data: () => ['Item 1', 'Item 2', 'Item 3'],
+///  childTypedWithHelper: (context, String data, int index, NyListViewItemHelper helper) {
+///    return Container(
+///      color: helper.isEven() ? Colors.grey : Colors.white,
+///      child: Text(data),
+///    );
+///  },
+/// )
+/// ```
 class NyListView<T> extends StatefulWidget {
   final Function() data;
   final dynamic Function(List<T> data)? transform;
-  final Widget Function(BuildContext context, dynamic data) child;
+
+  // Backwards compatible (dynamic type)
+  final Function? child;
+
+  // Type-safe options
+  final NyChildBuilder<T>? childTyped;
+  final NyChildBuilderWithIndex<T>? childTypedWithIndex;
+  final NyChildBuilderWithHelper<T>? childTypedWithHelper;
+
   final Widget? header;
   final Widget? empty;
   final LoadingStyle? loadingStyle;
@@ -55,85 +110,15 @@ class NyListView<T> extends StatefulWidget {
   final dynamic Function(List<T> items)? sort;
 
   @override
-  // ignore: no_logic_in_create_state
   createState() => _NyListViewState<T>(stateName);
 
-  const NyListView(
-      {super.key,
-      required this.child,
-      required this.data,
-      this.transform,
-      this.empty,
-      this.loadingStyle,
-      this.stateName,
-      this.scrollDirection,
-      this.reverse,
-      this.controller,
-      this.primary,
-      this.physics,
-      this.shrinkWrap,
-      this.padding,
-      this.itemExtent,
-      this.prototypeItem,
-      this.findChildIndexCallback,
-      this.addAutomaticKeepAlives = true,
-      this.addRepaintBoundaries = true,
-      this.addSemanticIndexes = true,
-      this.cacheExtent,
-      this.semanticChildCount,
-      this.dragStartBehavior,
-      this.keyboardDismissBehavior,
-      this.restorationId,
-      this.clipBehavior,
-      this.header,
-      this.sort})
-      : kind = "builder",
-        separatorBuilder = null,
-        crossAxisCount = null,
-        mainAxisSpacing = null,
-        crossAxisSpacing = null;
-
-  const NyListView.separated(
-      {super.key,
-      required this.data,
-      this.transform,
-      required this.child,
-      required this.separatorBuilder,
-      this.empty,
-      this.loadingStyle,
-      this.stateName,
-      this.scrollDirection,
-      this.reverse,
-      this.controller,
-      this.primary,
-      this.physics,
-      this.shrinkWrap,
-      this.padding,
-      this.itemExtent,
-      this.prototypeItem,
-      this.findChildIndexCallback,
-      this.addAutomaticKeepAlives = true,
-      this.addRepaintBoundaries = true,
-      this.addSemanticIndexes = true,
-      this.cacheExtent,
-      this.semanticChildCount,
-      this.dragStartBehavior,
-      this.keyboardDismissBehavior,
-      this.restorationId,
-      this.clipBehavior,
-      this.header,
-      this.sort})
-      : kind = "separated",
-        crossAxisCount = null,
-        mainAxisSpacing = null,
-        crossAxisSpacing = null;
-
-  const NyListView.grid({
+  // Basic constructor - backwards compatible
+  const NyListView({
     super.key,
-    this.crossAxisCount = 2,
-    this.mainAxisSpacing = 1.0,
-    this.crossAxisSpacing = 1.0,
-    required this.child,
+    this.child,
+    this.childTyped,
+    this.childTypedWithIndex,
+    this.childTypedWithHelper,
     required this.data,
     this.transform,
     this.empty,
@@ -160,7 +145,109 @@ class NyListView<T> extends StatefulWidget {
     this.clipBehavior,
     this.header,
     this.sort,
-  })  : kind = "grid",
+  })  : assert(
+            (child != null ? 1 : 0) +
+                    (childTyped != null ? 1 : 0) +
+                    (childTypedWithIndex != null ? 1 : 0) +
+                    (childTypedWithHelper != null ? 1 : 0) ==
+                1,
+            'Exactly one child builder must be provided'),
+        kind = "builder",
+        separatorBuilder = null,
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null;
+
+  // Separated constructor
+  const NyListView.separated({
+    super.key,
+    required this.data,
+    this.transform,
+    this.child,
+    this.childTyped,
+    this.childTypedWithIndex,
+    this.childTypedWithHelper,
+    required this.separatorBuilder,
+    this.empty,
+    this.loadingStyle,
+    this.stateName,
+    this.scrollDirection,
+    this.reverse,
+    this.controller,
+    this.primary,
+    this.physics,
+    this.shrinkWrap,
+    this.padding,
+    this.itemExtent,
+    this.prototypeItem,
+    this.findChildIndexCallback,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.addSemanticIndexes = true,
+    this.cacheExtent,
+    this.semanticChildCount,
+    this.dragStartBehavior,
+    this.keyboardDismissBehavior,
+    this.restorationId,
+    this.clipBehavior,
+    this.header,
+    this.sort,
+  })  : assert(
+            (child != null ? 1 : 0) +
+                    (childTyped != null ? 1 : 0) +
+                    (childTypedWithIndex != null ? 1 : 0) +
+                    (childTypedWithHelper != null ? 1 : 0) ==
+                1,
+            'Exactly one child builder must be provided'),
+        kind = "separated",
+        crossAxisCount = null,
+        mainAxisSpacing = null,
+        crossAxisSpacing = null;
+
+  // Grid constructor
+  const NyListView.grid({
+    super.key,
+    this.crossAxisCount = 2,
+    this.mainAxisSpacing = 1.0,
+    this.crossAxisSpacing = 1.0,
+    this.child,
+    this.childTyped,
+    this.childTypedWithIndex,
+    this.childTypedWithHelper,
+    required this.data,
+    this.transform,
+    this.empty,
+    this.loadingStyle,
+    this.stateName,
+    this.scrollDirection,
+    this.reverse,
+    this.controller,
+    this.primary,
+    this.physics,
+    this.shrinkWrap,
+    this.padding,
+    this.itemExtent,
+    this.prototypeItem,
+    this.findChildIndexCallback,
+    this.addAutomaticKeepAlives = true,
+    this.addRepaintBoundaries = true,
+    this.addSemanticIndexes = true,
+    this.cacheExtent,
+    this.semanticChildCount,
+    this.dragStartBehavior,
+    this.keyboardDismissBehavior,
+    this.restorationId,
+    this.clipBehavior,
+    this.header,
+    this.sort,
+  })  : assert(
+            (child != null ? 1 : 0) +
+                    (childTyped != null ? 1 : 0) +
+                    (childTypedWithIndex != null ? 1 : 0) +
+                    (childTypedWithHelper != null ? 1 : 0) ==
+                1,
+            'Exactly one child builder must be provided'),
+        kind = "grid",
         separatorBuilder = null;
 
   /// Resets the state
@@ -169,7 +256,7 @@ class NyListView<T> extends StatefulWidget {
   }
 }
 
-class _NyListViewState<T> extends NyState<NyListView> {
+class _NyListViewState<T> extends NyState<NyListView<T>> {
   _NyListViewState(String? stateName) {
     this.stateName = stateName;
   }
@@ -184,7 +271,7 @@ class _NyListViewState<T> extends NyState<NyListView> {
             _data = [];
             return;
           }
-          assert(data is List<T>, "Data must be a List");
+          assert(data is List<T>, "Data must be a List<$T>");
           _data = data;
           return;
         }
@@ -194,7 +281,7 @@ class _NyListViewState<T> extends NyState<NyListView> {
             _data = [];
             return;
           }
-          assert(data is List<T>, "Data must be a List");
+          assert(data is List<T>, "Data must be a List<$T>");
           _data = data;
         });
       };
@@ -211,6 +298,65 @@ class _NyListViewState<T> extends NyState<NyListView> {
       init();
       return;
     }
+  }
+
+  /// Builds the child widget with the appropriate builder (backwards compatible + type safe)
+  Widget _buildChildWidget(BuildContext context, T model, int index) {
+    final helper = NyListViewItemHelper(
+      index: index,
+      totalItems: _data.length,
+    );
+
+    // Type-safe options (preferred)
+    if (widget.childTypedWithHelper != null) {
+      return widget.childTypedWithHelper!(context, model, index, helper);
+    } else if (widget.childTypedWithIndex != null) {
+      return widget.childTypedWithIndex!(context, model, index);
+    } else if (widget.childTyped != null) {
+      return widget.childTyped!(context, model);
+    }
+
+    // Backwards compatible option (dynamic types)
+    if (widget.child != null) {
+      try {
+        // Try to call with all 4 parameters first (new signature)
+        return Function.apply(widget.child!, [context, model, index, helper]);
+      } catch (e) {
+        try {
+          // Try with 3 parameters (context, data, index)
+          return Function.apply(widget.child!, [context, model, index]);
+        } catch (e) {
+          try {
+            // Fall back to original 2 parameters (context, data)
+            return Function.apply(widget.child!, [context, model]);
+          } catch (e) {
+            // If all else fails, show an error widget
+            return Container(
+              padding: const EdgeInsets.all(8.0),
+              color: Colors.red[100],
+              child: Text(
+                'Error: Child function signature not supported.\n'
+                'Supported signatures:\n'
+                '- (BuildContext context, T data)\n'
+                '- (BuildContext context, T data, int index)\n'
+                '- (BuildContext context, T data, int index, NyListViewItemHelper helper)\n'
+                'Or use the type-safe alternatives: childTyped, childTypedWithIndex, childTypedWithHelper',
+                style: TextStyle(color: Colors.red[900], fontSize: 12),
+              ),
+            );
+          }
+        }
+      }
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(8.0),
+      color: Colors.red[100],
+      child: Text(
+        'Error: No child builder provided',
+        style: TextStyle(color: Colors.red[900]),
+      ),
+    );
   }
 
   @override
@@ -236,7 +382,6 @@ class _NyListViewState<T> extends NyState<NyListView> {
         _data = widget.transform!(_data);
       }
 
-      // sort the data
       if (widget.sort != null) {
         _data = widget.sort!(_data);
       }
@@ -260,7 +405,6 @@ class _NyListViewState<T> extends NyState<NyListView> {
             _data = widget.transform!(_data);
           }
 
-          // sort the data
           if (widget.sort != null) {
             _data = widget.sort!(_data);
           }
@@ -299,9 +443,9 @@ class _NyListViewState<T> extends NyState<NyListView> {
                 if (index == 0 && widget.header != null) {
                   return widget.header!;
                 }
-                index = widget.header != null ? index - 1 : index;
-                dynamic model = (_data[index]);
-                return widget.child(context, model);
+                int actualIndex = widget.header != null ? index - 1 : index;
+                T model = _data[actualIndex];
+                return _buildChildWidget(context, model, actualIndex);
               });
         }
       case "separated":
@@ -330,9 +474,9 @@ class _NyListViewState<T> extends NyState<NyListView> {
               if (index == 0 && widget.header != null) {
                 return widget.header!;
               }
-              index = widget.header != null ? index - 1 : index;
-              dynamic model = (_data[index]);
-              return widget.child(context, model);
+              int actualIndex = widget.header != null ? index - 1 : index;
+              T model = _data[actualIndex];
+              return _buildChildWidget(context, model, actualIndex);
             },
             separatorBuilder: (context, index) {
               if (widget.separatorBuilder != null) {
@@ -373,10 +517,14 @@ class _NyListViewState<T> extends NyState<NyListView> {
                       StaggeredGridTile.fit(
                           crossAxisCellCount: crossAxisCount,
                           child: widget.header!),
-                      ..._data.map((item) => StaggeredGridTile.fit(
-                            crossAxisCellCount: 1,
-                            child: widget.child(context, item),
-                          )),
+                      ..._data
+                          .asMap()
+                          .entries
+                          .map((entry) => StaggeredGridTile.fit(
+                                crossAxisCellCount: 1,
+                                child: _buildChildWidget(
+                                    context, entry.value, entry.key),
+                              )),
                     ]),
               ],
             );
@@ -405,9 +553,12 @@ class _NyListViewState<T> extends NyState<NyListView> {
                   mainAxisSpacing: widget.mainAxisSpacing ?? 0,
                   crossAxisSpacing: widget.crossAxisSpacing ?? 0,
                   children: _data
-                      .map((item) => StaggeredGridTile.fit(
+                      .asMap()
+                      .entries
+                      .map((entry) => StaggeredGridTile.fit(
                             crossAxisCellCount: 1,
-                            child: widget.child(context, item),
+                            child: _buildChildWidget(
+                                context, entry.value, entry.key),
                           ))
                       .toList(),
                 ),

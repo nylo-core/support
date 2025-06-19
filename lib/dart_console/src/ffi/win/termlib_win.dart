@@ -23,23 +23,23 @@ class TermLibWindows implements TermLib {
 
   @override
   void enableRawMode() {
-    final dwMode = (~CONSOLE_MODE.ENABLE_ECHO_INPUT) &
-        (~CONSOLE_MODE.ENABLE_PROCESSED_INPUT) &
-        (~CONSOLE_MODE.ENABLE_LINE_INPUT) &
-        (~CONSOLE_MODE.ENABLE_WINDOW_INPUT);
+    final dwMode = (~ENABLE_ECHO_INPUT) &
+        (~ENABLE_PROCESSED_INPUT) &
+        (~ENABLE_LINE_INPUT) &
+        (~ENABLE_WINDOW_INPUT);
     SetConsoleMode(inputHandle, dwMode);
   }
 
   @override
   void disableRawMode() {
-    final dwMode = CONSOLE_MODE.ENABLE_ECHO_INPUT &
-        CONSOLE_MODE.ENABLE_EXTENDED_FLAGS &
-        CONSOLE_MODE.ENABLE_INSERT_MODE &
-        CONSOLE_MODE.ENABLE_LINE_INPUT &
-        CONSOLE_MODE.ENABLE_MOUSE_INPUT &
-        CONSOLE_MODE.ENABLE_PROCESSED_INPUT &
-        CONSOLE_MODE.ENABLE_QUICK_EDIT_MODE &
-        CONSOLE_MODE.ENABLE_VIRTUAL_TERMINAL_INPUT;
+    final dwMode = ENABLE_ECHO_INPUT &
+        ENABLE_EXTENDED_FLAGS &
+        ENABLE_INSERT_MODE &
+        ENABLE_LINE_INPUT &
+        ENABLE_MOUSE_INPUT &
+        ENABLE_PROCESSED_INPUT &
+        ENABLE_QUICK_EDIT_MODE &
+        ENABLE_VIRTUAL_TERMINAL_INPUT;
     SetConsoleMode(inputHandle, dwMode);
   }
 
@@ -99,7 +99,7 @@ class TermLibWindows implements TermLib {
   }
 
   TermLibWindows() {
-    outputHandle = GetStdHandle(STD_HANDLE.STD_OUTPUT_HANDLE);
-    inputHandle = GetStdHandle(STD_HANDLE.STD_INPUT_HANDLE);
+    outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
+    inputHandle = GetStdHandle(STD_INPUT_HANDLE);
   }
 }

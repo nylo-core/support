@@ -1,3 +1,12 @@
+## [6.29.0] - 2025-06-20
+
+* Added new `visibleWhen` extension to `Widget` class. This will allow you to show or hide a widget based on a condition.
+* Added `onPop` to the `pushTo` method. This will allow you to receive a callback when the page is popped.
+* Added `removeFromIndex` to NyPullToRefresh. This will allow you to remove an item from the list at a specific index.
+* Bug fix for `NyTextField` onChanged method.
+* Fix analysis_options.yaml
+* Update pubspec.yaml
+
 ## [6.28.5] - 2025-05-23
 
 * Fix: `getEnv` helper to return an empty string if a variable is set like this `APP_WEBSITE=""`

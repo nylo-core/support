@@ -849,7 +849,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Push to a new page
-  pushTo(Widget page, {dynamic data}) {
+  void pushTo(Widget page, {dynamic data, Function(dynamic value)? onPop}) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (BuildContext context) {
@@ -859,7 +859,11 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
           return page;
         },
       ),
-    );
+    ).then((value) {
+      if (onPop != null) {
+        onPop(value);
+      }
+    });
   }
 
   /// Get the color based on the device mode
@@ -884,7 +888,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   ///     routeToInitial();
   ///  }
   ///  });
-  whenStateAction(Map<String, Function> actions) {
+  void whenStateAction(Map<String, Function> actions) {
     _stateActions = actions;
   }
 
