@@ -7,7 +7,7 @@ import 'helper.dart';
 /// [StateAction] class
 class StateAction {
   /// Helper to find the state name
-  static _findStateName(dynamic state) {
+  static String _findStateName(dynamic state) {
     if (state is String) {
       return state;
     }

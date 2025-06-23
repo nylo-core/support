@@ -8,7 +8,7 @@ class NyAction {
   /// Provide an [actionKey] for the action you want to limit.
   /// Provide an [perform] to execute if the user is authorized.
   /// Provide a [maxPerDay] to limit the number of times the action can be performed.
-  static limitPerDay(String actionKey, Function() perform,
+  static Future<void> limitPerDay(String actionKey, Function() perform,
       {int maxPerDay = 5, Function()? unauthorized}) async {
     String key = "action_$actionKey";
 

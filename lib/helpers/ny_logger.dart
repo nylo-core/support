@@ -13,14 +13,14 @@ class NyLogger {
   /// Logs a debug [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
-  static debug(dynamic message, {bool alwaysPrint = false}) {
+  static void debug(dynamic message, {bool alwaysPrint = false}) {
     _loggerPrint(message ?? "", 'debug', alwaysPrint);
   }
 
   /// Logs an error [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
-  static error(dynamic message, {bool alwaysPrint = false}) {
+  static void error(dynamic message, {bool alwaysPrint = false}) {
     if (message is Exception) {
       _loggerPrint(message.toString(), 'error', alwaysPrint);
       return;
@@ -31,12 +31,12 @@ class NyLogger {
   /// Log an info [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
-  static info(dynamic message, {bool alwaysPrint = false}) {
+  static void info(dynamic message, {bool alwaysPrint = false}) {
     _loggerPrint(message ?? "", 'info', alwaysPrint);
   }
 
   /// Dumps a [message] with a tag.
-  static dump(dynamic message, String? tag, {bool alwaysPrint = false}) {
+  static void dump(dynamic message, String? tag, {bool alwaysPrint = false}) {
     _loggerPrint(message ?? "", tag, alwaysPrint);
   }
 
@@ -75,7 +75,7 @@ class NyLogger {
   }
 
   /// Log a message to the console.
-  static _logMessage(dynamic message) {
+  static void _logMessage(dynamic message) {
     if (kDebugMode) {
       if (message is String && message.length > 800) {
         log(message);

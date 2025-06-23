@@ -54,7 +54,7 @@ class Backpack {
   }
 
   /// Flush a session using a [name].
-  sessionFlush(String name) {
+  void sessionFlush(String name) {
     if (_values.containsKey(name)) {
       _values.remove(name);
     }

@@ -1,3 +1,8 @@
+## [6.30.0] - 2025-06-23
+
+* Added `PullableConfig` to pullable widget.
+* Update pubspec.yaml
+
 ## [6.29.0] - 2025-06-20
 
 * Added new `visibleWhen` extension to `Widget` class. This will allow you to show or hide a widget based on a condition.

@@ -65,7 +65,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       };
 
   /// The navigator key
-  getNavigationKey(MapEntry<int, NavigationTab> page) {
+  UniqueKey? getNavigationKey(MapEntry<int, NavigationTab> page) {
     if (navigatorKeys.containsKey(page.key)) {
       return navigatorKeys[page.key];
     } else {
@@ -75,7 +75,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
   }
 
   /// Handle the tap event
-  onTap(int index) {
+  void onTap(int index) {
     if (reset.containsKey(index) && reset[index] == true) {
       if (navigatorKeys.containsKey(index)) {
         navigatorKeys[index] = UniqueKey();

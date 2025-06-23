@@ -50,6 +50,7 @@ import 'package:flutter/material.dart'
         VerticalDivider;
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:intl/intl.dart' as intl;
+import '/widgets/ny_pullable.dart';
 import '/themes/base_theme_config.dart';
 import '/helpers/state_action.dart';
 import '/nylo.dart';
@@ -1055,6 +1056,23 @@ extension NyWidget on Widget {
       justifyMultiLineText: justifyMultiLineText,
       containersColor: containersColor,
       ignorePointers: ignorePointers,
+      child: this,
+    );
+  }
+
+  /// Make a widget pullable using the [Pullable] widget.
+  Widget pullable(
+      {required Future<void> Function()? onRefresh,
+      PullableConfig? pullableConfig}) {
+    if (pullableConfig == null) {
+      pullableConfig = PullableConfig(
+        onRefresh: onRefresh,
+      );
+    } else {
+      pullableConfig = pullableConfig.updateOnRefresh(onRefresh);
+    }
+    return Pullable(
+      config: pullableConfig,
       child: this,
     );
   }
