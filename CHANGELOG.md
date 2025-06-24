@@ -1,3 +1,9 @@
+## [6.31.0] - 2025-06-23
+
+* Added `set` to NySession class. This will allow you to set a value in the session.
+* Added `onFailure` parameter to isSuccessful method in `NyValidator`.
+* Fix `getInitialRouteName` to return the correct initial route name when, `when` is used.
+
 ## [6.30.0] - 2025-06-23
 
 * Added `PullableConfig` to pullable widget.

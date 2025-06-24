@@ -23,6 +23,11 @@ class NySession {
     return this;
   }
 
+  /// Set a value in the session
+  NySession set(String key, dynamic value) {
+    return add(key, value);
+  }
+
   /// Get a value from the session
   T? get<T>(String key) {
     return Backpack.instance.sessionGet<T>(name, key);

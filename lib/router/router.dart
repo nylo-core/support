@@ -499,7 +499,8 @@ class NyRouter {
   String getInitialRouteName() {
     List<MapEntry<String, NyRouterRoute>> initialRoutes = NyNavigator
         .instance.router._routeNameMappings.entries
-        .where((element) => element.value.getInitialRoute() == true)
+        .where((element) =>
+            element.value.getInitialRoute() == true && element.value.getWhen())
         .toList();
 
     if (initialRoutes.isNotEmpty) {

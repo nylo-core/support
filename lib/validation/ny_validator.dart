@@ -97,6 +97,7 @@ class NyValidator {
   static bool isSuccessful({
     required Map<String, dynamic> rules,
     Map<String, dynamic>? data,
+    Function(ValidationException error)? onFailure,
   }) {
     Map<String, String> finalRules = {};
     Map<String, dynamic> finalData = {};
@@ -125,6 +126,11 @@ class NyValidator {
       );
 
       return true;
+    } on ValidationException catch (e) {
+      if (onFailure != null) {
+        onFailure(e);
+      }
+      return false;
     } on Exception catch (_) {
       return false;
     }

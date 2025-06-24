@@ -30,6 +30,7 @@ class NyRouterRoute {
   PageTransitionSettings? pageTransitionSettings;
   bool _initialRoute, _authPage, _unknownRoute;
   final List<RouteGuard> _routeGuards = [];
+  Function()? _when;
 
   NyRouterRoute(
       {required this.name,
@@ -106,6 +107,7 @@ class NyRouterRoute {
 
   /// Set the initial route.
   NyRouterRoute initialRoute({bool Function()? when}) {
+    _when = when;
     if (when != null && when()) {
       _initialRoute = true;
     }
@@ -136,6 +138,7 @@ class NyRouterRoute {
 
   /// Set the authenticated route.
   NyRouterRoute authenticatedRoute({bool Function()? when}) {
+    _when = when;
     if (when != null && when()) {
       _authPage = true;
     }
@@ -163,5 +166,10 @@ class NyRouterRoute {
   /// Get the route guards.
   List<RouteGuard> getRouteGuards() {
     return _routeGuards;
+  }
+
+  /// Get the when function.
+  bool getWhen() {
+    return _when != null ? _when!() : true;
   }
 }
