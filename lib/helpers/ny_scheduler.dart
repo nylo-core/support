@@ -52,13 +52,24 @@ class NyScheduler {
   ///  ```
   ///  The above example will only execute once.
   ///  The next time you call NyScheduler.once("myFunction", () {}) it will not execute.
-  static taskOnce(String name, Function() callback) async {
+  static Future<void> taskOnce(String name, Function() callback) async {
     String key = "${name}_once";
     bool alreadyExecuted = await readBool(key);
     if (!alreadyExecuted) {
       await writeBool(key, true);
       await callback();
     }
+  }
+
+  /// Check if a task has been executed
+  static Future<bool> hasExecutedTaskOnce(String name) async {
+    String key = "${name}_once";
+    return await readBool(key);
+  }
+
+  /// Get the key for a task that runs once
+  static String getKeyTaskOnce(String name) {
+    return "${name}_once";
   }
 
   /// Run a task daily

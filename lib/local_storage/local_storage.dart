@@ -190,7 +190,19 @@ class NyStorage {
   }
 
   /// Deletes all keys with associated values.
-  static Future deleteAll({bool andFromBackpack = false}) async {
+  static Future deleteAll(
+      {bool andFromBackpack = false, List<String>? excludeKeys}) async {
+    if (excludeKeys != null && excludeKeys.isNotEmpty) {
+      Map<String, String> allValues = await readAll();
+      for (String key in excludeKeys) {
+        allValues.remove(key);
+      }
+      for (var data in allValues.entries) {
+        await delete(data.key, andFromBackpack: andFromBackpack);
+      }
+      return;
+    }
+
     if (andFromBackpack == true) {
       Backpack.instance.deleteAll();
     }

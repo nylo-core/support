@@ -782,8 +782,12 @@ class Nylo {
   }
 
   /// Wipe all storage data
-  static Future<void> wipeAllStorageData() async {
-    await NyStorage.deleteAll(andFromBackpack: true);
+  static Future<void> wipeAllStorageData({
+    List<String>? excludeKeys,
+    bool andFromBackpack = true,
+  }) async {
+    await NyStorage.deleteAll(
+        andFromBackpack: andFromBackpack, excludeKeys: excludeKeys);
   }
 
   /// Check if the router contains specific [routes]

@@ -1,3 +1,9 @@
+## [6.32.0] - 2025-07-02
+
+* Added `excludeKeys` to `NyStorage.deleteAll`. This will allow you to exclude certain keys from being deleted when calling `deleteAll`.
+* Added `hasExecutedTaskOnce` in NyScheduler. This will allow you to check if a task has been executed.
+* Update pubspec.yaml
+ 
 ## [6.31.0] - 2025-06-23
 
 * Added `set` to NySession class. This will allow you to set a value in the session.
