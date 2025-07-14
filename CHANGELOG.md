@@ -1,3 +1,8 @@
+## [6.33.0] - 2025-07-14
+
+* Added `lifecycleActions` to `NyPage`. This will allow you to handle lifecycle events in your pages.
+* Update pubspec.yaml
+
 ## [6.32.0] - 2025-07-02
 
 * Added `excludeKeys` to `NyStorage.deleteAll`. This will allow you to exclude certain keys from being deleted when calling `deleteAll`.

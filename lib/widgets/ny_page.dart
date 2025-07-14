@@ -10,7 +10,8 @@ import 'package:flutter/material.dart';
 import '/widgets/ny_stateful_widget.dart';
 import 'event_bus/update_state.dart';
 
-abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
+abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
+    with WidgetsBindingObserver {
   /// Base NyPage
   NyPage({super.path});
 
@@ -27,9 +28,13 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
   /// enable or disable if the [NyPage] should be state managed
   bool get stateManaged => false;
 
+  /// Map of lifecycle actions
+  Map<AppLifecycleState, Function()> get lifecycleActions => {};
+
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
 
     if (stateManaged) {
       /// Set the state name if the widget is a NyStatefulWidget
@@ -170,6 +175,22 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T> {
       }
 
       await Function.apply(function, []);
+    }
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (lifecycleActions.isEmpty) {
+      return;
+    }
+    if (lifecycleActions.containsKey(state)) {
+      lifecycleActions[state]!();
     }
   }
 }
