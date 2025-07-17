@@ -18,23 +18,23 @@ class StateAction {
   }
 
   /// Refresh the page
-  static refreshPage(dynamic state, {Function()? setState}) {
+  static void refreshPage(dynamic state, {Function()? setState}) {
     _updateState(_findStateName(state), "refresh-page", {"setState": setState});
   }
 
   /// Set the state of the page
-  static setState(dynamic state, Function() setState) {
+  static void setState(dynamic state, Function() setState) {
     _updateState(_findStateName(state), "set-state", {"setState": setState});
   }
 
   /// Pop the page
-  static pop(dynamic state, {dynamic result}) {
+  static void pop(dynamic state, {dynamic result}) {
     _updateState(_findStateName(state), "pop", {"setState": result});
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you
   /// only need to provide a [description].
-  static showToastSorry(dynamic state,
+  static void showToastSorry(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -47,7 +47,7 @@ class StateAction {
 
   /// Displays a Toast message containing "Warning" for the title, you
   /// only need to provide a [description].
-  static showToastWarning(dynamic state,
+  static void showToastWarning(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -60,7 +60,7 @@ class StateAction {
 
   /// Displays a Toast message containing "Info" for the title, you
   /// only need to provide a [description].
-  static showToastInfo(dynamic state,
+  static void showToastInfo(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -73,7 +73,7 @@ class StateAction {
 
   /// Displays a Toast message containing "Error" for the title, you
   /// only need to provide a [description].
-  static showToastDanger(dynamic state,
+  static void showToastDanger(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -86,7 +86,7 @@ class StateAction {
 
   /// Displays a Toast message containing "Oops" for the title, you
   /// only need to provide a [description].
-  static showToastOops(dynamic state,
+  static void showToastOops(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -99,7 +99,7 @@ class StateAction {
 
   /// Displays a Toast message containing "Success" for the title, you
   /// only need to provide a [description].
-  static showToastSuccess(dynamic state,
+  static void showToastSuccess(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -111,7 +111,7 @@ class StateAction {
   }
 
   /// Display a custom Toast message.
-  static showToastCustom(dynamic state,
+  static void showToastCustom(dynamic state,
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -123,7 +123,7 @@ class StateAction {
   }
 
   /// Validate data from your widget.
-  static validate(dynamic state,
+  static void validate(dynamic state,
       {required Map<String, dynamic> rules,
       Map<String, dynamic>? data,
       Map<String, dynamic>? messages,
@@ -148,7 +148,7 @@ class StateAction {
   }
 
   /// Update the language in the application
-  static changeLanguage(dynamic state,
+  static void changeLanguage(dynamic state,
       {required String language, bool restartState = true}) {
     _updateState(_findStateName(state), "change-language", {
       "language": language,
@@ -157,7 +157,7 @@ class StateAction {
   }
 
   /// Perform a confirm action
-  static confirmAction(dynamic state,
+  static Future<void> confirmAction(dynamic state,
       {required Function() action,
       required String title,
       String dismissText = "Cancel"}) async {

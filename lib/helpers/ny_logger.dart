@@ -43,7 +43,7 @@ class NyLogger {
   /// Log json data [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
-  static json(dynamic message, {bool alwaysPrint = false}) {
+  static void json(dynamic message, {bool alwaysPrint = false}) {
     bool canPrint = (getEnv('APP_DEBUG', defaultValue: true));
     if (!canPrint && !alwaysPrint) return;
     try {
@@ -54,7 +54,7 @@ class NyLogger {
   }
 
   /// Print a new log message
-  static _loggerPrint(dynamic message, String? type, bool alwaysPrint) {
+  static void _loggerPrint(dynamic message, String? type, bool alwaysPrint) {
     bool canPrint = (getEnv('APP_DEBUG', defaultValue: true));
     bool showLog = Backpack.instance.read('SHOW_LOG', defaultValue: false);
     if (!showLog && !canPrint && !alwaysPrint) return;

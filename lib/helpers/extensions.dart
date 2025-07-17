@@ -47,9 +47,11 @@ import 'package:flutter/material.dart'
         TextTheme,
         TextWidthBasis,
         Theme,
-        VerticalDivider;
+        VerticalDivider,
+        ThemeData;
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:intl/intl.dart' as intl;
+import 'package:nylo_support/helpers/typedefs.dart';
 import '/widgets/ny_pullable.dart';
 import '/themes/base_theme_config.dart';
 import '/helpers/state_action.dart';
@@ -71,12 +73,12 @@ extension NyStr on String? {
   Color toHexColor() => nyHexColor(this ?? "");
 
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump(this ?? "", tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump(this ?? "", tag);
     exit(0);
   }
@@ -91,12 +93,12 @@ extension NyStr on String? {
 /// Extensions for [int]
 extension NyInt on int? {
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -123,12 +125,12 @@ extension NyListWidget on List<Widget> {
 /// Extensions for [Map]
 extension NyMap on Map? {
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -137,12 +139,12 @@ extension NyMap on Map? {
 /// Extensions for [double]
 extension NyDouble on double? {
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -151,12 +153,12 @@ extension NyDouble on double? {
 /// Extensions for [bool]
 extension NyBool on bool? {
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -347,7 +349,7 @@ extension NyDateTime on DateTime? {
   }
 
   /// Check if [DateTime] is equal to a certain [age]
-  isAgeEqualTo(int age) {
+  bool? isAgeEqualTo(int age) {
     if (this == null) return null;
     int? ageCheck = toAge();
     if (ageCheck == null) return null;
@@ -442,12 +444,12 @@ extension NyDateTime on DateTime? {
   }
 
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -456,12 +458,12 @@ extension NyDateTime on DateTime? {
 /// Extensions for [List]
 extension NyList on List? {
   /// dump the value to the console. [tag] is optional.
-  dump({String? tag}) {
+  void dump({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
-  dd({String? tag}) {
+  void dd({String? tag}) {
     NyLogger.dump((this ?? "").toString(), tag);
     exit(0);
   }
@@ -2420,7 +2422,7 @@ extension NyContext on BuildContext {
   }
 
   /// Pop the current page
-  pop<T extends Object?>({T? result}) {
+  void pop<T extends Object?>({T? result}) {
     Navigator.of(this).pop(result);
   }
 
@@ -2502,12 +2504,12 @@ extension RouteViewExt on RouteView {
   }
 
   /// Refresh the page
-  stateRefresh() {
+  dynamic stateRefresh() {
     return StateAction.refreshPage(this.$1);
   }
 
   /// Route to a new page.
-  navigateTo(
+  dynamic navigateTo(
       {dynamic data,
       Map<String, dynamic>? queryParameters,
       NavigationType navigationType = NavigationType.push,
@@ -2534,14 +2536,11 @@ extension RouteViewExt on RouteView {
 
 /// Extensions for [List<AppTheme>]
 extension NyAppTheme on List<AppTheme> {
-  get darkTheme {
+  ThemeData get darkTheme {
     return firstWhere((theme) => theme.id == getEnv('DARK_THEME_ID'),
         orElse: () => first).data;
   }
 }
-
-/// Storagekey typedef
-typedef StorageKey = String;
 
 extension NyStorageKey on StorageKey {
   /// Attempt to convert a [String] into a model by using your model decoders.
@@ -2592,13 +2591,13 @@ extension NyStorageKey on StorageKey {
 
   /// Store a value in NyStorage
   /// You can also save a value in the backpack by setting [inBackpack] to true
-  save(dynamic value, {bool inBackpack = false}) async {
+  Future save(dynamic value, {bool inBackpack = false}) async {
     return await NyStorage.save(this, value, inBackpack: inBackpack);
   }
 
   /// Store a JSON value in NyStorage
   /// You can also save a value in the backpack by setting [inBackpack] to true
-  saveJson(dynamic value, {bool inBackpack = false}) async {
+  Future saveJson(dynamic value, {bool inBackpack = false}) async {
     try {
       return await NyStorage.saveJson(this, value, inBackpack: inBackpack);
     } catch (e) {
@@ -2608,7 +2607,8 @@ extension NyStorageKey on StorageKey {
 
   /// Add a value to a collection in NyStorage
   /// You can also set [allowDuplicates] to false to prevent duplicates
-  addToCollection<T>(dynamic value, {bool allowDuplicates = true}) async {
+  Future addToCollection<T>(dynamic value,
+      {bool allowDuplicates = true}) async {
     return await NyStorage.addToCollection<T>(this,
         item: value, allowDuplicates: allowDuplicates);
   }
@@ -2619,12 +2619,12 @@ extension NyStorageKey on StorageKey {
   }
 
   /// Delete a StorageKey value from NyStorage
-  deleteFromStorage({bool andFromBackpack = true}) async {
+  Future deleteFromStorage({bool andFromBackpack = true}) async {
     return await NyStorage.delete(this, andFromBackpack: andFromBackpack);
   }
 
   /// Flush data from NyStorage
-  flush({bool andFromBackpack = true}) async {
+  Future flush({bool andFromBackpack = true}) async {
     return await deleteFromStorage(andFromBackpack: andFromBackpack);
   }
 }

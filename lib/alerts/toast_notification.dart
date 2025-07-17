@@ -9,7 +9,7 @@ import '/nylo.dart';
 /// Provide a valid [ToastNotificationStyleType]
 /// i.e. [ToastNotificationStyleType.SUCCESS]
 /// Set a title, description to personalise the message.
-showToastNotification(BuildContext context,
+void showToastNotification(BuildContext context,
     {ToastNotificationStyleType? style,
     String? title,
     IconData? icon,

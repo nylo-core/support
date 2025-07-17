@@ -8,7 +8,7 @@ class NyListener {
   late NyEvent _event;
 
   /// Set the [event] that the listener was called from
-  setEvent(NyEvent event) {
+  void setEvent(NyEvent event) {
     _event = event;
   }
 

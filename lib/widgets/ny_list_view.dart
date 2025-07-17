@@ -110,6 +110,7 @@ class NyListView<T> extends StatefulWidget {
   final dynamic Function(List<T> items)? sort;
 
   @override
+  // ignore: no_logic_in_create_state
   createState() => _NyListViewState<T>(stateName);
 
   // Basic constructor - backwards compatible
@@ -251,7 +252,7 @@ class NyListView<T> extends StatefulWidget {
         separatorBuilder = null;
 
   /// Resets the state
-  static stateReset(String stateName) {
+  static void stateReset(String stateName) {
     updateState(stateName, data: {"action": "reset", "data": {}});
   }
 }
@@ -287,7 +288,7 @@ class _NyListViewState<T> extends NyState<NyListView<T>> {
       };
 
   @override
-  stateUpdated(dynamic data) {
+  stateUpdated(dynamic data) async {
     super.stateUpdated(data);
 
     if (data is! Map) return;

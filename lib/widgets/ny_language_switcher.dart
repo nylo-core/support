@@ -76,19 +76,20 @@ class NyLanguageSwitcher extends StatefulWidget {
   }
 
   /// Store the language in the storage
-  static storeLanguage({String? key, Map<String, dynamic>? object}) {
+  static Future storeLanguage({String? key, Map<String, dynamic>? object}) {
     key ??= state;
     return NyStorage.saveJson(key, object);
   }
 
   /// Clear the language from the storage
-  static clearLanguage({String? key}) {
+  static Future clearLanguage({String? key}) {
     key ??= state;
     return NyStorage.delete(key);
   }
 
   /// Show a bottom modal to switch languages
-  static showBottomModal(BuildContext context, {double? height}) async {
+  static Future<void> showBottomModal(BuildContext context,
+      {double? height}) async {
     List<Map<String, String>> list = await getLanguageList();
     Map<String, dynamic>? currentLang = await currentLanguage();
     showModalBottomSheet(
@@ -819,7 +820,7 @@ class _NyLanguageSwitcherState extends NyState<NyLanguageSwitcher> {
   }
 
   /// On change event for the dropdown
-  _onChange(String? newLanguageCode) async {
+  Future<void> _onChange(String? newLanguageCode) async {
     if (newLanguageCode == null) {
       return;
     }

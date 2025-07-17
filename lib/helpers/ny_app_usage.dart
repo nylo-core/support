@@ -35,28 +35,28 @@ class NyAppUsage {
   }
 
   /// Reset launch count
-  static resetLaunchCount() async {
+  static Future<void> resetLaunchCount() async {
     await useMonitoringMethod(() async {
       await writeValue("launch_count", "0");
     });
   }
 
   /// Reset first launch
-  static resetFirstLaunch() async {
+  static Future<void> resetFirstLaunch() async {
     await useMonitoringMethod(() async {
       await writeValue("first_launch", DateTime.now().toString());
     });
   }
 
   /// Reset first launch
-  static resetLastLaunch() async {
+  static Future<void> resetLastLaunch() async {
     await useMonitoringMethod(() async {
       await writeValue("last_launch", DateTime.now().toString());
     });
   }
 
   /// Check if we can use this [method]
-  static useMonitoringMethod(Function() method) async {
+  static Future useMonitoringMethod(Function() method) async {
     Nylo.canMonitorAppUsage();
     return await method();
   }

@@ -30,7 +30,7 @@ class StorageConfig {
   StorageConfig._privateConstructor();
 
   /// Initialize the storage configuration.
-  static init({
+  static void init({
     IOSOptions? iosOptions,
     AndroidOptions? androidOptions,
     LinuxOptions? linuxOptions,

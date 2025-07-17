@@ -47,7 +47,7 @@ class NyAction {
   /// Provide a [perform] function to execute if the user is authorized.
   /// Provide a [when] function to check if the user is authorized.
   /// Provide an [unauthorized] function to execute if the user is not authorized.
-  static authorized(Function() perform,
+  static Future<void> authorized(Function() perform,
       {required bool Function() when, Function()? unauthorized}) async {
     bool canPerform = when();
     if (!canPerform) {

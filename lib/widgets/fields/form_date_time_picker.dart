@@ -145,5 +145,5 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
   }
 
   /// Get the metadata from the field
-  getMetaData(String key) => widget.field.cast.metaData[key];
+  dynamic getMetaData(String key) => widget.field.cast.metaData[key];
 }

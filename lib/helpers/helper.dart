@@ -114,7 +114,7 @@ String trans(String key, {Map<String, String>? arguments}) =>
     NyLocalization.instance.translate(key, arguments);
 
 /// Event helper
-nyEvent<T>(
+Future<void> nyEvent<T>(
     {Map? params,
     Map<Type, NyEvent> events = const {},
     bool? broadcast}) async {
@@ -395,7 +395,7 @@ void updateState<T>(dynamic name,
 
 /// Send a state action to a [NyState] or [NyPage] in your application.
 /// Provide the [state] and the [action] you want to send.
-stateAction(String action, {required dynamic state, dynamic data}) {
+void stateAction(String action, {required dynamic state, dynamic data}) {
   updateState(state, data: {"action": action, "data": data});
 }
 
@@ -405,7 +405,7 @@ stateAction(String action, {required dynamic state, dynamic data}) {
 /// await api<ApiService>((request) => request.get("https://jsonplaceholder.typicode.com/posts"));
 /// ```
 /// The above example will send an API request and return the data.
-api<T extends NyApiService>(dynamic Function(T request) request,
+Future api<T extends NyApiService>(dynamic Function(T request) request,
         {BuildContext? context,
         Map<String, dynamic> headers = const {},
         String? bearerToken,
@@ -453,7 +453,7 @@ api<T extends NyApiService>(dynamic Function(T request) request,
 ///  });
 ///  ```
 ///  The above example will send an event to LoginEvent.
-event<T>({Map? data, bool? broadcast}) async =>
+Future event<T>({Map? data, bool? broadcast}) async =>
     await nyEvent<T>(params: data, events: Nylo.events(), broadcast: broadcast);
 
 /// Dump a message to the console.
@@ -461,7 +461,7 @@ event<T>({Map? data, bool? broadcast}) async =>
 /// ```dart
 /// dump("Hello World");
 /// ```
-dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
+void dump(dynamic value, {String? tag, bool alwaysPrint = false}) =>
     NyLogger.dump(value, tag, alwaysPrint: alwaysPrint);
 
 /// Get the DateTime.now() value.
@@ -500,7 +500,7 @@ Future<T?> loadJson<T>(String fileName, {bool cache = true}) async {
 }
 
 /// Clear badge number
-clearBadgeNumber() async {
+Future<void> clearBadgeNumber() async {
   if (kIsWeb) {
     return;
   }
@@ -510,7 +510,7 @@ clearBadgeNumber() async {
 }
 
 /// Set badge number
-setBadgeNumber(int number) async {
+Future<void> setBadgeNumber(int number) async {
   if (kIsWeb) {
     return;
   }
@@ -521,18 +521,18 @@ setBadgeNumber(int number) async {
 
 /// Print a message to the console.
 /// Log level: Info
-printInfo(dynamic message, {bool alwaysPrint = false}) {
+void printInfo(dynamic message, {bool alwaysPrint = false}) {
   NyLogger.info(message, alwaysPrint: alwaysPrint);
 }
 
 /// Print a message to the console.
 /// Log level: Error
-printError(dynamic message, {bool alwaysPrint = false}) {
+void printError(dynamic message, {bool alwaysPrint = false}) {
   NyLogger.error(message, alwaysPrint: alwaysPrint);
 }
 
 /// Print a message to the console.
 /// Log level: Debug
-printDebug(dynamic message, {bool alwaysPrint = false}) {
+void printDebug(dynamic message, {bool alwaysPrint = false}) {
   NyLogger.debug(message, alwaysPrint: alwaysPrint);
 }

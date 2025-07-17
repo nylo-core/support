@@ -84,7 +84,8 @@ class NyScheduler {
   /// });
   /// ```
   /// The above example will execute every day.
-  static taskDaily(String name, Function() callback, {DateTime? endAt}) async {
+  static Future<void> taskDaily(String name, Function() callback,
+      {DateTime? endAt}) async {
     if (endAt != null && !endAt.isInFuture()) {
       return;
     }
@@ -109,7 +110,8 @@ class NyScheduler {
   }
 
   /// Execute a task
-  static _executeTaskAndSetDateTime(String key, Function() callback) async {
+  static Future<void> _executeTaskAndSetDateTime(
+      String key, Function() callback) async {
     DateTime dateTime = DateTime.now();
     await writeValue(key, dateTime.toString());
 
@@ -126,7 +128,7 @@ class NyScheduler {
   /// }, date: DateTime.now().add(Duration(days: 1)));
   /// ```
   /// The above example will execute after the date provided.
-  static taskOnceAfterDate(String name, Function() callback,
+  static Future<void> taskOnceAfterDate(String name, Function() callback,
       {required DateTime date}) async {
     /// Check if the date is in the past
     if (!date.isInPast()) {

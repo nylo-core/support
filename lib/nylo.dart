@@ -72,6 +72,7 @@ class Nylo {
   NyCache? _cache;
   bool isFlutterLocalNotificationsInitialized = false;
   bool? _broadcastEvents;
+  Map<AppLifecycleState, Function()>? _appLifecycle;
 
   /// Get the cache instance
   NyCache? get getCache => _cache;
@@ -88,7 +89,7 @@ class Nylo {
   }
 
   /// Set the initial route from a [routeName].
-  setInitialRoute(String routeName) {
+  void setInitialRoute(String routeName) {
     _initialRoute = routeName;
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.save("nylo", this);
@@ -96,7 +97,7 @@ class Nylo {
   }
 
   /// Sync keys to the backpack instance.
-  syncKeys(keys) async {
+  Future<void> syncKeys(keys) async {
     Future<List<Object?>> Function() keysToSync = await keys();
     List finalKeys = await keysToSync();
     for (var key in finalKeys) {
@@ -110,7 +111,7 @@ class Nylo {
   }
 
   /// Set the form style
-  addFormStyle(NyFormStyle formStyle) {
+  void addFormStyle(NyFormStyle formStyle) {
     _formStyle = formStyle;
   }
 
@@ -131,7 +132,7 @@ class Nylo {
   ///  });
   ///  ```
   ///  This will navigate to the HomePage and SettingPage with the data passed to the HomePage.
-  static updateRouteStack(List<String> routes,
+  static void updateRouteStack(List<String> routes,
       {bool replace = true,
       bool deepLink = false,
       Map<String, dynamic>? dataForRoute}) {
@@ -147,7 +148,7 @@ class Nylo {
   ///  print("Deep link route: $route");
   ///  print("Deep link data: $data");
   ///  });
-  onDeepLink(Function(String route, dynamic data) callback) {
+  void onDeepLink(Function(String route, dynamic data) callback) {
     onDeepLinkAction = callback;
   }
 
@@ -209,7 +210,7 @@ class Nylo {
   /// });
   ///
   /// Usage in /app/providers/route_provider.dart e.g. Nylo.addRouter(accountRouter());
-  addRouter(NyRouter router) async {
+  Future<void> addRouter(NyRouter router) async {
     if (this.router == null) {
       this.router = NyRouter();
     }
@@ -219,7 +220,7 @@ class Nylo {
   }
 
   /// Add themes to Nylo
-  addThemes<T extends BaseColorStyles>(List<BaseThemeConfig<T>> themes) {
+  void addThemes<T extends BaseColorStyles>(List<BaseThemeConfig<T>> themes) {
     _appThemes.addAll(themes);
   }
 
@@ -228,14 +229,14 @@ class Nylo {
   /// - Days since first launch
   /// If [_monitorAppUsage] is set to true, you'll be able to use the
   /// functions from the [NyAppUsage] class.
-  monitorAppUsage() {
+  void monitorAppUsage() {
     _monitorAppUsage = true;
   }
 
   /// Use ErrorStack
   /// [level] is the log level for ErrorStack
   /// [errorWidget] is a custom error widget
-  useErrorStack(
+  void useErrorStack(
       {ErrorStackLogLevel level = ErrorStackLogLevel.verbose,
       Widget Function(FlutterErrorDetails errorDetails)? errorWidget}) {
     _enableErrorStack = true;
@@ -286,7 +287,7 @@ class Nylo {
   bool shouldMonitorAppUsage() => _monitorAppUsage ?? false;
 
   /// Show date time in logs
-  showDateTimeInLogs() {
+  void showDateTimeInLogs() {
     _showDateTimeInLogs = true;
   }
 
@@ -294,7 +295,7 @@ class Nylo {
   bool shouldShowDateTimeInLogs() => _showDateTimeInLogs ?? false;
 
   /// Set if you want to broadcast all events
-  broadcastEvents([bool broadcast = true]) {
+  void broadcastEvents([bool broadcast = true]) {
     _broadcastEvents = broadcast;
   }
 
@@ -302,7 +303,7 @@ class Nylo {
   bool shouldBroadcastEvents() => _broadcastEvents ?? false;
 
   /// Add toast notification
-  addToastNotification(
+  void addToastNotification(
       Widget Function({
         required ToastNotificationStyleType style,
         Function(ToastNotificationStyleMetaHelper helper)?
@@ -320,7 +321,7 @@ class Nylo {
   }
 
   /// Set API decoders
-  addApiDecoders(Map<Type, dynamic> apiDecoders) {
+  void addApiDecoders(Map<Type, dynamic> apiDecoders) {
     for (var apiDecoder in apiDecoders.entries) {
       if (apiDecoder.value is NyApiService Function()) {
         _apiDecoders.addAll({apiDecoder.key: apiDecoder.value});
@@ -336,7 +337,7 @@ class Nylo {
   Map<Type, NyApiService Function()> getApiDecoders() => _apiDecoders;
 
   /// Add [events] to Nylo
-  addEvents(Map<Type, NyEvent> events) async {
+  Future<void> addEvents(Map<Type, NyEvent> events) async {
     _events.addAll(events);
   }
 
@@ -344,7 +345,7 @@ class Nylo {
   Map<Type, NyEvent> getEvents() => _events;
 
   /// Add [validators] to Nylo
-  addValidationRules(Map<String, dynamic> validators) {
+  void addValidationRules(Map<String, dynamic> validators) {
     _validationRules.addAll(validators);
   }
 
@@ -352,7 +353,7 @@ class Nylo {
   Map<String, dynamic> getValidationRules() => _validationRules;
 
   /// Add form casts to Nylo
-  addFormCasts(Map<String, dynamic> formTypes) {
+  void addFormCasts(Map<String, dynamic> formTypes) {
     _formCasts.addAll(formTypes);
   }
 
@@ -360,7 +361,7 @@ class Nylo {
   Map<String, dynamic> getFormCasts() => _formCasts;
 
   /// Add [modelDecoders] to Nylo
-  addModelDecoders(Map<Type, dynamic> modelDecoders) {
+  void addModelDecoders(Map<Type, dynamic> modelDecoders) {
     _modelDecoders.addAll(modelDecoders);
     if (!Backpack.instance.isNyloInitialized()) {
       Backpack.instance.save("nylo", this);
@@ -378,7 +379,7 @@ class Nylo {
   }
 
   /// Add an [EventBus] to your Nylo project.
-  addEventBus({int maxHistoryLength = 10, bool allowLogging = false}) {
+  void addEventBus({int maxHistoryLength = 10, bool allowLogging = false}) {
     EventBus eventBus = EventBus(
       maxHistoryLength: maxHistoryLength,
       allowLogging: allowLogging,
@@ -390,17 +391,17 @@ class Nylo {
   }
 
   /// Add appLoader
-  addLoader(Widget appLoader) {
+  void addLoader(Widget appLoader) {
     _appLoader = appLoader;
   }
 
   /// Add appLogo
-  addLogo(Widget appLogo) {
+  void addLogo(Widget appLogo) {
     _appLogo = appLogo;
   }
 
   /// Add Controllers to your Nylo project.
-  addControllers(Map<Type, dynamic> controllers) {
+  void addControllers(Map<Type, dynamic> controllers) {
     for (var controllerDecoder in controllers.entries) {
       if (controllerDecoder.value is NyController Function()) {
         _controllerDecoders
@@ -437,12 +438,13 @@ class Nylo {
       _localNotifications;
 
   /// Set local notifications
-  setLocalNotifications(FlutterLocalNotificationsPlugin localNotifications) {
+  void setLocalNotifications(
+      FlutterLocalNotificationsPlugin localNotifications) {
     _localNotifications = localNotifications;
   }
 
   /// Get the local notifications plugin
-  static localNotifications(
+  static Future<void> localNotifications(
       Function(FlutterLocalNotificationsPlugin localNotifications)
           callback) async {
     Nylo nylo = Nylo.instance;
@@ -503,7 +505,8 @@ class Nylo {
   static Future<Nylo> init(
       {Function? setup,
       Function(Nylo nylo)? setupFinished,
-      bool? showSplashScreen}) async {
+      bool? showSplashScreen,
+      Map<AppLifecycleState, Function()>? appLifecycle}) async {
     const String envFile = String.fromEnvironment(
       'ENV_FILE',
       defaultValue: '.env',
@@ -520,6 +523,7 @@ class Nylo {
     Nylo nyloApp = Nylo();
 
     if (setup == null) {
+      nyloApp._appLifecycle = appLifecycle;
       nyloApp._cache = await NyCache.getInstance();
       if (setupFinished != null) {
         await setupFinished(nyloApp);
@@ -542,6 +546,7 @@ class Nylo {
 
     nyloApp = await setup();
     nyloApp._cache = await NyCache.getInstance();
+    nyloApp._appLifecycle = appLifecycle;
 
     if (setupFinished != null) {
       await setupFinished(nyloApp);
@@ -563,7 +568,7 @@ class Nylo {
   }
 
   /// Initialize local notifications
-  initializeLocalNotifications() async {
+  Future<bool?>? initializeLocalNotifications() async {
     return await _localNotifications?.initialize(
       _initializationSettings!,
       onDidReceiveBackgroundNotificationResponse:
@@ -593,6 +598,9 @@ class Nylo {
   /// Get events
   static Map<Type, NyEvent> events() => instance.getEvents();
 
+  /// Get AppLifecycleState
+  Map<AppLifecycleState, Function()>? get appLifecycleStates => _appLifecycle;
+
   /// Get api decoders
   static Map<Type, NyApiService> apiDecoders() {
     Map<Type, NyApiService> apiDecoders = {};
@@ -613,7 +621,7 @@ class Nylo {
   }
 
   /// Add a navigator observer.
-  addNavigatorObserver(NavigatorObserver observer) {
+  void addNavigatorObserver(NavigatorObserver observer) {
     _navigatorObservers.add(observer);
   }
 
@@ -621,17 +629,17 @@ class Nylo {
   List<NavigatorObserver> getNavigatorObservers() => _navigatorObservers;
 
   /// Remove a navigator observer.
-  removeNavigatorObserver(NavigatorObserver observer) {
+  void removeNavigatorObserver(NavigatorObserver observer) {
     _navigatorObservers.remove(observer);
   }
 
   /// Add a route to the route history.
-  static addRouteHistory(Route<dynamic> route) {
+  static void addRouteHistory(Route<dynamic> route) {
     NyNavigator.instance.router.addRouteHistory(route);
   }
 
   /// Remove a route from the route history.
-  static removeRouteHistory(Route<dynamic> route) {
+  static void removeRouteHistory(Route<dynamic> route) {
     NyNavigator.instance.router.removeRouteHistory(route);
   }
 
@@ -658,7 +666,7 @@ class Nylo {
   }
 
   /// Remove a route from the route history.
-  static removeLastRouteHistory() {
+  static void removeLastRouteHistory() {
     NyNavigator.instance.router.removeLastRouteHistory();
   }
 
@@ -732,7 +740,7 @@ class Nylo {
       getCurrentRouteName() == routeName;
 
   /// Check if the app can monitor data
-  static canMonitorAppUsage() {
+  static void canMonitorAppUsage() {
     if (!Nylo.instance.shouldMonitorAppUsage()) {
       throw Exception("""\n
       You need to enable app usage monitoring in your Nylo instance.
@@ -765,18 +773,18 @@ class Nylo {
   }
 
   /// Schedule something to happen once
-  static scheduleOnce(String name, Function() callback) async {
+  static Future<void> scheduleOnce(String name, Function() callback) async {
     await NyScheduler.taskOnce(name, callback);
   }
 
   /// Schedule something to happen once daily
-  static scheduleOnceDaily(String name, Function() callback,
+  static Future<void> scheduleOnceDaily(String name, Function() callback,
       {DateTime? endAt}) async {
     await NyScheduler.taskDaily(name, callback, endAt: endAt);
   }
 
   /// Schedule something to happen once after a date
-  static scheduleOnceAfterDate(String name, Function() callback,
+  static Future<void> scheduleOnceAfterDate(String name, Function() callback,
       {required DateTime date}) async {
     await NyScheduler.taskOnceAfterDate(name, callback, date: date);
   }
@@ -820,17 +828,17 @@ class Nylo {
   }
 
   /// Add an auth key to the Nylo instance
-  addAuthKey(String key) {
+  void addAuthKey(String key) {
     authStorageKey = key;
   }
 
   /// Sync a model to the backpack instance.
-  syncToBackpack(String key, dynamic data) async {
+  Future<void> syncToBackpack(String key, dynamic data) async {
     Backpack.instance.save(key, data);
   }
 
   /// Wipe all storage data
-  wipeStorage() async {
+  Future<void> wipeStorage() async {
     await NyStorage.deleteAll();
   }
 }

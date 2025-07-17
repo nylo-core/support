@@ -5,7 +5,7 @@ class NyArgument {
   NyArgument(this.data);
 
   /// Write [data] to controller
-  setData(dynamic data) {
+  void setData(dynamic data) {
     this.data = data;
   }
 }

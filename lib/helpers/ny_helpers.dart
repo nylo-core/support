@@ -11,3 +11,4 @@ export '/helpers/backpack.dart';
 export '/helpers/auth.dart';
 export '/helpers/extensions.dart';
 export '/helpers/loading_style.dart';
+export '/helpers/typedefs.dart';

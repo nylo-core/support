@@ -68,32 +68,32 @@ class NavigationTab {
         meta = {};
 
   /// Update the page of the NavigationTab
-  updatePage(Widget page) {
+  void updatePage(Widget page) {
     this.page = page;
   }
 
   /// Update the title of the NavigationTab
-  updateTitle(String title) {
+  void updateTitle(String title) {
     this.title = title;
   }
 
   /// Update the icon of the NavigationTab
-  updateIcon(Widget icon) {
+  void updateIcon(Widget icon) {
     this.icon = icon;
   }
 
   /// Update the active icon of the NavigationTab
-  updateActiveIcon(Widget activeIcon) {
+  void updateActiveIcon(Widget activeIcon) {
     this.activeIcon = activeIcon;
   }
 
   /// Update the background color of the NavigationTab
-  updateBackgroundColor(Color backgroundColor) {
+  void updateBackgroundColor(Color backgroundColor) {
     this.backgroundColor = backgroundColor;
   }
 
   /// Update the tooltip of the NavigationTab
-  updateTooltip(String tooltip) {
+  void updateTooltip(String tooltip) {
     this.tooltip = tooltip;
   }
 }

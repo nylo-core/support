@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import '/helpers/ny_logger.dart';
 import '/alerts/toast_enums.dart';
 import '/alerts/toast_notification.dart';
@@ -44,7 +45,7 @@ class ValidationRule {
   }
 
   /// The alert which will be displayed.
-  alert(context,
+  void alert(BuildContext context,
       {ToastNotificationStyleType style = ToastNotificationStyleType.warning,
       Duration? duration,
       Map<String, dynamic>? info}) {

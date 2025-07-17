@@ -19,7 +19,7 @@ class NyRequest {
   }
 
   /// Write [data] to controller
-  setData(dynamic data) {
+  void setData(dynamic data) {
     _args?.data = data;
   }
 
@@ -81,7 +81,7 @@ abstract class BaseController {
   /// Initialize your controller with this method.
   /// It contains same [BuildContext] as the [NyStatefulWidget].
   @mustCallSuper
-  construct(BuildContext context) async {
+  Future<void> construct(BuildContext context) async {
     this.context = context;
   }
 }

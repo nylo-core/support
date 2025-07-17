@@ -140,7 +140,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// stateUpdated(dynamic data) {
   ///   data = "Hello World"
   /// }
-  stateUpdated(dynamic data) async {
+  Future<void> stateUpdated(dynamic data) async {
     if (data is! Map) return;
     if (!data.containsKey('action') || data['action'] == null) return;
     dynamic stateData = {};
@@ -290,7 +290,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// Reboot your widget.
   ///
   /// This method will re-call the boot command to 'reboot' your widget.
-  reboot() async {
+  Future<void> reboot() async {
     awaitData(
       perform: () async {
         await init();
@@ -340,13 +340,13 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Pop the current widget from the stack.
-  pop({dynamic result}) {
+  void pop({dynamic result}) {
     if (!mounted) return;
     Navigator.of(context).pop(result);
   }
 
   /// Show a toast notification
-  showToast(
+  void showToast(
       {ToastNotificationStyleType style = ToastNotificationStyleType.success,
       required String title,
       required String description,
@@ -365,7 +365,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Sorry" for the title, you
   /// only need to provide a [description].
-  showToastSorry(
+  void showToastSorry(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -377,7 +377,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Warning" for the title, you
   /// only need to provide a [description].
-  showToastWarning(
+  void showToastWarning(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -389,7 +389,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Info" for the title, you
   /// only need to provide a [description].
-  showToastInfo(
+  void showToastInfo(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -401,7 +401,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Error" for the title, you
   /// only need to provide a [description].
-  showToastDanger(
+  void showToastDanger(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -413,7 +413,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Oops" for the title, you
   /// only need to provide a [description].
-  showToastOops(
+  void showToastOops(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -425,7 +425,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Success" for the title, you
   /// only need to provide a [description].
-  showToastSuccess(
+  void showToastSuccess(
       {String? title,
       required String description,
       ToastNotificationStyleType? style}) {
@@ -436,7 +436,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Display a custom Toast message.
-  showToastCustom(
+  void showToastCustom(
       {String? title, String? description, ToastNotificationStyleType? style}) {
     showToast(
         title: title ?? "",
@@ -445,7 +445,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Validate data from your widget.
-  validate(
+  void validate(
       {required Map<String, dynamic> rules,
       Map<String, dynamic>? data,
       Map<String, dynamic>? messages,
@@ -563,7 +563,8 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Update the language in the application
-  changeLanguage(String language, {bool restartState = true}) async {
+  Future<void> changeLanguage(String language,
+      {bool restartState = true}) async {
     if (!mounted) return;
     await NyLocalization.instance.setLanguage(
       context,
@@ -580,7 +581,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// whenEnv('production', perform: () {
   /// .. perform any action you need to in production
   /// });
-  whenEnv(String env,
+  Future<void> whenEnv(String env,
       {required Function perform, bool shouldSetState = true}) async {
     if (getEnv('APP_ENV') != env) {
       return;
@@ -605,7 +606,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   ///
   /// ... in your widget
   /// Text( isLoading('home') ? 'YES Loading' : 'Loading Finished').
-  awaitData(
+  Future<void> awaitData(
       {String name = 'default',
       required Function perform,
       bool shouldSetStateBefore = true,
@@ -636,7 +637,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Update the loading state.
-  _updateLoadingState(
+  void _updateLoadingState(
       {required bool shouldSetState,
       required String name,
       required bool value}) {
@@ -653,7 +654,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// E.g.setLoader('updating_user', value: true);
   ///
   /// Provide a [name] and boolean value.
-  _setLoader(String name, {required bool value}) {
+  void _setLoader(String name, {required bool value}) {
     _loadingMap[name] = value;
   }
 
@@ -670,7 +671,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// E.g.setLock('updating_user', value: true);
   ///
   /// Provide a [name] and boolean value.
-  _setLock(String name, {required bool value}) {
+  void _setLock(String name, {required bool value}) {
     _lockMap[name] = value;
   }
 
@@ -685,7 +686,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// Use [isLocked] to check if the function is still locked.
   /// E.g.
   /// isLocked('update') // true/false
-  lockRelease(String name,
+  Future<void> lockRelease(String name,
       {required Function perform, bool shouldSetState = true}) async {
     if (isLocked(name) == true) {
       return;
@@ -702,7 +703,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Update the lock state.
-  _updateLockState(
+  void _updateLockState(
       {required bool shouldSetState,
       required String name,
       required bool value}) {
@@ -747,7 +748,8 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Set the value of a loading key by padding a true or false
-  setLoading(bool value, {String name = 'default', bool resetState = true}) {
+  void setLoading(bool value,
+      {String name = 'default', bool resetState = true}) {
     if (resetState) {
       setState(() {
         _loadingMap[name] = value;
@@ -764,7 +766,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// confirmAction(() {
   ///  ... perform action
   ///  }, title: "Delete account?", dismissText: "Cancel");
-  confirmAction(
+  void confirmAction(
     Function() action, {
     required String title,
     String dismissText = "Cancel",

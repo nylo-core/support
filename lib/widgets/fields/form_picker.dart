@@ -178,7 +178,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
   }
 
   /// Select a value from the list of options
-  _selectValue(BuildContext context) {
+  void _selectValue(BuildContext context) {
     // get the list of values
     List<String> values = getOptions();
 

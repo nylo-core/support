@@ -14,7 +14,7 @@ class FormCast {
   FormCast({this.type = "capitalize-sentences"});
 
   /// Get the metadata for the form cast
-  getMetaData(String name) {
+  dynamic getMetaData(String name) {
     if (metaData == null) {
       return null;
     }
@@ -25,7 +25,7 @@ class FormCast {
   }
 
   /// Add metadata to the form cast
-  addMetaData(Map<String, dynamic> data) {
+  void addMetaData(Map<String, dynamic> data) {
     if (metaData is Map) {
       metaData.addAll(data);
       return;

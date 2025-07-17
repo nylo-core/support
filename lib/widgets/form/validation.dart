@@ -384,7 +384,7 @@ class FormValidator {
   }
 
   /// Set the data for the form validator
-  setData(dynamic data) {
+  void setData(dynamic data) {
     if (data is List) {
       this.data = data.join(", ").toString();
       return;

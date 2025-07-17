@@ -273,12 +273,12 @@ class NyFormData {
   Function()? get init => null;
 
   /// Check if the form is ready
-  formReady() {
+  void formReady() {
     _ready.add(true);
   }
 
   /// Initialize the stream for the form
-  initializeStream() {
+  StreamController? initializeStream() {
     _updatedStream = StreamController.broadcast();
     return _updatedStream;
   }
@@ -293,7 +293,7 @@ class NyFormData {
   Widget? get submitButton => null;
 
   /// Load data for the form
-  initialData(Function() loadData, {bool refreshState = false}) {
+  void initialData(Function() loadData, {bool refreshState = false}) {
     _loadData = loadData;
 
     if (!refreshState) return;
@@ -301,10 +301,10 @@ class NyFormData {
   }
 
   /// On change function for the form
-  onChange(String field, Map<String, dynamic> data) {}
+  void onChange(String field, Map<String, dynamic> data) {}
 
   /// Refresh the form
-  refreshForm() {
+  void refreshForm() {
     NyForm.stateRefreshForm(stateName);
   }
 
@@ -333,7 +333,7 @@ class NyFormData {
   }
 
   /// Clear the form
-  clear({bool refreshState = true}) {
+  void clear({bool refreshState = true}) {
     _data.forEach((key, value) {
       _data[key] = null;
     });
@@ -347,7 +347,7 @@ class NyFormData {
   }
 
   /// Clear a field in the form
-  clearField(String key) {
+  void clearField(String key) {
     if (!_data.containsKey(key)) {
       throw Exception("Field $key does not exist in the form");
     }
@@ -357,7 +357,7 @@ class NyFormData {
 
   /// Set the value for a field in the form
   /// If the field does not exist, it will throw an exception
-  setFieldValue(String key, dynamic value, {bool refreshState = true}) {
+  void setFieldValue(String key, dynamic value, {bool refreshState = true}) {
     if (!_data.containsKey(key)) {
       throw Exception("Field $key does not exist in the form");
     }
@@ -368,7 +368,7 @@ class NyFormData {
 
   /// Set the options for a field in the form
   /// If the field does not exist, it will throw an exception
-  setFieldOptions(String key, dynamic value, {bool refreshState = true}) {
+  void setFieldOptions(String key, dynamic value, {bool refreshState = true}) {
     if (!_data.containsKey(key)) {
       throw Exception("Field $key does not exist in the form");
     }
@@ -378,7 +378,7 @@ class NyFormData {
   }
 
   /// Set the data for the form
-  setData(Map<String, dynamic> data, {bool refreshState = true}) {
+  void setData(Map<String, dynamic> data, {bool refreshState = true}) {
     if (data.isEmpty) {
       return;
     }
@@ -455,7 +455,7 @@ class NyFormData {
 
   /// Submit the form
   /// If the form is valid, it will call the [onSuccess] function
-  submit(
+  void submit(
       {required Function(dynamic value) onSuccess,
       Function(Exception exception)? onFailure,
       bool showToastError = true}) {

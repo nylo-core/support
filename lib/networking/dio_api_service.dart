@@ -53,12 +53,12 @@ class DioApiService {
   Function(DioException dioException)? _onErrorEvent;
 
   /// Set the [onSuccess] callback for the request
-  onSuccess(Function(Response response, dynamic data) onSuccess) {
+  void onSuccess(Function(Response response, dynamic data) onSuccess) {
     _onSuccessEvent = onSuccess;
   }
 
   /// Set the [onError] callback for the request
-  onError(Function(DioException dioException) onError) {
+  void onError(Function(DioException dioException) onError) {
     _onErrorEvent = onError;
   }
 
@@ -88,7 +88,7 @@ class DioApiService {
   }
 
   /// Set the build context (optional)
-  setContext(BuildContext context) {
+  void setContext(BuildContext context) {
     _context = context;
   }
 
@@ -96,67 +96,67 @@ class DioApiService {
   BuildContext? getContext() => _context;
 
   /// Set new [headers] to the baseOptions variable.
-  setHeaders(Map<String, dynamic> headers) {
+  void setHeaders(Map<String, dynamic> headers) {
     _api.options.headers.addAll(headers);
   }
 
   /// Set a bearer token [headers] to the baseOptions variable.
-  setBearerToken(String bearerToken) {
+  void setBearerToken(String bearerToken) {
     _api.options.headers.addAll({"Authorization": "Bearer $bearerToken"});
   }
 
   /// Set a [baseUrl] for the request.
-  setBaseUrl(String baseUrl) {
+  void setBaseUrl(String baseUrl) {
     _api.options.baseUrl = baseUrl;
   }
 
   /// Set how many times the request should [retry] if it fails.
-  setRetry(int retry) {
+  void setRetry(int retry) {
     this.retry = retry;
   }
 
   /// Set the [Duration] how long the request should wait before retrying.
-  setRetryDelay(Duration retryDelay) {
+  void setRetryDelay(Duration retryDelay) {
     this.retryDelay = retryDelay;
   }
 
   /// Set if the request should [shouldRetry] if the [retryIf] returns true.
-  setRetryIf(bool Function(DioException dioException) retryIf) {
+  void setRetryIf(bool Function(DioException dioException) retryIf) {
     this.retryIf = retryIf;
   }
 
   /// Set if the request should [shouldSetAuthHeaders] if the [shouldRefreshToken] returns true.
-  setShouldSetAuthHeaders(bool shouldSetAuthHeaders) {
+  void setShouldSetAuthHeaders(bool shouldSetAuthHeaders) {
     this.shouldSetAuthHeaders = shouldSetAuthHeaders;
   }
 
   /// Set the [baseOptions] for the request.
-  setOptions(BaseOptions baseOptions) {
+  void setOptions(BaseOptions baseOptions) {
     _api.options = baseOptions;
   }
 
   /// Set the [connectTimeout] for the request.
-  setConnectTimeout(Duration duration) {
+  void setConnectTimeout(Duration duration) {
     _api.options.connectTimeout = duration;
   }
 
   /// Set the [receiveTimeout] for the request.
-  setReceiveTimeout(Duration duration) {
+  void setReceiveTimeout(Duration duration) {
     _api.options.receiveTimeout = duration;
   }
 
   /// Set the [method] for the request.
-  setMethod(String method) {
+  void setMethod(String method) {
     _api.options.method = method;
   }
 
   /// Set the [sendTimeout] for the request.
-  setSendTimeout(Duration duration) {
+  void setSendTimeout(Duration duration) {
     _api.options.sendTimeout = duration;
   }
 
   /// Set the [contentType] for the request.
-  setContentType(String contentType) {
+  void setContentType(String contentType) {
     _api.options.contentType = contentType;
   }
 
@@ -168,13 +168,13 @@ class DioApiService {
   String? _cacheKey;
 
   /// Set the cache for the request.
-  setCache(Duration? duration, String cacheKey) {
+  void setCache(Duration? duration, String cacheKey) {
     _cacheDuration = duration;
     _cacheKey = cacheKey;
   }
 
   /// Apply a pagination query to the HTTP request
-  setPagination(int page,
+  void setPagination(int page,
       {String? paramPage, String? paramPerPage, String? perPage}) {
     Map<String, dynamic> query = {(paramPage ?? "page"): page};
     if (perPage != null) {
@@ -387,22 +387,23 @@ class DioApiService {
   }
 
   /// Handle the [DioException] response if there is an issue.
-  error(DioException dioException) {}
+  void error(DioException dioException) {}
 
   /// Display a error to the user
   /// This method is only called if you provide the API service
   /// with a [BuildContext].
-  displayError(DioException dioException, BuildContext context) {}
+  void displayError(DioException dioException, BuildContext context) {}
 
   /// Handle the undefined response's for HTTP requests.
   /// The [data] parameter contains what was returned from your decoder.
-  onUndefinedResponse(dynamic data, Response response, BuildContext? context) {}
+  void onUndefinedResponse(
+      dynamic data, Response response, BuildContext? context) {}
 
   /// Handles an API network response from [Dio].
   /// [handleSuccess] overrides the return value
   /// [handleFailure] is called then the response status is not 200.
   /// You can return a different value using this callback.
-  handleResponse<T>(Response response,
+  dynamic handleResponse<T>(Response response,
       {Function(Response response)? handleSuccess}) {
     bool wasSuccessful = false;
     if (response.statusCode != null) {
@@ -422,14 +423,14 @@ class DioApiService {
   }
 
   /// Morphs json into Object using 'config/decoders.dart'.
-  _morphJsonResponse<T>(dynamic json) {
+  dynamic _morphJsonResponse<T>(dynamic json) {
     DefaultResponse defaultResponse =
         DefaultResponse<T>.fromJson(json, decoders ?? {}, type: T);
     return defaultResponse.data;
   }
 
   /// Adds all the [interceptors] to [dio].
-  _addInterceptors() => _api.interceptors.addAll(interceptors.values);
+  void _addInterceptors() => _api.interceptors.addAll(interceptors.values);
 
   /// Perform a [Dio] request to update the users auth token.
   /// This method is called when [shouldRefreshToken] returns true.
@@ -437,7 +438,7 @@ class DioApiService {
   /// The [dio] parameter is a new instance of [Dio].
   /// You can use this to perform a request without affecting the
   /// original [Dio] instance.
-  refreshToken(Dio dio) async {}
+  Future<void> refreshToken(Dio dio) async {}
 
   /// Check if the users auth token should be refreshed.
   /// This method is called before every request.

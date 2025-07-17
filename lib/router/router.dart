@@ -140,7 +140,7 @@ class NyNavigator {
   ///  });
   ///  ```
   ///  This will navigate to the HomePage and SettingPage with the data passed to the HomePage.
-  static updateStack(List<String> routes,
+  static void updateStack(List<String> routes,
       {bool replace = true, Map<String, dynamic>? dataForRoute}) {
     for (var route in routes) {
       dynamic data;
@@ -232,7 +232,7 @@ class NyRouter {
   Map<String, NyRouterRoute> getRegisteredRoutes() => _routeNameMappings;
 
   /// Update the registered routes.
-  updateRegisteredRoutes(Map<String, NyRouterRoute> router) {
+  void updateRegisteredRoutes(Map<String, NyRouterRoute> router) {
     _routeNameMappings = router;
   }
 
@@ -289,7 +289,7 @@ class NyRouter {
   }
 
   /// Updates a named [route].
-  updateRoute(NyRouterRoute route) {
+  void updateRoute(NyRouterRoute route) {
     _routeNameMappings[route.name] = route;
   }
 
@@ -307,7 +307,7 @@ class NyRouter {
   ///   router.route(AccountPage.path, (_) => AccountPage());
   ///   router.route(AccountSettingsPage.path, (_) => AccountSettingsPage());
   ///  });
-  group(Map<String, dynamic> Function() settings,
+  void group(Map<String, dynamic> Function() settings,
       Function(NyRouter router) router) {
     NyRouter nyRouter = NyRouter();
     router(nyRouter);
@@ -714,17 +714,17 @@ class NyRouter {
   }
 
   /// Add the route to the history.
-  addRouteHistory(Route<dynamic> route) {
+  void addRouteHistory(Route<dynamic> route) {
     _routeHistory.add(route);
   }
 
   /// Remove the route from the history.
-  removeRouteHistory(Route<dynamic> route) {
+  void removeRouteHistory(Route<dynamic> route) {
     _routeHistory.remove(route);
   }
 
   /// Remove the last route from the history.
-  removeLastRouteHistory() {
+  void removeLastRouteHistory() {
     _routeHistory.removeLast();
   }
 
@@ -1214,7 +1214,7 @@ class NyRouter {
 /// navigating to the new route. E.g. [TransitionType.fade()] or
 /// [TransitionType.bottomToTop()].
 /// See https://pub.dev/packages/page_transition to learn more.
-routeTo(dynamic routeName,
+Future<void> routeTo(dynamic routeName,
     {dynamic data,
     Map<String, dynamic>? queryParameters,
     NavigationType navigationType = NavigationType.push,
@@ -1266,7 +1266,7 @@ routeTo(dynamic routeName,
 
 /// Navigate to a new route if a condition is met.
 /// If the condition is false, the route will not be navigated to.
-routeIf(bool condition, dynamic routeName,
+Future<void> routeIf(bool condition, dynamic routeName,
     {dynamic data,
     Map<String, dynamic>? queryParameters,
     NavigationType navigationType = NavigationType.push,
@@ -1296,7 +1296,7 @@ routeIf(bool condition, dynamic routeName,
 }
 
 /// Navigate to the auth route.
-routeToAuthenticatedRoute({
+Future<void> routeToAuthenticatedRoute({
   dynamic data,
   NavigationType navigationType = NavigationType.pushAndForgetAll,
   dynamic result,
@@ -1329,7 +1329,7 @@ routeToAuthenticatedRoute({
 }
 
 /// Navigate to the initial route.
-routeToInitial(
+Future<void> routeToInitial(
     {dynamic data,
     NavigationType navigationType = NavigationType.pushAndForgetAll,
     dynamic result,

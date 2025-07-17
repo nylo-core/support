@@ -12,9 +12,9 @@ abstract class RouteGuard {
   PageRequest? pageRequest;
 
   /// Called before a route is opened.
-  onRequest(
+  Future<PageRequest?> onRequest(
     PageRequest pageRequest,
-  ) =>
+  ) async =>
       null;
 }
 
@@ -50,7 +50,7 @@ class NyRouteGuard extends RouteGuard {
   NyRouteGuard();
 
   /// The [NyArgument] passed from the last route.
-  get data => pageRequest?.data;
+  dynamic get data => pageRequest?.data;
 
   /// The [BuildContext] for the current route.
   BuildContext? get context => pageRequest?.context;
@@ -59,7 +59,7 @@ class NyRouteGuard extends RouteGuard {
   Map<String, String>? get queryParameters => pageRequest?.queryParameters;
 
   /// Add data to the current route.
-  addData(dynamic Function(dynamic data) currentData) {
+  void addData(dynamic Function(dynamic data) currentData) {
     pageRequest?.addData(currentData);
   }
 
@@ -69,7 +69,7 @@ class NyRouteGuard extends RouteGuard {
   );
 
   /// Redirect to a new route.
-  redirect(dynamic path,
+  PageRequest redirect(dynamic path,
       {dynamic data,
       Map<String, dynamic>? queryParameters,
       NavigationType navigationType = NavigationType.pushReplace,
@@ -103,7 +103,7 @@ class PageRequest {
   bool isRedirect = false;
   RouteData? routeData;
 
-  get data => nyArgument?.data;
+  dynamic get data => nyArgument?.data;
 
   PageRequest({this.context, this.nyArgument, this.queryParameters});
 
@@ -130,7 +130,7 @@ class PageRequest {
   }
 
   /// Add data to the current route.
-  addData(dynamic Function(dynamic data) currentData) {
+  void addData(dynamic Function(dynamic data) currentData) {
     nyArgument?.setData((currentData(data)));
   }
 }
@@ -160,7 +160,7 @@ class RouteData {
       this.onPop});
 
   /// Redirect to a new route.
-  routeToPage() async {
+  Future<void> routeToPage() async {
     await routeTo(path,
         data: data,
         queryParameters: queryParameters,

@@ -22,7 +22,7 @@ class NyValidator {
   ///   print(e.toString());
   /// }
   /// See more https://nylo.dev/docs/6.x/validation
-  static check(
+  static void check(
       {required Map<String, String> rules,
       required Map<String, dynamic> data,
       Map<String, dynamic> messages = const {},

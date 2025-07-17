@@ -22,7 +22,7 @@ class NyBaseApiService {
   }
 
   /// Set the build context (optional)
-  setContext(BuildContext context) {
+  void setContext(BuildContext context) {
     _context = context;
   }
 
@@ -30,22 +30,22 @@ class NyBaseApiService {
   BuildContext? getContext() => _context;
 
   /// Set new [headers] to the baseOptions variable.
-  setHeaders(Map<String, dynamic> headers) {
+  void setHeaders(Map<String, dynamic> headers) {
     _api.options.headers.addAll(headers);
   }
 
   /// Set a bearer token [headers] to the baseOptions variable.
-  setBearerToken(String bearerToken) {
+  void setBearerToken(String bearerToken) {
     _api.options.headers.addAll({"Authorization": "Bearer $bearerToken"});
   }
 
   /// Set a [baseUrl] for the request.
-  setBaseUrl(String baseUrl) {
+  void setBaseUrl(String baseUrl) {
     _api.options.baseUrl = baseUrl;
   }
 
   /// Apply a pagination query to the HTTP request
-  setPagination(int page,
+  void setPagination(int page,
       {String? paramPage, String? paramPerPage, String? perPage}) {
     Map<String, dynamic> query = {(paramPage ?? "page"): page};
     if (perPage != null) {
@@ -139,22 +139,23 @@ class NyBaseApiService {
   }
 
   /// Handle the [DioException] response if there is an issue.
-  onError(DioException dioException) {}
+  void onError(DioException dioException) {}
 
   /// Display a error to the user
   /// This method is only called if you provide the API service
   /// with a [BuildContext].
-  displayError(DioException dioException, BuildContext context) {}
+  void displayError(DioException dioException, BuildContext context) {}
 
   /// Handle the undefined response's for HTTP requests.
   /// The [data] parameter contains what was returned from your decoder.
-  onUndefinedResponse(dynamic data, Response response, BuildContext? context) {}
+  void onUndefinedResponse(
+      dynamic data, Response response, BuildContext? context) {}
 
   /// Handles an API network response from [Dio].
   /// [handleSuccess] overrides the return value
   /// [handleFailure] is called then the response status is not 200.
   /// You can return a different value using this callback.
-  handleResponse<T>(Response response,
+  dynamic handleResponse<T>(Response response,
       {Function(Response response)? handleSuccess}) {
     bool wasSuccessful = false;
     if (response.statusCode != null) {
@@ -173,12 +174,12 @@ class NyBaseApiService {
   }
 
   /// Morphs json into Object using 'config/decoders.dart'.
-  _morphJsonResponse<T>(dynamic json) {
+  dynamic _morphJsonResponse<T>(dynamic json) {
     DefaultResponse defaultResponse =
         DefaultResponse<T>.fromJson(json, decoders, type: T);
     return defaultResponse.data;
   }
 
   /// Adds all the [interceptors] to [dio].
-  _addInterceptors() => _api.interceptors.addAll(interceptors.values);
+  void _addInterceptors() => _api.interceptors.addAll(interceptors.values);
 }

@@ -203,7 +203,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
       RefreshController(initialRefresh: false);
 
   @override
-  stateUpdated(dynamic data) {
+  stateUpdated(dynamic data) async {
     super.stateUpdated(data);
 
     if (data is! Map) return;
@@ -227,7 +227,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
       };
 
   /// Refresh the list
-  _onRefresh() async {
+  Future<void> _onRefresh() async {
     _iteration = 1;
     _data = [];
     if (widget.beforeRefresh != null) {
@@ -260,7 +260,7 @@ class _NyPullToRefreshState<T> extends NyState<NyPullToRefresh> {
     setState(() {});
   }
 
-  _onLoading() async {
+  Future<void> _onLoading() async {
     _iteration++;
 
     List<T>? newData = [];

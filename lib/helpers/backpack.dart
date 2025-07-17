@@ -31,7 +31,7 @@ class Backpack {
   }
 
   /// Update the session with a [key] and [value].
-  sessionUpdate(String name, String key, dynamic value) {
+  void sessionUpdate(String name, String key, dynamic value) {
     if (!_values.containsKey(name)) {
       _values[name] = {};
     }
@@ -47,7 +47,7 @@ class Backpack {
   }
 
   /// Remove a session value using a [key].
-  sessionRemove(String name, String key) {
+  void sessionRemove(String name, String key) {
     if (_values.containsKey(name)) {
       _values[name].remove(key);
     }
@@ -107,17 +107,18 @@ class Backpack {
 }
 
 /// Read data from the Backpack with a [key].
-backpackRead<T>(String key, {dynamic defaultValue}) =>
+T? backpackRead<T>(String key, {dynamic defaultValue}) =>
     Backpack.instance.read<T>(key, defaultValue: defaultValue);
 
 /// Save a value using a [key] and [value].
-backpackSave(String key, dynamic value) => Backpack.instance.save(key, value);
+void backpackSave(String key, dynamic value) =>
+    Backpack.instance.save(key, value);
 
 /// Delete a value using a [key].
-backpackDelete(String key) => Backpack.instance.delete(key);
+void backpackDelete(String key) => Backpack.instance.delete(key);
 
 /// Delete all values from [Backpack].
-backpackDeleteAll() => Backpack.instance.deleteAll();
+void backpackDeleteAll() => Backpack.instance.deleteAll();
 
 /// Returns an instance of Nylo.
 Nylo backpackNylo({String key = 'nylo'}) => Backpack.instance.nylo(key: key);

@@ -12,13 +12,13 @@ mixin HasApiService<T extends NyApiService> {
   T? _apiService;
 
   /// Set the onSuccess callback
-  onApiSuccess(Function(Response response, dynamic data) onSuccess) {
+  void onApiSuccess(Function(Response response, dynamic data) onSuccess) {
     _apiService ??= apiService;
     _apiService!.onSuccess(onSuccess);
   }
 
   /// Set the onError callback
-  onApiError(Function(dynamic error) onError) {
+  void onApiError(Function(dynamic error) onError) {
     _apiService ??= apiService;
     _apiService!.onError(onError);
   }
@@ -69,7 +69,7 @@ class Auth {
   }
 
   /// Get the user data.
-  static data({String? key}) {
+  static dynamic data({String? key}) {
     if (key != null) {
       Map<String, dynamic>? bpData = Backpack.instance.read(key);
       return (bpData?.containsKey(key) ?? false) ? bpData![key] : null;
@@ -78,7 +78,7 @@ class Auth {
   }
 
   /// Update the auth user data.
-  static update(Function(dynamic data) update) async {
+  static Future<void> update(Function(dynamic data) update) async {
     dynamic data = await NyStorage.read(key());
     dynamic updatedData = await update(data);
     await authenticate(data: updatedData);
@@ -98,19 +98,19 @@ class Auth {
   }
 
   /// Sync the auth user data to the backpack.
-  static syncToBackpack() async {
+  static Future<void> syncToBackpack() async {
     dynamic data = await NyStorage.readJson(key());
     Backpack.instance.save(key(), data);
   }
 }
 
 /// Authenticate user
-authAuthenticate({dynamic data}) async {
+Future<void> authAuthenticate({dynamic data}) async {
   await Auth.authenticate(data: data);
 }
 
 /// Logout user
-authLogout() async {
+Future<void> authLogout() async {
   await Auth.logout();
 }
 
@@ -120,22 +120,22 @@ Future<bool> authIsAuthenticated() async {
 }
 
 /// Get the user data
-authData({String? key}) {
+dynamic authData({String? key}) {
   return Auth.data(key: key);
 }
 
 /// Update the auth user data
-authUpdate(Function(dynamic data) update) async {
+Future<void> authUpdate(Function(dynamic data) update) async {
   await Auth.update(update);
 }
 
 /// Sync the auth user data to the backpack
-authSyncToBackpack() async {
+Future<void> authSyncToBackpack() async {
   await Auth.syncToBackpack();
 }
 
 /// Get the auth key
-authKey() {
+String authKey() {
   return Auth.key();
 }
 

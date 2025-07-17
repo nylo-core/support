@@ -140,7 +140,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
   }
 
   /// Create directories from a [creationPath].
-  static createDirectoriesFromCreationPath(
+  static Future<void> createDirectoriesFromCreationPath(
       String? creationPath, String folder) async {
     if (creationPath != null) {
       for (var segment in creationPath.split("/").toList()) {
@@ -165,7 +165,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
   }
 
   /// Creates a new Page.
-  static makePage(String className, String value,
+  static Future<void> makePage(String className, String value,
       {String folderPath = pagesFolder,
       bool forceCreate = false,
       bool addToRoute = true,
@@ -221,7 +221,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
   }
 
   /// Creates a new Navigation Hub.
-  static makeNavigationHub(String className, String value,
+  static Future<void> makeNavigationHub(String className, String value,
       {String folderPath = pagesFolder,
       bool forceCreate = false,
       bool addToRoute = true,
@@ -279,7 +279,7 @@ final Map<Type, BaseController> controllers = {${reg.allMatches(file).map((e) =>
   }
 
   /// Adds a Theme to your config/theme.dart file.
-  static addToTheme(String className) async {
+  static Future<void> addToTheme(String className) async {
     String name = className.replaceAll(RegExp(r'(_?theme)'), "");
     ReCase nameReCase = ReCase(name);
 
@@ -299,13 +299,13 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
 
     // create new file
     if (originalFile.contains(template)) {
-      return "";
+      return;
     }
 
     RegExp reg = RegExp(
         r'final List<BaseThemeConfig<ColorStyles>> appThemes = \[([^}]*)\];');
     if (reg.allMatches(originalFile).map((e) => e.group(1)).toList().isEmpty) {
-      return "";
+      return;
     }
 
     String temp =
@@ -350,7 +350,8 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
   }
 
   /// Add a package to your pubspec.yaml file.
-  static addPackage(String package, {String? version, bool dev = false}) async {
+  static Future<void> addPackage(String package,
+      {String? version, bool dev = false}) async {
     String command = "dart pub add";
     if (dev) {
       command += " --dev";
@@ -363,7 +364,8 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
   }
 
   /// Add a packages to your pubspec.yaml file.
-  static addPackages(List<String> packages, {bool dev = false}) async {
+  static Future<void> addPackages(List<String> packages,
+      {bool dev = false}) async {
     String command = "dart pub add";
     if (dev) {
       command += " --dev";
@@ -373,7 +375,7 @@ import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
   }
 
   /// Creates a new Model.
-  static makeModel(String className, String value,
+  static Future<void> makeModel(String className, String value,
       {String folderPath = modelsFolder,
       bool forceCreate = false,
       bool addToConfig = true,
@@ -428,7 +430,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new Stateless Widget.
-  static makeStatelessWidget(String className, String value,
+  static Future<void> makeStatelessWidget(String className, String value,
       {String folderPath = widgetsFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -454,7 +456,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new config file.
-  static makeConfig(String configName, String value,
+  static Future<void> makeConfig(String configName, String value,
       {String folderPath = configFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -475,7 +477,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new command file.
-  static makeCommand(String commandName, String value,
+  static Future<void> makeCommand(String commandName, String value,
       {String folderPath = commandsFolder,
       bool forceCreate = false,
       String? creationPath,
@@ -532,7 +534,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new Stateful Widget.
-  static makeStatefulWidget(String className, String value,
+  static Future<void> makeStatefulWidget(String className, String value,
       {String folderPath = widgetsFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -557,7 +559,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new Journey Widget.
-  static makeJourneyWidget(String className, String value,
+  static Future<void> makeJourneyWidget(String className, String value,
       {String folderPath = widgetsFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -582,7 +584,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new State Managed Widget.
-  static makeStateManagedWidget(String className, String value,
+  static Future<void> makeStateManagedWidget(String className, String value,
       {String folderPath = widgetsFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -607,7 +609,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Create a new Interceptor.
-  static makeInterceptor(String className, String value,
+  static Future<void> makeInterceptor(String className, String value,
       {String folderPath = networkingInterceptorsFolder,
       bool forceCreate = false,
       String? creationPath}) async {
@@ -632,7 +634,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new Theme.
-  static makeTheme(String className, String value,
+  static Future<void> makeTheme(String className, String value,
       {String folderPath = themesFolder, bool forceCreate = false}) async {
     String name = className.replaceAll(RegExp(r'(_?theme)'), "");
 
@@ -646,7 +648,7 @@ final Map<Type, dynamic> modelDecoders = {${reg.allMatches(file).map((e) => e.gr
   }
 
   /// Creates a new Provider.
-  static makeProvider(String className, String value,
+  static Future<void> makeProvider(String className, String value,
       {String folderPath = providerFolder,
       bool forceCreate = false,
       bool addToConfig = true,
@@ -687,7 +689,7 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
   }
 
   /// Creates a new Route Guard.
-  static makeRouteGuard(String className, String value,
+  static Future<void> makeRouteGuard(String className, String value,
       {String folderPath = routeGuardsFolder, bool forceCreate = false}) async {
     String name = className.replaceAll(RegExp(r'(_?route_guard)'), "");
 
@@ -701,7 +703,7 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
   }
 
   /// Creates a new Form.
-  static makeForm(String className, String value,
+  static Future<void> makeForm(String className, String value,
       {String folderPath = formsFolder, bool forceCreate = false}) async {
     String name = className.replaceAll(RegExp(r'(_?form)'), "");
 
@@ -715,11 +717,11 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
   }
 
   /// Creates a new Director.
-  static makeDirectory(String folderPath) async =>
+  static Future makeDirectory(String folderPath) async =>
       await _makeDirectory(folderPath);
 
   /// Creates a new Event.
-  static makeEvent(String className, String value,
+  static Future<void> makeEvent(String className, String value,
       {String folderPath = eventsFolder,
       bool forceCreate = false,
       bool addToConfig = true}) async {
@@ -754,7 +756,7 @@ final Map<Type, NyProvider> providers = {${reg.allMatches(file).map((e) => e.gro
   }
 
   /// Creates a new API service.
-  static makeApiService(String className, String value,
+  static Future<void> makeApiService(String className, String value,
       {String folderPath = networkingFolder,
       bool forceCreate = false,
       bool addToConfig = true}) async {
@@ -827,7 +829,7 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
   }
 
   /// Creates a new Stateful Widget.
-  static makeThemeColors(String className, String value,
+  static Future<void> makeThemeColors(String className, String value,
       {String folderPath = themeColorsFolder, bool forceCreate = false}) async {
     String filePath =
         '$folderPath/${className.toLowerCase()}_theme_colors.dart';
@@ -838,11 +840,11 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
   }
 
   /// Check if a file exist by passing in a [path].
-  static Future<bool> hasFile(path) async => await File(path).exists();
+  static Future<bool> hasFile(String path) async => await File(path).exists();
 
   /// Attempts to replace a file. Provide a [configName] to select which file to replace.
   /// Then you can use the callback [originalFile] to get the file and manipulate it.
-  static addToConfig(
+  static Future<void> addToConfig(
       {required String configName,
       required String classImport,
       required String Function(String originalFile) createTemplate}) async {
@@ -870,7 +872,7 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
 
   /// Attempts to replace a file. Provide a [routerName] to select which file to replace.
   /// Then you can use the callback [originalFile] to get the file and manipulate it.
-  static addToRouter(
+  static Future<void> addToRouter(
       {String routerName = "router",
       required String classImport,
       required String Function(String originalFile) createTemplate}) async {
@@ -904,7 +906,7 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
   }
 
   /// Checks if the help flag is set.
-  static hasHelpFlag(bool hasHelpFlag, String usage) {
+  static void hasHelpFlag(bool hasHelpFlag, String usage) {
     if (hasHelpFlag) {
       MetroConsole.writeInBlack(usage);
       exit(0);
@@ -912,7 +914,7 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
   }
 
   /// Checks that a command has [arguments].
-  static checkArguments(List<String> arguments, String usage) {
+  static void checkArguments(List<String> arguments, String usage) {
     if (arguments.isEmpty) {
       MetroConsole.writeInBlack(usage);
       exit(1);
@@ -920,7 +922,8 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
   }
 
   /// Creates a new Slate using [templates].
-  static createSlate(List<NyTemplate> templates, {bool? hasForceFlag}) async {
+  static Future<void> createSlate(List<NyTemplate> templates,
+      {bool? hasForceFlag}) async {
     String pubspecYaml = await MetroService.loadAsset('pubspec.yaml');
     for (var template in templates) {
       for (var pluginRequired in template.pluginsRequired) {
@@ -1126,7 +1129,8 @@ extension IterableExtension<T> on Iterable<T> {
 }
 
 /// Creates a new file from a [path] and [value].
-_createNewFile(String path, String value, {Function()? onSuccess}) async {
+Future<void> _createNewFile(String path, String value,
+    {Function()? onSuccess}) async {
   final File file = File(path);
   File fileCreated = await file.writeAsString(value);
   if (await fileCreated.exists()) {
@@ -1136,7 +1140,7 @@ _createNewFile(String path, String value, {Function()? onSuccess}) async {
 }
 
 /// Creates a new directory from a [path] if it doesn't exist.
-_makeDirectory(String path) async {
+Future<void> _makeDirectory(String path) async {
   Directory directory = Directory(path);
   if (!(await directory.exists())) {
     await directory.create();
@@ -1145,7 +1149,8 @@ _makeDirectory(String path) async {
 
 /// Checks if a file exists from a [path].
 /// Use [shouldForceCreate] to override check.
-_checkIfFileExists(path, {bool shouldForceCreate = false}) async {
+Future<void> _checkIfFileExists(String path,
+    {bool shouldForceCreate = false}) async {
   if (await File(path).exists() && shouldForceCreate == false) {
     MetroConsole.writeInRed('$path already exists');
     exit(1);

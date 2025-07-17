@@ -18,17 +18,17 @@ class NyController extends BaseController {
   }
 
   /// Refreshes the page
-  refreshPage() {
+  void refreshPage() {
     updatePageState("refresh-page", {"setState": () {}});
   }
 
   /// Set the state of the page
-  setState({required Function() setState}) {
+  void setState({required Function() setState}) {
     updatePageState("set-state", {"setState": setState});
   }
 
   /// Pop the page
-  pop({dynamic result}) {
+  void pop({dynamic result}) {
     updatePageState("pop", {"result": result});
   }
 

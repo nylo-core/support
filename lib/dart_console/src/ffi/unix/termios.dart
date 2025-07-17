@@ -61,6 +61,7 @@ typedef cc_t = UnsignedChar;
 typedef speed_t = UnsignedLong;
 
 // #define NCCS            20
+// ignore: constant_identifier_names
 const _NCCS = 20;
 
 // struct termios {

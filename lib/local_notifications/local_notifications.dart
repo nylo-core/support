@@ -121,7 +121,7 @@ class PushNotification {
   ///  );
   ///  ```
   ///  This will send a notification with the title "Hello" and the body "World"
-  static sendNotification({
+  static Future<void> sendNotification({
     required String title,
     required String body,
     String? payload,
@@ -416,7 +416,8 @@ class PushNotification {
     NotificationDetails notificationDetails = await _getNotificationDetails();
 
     if (_initialized == false) {
-      _initialized = await Nylo.instance.initializeLocalNotifications();
+      _initialized =
+          await Nylo.instance.initializeLocalNotifications() ?? false;
     }
 
     if (_sendAt != null) {
@@ -965,7 +966,7 @@ class PushNotification {
   }
 
   /// Clear badge count
-  static clearBadgeCount() async {
+  static Future<void> clearBadgeCount() async {
     await clearBadgeNumber();
   }
 }

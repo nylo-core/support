@@ -527,7 +527,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
   }
 
   /// Build the tab
-  _buildTab(NavigationTab page, int pageKey) {
+  Tab _buildTab(NavigationTab page, int pageKey) {
     return Tab(
       text: _buildTabText(page),
       icon: _buildTabIcon(page, pageKey),
@@ -892,7 +892,7 @@ enum JourneyButtonLayout {
 
 /// Mixin for the page controls
 mixin BottomNavPageControls {
-  updateStateResetTab(int index, RouteView path) =>
+  void updateStateResetTab(int index, RouteView path) =>
       updateState(path.stateName(),
           data: {"action": "reset-tab", "tab-index": index});
 }
@@ -926,19 +926,19 @@ class NavigationHubStateActions extends StateActions {
   }
 
   /// Reset the tab
-  resetTabIndex(int tabIndex) {
+  void resetTabIndex(int tabIndex) {
     updateState(state, data: {"action": "reset-tab", "tab-index": tabIndex});
   }
 
   /// Update the badge count
   /// E.g. MyNavigationHub.updateBadgeCount(tab: 0, count: 2);
-  updateBadgeCount({required int tab, required int count}) {
+  void updateBadgeCount({required int tab, required int count}) {
     updateState(_navigationTabStateName(tab), data: count);
   }
 
   /// Increment the badge count
   /// E.g. MyNavigationHub.incrementBadgeCount(tab: 0);
-  incrementBadgeCount({required int tab}) async {
+  Future<void> incrementBadgeCount({required int tab}) async {
     int currentCount =
         (await NyStorage.read(_navigationTabStateName(tab)) ?? 0);
     updateState(_navigationTabStateName(tab), data: currentCount + 1);
@@ -946,25 +946,25 @@ class NavigationHubStateActions extends StateActions {
 
   /// Clear the badge count
   /// E.g. MyNavigationHub.clearBadgeCount(tab: 0);
-  clearBadgeCount({required int tab}) async {
+  Future<void> clearBadgeCount({required int tab}) async {
     await NyStorage.save(_navigationTabStateName(tab), 0);
     updateState(_navigationTabStateName(tab), data: 0);
   }
 
   /// Update the tab index
-  currentTabIndex(int tabIndex) {
+  void currentTabIndex(int tabIndex) {
     updateState(state, data: {"action": "update-tab", "tab-index": tabIndex});
   }
 
   /// Enable the alert for the [tab]
-  alertEnableTab({required int tab}) {
+  void alertEnableTab({required int tab}) {
     updateState(_navigationTabStateName(tab), data: {
       "action": "enable",
     });
   }
 
   /// Disable the alert for the [tab]
-  alertDisableTab({required int tab}) {
+  void alertDisableTab({required int tab}) {
     updateState(_navigationTabStateName(tab), data: {
       "action": "disable",
     });

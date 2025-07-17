@@ -1,3 +1,9 @@
+## [6.34.0] - 2025-07-17
+
+* Added `lifecycleActions` to `Nylo.init`. This will allow you to global handle your app's lifecycle.
+* Add missing annotations
+* Update pubspec.yaml
+
 ## [6.33.0] - 2025-07-14
 
 * Added `lifecycleActions` to `NyPage`. This will allow you to handle lifecycle events in your pages.

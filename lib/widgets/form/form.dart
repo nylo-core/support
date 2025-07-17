@@ -125,45 +125,45 @@ class NyForm extends StatefulWidget {
   final LoadingStyle loadingStyle;
 
   /// Get the state name
-  static state(String stateName) {
+  static String state(String stateName) {
     return "form_$stateName";
   }
 
   /// Refresh the state of the form
-  static stateRefresh(String stateName) {
+  static void stateRefresh(String stateName) {
     updateState(state(stateName), data: {
       "action": "refresh",
     });
   }
 
   /// Set field in the form
-  static stateSetValue(String stateName, String key, dynamic value) {
+  static void stateSetValue(String stateName, String key, dynamic value) {
     updateState(state(stateName),
         data: {"action": "setValue", "key": key, "value": value});
   }
 
   /// Set field in the form
-  static stateSetOptions(String stateName, String key, dynamic value) {
+  static void stateSetOptions(String stateName, String key, dynamic value) {
     updateState(state(stateName),
         data: {"action": "setOptions", "key": key, "value": value});
   }
 
   /// Refresh the state of the form
-  static stateClearData(String stateName) {
+  static void stateClearData(String stateName) {
     updateState(state(stateName), data: {
       "action": "clear",
     });
   }
 
   /// Refresh the state of the form
-  static stateRefreshForm(String stateName) {
+  static void stateRefreshForm(String stateName) {
     updateState(state(stateName), data: {
       "action": "refresh-form",
     });
   }
 
   /// Submit the form
-  static submit(String name,
+  static void submit(String name,
       {required Function(dynamic value) onSuccess,
       Function(Exception exception)? onFailure,
       bool showToastError = true}) {
@@ -221,7 +221,7 @@ class _NyFormState extends NyState<NyForm> {
   List<String> showableFields = [];
 
   /// Construct the form
-  _construct() {
+  void _construct() {
     NyFormStyle? nyFormStyle = Nylo.instance.getFormStyle();
 
     Map<String, dynamic> fields = widget.form.data();
