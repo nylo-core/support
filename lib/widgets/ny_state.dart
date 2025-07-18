@@ -23,7 +23,17 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
               element.event.runtimeType.toString() == 'UpdateState')
           .toList();
       if (eventHistory.isNotEmpty) {
-        stateData = eventHistory.last.event.props[1];
+        List<Object?> props = eventHistory
+                .where((element) {
+                  return element.event.props.isNotEmpty &&
+                      element.event.props[0] == stateName;
+                })
+                .map((e) => e.event.props)
+                .firstOrNull ??
+            [];
+        if (props.isNotEmpty) {
+          stateData = props[1];
+        }
       }
       eventSubscription = eventBus!.on<UpdateState>().listen((event) async {
         if (event.stateName != stateName) return;

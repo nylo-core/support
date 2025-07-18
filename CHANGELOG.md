@@ -1,3 +1,7 @@
+## [6.35.0] - 2025-07-18
+
+* Fix stateData in `NyState` to return the correct data type
+
 ## [6.34.0] - 2025-07-17
 
 * Added `lifecycleActions` to `Nylo.init`. This will allow you to global handle your app's lifecycle.
