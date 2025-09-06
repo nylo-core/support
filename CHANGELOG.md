@@ -1,3 +1,7 @@
+## [6.35.1] - 2025-09-06
+
+* Update pubspec.yaml
+
 ## [6.35.0] - 2025-07-18
 
 * Fix stateData in `NyState` to return the correct data type
