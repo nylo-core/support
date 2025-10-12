@@ -1,3 +1,8 @@
+## [6.36.0] - 2025-10-12
+
+* added `repeatOn` to PushNotification class to allow repeating notifications
+* Update pubspec.yaml
+
 ## [6.35.2] - 2025-09-22
 
 * Update pubspec.yaml

@@ -181,6 +181,7 @@ class PushNotification {
     String? categoryIdentifier,
     InterruptionLevel? interruptionLevel,
     AndroidScheduleMode? androidScheduleMode,
+    DateTimeComponents? repeatOn,
   }) async {
     PushNotification pushNotification = PushNotification(
       title: title,
@@ -396,12 +397,14 @@ class PushNotification {
       pushNotification.addInterruptionLevel(interruptionLevel);
     }
     await pushNotification.send(
-        at: at, androidScheduleMode: androidScheduleMode);
+        at: at, androidScheduleMode: androidScheduleMode, repeatOn: repeatOn);
   }
 
   /// Send the push notification
   Future<void> send(
-      {DateTime? at, AndroidScheduleMode? androidScheduleMode}) async {
+      {DateTime? at,
+      AndroidScheduleMode? androidScheduleMode,
+      DateTimeComponents? repeatOn}) async {
     if (kIsWeb) {
       throw Exception("Push notifications are not supported on the web");
     }
@@ -438,6 +441,7 @@ class PushNotification {
           androidScheduleMode:
               androidScheduleMode ?? AndroidScheduleMode.exactAllowWhileIdle,
           payload: _payload,
+          matchDateTimeComponents: repeatOn,
         );
       });
       return;
