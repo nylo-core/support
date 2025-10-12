@@ -61,6 +61,5 @@ screenshots:
   - description: The Nylo package logo.
     path: screenshots/logo.png
 
-# The following section is specific to Flutter.
 flutter:
   uses-material-design: true
