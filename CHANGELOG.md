@@ -1,3 +1,8 @@
+## [6.37.0] - 2025-10-28
+
+* Added `MetroService.createFile` method to create a file in your project
+* Update pubspec.yaml
+
 ## [6.36.0] - 2025-10-12
 
 * added `repeatOn` to PushNotification class to allow repeating notifications

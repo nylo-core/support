@@ -839,6 +839,24 @@ final Map<Type, NyApiService> apiDecoders = {${reg.allMatches(file).map((e) => e
     await _createNewFile(filePath, value);
   }
 
+  /// Create a new file at a [path] with a [value].
+  /// You can override an existing file by setting [overrideFile] to true.
+  /// You can also set the [fileMode], [encoding] and [flush] options
+  static Future<bool> createFile(
+    String path,
+    value, {
+    bool overrideFile = false,
+    FileMode fileMode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false,
+  }) async {
+    return await _createNewFile(path, value,
+        overrideFile: overrideFile,
+        fileMode: fileMode,
+        encoding: encoding,
+        flush: flush);
+  }
+
   /// Check if a file exist by passing in a [path].
   static Future<bool> hasFile(String path) async => await File(path).exists();
 
@@ -1129,14 +1147,31 @@ extension IterableExtension<T> on Iterable<T> {
 }
 
 /// Creates a new file from a [path] and [value].
-Future<void> _createNewFile(String path, String value,
-    {Function()? onSuccess}) async {
+Future<bool> _createNewFile(String path, String value,
+    {Function()? onSuccess,
+    bool overrideFile = true,
+    FileMode fileMode = FileMode.write,
+    Encoding encoding = utf8,
+    bool flush = false}) async {
   final File file = File(path);
-  File fileCreated = await file.writeAsString(value);
+  if ((await file.exists())) {
+    if (!overrideFile) {
+      return false;
+    }
+    FileSystemEntity fileSystemEntity = await file.delete();
+    if (await fileSystemEntity.exists()) {
+      return false;
+    }
+  }
+
+  File fileCreated = await file.writeAsString(value,
+      mode: fileMode, encoding: encoding, flush: flush);
+
   if (await fileCreated.exists()) {
-    if (onSuccess == null) return;
+    if (onSuccess == null) return true;
     onSuccess();
   }
+  return true;
 }
 
 /// Creates a new directory from a [path] if it doesn't exist.
