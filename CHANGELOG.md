@@ -1,3 +1,9 @@
+## [6.38.0] - 2025-11-15
+
+* Fix `NyLanguageSwitcher` AssetManifest.json
+* Added `NyRichText.template` to construct rich text from a template string
+* Update pubspec.yaml
+
 ## [6.37.0] - 2025-10-28
 
 * Added `MetroService.createFile` method to create a file in your project

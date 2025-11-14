@@ -1,5 +1,4 @@
 import 'dart:core';
-import 'dart:convert';
 import '/helpers/ny_color.dart';
 
 import '/helpers/ny_logger.dart';
@@ -729,13 +728,13 @@ class NyLanguageSwitcher extends StatefulWidget {
       {String langPath = 'lang'}) async {
     List<Map<String, String>> list = [];
     try {
-      String assetManifest = await rootBundle.loadString('AssetManifest.json');
-      List<String> langFiles = jsonDecode(assetManifest)
-          .keys
-          .where((String key) => key.contains("lang"))
-          .toList();
+      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final assets = assetManifest.listAssets();
+      List<String> langFiles =
+          assets.where((String key) => key.startsWith("lang/")).toList();
 
       for (var langFile in langFiles) {
+        if (".DS_Store" == langFile) continue;
         RegExp regex = RegExp(langPath + r'/(.*).json');
         Match? match = regex.firstMatch(langFile);
 
@@ -776,46 +775,53 @@ class _NyLanguageSwitcherState extends NyState<NyLanguageSwitcher> {
   @override
   Widget build(BuildContext context) {
     String? selectedLang = selectedLanguage?.entries.first.key ?? "en";
-    return DropdownButton<String>(
-      value: selectedLang,
-      iconSize: widget.iconSize,
-      hint: widget.hint,
-      elevation: widget.elevation,
-      itemHeight: widget.itemHeight,
-      style: widget.textStyle ??
-          TextStyle(
-            color: NyColor(light: Colors.black, dark: Colors.white)
-                .toColor(context),
-          ),
-      onChanged: _onChange,
-      icon: widget.icon,
-      borderRadius: widget.borderRadius,
-      onTap: widget.onTap,
-      dropdownColor: widget.dropdownBgColor,
-      padding: widget.padding,
-      items:
-          languages.map<DropdownMenuItem<String>>((Map<String, dynamic> value) {
-        MapEntry<String, dynamic> item = value.entries.first;
-        Widget child = Text(
-          item.value,
-          style: TextStyle(
-            color: NyColor(light: Colors.black, dark: Colors.white)
-                .toColor(context),
-          ),
-        );
-        if (widget.dropdownBuilder != null) {
-          child = widget.dropdownBuilder!({
-            "locale": item.key,
-            "name": item.value,
-          });
-        }
-        return DropdownMenuItem<String>(
-          value: item.key,
-          onTap: widget.dropdownOnTap,
-          alignment: widget.dropdownAlignment,
-          child: child,
-        );
-      }).toList(),
+    return Theme(
+      data: Theme.of(context).copyWith(
+        highlightColor: Colors.grey[300],
+        focusColor: Colors.grey[300],
+        hoverColor: Colors.grey[300],
+      ),
+      child: DropdownButton<String>(
+        value: selectedLang,
+        iconSize: widget.iconSize,
+        hint: widget.hint,
+        elevation: widget.elevation,
+        itemHeight: widget.itemHeight,
+        style: widget.textStyle ??
+            TextStyle(
+              color: NyColor(light: Colors.black, dark: Colors.white)
+                  .toColor(context),
+            ),
+        onChanged: _onChange,
+        icon: widget.icon,
+        borderRadius: widget.borderRadius,
+        onTap: widget.onTap,
+        dropdownColor: widget.dropdownBgColor,
+        padding: widget.padding,
+        items: languages
+            .map<DropdownMenuItem<String>>((Map<String, dynamic> value) {
+          MapEntry<String, dynamic> item = value.entries.first;
+          Widget child = Text(
+            item.value,
+            style: TextStyle(
+              color: NyColor(light: Colors.black, dark: Colors.white)
+                  .toColor(context),
+            ),
+          );
+          if (widget.dropdownBuilder != null) {
+            child = widget.dropdownBuilder!({
+              "locale": item.key,
+              "name": item.value,
+            });
+          }
+          return DropdownMenuItem<String>(
+            value: item.key,
+            onTap: widget.dropdownOnTap,
+            alignment: widget.dropdownAlignment,
+            child: child,
+          );
+        }).toList(),
+      ),
     );
   }
 
