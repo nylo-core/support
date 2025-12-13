@@ -59,30 +59,31 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
           Text(widget.field.name.tr(), style: titleStyle()),
         Spacing.vertical(10),
         ...options.map((val) {
-          return RadioListTile(
-            title: Text(
-              val,
-              style: listTileStyle(),
-            ),
-            value: val,
+          return RadioGroup<String>(
             groupValue: currentValue,
-            mouseCursor: getMouseCursor(),
-            activeColor: getActiveColor(),
-            fillColor: getFillColor(),
-            hoverColor: getHoverColor(),
-            overlayColor: getOverlayColor(),
-            splashRadius: getSplashRadius(),
-            contentPadding: getContentPadding(),
-            shape: getShape(),
-            tileColor: getTileColor(),
-            selectedTileColor: getSelectedTileColor(),
             onChanged: (value) {
               setState(() {
                 currentValue = value;
               });
-              if (widget.onChanged == null) return;
-              widget.onChanged!(currentValue);
+              widget.onChanged?.call(currentValue);
             },
+            child: RadioListTile<String>(
+              title: Text(
+                val,
+                style: listTileStyle(),
+              ),
+              value: val,
+              mouseCursor: getMouseCursor(),
+              activeColor: getActiveColor(),
+              fillColor: getFillColor(),
+              hoverColor: getHoverColor(),
+              overlayColor: getOverlayColor(),
+              splashRadius: getSplashRadius(),
+              contentPadding: getContentPadding(),
+              shape: getShape(),
+              tileColor: getTileColor(),
+              selectedTileColor: getSelectedTileColor(),
+            ),
           );
         })
       ],

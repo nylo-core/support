@@ -1,3 +1,7 @@
+## [6.38.1] - 2025-12-13
+
+* Update pubspec.yaml
+
 ## [6.38.0] - 2025-11-15
 
 * Fix `NyLanguageSwitcher` AssetManifest.json

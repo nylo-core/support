@@ -177,7 +177,7 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
       },
       controlAffinity:
           getFieldMeta("controlAffinity", ListTileControlAffinity.platform),
-      activeColor: color(
+      activeThumbColor: color(
           light: getFieldMeta('activeColor', null) ?? Color(0xFF0766ff),
           dark: Colors.black),
       hoverColor: getFieldMeta('hoverColor', null),
