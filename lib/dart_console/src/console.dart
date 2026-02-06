@@ -13,14 +13,37 @@ import 'textalignment.dart';
 /// of the screen. Coordinates are zero-based, and converted as necessary
 /// for the underlying system representation (e.g. one-based for VT-style
 /// displays).
+///
+/// **Note on coordinate ordering:** This class uses row-first ordering, which
+/// is conventional for terminal operations. The constructor takes `(row, col)`,
+/// where:
+/// - `row` is the vertical position (0 = top of screen)
+/// - `col` is the horizontal position (0 = left of screen)
+///
+/// This differs from the parent [Point] class which uses `(x, y)` where `x` is
+/// horizontal. Here, `row` maps to [Point.x] and `col` maps to [Point.y] for
+/// internal storage, but you should use [row] and [col] getters for clarity.
+///
+/// Example:
+/// ```dart
+/// final pos = Coordinate(5, 10); // Row 5, Column 10
+/// print(pos.row); // 5
+/// print(pos.col); // 10
+/// ```
 class Coordinate extends Point<int> {
+  /// Creates a coordinate with the given [row] and [col].
+  ///
+  /// Both values are zero-based, with (0, 0) representing the top-left corner.
   const Coordinate(super.row, super.col);
 
+  /// The vertical position (row number), zero-based from the top.
   int get row => x;
+
+  /// The horizontal position (column number), zero-based from the left.
   int get col => y;
 
   @override
-  String toString() => '($row, $col)';
+  String toString() => '(row: $row, col: $col)';
 }
 
 /// A representation of the current console window.
@@ -50,7 +73,15 @@ class Console {
   // Use `Console.scrolling(recordBlanks: false)` to omit blank lines
   // from console history
   Console.scrolling({bool recordBlanks = true})
-      : _scrollbackBuffer = ScrollbackBuffer(recordBlanks: recordBlanks);
+    : _scrollbackBuffer = ScrollbackBuffer(recordBlanks: recordBlanks);
+
+  /// Releases any resources allocated by the console.
+  ///
+  /// Call this method when you are done using the console to free any
+  /// native resources that may have been allocated.
+  void dispose() {
+    _termlib.dispose();
+  }
 
   /// Enables or disables raw mode.
   ///
@@ -256,8 +287,10 @@ class Console {
   /// the full set of colors. You may also run `examples/demo.dart` for this
   /// package, which provides a sample of each color in this list.
   void setForegroundExtendedColor(int colorValue) {
-    assert(colorValue >= 0 && colorValue <= 0xFF,
-        'Color must be a value between 0 and 255.');
+    assert(
+      colorValue >= 0 && colorValue <= 0xFF,
+      'Color must be a value between 0 and 255.',
+    );
 
     stdout.write(ansiSetExtendedForegroundColor(colorValue));
   }
@@ -268,25 +301,53 @@ class Console {
   /// the full set of colors. You may also run `examples/demo.dart` for this
   /// package, which provides a sample of each color in this list.
   void setBackgroundExtendedColor(int colorValue) {
-    assert(colorValue >= 0 && colorValue <= 0xFF,
-        'Color must be a value between 0 and 255.');
+    assert(
+      colorValue >= 0 && colorValue <= 0xFF,
+      'Color must be a value between 0 and 255.',
+    );
 
     stdout.write(ansiSetExtendedBackgroundColor(colorValue));
+  }
+
+  /// Sets the foreground color using 24-bit RGB values (TrueColor).
+  ///
+  /// Each color component ([r], [g], [b]) should be in the range 0-255.
+  /// Not all terminals support TrueColor; most modern terminals do.
+  void setForegroundRgbColor(int r, int g, int b) {
+    assert(r >= 0 && r <= 255, 'Red component must be between 0 and 255.');
+    assert(g >= 0 && g <= 255, 'Green component must be between 0 and 255.');
+    assert(b >= 0 && b <= 255, 'Blue component must be between 0 and 255.');
+
+    stdout.write(ansiSetRgbForegroundColor(r, g, b));
+  }
+
+  /// Sets the background color using 24-bit RGB values (TrueColor).
+  ///
+  /// Each color component ([r], [g], [b]) should be in the range 0-255.
+  /// Not all terminals support TrueColor; most modern terminals do.
+  void setBackgroundRgbColor(int r, int g, int b) {
+    assert(r >= 0 && r <= 255, 'Red component must be between 0 and 255.');
+    assert(g >= 0 && g <= 255, 'Green component must be between 0 and 255.');
+    assert(b >= 0 && b <= 255, 'Blue component must be between 0 and 255.');
+
+    stdout.write(ansiSetRgbBackgroundColor(r, g, b));
   }
 
   /// Sets the text style.
   ///
   /// Note that not all styles may be supported by all terminals.
-  void setTextStyle(
-      {bool bold = false,
-      bool faint = false,
-      bool italic = false,
-      bool underscore = false,
-      bool blink = false,
-      bool inverted = false,
-      bool invisible = false,
-      bool strikethru = false}) {
-    stdout.write(ansiSetTextStyles(
+  void setTextStyle({
+    bool bold = false,
+    bool faint = false,
+    bool italic = false,
+    bool underscore = false,
+    bool blink = false,
+    bool inverted = false,
+    bool invisible = false,
+    bool strikethru = false,
+  }) {
+    stdout.write(
+      ansiSetTextStyles(
         bold: bold,
         faint: faint,
         italic: italic,
@@ -294,7 +355,9 @@ class Console {
         blink: blink,
         inverted: inverted,
         invisible: invisible,
-        strikethru: strikethru));
+        strikethru: strikethru,
+      ),
+    );
   }
 
   /// Resets all color attributes and text styles to the default terminal
@@ -334,11 +397,106 @@ class Console {
   }
 
   /// Writes a quantity of text to the console with padding to the given width.
-  void writeAligned(Object text,
-      [int? width, TextAlignment alignment = TextAlignment.left]) {
+  void writeAligned(
+    Object text, [
+    int? width,
+    TextAlignment alignment = TextAlignment.left,
+  ]) {
     final textAsString = text.toString();
-    stdout.write(textAsString.alignText(
-        width: width ?? textAsString.length, alignment: alignment));
+    stdout.write(
+      textAsString.alignText(
+        width: width ?? textAsString.length,
+        alignment: alignment,
+      ),
+    );
+  }
+
+  /// Parses CSI (Control Sequence Introducer) escape sequences.
+  ///
+  /// CSI sequences start with ESC [ and are used for cursor movement,
+  /// function keys, and other control sequences.
+  ControlCharacter _parseCsiSequence(String char) {
+    switch (char) {
+      case 'A':
+        return ControlCharacter.arrowUp;
+      case 'B':
+        return ControlCharacter.arrowDown;
+      case 'C':
+        return ControlCharacter.arrowRight;
+      case 'D':
+        return ControlCharacter.arrowLeft;
+      case 'H':
+        return ControlCharacter.home;
+      case 'F':
+        return ControlCharacter.end;
+      default:
+        return ControlCharacter.unknown;
+    }
+  }
+
+  /// Parses numeric CSI escape sequences (e.g., ESC [ 3 ~ or ESC [ 15 ~).
+  ///
+  /// These sequences are used for keys like Delete, Page Up, Page Down,
+  /// and function keys F5-F12.
+  ControlCharacter _parseNumericCsiSequence(String numStr) {
+    switch (numStr) {
+      case '1':
+        return ControlCharacter.home;
+      case '3':
+        return ControlCharacter.delete;
+      case '4':
+        return ControlCharacter.end;
+      case '5':
+        return ControlCharacter.pageUp;
+      case '6':
+        return ControlCharacter.pageDown;
+      case '7':
+        return ControlCharacter.home;
+      case '8':
+        return ControlCharacter.end;
+      // F5-F12 use multi-digit sequences
+      case '15':
+        return ControlCharacter.F5;
+      case '17':
+        return ControlCharacter.F6;
+      case '18':
+        return ControlCharacter.F7;
+      case '19':
+        return ControlCharacter.F8;
+      case '20':
+        return ControlCharacter.F9;
+      case '21':
+        return ControlCharacter.F10;
+      case '23':
+        return ControlCharacter.F11;
+      case '24':
+        return ControlCharacter.F12;
+      default:
+        return ControlCharacter.unknown;
+    }
+  }
+
+  /// Parses SS3 (Single Shift 3) escape sequences.
+  ///
+  /// SS3 sequences start with ESC O and are used for function keys F1-F4
+  /// and some navigation keys.
+  ControlCharacter _parseSs3Sequence(String char) {
+    switch (char) {
+      case 'H':
+        return ControlCharacter.home;
+      case 'F':
+        return ControlCharacter.end;
+      case 'P':
+        return ControlCharacter.F1;
+      case 'Q':
+        return ControlCharacter.F2;
+      case 'R':
+        return ControlCharacter.F3;
+      case 'S':
+        return ControlCharacter.F4;
+      default:
+        return ControlCharacter.unknown;
+    }
   }
 
   /// Reads a single key from the input, including a variety of control
@@ -356,7 +514,6 @@ class Console {
   /// basic key handling can be found in the `example/command_line.dart`
   /// file in the package source code.
   KeyStroke readKey() {
-    KeyStroke key;
     int charCode;
     var codeUnit = 0;
 
@@ -365,129 +522,78 @@ class Console {
       codeUnit = stdin.readByteSync();
     }
 
+    KeyStroke key;
+
     if (codeUnit >= 0x01 && codeUnit <= 0x1a) {
       // Ctrl+A thru Ctrl+Z are mapped to the 1st-26th entries in the
       // enum, so it's easy to convert them across
       key = KeyStroke.control(ControlCharacter.values[codeUnit]);
     } else if (codeUnit == 0x1b) {
       // escape sequence (e.g. \x1b[A for up arrow)
-      key = KeyStroke.control(ControlCharacter.escape);
-
-      final escapeSequence = <String>[];
-
       charCode = stdin.readByteSync();
       if (charCode == -1) {
         rawMode = false;
-        return key;
+        return KeyStroke.control(ControlCharacter.escape);
       }
-      escapeSequence.add(String.fromCharCode(charCode));
+      final firstChar = String.fromCharCode(charCode);
 
       if (charCode == 127) {
         key = KeyStroke.control(ControlCharacter.wordBackspace);
-      } else if (escapeSequence[0] == '[') {
+      } else if (firstChar == '[') {
+        // CSI sequence
         charCode = stdin.readByteSync();
         if (charCode == -1) {
           rawMode = false;
-          return key;
+          return KeyStroke.control(ControlCharacter.escape);
         }
-        escapeSequence.add(String.fromCharCode(charCode));
+        final secondChar = String.fromCharCode(charCode);
 
-        switch (escapeSequence[1]) {
-          case 'A':
-            key.controlChar = ControlCharacter.arrowUp;
-            break;
-          case 'B':
-            key.controlChar = ControlCharacter.arrowDown;
-            break;
-          case 'C':
-            key.controlChar = ControlCharacter.arrowRight;
-            break;
-          case 'D':
-            key.controlChar = ControlCharacter.arrowLeft;
-            break;
-          case 'H':
-            key.controlChar = ControlCharacter.home;
-            break;
-          case 'F':
-            key.controlChar = ControlCharacter.end;
-            break;
-          default:
-            if (escapeSequence[1].codeUnits[0] > '0'.codeUnits[0] &&
-                escapeSequence[1].codeUnits[0] < '9'.codeUnits[0]) {
-              charCode = stdin.readByteSync();
-              if (charCode == -1) {
-                rawMode = false;
-                return key;
-              }
-              escapeSequence.add(String.fromCharCode(charCode));
-              if (escapeSequence[2] != '~') {
-                key.controlChar = ControlCharacter.unknown;
-              } else {
-                switch (escapeSequence[1]) {
-                  case '1':
-                    key.controlChar = ControlCharacter.home;
-                    break;
-                  case '3':
-                    key.controlChar = ControlCharacter.delete;
-                    break;
-                  case '4':
-                    key.controlChar = ControlCharacter.end;
-                    break;
-                  case '5':
-                    key.controlChar = ControlCharacter.pageUp;
-                    break;
-                  case '6':
-                    key.controlChar = ControlCharacter.pageDown;
-                    break;
-                  case '7':
-                    key.controlChar = ControlCharacter.home;
-                    break;
-                  case '8':
-                    key.controlChar = ControlCharacter.end;
-                    break;
-                  default:
-                    key.controlChar = ControlCharacter.unknown;
-                }
-              }
-            } else {
-              key.controlChar = ControlCharacter.unknown;
+        final csiResult = _parseCsiSequence(secondChar);
+        if (csiResult != ControlCharacter.unknown) {
+          key = KeyStroke.control(csiResult);
+        } else if (secondChar.codeUnits[0] >= '0'.codeUnits[0] &&
+            secondChar.codeUnits[0] <= '9'.codeUnits[0]) {
+          // Numeric CSI sequence (e.g., ESC [ 3 ~ or ESC [ 15 ~)
+          // Collect all digits until we hit a non-digit character
+          final numBuffer = StringBuffer(secondChar);
+          ControlCharacter resultChar = ControlCharacter.escape;
+          while (true) {
+            charCode = stdin.readByteSync();
+            if (charCode == -1) {
+              rawMode = false;
+              return KeyStroke.control(ControlCharacter.escape);
             }
+            final nextChar = String.fromCharCode(charCode);
+            if (nextChar.codeUnits[0] >= '0'.codeUnits[0] &&
+                nextChar.codeUnits[0] <= '9'.codeUnits[0]) {
+              numBuffer.write(nextChar);
+            } else if (nextChar == '~') {
+              resultChar = _parseNumericCsiSequence(numBuffer.toString());
+              break;
+            } else {
+              resultChar = ControlCharacter.unknown;
+              break;
+            }
+          }
+          key = KeyStroke.control(resultChar);
+        } else {
+          key = KeyStroke.control(ControlCharacter.unknown);
         }
-      } else if (escapeSequence[0] == 'O') {
+      } else if (firstChar == 'O') {
+        // SS3 sequence
         charCode = stdin.readByteSync();
         if (charCode == -1) {
           rawMode = false;
-          return key;
+          return KeyStroke.control(ControlCharacter.escape);
         }
-        escapeSequence.add(String.fromCharCode(charCode));
-        assert(escapeSequence.length == 2);
-        switch (escapeSequence[1]) {
-          case 'H':
-            key.controlChar = ControlCharacter.home;
-            break;
-          case 'F':
-            key.controlChar = ControlCharacter.end;
-            break;
-          case 'P':
-            key.controlChar = ControlCharacter.F1;
-            break;
-          case 'Q':
-            key.controlChar = ControlCharacter.F2;
-            break;
-          case 'R':
-            key.controlChar = ControlCharacter.F3;
-            break;
-          case 'S':
-            key.controlChar = ControlCharacter.F4;
-            break;
-          default:
-        }
-      } else if (escapeSequence[0] == 'b') {
-        key.controlChar = ControlCharacter.wordLeft;
-      } else if (escapeSequence[0] == 'f') {
-        key.controlChar = ControlCharacter.wordRight;
+        final secondChar = String.fromCharCode(charCode);
+        key = KeyStroke.control(_parseSs3Sequence(secondChar));
+      } else if (firstChar == 'b') {
+        key = KeyStroke.control(ControlCharacter.wordLeft);
+      } else if (firstChar == 'f') {
+        key = KeyStroke.control(ControlCharacter.wordRight);
       } else {
-        key.controlChar = ControlCharacter.unknown;
+        key = KeyStroke.control(ControlCharacter.unknown);
       }
     } else if (codeUnit == 0x7f) {
       key = KeyStroke.control(ControlCharacter.backspace);
@@ -520,11 +626,17 @@ class Console {
   /// A callback function may be supplied, as a peek-ahead for what is being
   /// entered. This is intended for scenarios like auto-complete, where the
   /// text field is coupled with some other content.
-  String? readLine(
-      {bool cancelOnBreak = false,
-      bool cancelOnEscape = false,
-      bool cancelOnEOF = false,
-      void Function(String text, KeyStroke lastPressed)? callback}) {
+  ///
+  /// If [maskChar] is provided, each character of the input will be displayed
+  /// as the mask character (e.g., '*' for password fields). The actual input
+  /// is still returned as the result.
+  String? readLine({
+    bool cancelOnBreak = false,
+    bool cancelOnEscape = false,
+    bool cancelOnEOF = false,
+    String? maskChar,
+    void Function(String text, KeyStroke lastPressed)? callback,
+  }) {
     var buffer = '';
     var index = 0; // cursor position relative to buffer, not screen
 
@@ -637,7 +749,11 @@ class Console {
 
       cursorPosition = Coordinate(screenRow, screenColOffset);
       eraseCursorToEnd();
-      write(buffer); // allow for backspace condition
+      // Display masked characters if maskChar is provided, otherwise show actual buffer
+      final displayBuffer = maskChar != null
+          ? maskChar * buffer.length
+          : buffer;
+      write(displayBuffer); // allow for backspace condition
       cursorPosition = Coordinate(screenRow, screenColOffset + index);
 
       if (callback != null) callback(buffer, key);

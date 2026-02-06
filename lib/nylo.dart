@@ -1,40 +1,37 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:error_stack/error_stack.dart';
+import 'package:service_runner/service_runner.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
-import '/helpers/ny_cache.dart';
+import '/controllers/ny_controllers.dart';
+import '/helpers/ny_helpers.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:intl/intl.dart';
-import '/widgets/ny_form.dart';
-import '/controllers/ny_controller.dart';
-import '/event_bus/event_bus_plus.dart';
+import '/event_bus/ny_event_bus.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import '/alerts/toast_enums.dart';
-import '/alerts/toast_meta.dart';
-import '/events/events.dart';
-import '/helpers/backpack.dart';
-import '/helpers/helper.dart';
-import '/networking/ny_api_service.dart';
-import '/router/models/arguments_wrapper.dart';
-import '/router/models/ny_argument.dart';
-import '/router/observers/ny_route_history_observer.dart';
-import '/router/router.dart';
-import '/themes/base_color_styles.dart';
-import '/themes/base_theme_config.dart';
-import '/widgets/event_bus/update_state.dart';
-import 'package:theme_provider/theme_provider.dart';
-import 'helpers/ny_app_usage.dart';
-import 'helpers/ny_scheduler.dart';
-import 'local_storage/local_storage.dart';
-import 'localization/app_localization.dart';
-export '/exceptions/validation_exception.dart';
-export '/alerts/toast_enums.dart';
+import 'alerts/src/toast_meta.dart';
+import '/networking/ny_networking.dart';
+import '/providers/ny_providers.dart' show BootConfig;
+import '/router/ny_router.dart';
+import '/themes/ny_themes.dart';
+import '/widgets/ny_widgets.dart';
+import 'local_storage/ny_local_storage.dart';
+import 'localization/ny_localization.dart';
+import '/events/ny_events.dart' show NyEvent;
 
 class Nylo {
+  /// Flag to indicate if the app is running in test mode.
+  /// When true, certain operations like timezone configuration are skipped,
+  /// and in-memory cache is used instead of file-based cache.
+  static bool isTestMode = false;
+
+  /// Registered services initialized during Nylo.init()
+  static List<Runnable> _services = [];
+
   String? _initialRoute;
   Widget _appLoader;
   Widget _appLogo;
@@ -47,28 +44,19 @@ class Nylo {
   Widget Function(FlutterErrorDetails errorDetails)? _errorStackErrorWidget;
   InitializationSettings? _initializationSettings;
   final Map<Type, NyEvent> _events = {};
-  final Map<String, dynamic> _validationRules = {};
   final Map<String, dynamic> _formCasts = {};
   final Map<Type, NyApiService Function()> _apiDecoders = {};
   final Map<Type, NyApiService> _singletonApiDecoders = {};
-  final List<BaseThemeConfig> _appThemes = [];
   final List<NavigatorObserver> _navigatorObservers = [];
-  Widget Function({
-    required ToastNotificationStyleType style,
-    Function(ToastNotificationStyleMetaHelper helper)?
-        toastNotificationStyleMeta,
-    Function? onDismiss,
-  })? _toastNotification;
   final Map<Type, dynamic> _modelDecoders = {};
   final Map<Type, dynamic> _controllerDecoders = {};
   final Map<Type, dynamic> _singletonControllers = {};
   Function(String route, dynamic data)? onDeepLinkAction;
-  NyFormStyle? _formStyle;
   FlutterLocalNotificationsPlugin? _localNotifications;
   bool? _useLocalNotifications;
   Function(NotificationResponse details)? _onDidReceiveLocalNotification;
   Function(NotificationResponse details)?
-      _onDidReceiveBackgroundNotificationResponse;
+  _onDidReceiveBackgroundNotificationResponse;
   NyCache? _cache;
   bool isFlutterLocalNotificationsInitialized = false;
   bool? _broadcastEvents;
@@ -77,15 +65,16 @@ class Nylo {
   /// Get the cache instance
   NyCache? get getCache => _cache;
 
+  /// Get the registered services
+  static List<Runnable> get services => _services;
+
   /// Create a new Nylo instance.
   Nylo({this.router, bool useNyRouteObserver = true})
-      : _appLoader = const CircularProgressIndicator(),
-        _appLogo = const SizedBox.shrink() {
-    _navigatorObservers.addAll(useNyRouteObserver
-        ? [
-            NyRouteHistoryObserver(),
-          ]
-        : []);
+    : _appLoader = const CircularProgressIndicator(),
+      _appLogo = const SizedBox.shrink() {
+    _navigatorObservers.addAll(
+      useNyRouteObserver ? [NyRouteHistoryObserver()] : [],
+    );
   }
 
   /// Set the initial route from a [routeName].
@@ -110,14 +99,6 @@ class Nylo {
     }
   }
 
-  /// Set the form style
-  void addFormStyle(NyFormStyle formStyle) {
-    _formStyle = formStyle;
-  }
-
-  /// Get the form style
-  NyFormStyle? getFormStyle() => _formStyle;
-
   /// Update the stack on the router.
   /// [routes] is a list of routes to navigate to. E.g. [HomePage.path, SettingPage.path]
   /// [replace] is a boolean that determines if the current route should be replaced.
@@ -132,15 +113,20 @@ class Nylo {
   ///  });
   ///  ```
   ///  This will navigate to the HomePage and SettingPage with the data passed to the HomePage.
-  static void updateRouteStack(List<String> routes,
-      {bool replace = true,
-      bool deepLink = false,
-      Map<String, dynamic>? dataForRoute}) {
+  static void updateRouteStack(
+    List<String> routes, {
+    bool replace = true,
+    bool deepLink = false,
+    Map<String, dynamic>? dataForRoute,
+  }) {
     if (deepLink == true) {
       routes.removeLast();
     }
-    NyNavigator.updateStack(routes,
-        replace: replace, dataForRoute: dataForRoute);
+    NyNavigator.updateStack(
+      routes,
+      replace: replace,
+      dataForRoute: dataForRoute,
+    );
   }
 
   /// Set the deep link action.
@@ -151,14 +137,6 @@ class Nylo {
   void onDeepLink(Function(String route, dynamic data) callback) {
     onDeepLinkAction = callback;
   }
-
-  /// Get the toast notification.
-  Widget Function({
-    required ToastNotificationStyleType style,
-    Function(ToastNotificationStyleMetaHelper helper)?
-        toastNotificationStyleMeta,
-    Function? onDismiss,
-  })? get toastNotification => _toastNotification;
 
   /// Find a [controller]
   dynamic getController(dynamic controller) {
@@ -210,7 +188,7 @@ class Nylo {
   /// });
   ///
   /// Usage in /app/providers/route_provider.dart e.g. Nylo.addRouter(accountRouter());
-  Future<void> addRouter(NyRouter router) async {
+  void addRouter(NyRouter router) {
     if (this.router == null) {
       this.router = NyRouter();
     }
@@ -219,9 +197,41 @@ class Nylo {
     NyNavigator.instance.router = this.router!;
   }
 
-  /// Add themes to Nylo
-  void addThemes<T extends BaseColorStyles>(List<BaseThemeConfig<T>> themes) {
-    _appThemes.addAll(themes);
+  /// Add themes to Nylo.
+  ///
+  /// [themes] - List of theme configurations to register.
+  /// [initialThemeId] - Optional theme ID to use on first launch. If not provided,
+  ///                    the system brightness will be used to select a matching theme.
+  ///
+  /// Example:
+  /// ```dart
+  /// nylo.addThemes(appThemes);
+  /// // Or with initial theme:
+  /// nylo.addThemes(appThemes, initialThemeId: 'light_theme');
+  /// ```
+  void addThemes<T extends ThemeColor>(
+    List<BaseThemeConfig<T>> themes, {
+    String? initialThemeId,
+  }) {
+    NyThemeManager.instance.registerThemes(
+      themes,
+      initialThemeId: initialThemeId,
+    );
+  }
+
+  /// Get all registered themes.
+  static List<BaseThemeConfig> getThemes() {
+    return NyThemeManager.instance.themes;
+  }
+
+  /// Get the current theme.
+  static BaseThemeConfig? getCurrentTheme() {
+    return NyThemeManager.instance.currentTheme;
+  }
+
+  /// Get the current theme data.
+  static ThemeData? getThemeData() {
+    return NyThemeManager.instance.themeData;
   }
 
   /// Set if the app should monitor app usage like:
@@ -236,12 +246,84 @@ class Nylo {
   /// Use ErrorStack
   /// [level] is the log level for ErrorStack
   /// [errorWidget] is a custom error widget
-  void useErrorStack(
-      {ErrorStackLogLevel level = ErrorStackLogLevel.verbose,
-      Widget Function(FlutterErrorDetails errorDetails)? errorWidget}) {
+  void useErrorStack({
+    ErrorStackLogLevel level = ErrorStackLogLevel.verbose,
+    Widget Function(FlutterErrorDetails errorDetails)? errorWidget,
+  }) {
     _enableErrorStack = true;
     _errorStackLogLevel = level;
     _errorStackErrorWidget = errorWidget;
+  }
+
+  /// Enable external dev panel logging integration.
+  ///
+  /// This sets up callbacks for both console logging ([NyLogger]) and route
+  /// tracking ([NyRouteHistoryObserver]) to forward events to an external
+  /// logging system like DevPanelStore.
+  ///
+  /// The [onLog] callback receives console log messages with:
+  /// - `message`: The log message content
+  /// - `level`: The log level (`debug`, `info`, `warning`, `error`)
+  /// - `tag`: Optional tag for categorizing logs
+  /// - `stackTrace`: Optional stack trace for error logs
+  /// - `metadata`: Optional additional metadata
+  ///
+  /// The [onRouteChange] callback receives route navigation events with:
+  /// - `action`: The navigation action (`push`, `pop`, `remove`, `replace`)
+  /// - `routeName`: The name of the route
+  /// - `arguments`: Optional route arguments
+  /// - `previousRoute`: The name of the previous route
+  ///
+  /// Example with DevPanelStore:
+  /// ```dart
+  /// nylo.useDevPanelLogging(
+  ///   onLog: (message, level, {tag, stackTrace, metadata}) {
+  ///     DevPanelStore.instance.log(
+  ///       message,
+  ///       level: DevPanelLogLevel.values.byName(level),
+  ///       tag: tag,
+  ///       stackTrace: stackTrace,
+  ///       metadata: metadata,
+  ///     );
+  ///   },
+  ///   onRouteChange: (action, routeName, {arguments, previousRoute}) {
+  ///     switch (action) {
+  ///       case 'push':
+  ///         DevPanelStore.instance.trackRoutePush(routeName, arguments: arguments, previousRoute: previousRoute);
+  ///         break;
+  ///       case 'pop':
+  ///         DevPanelStore.instance.trackRoutePop(routeName, previousRoute: previousRoute);
+  ///         break;
+  ///       case 'replace':
+  ///         DevPanelStore.instance.trackRouteReplace(routeName, arguments: arguments, previousRoute: previousRoute);
+  ///         break;
+  ///       case 'remove':
+  ///         DevPanelStore.instance.trackRoutePop(routeName, previousRoute: previousRoute);
+  ///         break;
+  ///     }
+  ///   },
+  /// );
+  /// ```
+  void useDevPanelLogging({
+    void Function(
+      String message,
+      String level, {
+      String? tag,
+      String? stackTrace,
+      Map<String, dynamic>? metadata,
+    })?
+    onLog,
+    void Function(
+      String action,
+      String routeName, {
+      Object? arguments,
+      String? previousRoute,
+    })?
+    onRouteChange,
+  }) {
+    if (onRouteChange != null) {
+      NyRouteHistoryObserver.onRouteChange = onRouteChange;
+    }
   }
 
   /// Use local notifications
@@ -251,7 +333,7 @@ class Nylo {
     LinuxInitializationSettings? linuxSettings,
     Function(NotificationResponse details)? onDidReceiveLocalNotification,
     Function(NotificationResponse details)?
-        onDidReceiveBackgroundNotificationResponse,
+    onDidReceiveBackgroundNotificationResponse,
   }) {
     _useLocalNotifications = true;
 
@@ -271,9 +353,11 @@ class Nylo {
     }
     if (Platform.isLinux) {
       initializationSettings = InitializationSettings(
-        linux: linuxSettings ??
+        linux:
+            linuxSettings ??
             const LinuxInitializationSettings(
-                defaultActionName: 'Open notification'),
+              defaultActionName: 'Open notification',
+            ),
       );
     }
 
@@ -302,22 +386,28 @@ class Nylo {
   /// Check if the app should broadcast events
   bool shouldBroadcastEvents() => _broadcastEvents ?? false;
 
-  /// Add toast notification
-  void addToastNotification(
-      Widget Function({
-        required ToastNotificationStyleType style,
-        Function(ToastNotificationStyleMetaHelper helper)?
-            toastNotificationStyleMeta,
-        Function? onDismiss,
-      }) toastNotification) {
-    _toastNotification = toastNotification;
-  }
-
-  /// Get all app themes
-  static List<AppTheme> getAppThemes() {
-    return instance._appThemes
-        .map((appTheme) => appTheme.toAppTheme())
-        .toList();
+  /// Add toast notification styles to the registry.
+  /// Pass a map of style IDs to widget factory functions.
+  ///
+  /// Example:
+  /// ```dart
+  /// nylo.addToastNotifications(ToastNotification.styles);
+  /// ```
+  ///
+  /// To add custom styles:
+  /// ```dart
+  /// nylo.addToastNotifications({
+  ///   ...ToastNotification.styles,
+  ///   'custom': ToastNotification.style(
+  ///     icon: Icon(Icons.star, color: Colors.purple, size: 20),
+  ///     color: Colors.purple.shade50,
+  ///     defaultTitle: 'Custom!',
+  ///     position: ToastNotificationPosition.bottom,
+  ///   ),
+  /// });
+  /// ```
+  void addToastNotifications(Map<String, ToastStyleFactory> styles) {
+    ToastNotificationRegistry.instance.registerAll(styles);
   }
 
   /// Set API decoders
@@ -337,20 +427,12 @@ class Nylo {
   Map<Type, NyApiService Function()> getApiDecoders() => _apiDecoders;
 
   /// Add [events] to Nylo
-  Future<void> addEvents(Map<Type, NyEvent> events) async {
+  void addEvents(Map<Type, NyEvent> events) {
     _events.addAll(events);
   }
 
   /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
-
-  /// Add [validators] to Nylo
-  void addValidationRules(Map<String, dynamic> validators) {
-    _validationRules.addAll(validators);
-  }
-
-  /// Get [validators] from Nylo
-  Map<String, dynamic> getValidationRules() => _validationRules;
 
   /// Add form casts to Nylo
   void addFormCasts(Map<String, dynamic> formTypes) {
@@ -373,8 +455,10 @@ class Nylo {
 
   /// Return an event.
   NyEvent? getEvent(Type event) {
-    assert(_events.containsKey(event),
-        "Your events.dart file doesn't contain ${event.toString()}");
+    assert(
+      _events.containsKey(event),
+      "Your events.dart file doesn't contain ${event.toString()}",
+    );
     return _events[event];
   }
 
@@ -404,13 +488,15 @@ class Nylo {
   void addControllers(Map<Type, dynamic> controllers) {
     for (var controllerDecoder in controllers.entries) {
       if (controllerDecoder.value is NyController Function()) {
-        _controllerDecoders
-            .addAll({controllerDecoder.key: controllerDecoder.value});
+        _controllerDecoders.addAll({
+          controllerDecoder.key: controllerDecoder.value,
+        });
       }
 
       if (controllerDecoder.value is NyController) {
-        _singletonControllers
-            .addAll({controllerDecoder.key: controllerDecoder.value});
+        _singletonControllers.addAll({
+          controllerDecoder.key: controllerDecoder.value,
+        });
       }
     }
 
@@ -421,7 +507,7 @@ class Nylo {
 
   /// Configure the app to use local timezone
   static Future<void> _configureLocalTimeZone() async {
-    if (kIsWeb || Platform.isLinux) {
+    if (isTestMode || kIsWeb || Platform.isLinux) {
       return;
     }
     tz.initializeTimeZones();
@@ -439,17 +525,18 @@ class Nylo {
 
   /// Set local notifications
   void setLocalNotifications(
-      FlutterLocalNotificationsPlugin localNotifications) {
+    FlutterLocalNotificationsPlugin localNotifications,
+  ) {
     _localNotifications = localNotifications;
   }
 
   /// Get the local notifications plugin
   static Future<void> localNotifications(
-      Function(FlutterLocalNotificationsPlugin localNotifications)
-          callback) async {
+    Function(FlutterLocalNotificationsPlugin localNotifications) callback,
+  ) async {
     Nylo nylo = Nylo.instance;
-    FlutterLocalNotificationsPlugin? flutterLocalNotifications =
-        nylo.getLocalNotifications();
+    FlutterLocalNotificationsPlugin? flutterLocalNotifications = nylo
+        .getLocalNotifications();
     if (flutterLocalNotifications == null) {
       flutterLocalNotifications = FlutterLocalNotificationsPlugin();
       nylo.setLocalNotifications(flutterLocalNotifications);
@@ -460,22 +547,22 @@ class Nylo {
     }
     nylo.isFlutterLocalNotificationsInitialized =
         await flutterLocalNotifications.initialize(
+          settings:
               nylo.getInitializationSettings() ?? InitializationSettings(),
-              onDidReceiveBackgroundNotificationResponse:
-                  notificationTapBackground,
-              onDidReceiveNotificationResponse:
-                  onDidReceiveNotificationResponse,
-            ) ??
-            false;
+          onDidReceiveBackgroundNotificationResponse: notificationTapBackground,
+          onDidReceiveNotificationResponse: onDidReceiveNotificationResponse,
+        ) ??
+        false;
     await callback(flutterLocalNotifications);
   }
 
   @pragma('vm:entry-point')
   static void notificationTapBackground(
-      NotificationResponse notificationResponse) {
+    NotificationResponse notificationResponse,
+  ) {
     Function(NotificationResponse notificationResponse)?
-        onDidReceiveBackgroundNotificationResponse =
-        Nylo.instance.getOnDidReceiveBackgroundNotificationResponse();
+    onDidReceiveBackgroundNotificationResponse = Nylo.instance
+        .getOnDidReceiveBackgroundNotificationResponse();
     if (onDidReceiveBackgroundNotificationResponse != null) {
       onDidReceiveBackgroundNotificationResponse(notificationResponse);
     }
@@ -483,10 +570,11 @@ class Nylo {
 
   /// On did receive notification response
   static void onDidReceiveNotificationResponse(
-      NotificationResponse notificationResponse) async {
+    NotificationResponse notificationResponse,
+  ) async {
     Function(NotificationResponse notificationResponse)?
-        onDidReceiveNotificationResponse =
-        Nylo.instance.getOnDidReceiveNotificationResponse();
+    onDidReceiveNotificationResponse = Nylo.instance
+        .getOnDidReceiveNotificationResponse();
     if (onDidReceiveNotificationResponse != null) {
       onDidReceiveNotificationResponse(notificationResponse);
     }
@@ -494,68 +582,91 @@ class Nylo {
 
   /// Get on did receive notification response
   Function(NotificationResponse notificationResponse)?
-      getOnDidReceiveNotificationResponse() => _onDidReceiveLocalNotification;
+  getOnDidReceiveNotificationResponse() => _onDidReceiveLocalNotification;
 
   /// Get on did receive background notification response
   Function(NotificationResponse notificationResponse)?
-      getOnDidReceiveBackgroundNotificationResponse() =>
-          _onDidReceiveBackgroundNotificationResponse;
+  getOnDidReceiveBackgroundNotificationResponse() =>
+      _onDidReceiveBackgroundNotificationResponse;
 
   /// Initialize Nylo
-  static Future<Nylo> init(
-      {Function? setup,
-      Function(Nylo nylo)? setupFinished,
-      bool? showSplashScreen,
-      Map<AppLifecycleState, Function()>? appLifecycle}) async {
-    const String envFile = String.fromEnvironment(
-      'ENV_FILE',
-      defaultValue: '.env',
-    );
-    await dotenv.load(
-        fileName: envFile,
-        mergeWith: showSplashScreen != null
-            ? {"SHOW_SPLASH_SCREEN": 'true'}
-            : const {});
+  ///
+  /// [env] - The environment getter function from your generated env.g.dart file.
+  /// Run `metro make:key` then `metro make:env` to generate this file.
+  /// Example: `env: Env.get`
+  ///
+  /// [services] - List of services to initialize after setup completes.
+  /// Services are initialized in order and must extend [Runnable] or [NyService].
+  /// Supports both sync and async service factories (e.g., `Future<Runnable>`).
+  ///
+  /// Example:
+  /// ```dart
+  /// await Nylo.init(
+  ///   env: Env.get,
+  ///   setup: Boot.nylo,
+  ///   services: [
+  ///     // Async factory pattern - returns Future<Runnable>
+  ///     FirebaseKit.init(
+  ///       options: DefaultFirebaseOptions.currentPlatform,
+  ///       services: [
+  ///         FirebaseKitMessaging(sendTokenOnBoot: true),
+  ///         FirebaseKitAnalytics(enableAutoTracking: true),
+  ///       ],
+  ///     ),
+  ///     // Direct instantiation
+  ///     MyCustomService(),
+  ///   ],
+  /// );
+  ///
+  /// // Later in your app, retrieve services:
+  /// final firebase = service<FirebaseKit>();
+  /// final messaging = firebase.getService<FirebaseKitMessaging>();
+  /// ```
+  ///
+  /// Services go through three lifecycle phases:
+  /// 1. `onInit()` - Called for each service in order
+  /// 2. `onReady()` - Called after all services are initialized
+  /// 3. `onAppReady()` - Called when the app is fully ready
+  static Future<Nylo> init({
+    required EnvGetter env,
+    BootConfig? setup,
+    Map<AppLifecycleState, Function()>? appLifecycle,
+    List<FutureOr<Runnable>>? services,
+  }) async {
+    // Register environment configuration first
+    NyEnvRegistry.register(getter: env);
+
     Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
 
-    await _configureLocalTimeZone();
+    try {
+      await _configureLocalTimeZone();
+    } catch (e) {
+      // Timezone configuration failed, continue without it
+    }
 
     Nylo nyloApp = Nylo();
 
-    if (setup == null) {
-      nyloApp._appLifecycle = appLifecycle;
-      nyloApp._cache = await NyCache.getInstance();
-      if (setupFinished != null) {
-        await setupFinished(nyloApp);
+    if (setup != null) {
+      nyloApp = await setup.setup();
+    }
+    if (!isTestMode) {
+      try {
+        nyloApp._cache = await NyCache.getInstance();
+      } catch (e) {
+        // Cache initialization failed (e.g. path_provider native library issue)
       }
-      if (nyloApp._enableErrorStack == true) {
-        await ErrorStack.init(
-            level: nyloApp._errorStackLogLevel ?? ErrorStackLogLevel.verbose,
-            initialRoute: nyloApp.getInitialRoute(),
-            errorWidget: nyloApp._errorStackErrorWidget);
-      }
-      if (nyloApp._useLocalNotifications == true) {
-        FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-            FlutterLocalNotificationsPlugin();
-        if (nyloApp._initializationSettings != null) {
-          nyloApp.setLocalNotifications(flutterLocalNotificationsPlugin);
-        }
-      }
-      return nyloApp;
     }
 
-    nyloApp = await setup();
-    nyloApp._cache = await NyCache.getInstance();
-    nyloApp._appLifecycle = appLifecycle;
+    // Initialize theme manager after themes are registered
+    await NyThemeManager.instance.init();
 
-    if (setupFinished != null) {
-      await setupFinished(nyloApp);
-    }
     if (nyloApp._enableErrorStack == true) {
       await ErrorStack.init(
-          level: nyloApp._errorStackLogLevel ?? ErrorStackLogLevel.verbose,
-          initialRoute: nyloApp.getInitialRoute(),
-          errorWidget: nyloApp._errorStackErrorWidget);
+        level: nyloApp._errorStackLogLevel ?? ErrorStackLogLevel.verbose,
+        initialRoute: nyloApp.getInitialRoute(),
+        errorWidget: nyloApp._errorStackErrorWidget,
+      );
+      nyloApp.addNavigatorObserver(ErrorStackNavigatorObserver());
     }
     if (nyloApp._useLocalNotifications == true) {
       FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
@@ -564,13 +675,47 @@ class Nylo {
         nyloApp.setLocalNotifications(flutterLocalNotificationsPlugin);
       }
     }
+
+    // Initialize services
+    if (services != null && services.isNotEmpty) {
+      // Resolve all FutureOr<Runnable> to Runnable instances
+      final List<Runnable> resolvedServices = [];
+      for (final serviceOrFuture in services) {
+        final Runnable resolvedService = await serviceOrFuture;
+        resolvedServices.add(resolvedService);
+        // Register in the service registry by type
+        Runnable.register(resolvedService);
+      }
+      _services = resolvedServices;
+
+      // Phase 1: Initialize all services
+      for (final service in resolvedServices) {
+        await service.onInit();
+      }
+      // Phase 2: All services ready
+      for (final service in resolvedServices) {
+        await service.onReady();
+      }
+      // Phase 3: App fully ready (navigation available)
+      for (final service in resolvedServices) {
+        await service.onAppReady();
+      }
+    }
+
+    Backpack.instance.save("nylo", nyloApp);
+
+    // Call boot after all initialization is complete
+    if (setup != null) {
+      await setup.boot(nyloApp);
+    }
+
     return nyloApp;
   }
 
   /// Initialize local notifications
   Future<bool?>? initializeLocalNotifications() async {
     return await _localNotifications?.initialize(
-      _initializationSettings!,
+      settings: _initializationSettings!,
       onDidReceiveBackgroundNotificationResponse:
           _onDidReceiveBackgroundNotificationResponse,
       onDidReceiveNotificationResponse: _onDidReceiveLocalNotification,
@@ -586,8 +731,16 @@ class Nylo {
   /// Get appLogo
   Widget get getAppLogo => _appLogo;
 
-  /// Get Nylo from Backpack
-  static Nylo get instance => Backpack.instance.nylo();
+  /// Get Nylo from Backpack.
+  /// Throws [StateError] if Nylo has not been initialized via [Nylo.init()].
+  static Nylo get instance {
+    if (!Backpack.instance.isNyloInitialized()) {
+      throw StateError(
+        'Nylo has not been initialized. Call Nylo.init() first.',
+      );
+    }
+    return Backpack.instance.nylo();
+  }
 
   /// Get appLoader
   static Widget appLoader() => instance.getAppLoader;
@@ -597,6 +750,33 @@ class Nylo {
 
   /// Get events
   static Map<Type, NyEvent> events() => instance.getEvents();
+
+  /// Get a service by type.
+  ///
+  /// Example:
+  /// ```dart
+  /// final firebase = Nylo.getService<FirebaseKit>();
+  /// final messaging = firebase?.getService<FirebaseKitMessaging>();
+  /// ```
+  static T? getService<T extends Runnable>() {
+    try {
+      return _services.firstWhere((s) => s is T) as T;
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Check if a service is registered.
+  ///
+  /// Example:
+  /// ```dart
+  /// if (Nylo.hasService<FirebaseKit>()) {
+  ///   // Firebase is available
+  /// }
+  /// ```
+  static bool hasService<T extends Runnable>() {
+    return _services.any((s) => s is T);
+  }
 
   /// Get AppLifecycleState
   Map<AppLifecycleState, Function()>? get appLifecycleStates => _appLifecycle;
@@ -646,8 +826,8 @@ class Nylo {
   /// Get the route history.
   static List<dynamic> getRouteHistory() {
     List<Map<String, dynamic>> list = [];
-    List<Route<dynamic>> history =
-        NyNavigator.instance.router.getRouteHistory();
+    List<Route<dynamic>> history = NyNavigator.instance.router
+        .getRouteHistory();
     for (var route in history) {
       dynamic data = route.settings.arguments;
       if (data is ArgumentsWrapper) {
@@ -682,8 +862,10 @@ class Nylo {
 
   /// Get current route arguments
   static dynamic getCurrentRouteArguments() {
-    dynamic argumentsWrapper =
-        NyNavigator.instance.router.getCurrentRoute()?.settings.arguments;
+    dynamic argumentsWrapper = NyNavigator.instance.router
+        .getCurrentRoute()
+        ?.settings
+        .arguments;
     if (argumentsWrapper is ArgumentsWrapper) {
       return argumentsWrapper.getData();
     }
@@ -697,8 +879,10 @@ class Nylo {
 
   /// Get previous route arguments
   static dynamic getPreviousRouteArguments() {
-    dynamic argumentsWrapper =
-        NyNavigator.instance.router.getPreviousRoute()?.settings.arguments;
+    dynamic argumentsWrapper = NyNavigator.instance.router
+        .getPreviousRoute()
+        ?.settings
+        .arguments;
     if (argumentsWrapper is ArgumentsWrapper) {
       return argumentsWrapper.getData();
     }
@@ -778,24 +962,34 @@ class Nylo {
   }
 
   /// Schedule something to happen once daily
-  static Future<void> scheduleOnceDaily(String name, Function() callback,
-      {DateTime? endAt}) async {
+  static Future<void> scheduleOnceDaily(
+    String name,
+    Function() callback, {
+    DateTime? endAt,
+  }) async {
     await NyScheduler.taskDaily(name, callback, endAt: endAt);
   }
 
   /// Schedule something to happen once after a date
-  static Future<void> scheduleOnceAfterDate(String name, Function() callback,
-      {required DateTime date}) async {
+  static Future<void> scheduleOnceAfterDate(
+    String name,
+    Function() callback, {
+    required DateTime date,
+  }) async {
     await NyScheduler.taskOnceAfterDate(name, callback, date: date);
   }
 
-  /// Wipe all storage data
-  static Future<void> wipeAllStorageData({
+  /// Wipe all storage data.
+  /// [excludeKeys] - Optional list of keys to exclude from deletion.
+  /// [andFromBackpack] - Whether to also remove data from Backpack (default: true).
+  static Future<void> wipeStorage({
     List<String>? excludeKeys,
     bool andFromBackpack = true,
   }) async {
     await NyStorage.deleteAll(
-        andFromBackpack: andFromBackpack, excludeKeys: excludeKeys);
+      andFromBackpack: andFromBackpack,
+      excludeKeys: excludeKeys,
+    );
   }
 
   /// Check if the router contains specific [routes]
@@ -832,13 +1026,149 @@ class Nylo {
     authStorageKey = key;
   }
 
-  /// Sync a model to the backpack instance.
-  Future<void> syncToBackpack(String key, dynamic data) async {
-    Backpack.instance.save(key, data);
+  /// Configure Nylo with all settings in a single call.
+  ///
+  /// This method provides a cleaner way to initialize Nylo by consolidating
+  /// all configuration options into a single method call.
+  ///
+  /// Example:
+  /// ```dart
+  /// await nylo.configure(
+  ///   loader: DesignConfig.loader,
+  ///   logo: DesignConfig.logo,
+  ///   themes: appThemes,
+  ///   initialThemeId: 'light_theme',
+  ///   toastNotifications: ToastNotificationConfig.styles,
+  ///   modelDecoders: modelDecoders,
+  ///   controllers: controllers,
+  ///   apiDecoders: apiDecoders,
+  ///   authKey: StorageKeysConfig.auth,
+  ///   syncKeys: StorageKeysConfig.syncedOnBoot,
+  ///   useErrorStack: true,
+  ///   monitorAppUsage: true,
+  ///   localization: LocalizationConfig(
+  ///     localeType: localeType,
+  ///     languageCode: 'en',
+  ///     assetsDirectory: 'lang/',
+  ///   ),
+  /// );
+  /// ```
+  Future<void> configure({
+    // UI
+    Widget? loader,
+    Widget? logo,
+
+    // Themes
+    List<BaseThemeConfig>? themes,
+    String? initialThemeId,
+
+    // Notifications
+    Map<String, ToastStyleFactory>? toastNotifications,
+
+    // Decoders & Controllers
+    Map<Type, dynamic>? modelDecoders,
+    Map<Type, dynamic>? controllers,
+    Map<Type, dynamic>? apiDecoders,
+
+    // Events
+    Map<Type, NyEvent>? events,
+    Map<String, dynamic>? formCasts,
+
+    // Auth & Storage
+    String? authKey,
+    dynamic syncKeys,
+
+    // Features
+    bool useErrorStack = false,
+    ErrorStackLogLevel? errorStackLevel,
+    Widget Function(FlutterErrorDetails)? errorStackWidget,
+    bool monitorAppUsage = false,
+    bool showDateTimeInLogs = false,
+    bool broadcastEvents = false,
+    NyLogCallback? onLog,
+
+    // Localization
+    NyLocalizationConfig? localization,
+  }) async {
+    // Localization
+    if (localization != null) {
+      await NyLocalization.instance.init(
+        localeType: localization.localeType,
+        languageCode: localization.languageCode,
+        assetsDirectory: localization.assetsDirectory,
+      );
+    }
+
+    // UI
+    if (loader != null) addLoader(loader);
+    if (logo != null) addLogo(logo);
+
+    // Themes
+    if (themes != null) {
+      NyThemeManager.instance.registerThemes(
+        themes,
+        initialThemeId: initialThemeId,
+      );
+    }
+
+    // Notifications
+    if (toastNotifications != null) {
+      addToastNotifications(toastNotifications);
+    }
+
+    // Decoders & Controllers
+    if (modelDecoders != null) addModelDecoders(modelDecoders);
+    if (controllers != null) addControllers(controllers);
+    if (apiDecoders != null) addApiDecoders(apiDecoders);
+
+    // Events
+    if (events != null) addEvents(events);
+    if (formCasts != null) addFormCasts(formCasts);
+
+    // Auth & Storage
+    if (authKey != null) addAuthKey(authKey);
+    if (syncKeys != null) await this.syncKeys(syncKeys);
+
+    // Features
+    if (useErrorStack) {
+      this.useErrorStack(
+        level: errorStackLevel ?? ErrorStackLogLevel.verbose,
+        errorWidget: errorStackWidget,
+      );
+
+      // Auto-wire NyLogger to DevPanelStore
+      NyLogger.onLog = (entry) {
+        // Forward to DevPanelStore
+        switch (entry.type) {
+          case 'debug':
+            DevPanelStore.instance.debug(entry.message);
+            break;
+          case 'info':
+            DevPanelStore.instance.info(entry.message);
+            break;
+          case 'error':
+            DevPanelStore.instance.error(entry.message);
+            break;
+          case 'warning':
+            DevPanelStore.instance.warning(entry.message);
+            break;
+          default:
+            DevPanelStore.instance.debug(entry.message);
+        }
+        // Also call user's custom callback if provided
+        onLog?.call(entry);
+      };
+    } else if (onLog != null) {
+      // No ErrorStack, just use custom callback
+      NyLogger.onLog = onLog;
+    }
+    if (monitorAppUsage) this.monitorAppUsage();
+    if (showDateTimeInLogs) this.showDateTimeInLogs();
+    if (broadcastEvents) this.broadcastEvents(true);
   }
 
-  /// Wipe all storage data
-  Future<void> wipeStorage() async {
-    await NyStorage.deleteAll();
+  /// Sync a model to the backpack instance.
+  void syncToBackpack(String key, dynamic data) {
+    Backpack.instance.save(key, data);
   }
 }

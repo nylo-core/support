@@ -28,8 +28,10 @@ extension StringUtils on String {
     return outputText.toString().trimRight();
   }
 
-  String alignText(
-      {required int width, TextAlignment alignment = TextAlignment.left}) {
+  String alignText({
+    required int width,
+    TextAlignment alignment = TextAlignment.left,
+  }) {
     // We can't use the padLeft() and padRight() methods here, since they
     // don't account for ANSI escape sequences.
     switch (alignment) {

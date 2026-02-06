@@ -12,7 +12,7 @@ class Calendar extends Table {
   List<String> dayLabels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   Calendar(DateTime dateTime)
-      : calendarDate = dateTime.subtract(Duration(days: dateTime.day - 1)) {
+    : calendarDate = dateTime.subtract(Duration(days: dateTime.day - 1)) {
     for (final day in dayLabels) {
       insertColumn(header: day, alignment: TextAlignment.right);
     }

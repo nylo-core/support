@@ -18,17 +18,33 @@ String ansiCursorPosition(int row, int col) => '\x1b[$row;${col}H';
 String ansiSetColor(int color) => '\x1b[${color}m';
 String ansiSetExtendedForegroundColor(int color) => '\x1b[38;5;${color}m';
 String ansiSetExtendedBackgroundColor(int color) => '\x1b[48;5;${color}m';
+
+/// Sets the foreground color using 24-bit RGB values (TrueColor).
+///
+/// Each color component (r, g, b) should be in the range 0-255.
+/// Not all terminals support TrueColor; most modern terminals do.
+String ansiSetRgbForegroundColor(int r, int g, int b) =>
+    '\x1b[38;2;$r;$g;${b}m';
+
+/// Sets the background color using 24-bit RGB values (TrueColor).
+///
+/// Each color component (r, g, b) should be in the range 0-255.
+/// Not all terminals support TrueColor; most modern terminals do.
+String ansiSetRgbBackgroundColor(int r, int g, int b) =>
+    '\x1b[48;2;$r;$g;${b}m';
+
 const ansiResetColor = '\x1b[m';
 
-String ansiSetTextStyles(
-    {bool bold = false,
-    bool faint = false,
-    bool italic = false,
-    bool underscore = false,
-    bool blink = false,
-    bool inverted = false,
-    bool invisible = false,
-    bool strikethru = false}) {
+String ansiSetTextStyles({
+  bool bold = false,
+  bool faint = false,
+  bool italic = false,
+  bool underscore = false,
+  bool blink = false,
+  bool inverted = false,
+  bool invisible = false,
+  bool strikethru = false,
+}) {
   final styles = <int>[];
   if (bold) styles.add(1);
   if (faint) styles.add(2);

@@ -1,30 +1,130 @@
-## [6.38.1] - 2025-12-13
+## [7.0.0] - 2026-02-06
 
-* Update pubspec.yaml
+### Breaking Changes
 
-## [6.38.0] - 2025-11-15
+* **Complete library restructuring** - All modules have been reorganized from flat file layouts into `src/` subdirectories with barrel file exports. Import paths have changed across the entire library:
+  * `lib/alerts/` files moved to `lib/alerts/src/` with barrel `ny_alerts.dart`
+  * `lib/controllers/` files moved to `lib/controllers/src/` with barrel `ny_controllers.dart`
+  * `lib/event_bus/` files moved to `lib/event_bus/src/` with barrel `ny_event_bus.dart`
+  * `lib/events/` files moved to `lib/events/src/` with barrel `ny_events.dart`
+  * `lib/helpers/` files moved to `lib/helpers/src/` with barrel `ny_helpers.dart`
+  * `lib/local_notifications/` files moved to `lib/local_notifications/src/` with barrel `ny_local_notifications.dart`
+  * `lib/local_storage/` files moved to `lib/local_storage/src/` with barrel `ny_local_storage.dart`
+  * `lib/localization/` files moved to `lib/localization/src/` with barrel `ny_localization.dart`
+  * `lib/metro/` files moved to `lib/metro/src/` with barrel `ny_metro.dart`
+  * `lib/networking/` files moved to `lib/networking/src/` with barrel `ny_networking.dart`
+  * `lib/providers/` files moved to `lib/providers/src/` with barrel `ny_providers.dart`
+  * `lib/router/` files moved to `lib/router/src/` with barrel `ny_router.dart`
+  * `lib/themes/` files moved to `lib/themes/src/` with barrel `ny_themes.dart`
+  * `lib/widgets/` files moved to `lib/widgets/src/` with barrel `ny_widgets.dart`
+  * `lib/dart_console/` reorganized with barrel `ny_dart_console.dart`
+* **New unified entry point** - `lib/ny_core.dart` exports all modules in one import
+* **Nylo.init() signature changed** - Now requires `env` parameter as `EnvGetter` type and accepts `BootConfig` for setup. The `setup` and `setupFinished` callbacks have been replaced by the `BootConfig` class pattern
+* **NyEnvRegistry introduced** - Environment variables are now managed through `NyEnvRegistry.register(getter: Env.get)` instead of reading `.env` files directly
+* **Theme system rewritten** - Replaced `theme_provider` package with new `NyThemeManager` singleton, `NyThemeProvider` widget, and `NyThemeStorage` for persistence. Theme registration now uses `nylo.addThemes()` with optional `initialThemeId` parameter
+* **Removed `BaseColorStyles`** - Replaced by `ThemeColor` abstract class in `lib/themes/src/theme_color.dart`
+* **Widget renames**:
+  * `NyRichText` renamed to `StyledText` (with `StyledText.template()` constructor)
+  * `NyTextField` renamed to `InputField`
+  * `NyFutureBuilder` renamed to `FutureWidget`
+  * `NyFader` renamed to `FadeOverlay` (with `.top()`, `.bottom()`, `.left()`, `.right()` constructors)
+  * `NyPullToRefresh` and `NyListView` consolidated into `CollectionView` (with `CollectionItem` wrapper class)
+  * `NyPullable` renamed to `Pullable`
+  * `NyLanguageSwitcher` renamed to `LanguageSwitcher`
+* **Removed `NyTextStyle`** - No longer part of the library
+* **Removed `ValidationException`** - Validation exceptions moved to form-specific handling
+* **Removed `NyLoginForm`** - Replaced by general `NyForm` capabilities
+* **Removed `events.dart`** - Events now use dedicated `ny_events.dart` barrel with new architecture
+* **Removed `router.dart`** - Router now uses dedicated `ny_router.dart` barrel
+* **Removed `dart_console.dart`** - Dart console now uses dedicated `ny_dart_console.dart` barrel
+* **Removed `validation/` directory** - Validation rules (`ny_validator.dart`, `rules.dart`, `validations.dart`) have been moved into the form system
+* **Minimum Dart SDK raised to `^3.10.7`**
+* **Minimum Flutter version raised to `>=3.24.0`**
 
-* Fix `NyLanguageSwitcher` AssetManifest.json
-* Added `NyRichText.template` to construct rich text from a template string
-* Update pubspec.yaml
+### Added
 
-## [6.37.0] - 2025-10-28
+* **Nylo Testing Framework** (`lib/testing/`) - A comprehensive testing framework with PHPUnit/Pest-like syntax:
+  * `NyTest` - Main test orchestrator with `init()`, `actingAs()`, `travel()`, `travelForward()`, `travelBack()`, `freezeTime()`, `dump()`, `dd()` methods
+  * `NyWidgetTest` - Widget testing utilities with `pumpNyWidget()` and `pumpNyWidgetSimple()` for easy widget testing
+  * `NyTime` - Time manipulation for testing (freeze, advance, rewind)
+  * `NyFactory` / `NyFaker` - Laravel-style model factories for generating test data
+  * `NyMockApi` - API mocking with type-based handlers and URL pattern matching (supports `*` and `**` wildcards)
+  * `NyMockChannels` - Platform channel mocking for tests
+  * `NyMockRouteGuard` - Route guard mocking
+  * `NyTestCache` - In-memory cache for tests
+  * `NyStateTestHelpers` - State testing helpers
+  * Pest-style test functions: `nyTest()`, `nyGroup()`, `nyWidgetTest()`, `nySetUp()`, `nyTearDown()`, `nySetUpAll()`, `nyTearDownAll()`, `nySkip()`, `nyFailing()`, `nyCi()`
+  * Custom assertions: `expectAuthenticated()`, route assertions, backpack assertions, locale assertions
+  * Automatic Google Fonts HTTP request disabling in tests
+* **NyConnectivity** (`lib/helpers/src/ny_connectivity.dart`) - Network connectivity helper with `isOnline()`, `isOffline()`, `isWifi()`, `isMobile()`, `isEthernet()`, `isVpn()`, `isBluetooth()`, `stream()`, `whenOnline()`, `when()`, `connectionTypeString()`
+* **Connective widget** (`lib/widgets/src/connective.dart`) - Reactive widget that rebuilds based on connectivity state. Includes `Connective.builder()`, `OfflineBanner` widget, and widget extensions `.connectiveOr()`, `.onlyOnline()`, `.onlyOffline()`
+* **NyEnvRegistry** (`lib/helpers/src/ny_env.dart`) - New centralized environment variable management with `register()`, `get()`, `containsKey()`, `isInitialized`
+* **BootConfig** (`lib/providers/src/providers.dart`) - New configuration class for bootstrapping Nylo applications with `setup` and `boot` lifecycle functions
+* **ButtonAnimationStyle** (`lib/helpers/src/button_animation_style.dart`) - Composable button animation styles: `clickable` (Duolingo-style 3D press), `bounce`, `pulse`, `squeeze`, `jelly`, `shine`, `ripple`, `morph`, `shake`
+* **ButtonSplashStyle** (`lib/helpers/src/button_splash_style.dart`) - Customizable button splash effects: `ripple`, `highlight`, `glow`, `ink`, `none`, `custom`
+* **AnimatedButtonWrapper** widget (`lib/widgets/src/animated_button_wrapper.dart`)
+* **NyBaseModal** (`lib/widgets/src/ny_base_modal.dart`) - Base class for creating modal bottom sheets with customizable layouts, headers, action rows/columns, close buttons, and drag handles
+* **NyResponse** (`lib/networking/src/models/ny_response.dart`) - Enhanced API response class with `isSuccessful`, `isClientError`, `isServerError`, `isRedirect`, `isUnauthorized`, `isForbidden`, `isNotFound`, `isTimeout`, `isRateLimited`, `dataOrThrow()`, `dataOr()`, `ifSuccessful()`, `when()`, `errorMessage`
+* **CachePolicy** (`lib/networking/src/models/cache_policy.dart`) - API request caching strategies: `networkOnly`, `cacheFirst`, `networkFirst`, `cacheOnly`, `staleWhileRevalidate`
+* **NetworkLogger** (`lib/networking/src/interceptors/network_logger.dart`) - New Dio interceptor with log levels (verbose, minimal, none), color terminal output, structured JSON output, and UUID-based request ID tracking
+* **HasApiService mixin** (`lib/helpers/src/mixins/api_service.dart`) - Mixin for classes that need typed API service access with `onApiSuccess()` and `onApiError()` callbacks
+* **NyThemeManager** (`lib/themes/src/ny_theme_manager.dart`) - Singleton theme manager with reactive updates via `themeNotifier`, system theme following, theme change stream, typed color styles, multi-theme support with preferred themes
+* **NyThemeProvider** (`lib/themes/src/ny_theme_provider.dart`) - Widget providing theme context with `AnimatedTheme` for smooth transitions
+* **NyThemeStorage** (`lib/themes/src/ny_theme_storage.dart`) - Secure storage for theme persistence including preferred light/dark theme IDs and follow-system preference
+* **openUrl() / canOpenUrl()** (`lib/helpers/src/ny_url.dart`) - URL launching helpers with `UrlLaunchModeType` enum (externalApplication, inAppWebView, inAppBrowserView, platformDefault)
+* **FadeOverlay** widget - Replaces NyFader with directional constructors: `FadeOverlay.top()`, `.bottom()`, `.left()`, `.right()` and configurable `strength` parameter
+* **CollectionItem** wrapper class - Provides `isFirst`, `isLast`, `isEven`, `isOdd`, `index`, `totalItems` helpers for list items in CollectionView
+* **StyledText.template()** constructor - Template-based rich text with `{{placeholder}}` syntax and pipe-separated style groups
+* **Storage exception hierarchy** (`lib/local_storage/src/storage_exceptions.dart`) - `StorageException`, `StorageSerializationException`, `StorageDeserializationException`, `StorageKeyNotFoundException`, `StorageTimeoutException`
+* **Form field additions** - New `FormSlider` and `FormRangeSlider` form fields, new `FormTextField` field, new `FieldStyle` configuration class
+* **Dart Console spinner** (`lib/dart_console/src/spinner.dart`) - New spinner component for CLI output
+* **Nylo.configure()** method - Single-call configuration for all Nylo settings (loader, logo, themes, toastNotifications, modelDecoders, controllers, apiDecoders, events, formCasts, authKey, syncKeys, errorStack, localization, and more)
+* **Nylo.getService() / Nylo.hasService()** - Service locator pattern for registered `Runnable` services
+* **Nylo.wipeStorage()** - Renamed from `wipeAllStorageData()` with added `excludeKeys` parameter
+* **Nylo.containsRoute()** (singular) - Convenience method alongside existing `containsRoutes()`
+* **Nylo.user()** - Static method to get the authenticated user
+* **Nylo.authKey()** - Static method to get the configured auth storage key
+* **Nylo.isTestMode** flag - Static flag to indicate test mode, skipping timezone configuration and using in-memory cache
+* **Service lifecycle support** in `Nylo.init()` - Services parameter accepting `List<FutureOr<Runnable>>` with three lifecycle phases: `onInit()`, `onReady()`, `onAppReady()`
+* **useDevPanelLogging()** - Integration hooks for external dev panel logging with `onLog` and `onRouteChange` callbacks
+* **NyApp** widget (`lib/widgets/src/ny_app.dart`) - New app-level widget
+* **TextTr** widget (`lib/widgets/src/text_tr.dart`) - Text widget with built-in translation support
+* **RouteMatcher** (`lib/router/src/route_matcher.dart`) - Dedicated route matching utility
+* **RouterFunctions** (`lib/router/src/router_functions.dart`) - Extracted router utility functions
+* **NyNavigator** (`lib/router/src/ny_navigator.dart`) - Extracted navigator class
+* **BottomNavStyle** (`lib/widgets/src/navigation_hub/bottom_nav_style.dart`) - Navigation hub bottom nav styling
+* Comprehensive test suite added across all modules (`test/alerts/`, `test/controllers/`, `test/core/`, `test/dart_console/`, `test/event_bus/`, `test/events/`, `test/helpers/`, `test/local_notifications/`, `test/local_storage/`, `test/localization/`, `test/metro/`, `test/networking/`, `test/providers/`, `test/router/`, `test/testing/`, `test/themes/`, `test/widgets/`)
 
-* Added `MetroService.createFile` method to create a file in your project
-* Update pubspec.yaml
+### Changed
 
-## [6.36.0] - 2025-10-12
+* **Nylo.init()** now accepts `env: EnvGetter` (required), `setup: BootConfig?`, `appLifecycle`, and `services` parameters
+* **Toast notifications** now use a registry pattern with `ToastNotificationRegistry` and `ToastStyleFactory` - configure via `nylo.addToastNotifications()`
+* **Local storage** split into focused modules: `StorageConfig`, `StorageManager`, `StorageUtils`, `StorageHelpers`, and `NyStorage`
+* **Local notifications** restructured with dedicated configuration classes: `AndroidNotificationConfig`, `IOSNotificationConfig`, `LocalNotification`, `NotificationAttachment`, `NotificationException`
+* **Events system** refactored into: `NyEvent` interface, `EventBus`, `EventSubscription`, event extensions, and `Listener`
+* `NyLogger` now supports `onLog` callback for external logging integration
+* `NyRouteHistoryObserver` now supports `onRouteChange` callback for external route tracking
+* Theme persistence migrated from SharedPreferences to FlutterSecureStorage
+* `NyLocalization` refactored with `NyLocalizationConfig` class for configuration
+* Updated `service_runner` dependency
+* Updated `flutter_local_notifications` to ^20.0.0
+* Updated `connectivity_plus` to ^7.0.0
+* Updated various other dependencies to latest versions
+* `pubspec.yaml` repository URL updated to `7.x` branch
+* `pubspec.yaml` SDK constraint updated to `^3.10.7`
+* Added `patrol` as dev dependency for widget testing
+* Updated logo/screenshot
 
-* added `repeatOn` to PushNotification class to allow repeating notifications
-* Update pubspec.yaml
+### Removed
 
-## [6.35.2] - 2025-09-22
-
-* Update pubspec.yaml
-
-## [6.35.1] - 2025-09-06
-
-* Update pubspec.yaml
+* Removed `theme_provider` package dependency - replaced by built-in `NyThemeManager`/`NyThemeProvider`
+* Removed `pretty_dio_logger` package dependency - replaced by built-in `NetworkLogger` interceptor
+* Removed `lib/validation/` directory (ny_validator.dart, rules.dart, validations.dart)
+* Removed `lib/exceptions/validation_exception.dart`
+* Removed `lib/forms/ny_login_form.dart`
+* Removed `lib/helpers/ny_text_style.dart`
+* Removed `lib/widgets/styles/ny_radio_tile_style.dart`
+* Removed flat-file exports that have been replaced by barrel files (e.g., `lib/events/events.dart`, `lib/router/router.dart`, `lib/dart_console/dart_console.dart`, `lib/providers/providers.dart`, `lib/local_storage/local_storage.dart`, `lib/local_notifications/local_notifications.dart`, `lib/localization/app_localization.dart`, `lib/networking/ny_base_api_service.dart`)
 
 ## [6.35.0] - 2025-07-18
 

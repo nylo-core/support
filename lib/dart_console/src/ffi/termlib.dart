@@ -10,6 +10,9 @@ abstract class TermLib {
   void enableRawMode();
   void disableRawMode();
 
+  /// Releases any resources allocated by the terminal library.
+  void dispose();
+
   factory TermLib() {
     if (Platform.isWindows) {
       return TermLibWindows();
