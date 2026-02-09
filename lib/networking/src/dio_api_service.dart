@@ -468,21 +468,18 @@ class DioApiService {
       response = await request(requestDio);
       stopwatch.stop();
       requestTime = "${stopwatch.elapsedMilliseconds}ms";
-      _recordApiResponse(
-        handleResponse<T>(response!, handleSuccess: handleSuccess),
-        requestTime,
-      );
-
       // Cache the response if caching is enabled
       if (cacheKeyRequest != null && effectivePolicy.shouldTryNetwork) {
-        await _saveToCache(cacheKeyRequest, response, cacheDurationRequest);
+        await _saveToCache(cacheKeyRequest, response!, cacheDurationRequest);
         printDebug('Cached response: $cacheKeyRequest');
       }
 
       NyResponse<T> apiResponse = handleResponse<T>(
-        response,
+        response!,
         handleSuccess: handleSuccess,
       );
+
+      _recordApiResponse(apiResponse, requestTime);
 
       if (apiResponse.data == null && useUndefinedResponse) {
         onUndefinedResponse(apiResponse.data, response);
@@ -598,11 +595,20 @@ class DioApiService {
   }) {
     T? morphedData;
 
-    // Morph the response data if T is not dynamic
-    if (T.toString() != 'dynamic') {
-      morphedData = _morphJsonResponse<T>(response.data);
-    } else {
-      morphedData = response.data as T?;
+    bool isSuccessful = response.statusCode != null &&
+        response.statusCode! >= 200 &&
+        response.statusCode! < 300;
+
+    // Skip morphing if a callback will handle the response
+    bool skipMorph = (isSuccessful && handleSuccess != null) ||
+        (!isSuccessful && handleFailure != null);
+
+    if (!skipMorph) {
+      if (T.toString() != 'dynamic') {
+        morphedData = _morphJsonResponse<T>(response.data);
+      } else {
+        morphedData = response.data as T?;
+      }
     }
 
     // Create the enhanced response object
@@ -613,12 +619,26 @@ class DioApiService {
 
     // Handle success callback
     if (nyResponse.isSuccessful && handleSuccess != null) {
-      return handleSuccess(nyResponse) ?? nyResponse;
+      dynamic result = handleSuccess(nyResponse);
+      if (result == null) return nyResponse;
+      if (result is NyResponse<T>) return result;
+      return NyResponse<T>(
+        response: nyResponse.response,
+        data: result as T,
+        rawData: nyResponse.rawData,
+      );
     }
 
     // Handle failure callback
     if (!nyResponse.isSuccessful && handleFailure != null) {
-      return handleFailure(nyResponse) ?? nyResponse;
+      dynamic result = handleFailure(nyResponse);
+      if (result == null) return nyResponse;
+      if (result is NyResponse<T>) return result;
+      return NyResponse<T>(
+        response: nyResponse.response,
+        data: result as T,
+        rawData: nyResponse.rawData,
+      );
     }
 
     return nyResponse;
