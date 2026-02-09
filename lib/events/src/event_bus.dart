@@ -42,7 +42,7 @@ class NyEventBus {
     on<T>(wrapper);
   }
 
-  Future<void> broadcast(NyEvent event, [Map? params]) async {
+  Future<void> broadcast(NyEvent event, [Map? data]) async {
     final Type eventType = event.runtimeType;
 
     if (_subscriptions.containsKey(eventType)) {
@@ -60,7 +60,7 @@ class NyEventBus {
 
         try {
           listener.setEvent(event);
-          dynamic result = await listener.handle(params);
+          dynamic result = await listener.handle(data);
 
           // Check if we should stop propagation
           if (result != null && result == false) {
@@ -157,9 +157,9 @@ class _OnceListenerWrapper extends NyListener {
   NyEvent? getEvent() => _inner.getEvent();
 
   @override
-  Future handle(Map? params) async {
+  Future handle(Map? data) async {
     try {
-      return await _inner.handle(params);
+      return await _inner.handle(data);
     } finally {
       _onComplete();
     }
@@ -173,7 +173,7 @@ class _StreamListener<T extends NyEvent> extends NyListener {
   _StreamListener(this._controller);
 
   @override
-  Future handle(Map? params) async {
+  Future handle(Map? data) async {
     final event = getEvent();
     if (!_controller.isClosed && event != null) {
       _controller.add(event as T);

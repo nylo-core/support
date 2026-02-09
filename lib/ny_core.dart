@@ -14,5 +14,7 @@ export '/local_notifications/ny_local_notifications.dart';
 export '/events/ny_events.dart';
 export '/widgets/src/form/form.dart';
 export '/nylo.dart';
+export 'package:flutter_styled_toast/flutter_styled_toast.dart'
+    show CustomAnimationBuilder;
 
 export '/testing/ny_testing.dart';

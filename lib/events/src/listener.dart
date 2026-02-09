@@ -14,6 +14,6 @@ class NyListener {
   NyEvent? getEvent() => _event;
 
   /// Handle the payload from the event
-  /// The [params] argument provides a Map of the data
-  Future handle(Map? params) async {}
+  /// The [data] argument provides a Map of the data
+  Future handle(Map? data) async {}
 }
