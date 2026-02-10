@@ -728,8 +728,8 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   void confirmAction(
     Function() action, {
     required String title,
-    String dismissText = "Cancel",
-    String confirmText = "Yes",
+    String dismissText = "nylo.confirm_action.cancel",
+    String confirmText = "nylo.confirm_action.confirm",
     CupertinoThemeData? cupertinoThemeData,
     ThemeData? themeData,
     Color barrierColor = kCupertinoModalBarrierColor,
@@ -788,7 +788,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
                 Navigator.pop(context);
                 action();
               },
-              child: Text(confirmText),
+              child: Text(confirmText.tr()),
             ),
             TextButton(
               onPressed: () => Navigator.pop(context),

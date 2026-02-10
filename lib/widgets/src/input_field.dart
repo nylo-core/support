@@ -1143,6 +1143,9 @@ class _InputFieldState extends NyState<InputField> {
             borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
             borderSide: const BorderSide(width: 0, style: BorderStyle.none),
           ),
+      alignLabelWithHint:
+          widget.decoration?.alignLabelWithHint ??
+          ((widget.maxLines != null && widget.maxLines! > 1) ? true : null),
     );
 
     if (widget.backgroundColor != null) {
@@ -1170,7 +1173,10 @@ class _InputFieldState extends NyState<InputField> {
     }
 
     if (widget.prefixIcon != null) {
-      decoration = decoration.copyWith(prefixIcon: widget.prefixIcon);
+      decoration = decoration.copyWith(
+        prefixIcon: widget.prefixIcon,
+        prefixIconConstraints: widget.decoration?.prefixIconConstraints,
+      );
     }
 
     if (widget.labelText != null) {
@@ -1263,7 +1269,11 @@ class _InputFieldState extends NyState<InputField> {
       textInputAction: widget.textInputAction,
       style: widget.style,
       strutStyle: widget.strutStyle,
-      textAlignVertical: widget.textAlignVertical,
+      textAlignVertical:
+          widget.textAlignVertical ??
+          ((widget.maxLines != null && widget.maxLines! > 1)
+              ? TextAlignVertical.top
+              : null),
       textDirection: widget.textDirection,
       readOnly: widget.readOnly,
       showCursor: widget.showCursor,

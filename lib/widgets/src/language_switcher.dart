@@ -290,7 +290,7 @@ class LanguageSwitcher extends StatefulWidget {
                 Padding(
                   padding: const EdgeInsets.fromLTRB(24, 8, 24, 16),
                   child: Text(
-                    "Select your language".tr(),
+                    "nylo.language_switcher.title".tr(),
                     style:
                         titleStyle ??
                         TextStyle(

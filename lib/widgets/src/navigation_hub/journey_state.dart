@@ -224,7 +224,7 @@ class JourneyContent extends StatelessWidget {
           if (header != null) header!,
 
           // Main content
-          Flexible(child: content),
+          Expanded(child: content),
 
           // Footer if provided
           if (footer != null) footer!,

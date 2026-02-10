@@ -1,3 +1,29 @@
+## [7.1.0] - 2026-02-10
+
+### Added
+
+* **Namespaced translation keys** - All hardcoded English strings in widgets now use namespaced translation keys for better i18n support. Keys added:
+  * `nylo.page_not_found.title`, `nylo.page_not_found.message`, `nylo.page_not_found.go_back`
+  * `nylo.collection_view.no_results`, `nylo.collection_view.pull_up`, `nylo.collection_view.failed`, `nylo.collection_view.release`
+  * `nylo.offline_banner.message`
+  * `nylo.form_picker.select`, `nylo.form_picker.clear`
+  * `nylo.language_switcher.title`
+  * `nylo.journey.of`, `nylo.journey.step`, `nylo.journey.back`, `nylo.journey.next`, `nylo.journey.finish`
+  * `nylo.confirm_action.cancel`, `nylo.confirm_action.confirm`
+* **NyBaseModal enhancements** - Added `useRootNavigator` and `modalBackgroundColor` parameters to `NyBaseModal.show()` and `NyModalLayout`
+* **InputField multiline improvements** - Auto-sets `alignLabelWithHint` and `textAlignVertical` for multiline fields; passes through `prefixIconConstraints` from decoration
+* Exported `CustomAnimationBuilder` from `flutter_styled_toast` via `ny_core.dart`
+
+### Changed
+
+* Event system parameter renamed from `params` to `data` across `NyListener`, `NyEventBus`, `NyEventCallbackListener`, and `NyEventExtension` for clarity
+* `DioApiService.handleResponse` now conditionally skips data morphing when `handleSuccess` or `handleFailure` callbacks are provided, and properly returns callback results
+* `DioApiService` caching logic fixed to avoid null reference when saving cached responses
+* `NyBaseModal.show()` default for `useSafeArea` changed from `true` to `false`
+* `JourneyContent` uses `Expanded` instead of `Flexible` for main content area
+* Replaced `ny_metro.dart` imports with `collection` package in `InputField` and `LanguageSwitcher`
+* Added `collection` package dependency (^1.19.1)
+
 ## [7.0.0] - 2026-02-06
 
 ### Breaking Changes

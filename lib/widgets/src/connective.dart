@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import '/helpers/ny_helpers.dart';
+import '/localization/ny_localization.dart';
 
 /// A widget that rebuilds based on connectivity state.
 ///
@@ -242,7 +243,7 @@ class OfflineBanner extends StatelessWidget {
 
   const OfflineBanner({
     super.key,
-    this.message = 'No internet connection',
+    this.message = 'nylo.offline_banner.message',
     this.backgroundColor,
     this.textColor,
     this.icon = Icons.wifi_off,
@@ -295,7 +296,7 @@ class OfflineBanner extends StatelessWidget {
               const SizedBox(width: 8),
             ],
             Text(
-              message,
+              message.tr(),
               style: TextStyle(color: txtColor, fontWeight: FontWeight.w500),
             ),
           ],

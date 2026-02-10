@@ -20,6 +20,8 @@ typedef ModalShowFunction =
       Color? closeButtonIconColor,
       BoxDecoration? modalDecoration,
       Color? handleColor,
+      bool useRootNavigator,
+      Color? modalBackgroundColor,
     });
 
 /// NyBaseModal
@@ -58,6 +60,8 @@ abstract class NyBaseModal {
   /// [closeButtonIconColor] - Color of the close button icon
   /// [modalDecoration] - Custom decoration for the modal container
   /// [handleColor] - Color of the drag handle
+  /// [useRootNavigator] - Whether to use the root navigator (default: true)
+  /// [modalBackgroundColor] - Background color of the modal content area
   static Future<T?> show<T>(
     BuildContext context, {
     required Widget child,
@@ -65,7 +69,7 @@ abstract class NyBaseModal {
     List<Widget> actionsColumn = const [],
     double? height,
     Widget? header,
-    bool useSafeArea = true,
+    bool useSafeArea = false,
     bool isScrollControlled = false,
     bool showCloseButton = false,
     EdgeInsets? headerPadding,
@@ -75,10 +79,14 @@ abstract class NyBaseModal {
     Color? closeButtonIconColor,
     BoxDecoration? modalDecoration,
     Color? handleColor,
+    bool useRootNavigator = true,
+    Color? modalBackgroundColor,
   }) {
     return showModalBottomSheet<T>(
       context: context,
+      useRootNavigator: useRootNavigator,
       isScrollControlled: isScrollControlled,
+      useSafeArea: useSafeArea,
       backgroundColor:
           backgroundColor ??
           (header == null ? Colors.white : Colors.transparent),
@@ -90,6 +98,7 @@ abstract class NyBaseModal {
           actionsColumn: actionsColumn,
           decoration: modalDecoration,
           handleColor: handleColor,
+          backgroundColor: modalBackgroundColor,
           child: child,
         );
 
@@ -130,7 +139,7 @@ abstract class NyBaseModal {
           );
         }
 
-        return useSafeArea ? SafeArea(child: mainWidget) : mainWidget;
+        return mainWidget;
       },
     );
   }
@@ -162,6 +171,9 @@ class NyModalLayout extends StatelessWidget {
   /// Color of the drag handle
   final Color? handleColor;
 
+  /// Background color of the modal content area
+  final Color? backgroundColor;
+
   const NyModalLayout({
     super.key,
     required this.child,
@@ -171,6 +183,7 @@ class NyModalLayout extends StatelessWidget {
     this.showHandle = true,
     this.decoration,
     this.handleColor,
+    this.backgroundColor,
   });
 
   @override
@@ -181,8 +194,8 @@ class NyModalLayout extends StatelessWidget {
       padding: const EdgeInsets.only(top: 0, left: 16, right: 16, bottom: 16),
       decoration:
           decoration ??
-          const BoxDecoration(
-            color: Colors.white,
+          BoxDecoration(
+            color: backgroundColor ?? Colors.white,
             borderRadius: BorderRadius.only(
               topLeft: Radius.circular(28),
               topRight: Radius.circular(28),

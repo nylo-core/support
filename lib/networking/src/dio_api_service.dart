@@ -595,12 +595,14 @@ class DioApiService {
   }) {
     T? morphedData;
 
-    bool isSuccessful = response.statusCode != null &&
+    bool isSuccessful =
+        response.statusCode != null &&
         response.statusCode! >= 200 &&
         response.statusCode! < 300;
 
     // Skip morphing if a callback will handle the response
-    bool skipMorph = (isSuccessful && handleSuccess != null) ||
+    bool skipMorph =
+        (isSuccessful && handleSuccess != null) ||
         (!isSuccessful && handleFailure != null);
 
     if (!skipMorph) {

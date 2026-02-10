@@ -78,7 +78,7 @@ class JourneyNumberedProgress extends StatelessWidget {
           Padding(
             padding: EdgeInsets.symmetric(horizontal: spacing),
             child: Text(
-              'of'.tr(),
+              'nylo.journey.of'.tr(),
               style: TextStyle(color: textColor, fontWeight: FontWeight.bold),
             ),
           ),
@@ -293,7 +293,7 @@ class JourneyTimelineProgress extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 4.0),
                     child: Text(
-                      'Step ${stepIndex + 1}'.tr(),
+                      '${"nylo.journey.step".tr()} ${stepIndex + 1}',
                       style: TextStyle(
                         color: isActive ? activeColor : inactiveColor,
                         fontSize: 10,

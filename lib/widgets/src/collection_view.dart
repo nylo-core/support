@@ -652,7 +652,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     }
     return Container(
       alignment: Alignment.center,
-      child: Text("No results found".tr()),
+      child: Text("nylo.collection_view.no_results".tr()),
     );
   }
 
@@ -684,13 +684,13 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       builder: (BuildContext context, LoadStatus? mode) {
         Widget body;
         if (mode == LoadStatus.idle) {
-          body = Text("Pull up load".tr());
+          body = Text("nylo.collection_view.pull_up".tr());
         } else if (mode == LoadStatus.loading) {
           body = widget.footerLoadingIcon ?? loadingWidget;
         } else if (mode == LoadStatus.failed) {
-          body = Text("Failed to load more results".tr());
+          body = Text("nylo.collection_view.failed".tr());
         } else if (mode == LoadStatus.canLoading) {
-          body = Text("Release to load more".tr());
+          body = Text("nylo.collection_view.release".tr());
         } else {
           body = const SizedBox.shrink();
         }

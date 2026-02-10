@@ -193,7 +193,8 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
         ) ??
         Colors.grey.shade800;
 
-    final String placeholderPrefix = (style.placeholderPrefix ?? "Select").tr();
+    final String placeholderPrefix =
+        (style.placeholderPrefix ?? "nylo.form_picker.select").tr();
 
     return LayoutBuilder(
       builder: (layoutContext, constraints) {
@@ -365,7 +366,10 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                       textAlign: TextAlign.center,
                       style: titleTextStyle,
                     ).paddingOnly(top: 10),
-                    Text("Clear".tr(), style: clearButtonStyle).onTap(() {
+                    Text(
+                      "nylo.form_picker.clear".tr(),
+                      style: clearButtonStyle,
+                    ).onTap(() {
                       setState(() {
                         currentValue = null;
                         widget.field.setValue(null);
