@@ -120,7 +120,7 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
     },
     "setValue": (data) {
       currentValue = data["value"];
-      widget.field.setValue(currentValue);
+      widget.field.restoreValue(currentValue);
       setState(() {});
     },
     "setOptions": (data) {

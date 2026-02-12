@@ -5,7 +5,7 @@ class DefaultResponse<T> {
   late final T? data;
 
   DefaultResponse.fromJson(
-    json,
+    dynamic json,
     Map<Type, dynamic> decoders, {
     required Type type,
   }) {

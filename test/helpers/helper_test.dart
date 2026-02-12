@@ -14,32 +14,32 @@ void main() {
     nyTest('should convert 6-digit hex to Color', () async {
       final color = nyHexColor('#FF0000');
       expect(color, isA<Color>());
-      expect(color.value, 0xFFFF0000);
+      expect(color.toARGB32(), 0xFFFF0000);
     });
 
     nyTest('should handle hex without hash', () async {
       final color = nyHexColor('00FF00');
-      expect(color.value, 0xFF00FF00);
+      expect(color.toARGB32(), 0xFF00FF00);
     });
 
     nyTest('should handle lowercase hex', () async {
       final color = nyHexColor('#ff0000');
-      expect(color.value, 0xFFFF0000);
+      expect(color.toARGB32(), 0xFFFF0000);
     });
 
     nyTest('should handle 8-digit hex with alpha', () async {
       final color = nyHexColor('80FF0000');
-      expect(color.value, 0x80FF0000);
+      expect(color.toARGB32(), 0x80FF0000);
     });
 
     nyTest('should handle white', () async {
       final color = nyHexColor('#FFFFFF');
-      expect(color.value, 0xFFFFFFFF);
+      expect(color.toARGB32(), 0xFFFFFFFF);
     });
 
     nyTest('should handle black', () async {
       final color = nyHexColor('#000000');
-      expect(color.value, 0xFF000000);
+      expect(color.toARGB32(), 0xFF000000);
     });
   });
 

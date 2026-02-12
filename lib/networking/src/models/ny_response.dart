@@ -156,8 +156,9 @@ class NyResponse<T> {
   /// final result = response.ifSuccessful((data) => processData(data));
   /// ```
   R? ifSuccessful<R>(R Function(T data) callback) {
-    if (isSuccessful && data != null) {
-      return callback(data!);
+    final d = data;
+    if (isSuccessful && d != null) {
+      return callback(d);
     }
     return null;
   }
@@ -175,8 +176,9 @@ class NyResponse<T> {
     required R Function(T data) success,
     required R Function(NyResponse<T> response) failure,
   }) {
-    if (isSuccessful && data != null) {
-      return success(data!);
+    final d = data;
+    if (isSuccessful && d != null) {
+      return success(d);
     }
     return failure(this);
   }

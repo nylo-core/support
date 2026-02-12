@@ -278,7 +278,6 @@ void main() {
       nyTest('passes all validation parameters', () async {
         final controller = TestNyController();
         controller.state = 'ValidatePageState';
-        var onFailureCalled = false;
 
         controller.validate(
           rules: {'name': 'required'},
@@ -288,9 +287,7 @@ void main() {
           alertDuration: const Duration(seconds: 5),
           alertStyle: 'danger',
           onSuccess: () {},
-          onFailure: (e) {
-            onFailureCalled = true;
-          },
+          onFailure: (e) {},
           lockRelease: 'validate-lock',
         );
 

@@ -142,7 +142,7 @@ Nylo backpackNylo({String key = 'nylo'}) => Backpack.instance.nylo(key: key);
 
 /// helper to encode and decode data
 class _NyJson {
-  static dynamic tryDecode(data) {
+  static dynamic tryDecode(dynamic data) {
     try {
       return jsonDecode(data);
     } catch (e) {

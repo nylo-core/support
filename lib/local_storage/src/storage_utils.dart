@@ -46,7 +46,7 @@ bool isDouble(String? s) {
 
 /// Json helper class
 class JsonHelper {
-  static String? tryEncode(data) {
+  static String? tryEncode(dynamic data) {
     try {
       return jsonEncode(data);
     } catch (e) {

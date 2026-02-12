@@ -4,7 +4,7 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import '../ny_logger.dart';
 
-/// Extensions for List<Widget>
+/// Extensions for `List<Widget>`
 extension NyListWidgetExt on List<Widget> {
   /// Add a gap between each child.
   List<Widget> withGap(double space) {
@@ -149,7 +149,7 @@ extension PaginateExt<T> on List<T> {
 }
 
 extension NyMapEntryExt on Iterable<MapEntry<String, dynamic>> {
-  /// Convert an Iterable<MapEntry<String, dynamic>> to a Map<String, dynamic>
+  /// Convert an `Iterable<MapEntry<String, dynamic>>` to a `Map<String, dynamic>`
   Map<String, dynamic> toMap() {
     return Map.fromEntries(this);
   }

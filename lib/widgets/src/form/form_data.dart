@@ -6,6 +6,33 @@ import 'package:recase/recase.dart';
 
 import '/widgets/ny_widgets.dart';
 
+/// Defines a field's initial value and optional options for use in [NyFormWidget.init].
+///
+/// Use the [define] helper function to create instances of this class.
+class FieldDefinition {
+  final dynamic value;
+  final dynamic options;
+  const FieldDefinition({this.value, this.options});
+}
+
+/// Helper to set both a value and options for a form field in [NyFormWidget.init].
+///
+/// Example:
+/// ```dart
+/// @override
+/// get init => () async {
+///   final hobbies = await api.fetchHobbies();
+///   return {
+///     "hobbies": define(options: hobbies),
+///     "price": define(value: "100"),
+///     "favourite_color": "Blue",  // plain values still work
+///   };
+/// };
+/// ```
+FieldDefinition define({dynamic value, dynamic options}) {
+  return FieldDefinition(value: value, options: options);
+}
+
 /// Base class for defining form structure, data, and behavior in Nylo applications.
 ///
 /// [NyFormData] provides the internal form logic engine used by [NyFormWidget].
@@ -149,7 +176,7 @@ class NyFormData {
   /// Executes the [init] function (if defined) and populates form fields with
   /// the returned data. Handles both synchronous and asynchronous init functions.
   /// Field names are automatically converted to snake_case to match field keys.
-  setDataFromInit() async {
+  Future<void> setDataFromInit() async {
     if (init == null) return;
     Map<String, dynamic>? data;
     if (init is Future Function()) {
@@ -181,7 +208,7 @@ class NyFormData {
     return _updatedStream;
   }
 
-  valueChange(data, {Function()? onChanged}) {
+  void valueChange(dynamic data, {Function()? onChanged}) {
     if (_updatedStream == null) {
       initializeStream();
     }
@@ -283,6 +310,22 @@ class NyFormData {
     }
   }
 
+  /// Applies options to a field directly (avoids redundant findField lookup).
+  void _applyOptionsToField(Field field, FormCollection options) {
+    Widget? fieldWidget = field.widget;
+    if (field.widget is IgnorePointer) {
+      fieldWidget = (field.widget as IgnorePointer).child;
+    }
+
+    if (fieldWidget is NyFormPicker) {
+      NyFormPicker.stateActions(field.stateKey).setOptions(options);
+    } else if (fieldWidget is NyFormChip) {
+      NyFormChip.stateActions(field.stateKey).setOptions(options);
+    } else if (fieldWidget is NyFormRadio) {
+      NyFormRadio.stateActions(field.stateKey).setOptions(options);
+    }
+  }
+
   /// Set the data for the form.
   ///
   /// If fields haven't been initialized yet, the data is stored and
@@ -316,24 +359,49 @@ class NyFormData {
       if (field is Field) {
         final fieldKey = field.key.snakeCase;
         if (normalizedData.containsKey(fieldKey)) {
-          if (updateUI) {
-            field.setValue(normalizedData[fieldKey]);
-          } else {
-            field.restoreValue(normalizedData[fieldKey]);
-          }
+          _applyFieldData(field, normalizedData[fieldKey], updateUI);
         }
       } else if (field is List) {
         for (Field item in field) {
           final itemKey = item.key.snakeCase;
           if (normalizedData.containsKey(itemKey)) {
-            if (updateUI) {
-              item.setValue(normalizedData[itemKey]);
-            } else {
-              item.restoreValue(normalizedData[itemKey]);
-            }
+            _applyFieldData(item, normalizedData[itemKey], updateUI);
           }
         }
       }
+    }
+  }
+
+  /// Applies a single data entry to a field, handling both plain values
+  /// and [FieldDefinition] instances (from [define]).
+  void _applyFieldData(Field field, dynamic data, bool updateUI) {
+    dynamic valueToApply;
+    dynamic optionsToApply;
+
+    if (data is FieldDefinition) {
+      valueToApply = data.value;
+      optionsToApply = data.options;
+    } else {
+      valueToApply = data;
+    }
+
+    // Apply value
+    if (valueToApply != null) {
+      if (updateUI) {
+        field.setValue(valueToApply);
+      } else {
+        field.restoreValue(valueToApply);
+      }
+    }
+
+    // Apply options (deferred to ensure widgets are mounted)
+    if (optionsToApply != null) {
+      FormCollection collection = optionsToApply is FormCollection
+          ? optionsToApply
+          : FormCollection.from(optionsToApply);
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        _applyOptionsToField(field, collection);
+      });
     }
   }
 

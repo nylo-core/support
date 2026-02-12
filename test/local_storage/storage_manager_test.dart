@@ -37,9 +37,7 @@ void main() {
 
       nyTest('should use StorageConfig singleton for configuration', () async {
         // Modify the StorageConfig singleton
-        final customAndroidOptions = AndroidOptions(
-          encryptedSharedPreferences: true,
-        );
+        final customAndroidOptions = AndroidOptions();
         StorageConfig.init(androidOptions: customAndroidOptions);
 
         // Storage should be created with updated config

@@ -45,6 +45,19 @@ import 'package:flutter/material.dart';
 ///   }
 /// )
 /// ```
+///
+/// Example using template text with localization (`{{key:text}}` syntax):
+/// ```dart
+/// StyledText.template(
+///   "learn_skills".tr(),
+///   // en: "Learn {{lang:Languages}}, {{read:Reading}} and {{speak:Speaking}} in {{app:AppName}}"
+///   // es: "Aprende {{lang:Idiomas}}, {{read:Lectura}} y {{speak:Habla}} en {{app:AppName}}"
+///   styles: {
+///     "lang|read|speak": TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+///     "app": TextStyle(color: Colors.green),
+///   },
+/// )
+/// ```
 class StyledText extends StatefulWidget {
   const StyledText({
     super.key,
@@ -200,10 +213,20 @@ class _StyledTextState extends State<StyledText> {
       }
 
       // Add the placeholder text with custom style and tap handler
-      final placeholder = match.group(1)!;
+      final raw = match.group(1)!;
+      final colonIndex = raw.indexOf(':');
+      final String key;
+      final String displayText;
+      if (colonIndex != -1) {
+        key = raw.substring(0, colonIndex);
+        displayText = raw.substring(colonIndex + 1);
+      } else {
+        key = raw;
+        displayText = raw;
+      }
       final placeholderStyle =
-          _lookupWithPipeKeys(widget.styles, placeholder) ?? widget.style;
-      final tapCallback = _lookupWithPipeKeys(widget.onTap, placeholder);
+          _lookupWithPipeKeys(widget.styles, key) ?? widget.style;
+      final tapCallback = _lookupWithPipeKeys(widget.onTap, key);
 
       TapGestureRecognizer? recognizer;
       if (tapCallback != null) {
@@ -213,7 +236,7 @@ class _StyledTextState extends State<StyledText> {
 
       spans.add(
         TextSpan(
-          text: placeholder,
+          text: displayText,
           style: placeholderStyle,
           spellOut: widget.spellOut,
           recognizer: recognizer,

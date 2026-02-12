@@ -36,7 +36,7 @@ class Model<T> {
   /// user.save('com.company.app.auth_user');
   ///
   /// Get user
-  /// User user = await NyStorage.read<User>('com.company.app.auth_user', model: new User());
+  /// `User user = await NyStorage.read<User>('com.company.app.auth_user', model: new User());`
   Future save({bool inBackpack = false}) async {
     if (_key == null) {
       NyLogger.error(

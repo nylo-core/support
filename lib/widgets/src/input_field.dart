@@ -62,6 +62,7 @@ class InputField extends StatefulWidget {
   final Function(FormValidationResult handleError)? handleValidationError;
   final bool? passwordVisible;
   final Widget? prefixIcon;
+  final Widget? suffixIcon;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
   final InputBorder? border;
@@ -140,6 +141,7 @@ class InputField extends StatefulWidget {
     this.passwordVisible,
     this.passwordViewable,
     this.prefixIcon,
+    this.suffixIcon,
     this.backgroundColor,
     this.borderRadius,
     this.border,
@@ -215,6 +217,7 @@ class InputField extends StatefulWidget {
     Iterable<String>? autofillHints = const <String>[],
     Clip clipBehavior = Clip.hardEdge,
     Widget? prefixIcon,
+    Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -289,6 +292,7 @@ class InputField extends StatefulWidget {
          autofillHints: autofillHints,
          clipBehavior: clipBehavior,
          prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
          backgroundColor: backgroundColor,
          borderRadius: borderRadius,
          border: border,
@@ -319,7 +323,10 @@ class InputField extends StatefulWidget {
          labelText: field.name,
          stateName: field.stateKey,
          controller: TextEditingController(
-           text: field.value?.toString() ?? field.dummyData ?? '',
+           text: _formatInitialText(
+             field.value?.toString() ?? field.dummyData ?? '',
+             style?.inputFormatters,
+           ),
          ),
          obscureText: style?.obscureText ?? false,
          autoFocus: field.autofocus || (style?.autoFocus ?? false),
@@ -376,6 +383,7 @@ class InputField extends StatefulWidget {
          passwordVisible: style?.passwordVisible,
          passwordViewable: style?.passwordViewable,
          prefixIcon: style?.prefixIcon,
+         suffixIcon: style?.suffixIcon,
          backgroundColor: style?.backgroundColor,
          borderRadius: style?.borderRadius,
          border: style?.border,
@@ -452,6 +460,7 @@ class InputField extends StatefulWidget {
     Iterable<String>? autofillHints = const <String>[],
     Clip clipBehavior = Clip.hardEdge,
     Widget? prefixIcon,
+    Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -526,6 +535,7 @@ class InputField extends StatefulWidget {
          autofillHints: autofillHints,
          clipBehavior: clipBehavior,
          prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
          backgroundColor: backgroundColor,
          borderRadius: borderRadius,
          border: border,
@@ -602,6 +612,7 @@ class InputField extends StatefulWidget {
     Iterable<String>? autofillHints = const <String>[],
     Clip clipBehavior = Clip.hardEdge,
     Widget? prefixIcon,
+    Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -676,6 +687,7 @@ class InputField extends StatefulWidget {
          autofillHints: autofillHints,
          clipBehavior: clipBehavior,
          prefixIcon: prefixIcon,
+         suffixIcon: suffixIcon,
          backgroundColor: backgroundColor,
          borderRadius: borderRadius,
          border: border,
@@ -755,6 +767,7 @@ class InputField extends StatefulWidget {
     Function(String handleError)? handleValidationError,
     bool? passwordVisible,
     Widget? prefixIcon,
+    Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -829,6 +842,7 @@ class InputField extends StatefulWidget {
       clipBehavior: clipBehavior ?? this.clipBehavior,
       passwordVisible: passwordVisible ?? this.passwordVisible,
       prefixIcon: prefixIcon ?? this.prefixIcon,
+      suffixIcon: suffixIcon ?? this.suffixIcon,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
       border: border ?? this.border,
@@ -952,6 +966,7 @@ class InputField extends StatefulWidget {
       clipBehavior: clipBehavior,
       passwordVisible: passwordVisible,
       prefixIcon: prefixIcon,
+      suffixIcon: suffixIcon,
       backgroundColor: backgroundColor,
       borderRadius: borderRadius,
       border: border,
@@ -971,6 +986,24 @@ class InputField extends StatefulWidget {
 
   @override
   createState() => _InputFieldState(stateName);
+
+  /// Applies input formatters to initial text so programmatic values
+  /// (e.g. currency from [define]) display formatted, not raw.
+  static String _formatInitialText(
+    String text,
+    List<TextInputFormatter>? formatters,
+  ) {
+    if (text.isEmpty || formatters == null || formatters.isEmpty) return text;
+    for (final formatter in formatters) {
+      text = formatter
+          .formatEditUpdate(
+            TextEditingValue.empty,
+            TextEditingValue(text: text),
+          )
+          .text;
+    }
+    return text;
+  }
 
   /// StateActions for the text field
   static TextFieldStateActions stateActions(String stateName) =>
@@ -1005,7 +1038,16 @@ class _InputFieldState extends NyState<InputField> {
     },
     "setValue": (data) {
       final value = data["value"];
-      widget.controller.text = value?.toString() ?? "";
+      String text = value?.toString() ?? "";
+      for (final formatter in widget.inputFormatters ?? []) {
+        text = formatter
+            .formatEditUpdate(
+              TextEditingValue.empty,
+              TextEditingValue(text: text),
+            )
+            .text;
+      }
+      widget.controller.text = text;
       setState(() {});
     },
   };
@@ -1176,6 +1218,13 @@ class _InputFieldState extends NyState<InputField> {
       decoration = decoration.copyWith(
         prefixIcon: widget.prefixIcon,
         prefixIconConstraints: widget.decoration?.prefixIconConstraints,
+      );
+    }
+
+    if (widget.suffixIcon != null) {
+      decoration = decoration.copyWith(
+        suffixIcon: widget.suffixIcon,
+        suffixIconConstraints: widget.decoration?.suffixIconConstraints,
       );
     }
 

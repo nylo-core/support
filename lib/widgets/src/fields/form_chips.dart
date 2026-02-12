@@ -142,7 +142,7 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
       } else {
         currentValues = [];
       }
-      widget.field.setValue(currentValues);
+      widget.field.restoreValue(currentValues);
       setState(() {});
     },
     "setOptions": (data) {

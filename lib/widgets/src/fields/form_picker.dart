@@ -131,12 +131,12 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
   Map<String, Function> get stateActions => {
     "clear": () {
       currentValue = null;
-      widget.field.setValue(null);
+      widget.field.restoreValue(null);
       setState(() {});
     },
     "setValue": (data) {
       currentValue = data["value"];
-      widget.field.setValue(currentValue);
+      widget.field.restoreValue(currentValue);
       setState(() {});
     },
     "setOptions": (data) {
@@ -212,7 +212,30 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                   width: double.infinity,
                   child: Stack(
                     children: [
-                      if (width < widthBreakpoint)
+                      if (style.selectedValueAlignment != null)
+                        Positioned.fill(
+                          child: Align(
+                            alignment: style.selectedValueAlignment!,
+                            child: Padding(
+                              padding:
+                                  style.selectedValuePadding ?? EdgeInsets.zero,
+                              child: Text(
+                                getOptions().getLabelByValue(
+                                      currentValue.toString(),
+                                    ) ??
+                                    currentValue.toString(),
+                                textAlign: style.selectedValueAlignment!.x < 0
+                                    ? TextAlign.left
+                                    : style.selectedValueAlignment!.x > 0
+                                    ? TextAlign.right
+                                    : TextAlign.center,
+                                style: selectedValueStyle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      if (style.selectedValueAlignment == null &&
+                          width <= widthBreakpoint)
                         Positioned(
                           left: 0,
                           right: 0,
@@ -222,13 +245,12 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                                   currentValue.toString(),
                                 ) ??
                                 currentValue.toString(),
-                            textAlign: width < widthBreakpoint
-                                ? TextAlign.left
-                                : TextAlign.center,
+                            textAlign: TextAlign.left,
                             style: selectedValueStyle,
                           ),
                         ),
-                      if (width > widthBreakpoint)
+                      if (style.selectedValueAlignment == null &&
+                          width > widthBreakpoint)
                         Positioned.fill(
                           child: Center(
                             child: Text(
@@ -236,9 +258,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                                     currentValue.toString(),
                                   ) ??
                                   currentValue.toString(),
-                              textAlign: width < widthBreakpoint
-                                  ? TextAlign.left
-                                  : TextAlign.center,
+                              textAlign: TextAlign.center,
                               style: selectedValueStyle,
                             ),
                           ),
@@ -253,7 +273,8 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                 )
               : Row(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.center,
+                  mainAxisAlignment:
+                      style.placeholderAlignment ?? MainAxisAlignment.center,
                   children: [
                     Flexible(
                       child: Text(
@@ -372,7 +393,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                     ).onTap(() {
                       setState(() {
                         currentValue = null;
-                        widget.field.setValue(null);
+                        widget.field.restoreValue(null);
                       });
                       Navigator.pop(context);
                     }),
@@ -385,17 +406,70 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                       context: context,
                       color: dividerColor,
                       tiles: values.options.map((item) {
+                        final listTileStyle = style.listTileStyle;
+                        final bool isSelected =
+                            currentValue != null &&
+                            item.value == currentValue.toString();
+
+                        void onTap() {
+                          if (widget.onChanged != null) {
+                            widget.onChanged!(item.value);
+                          }
+                          setState(() {
+                            currentValue = item.value;
+                            widget.field.restoreValue(item.value);
+                          });
+                          Navigator.pop(context);
+                        }
+
+                        if (listTileStyle?.builder != null) {
+                          return listTileStyle!.builder!(
+                            item,
+                            isSelected,
+                            onTap,
+                          );
+                        }
+
+                        final TextStyle effectiveStyle = isSelected
+                            ? (listTileStyle?.selectedTextStyle ??
+                                  listTileStyle?.textStyle ??
+                                  itemStyle)
+                            : (listTileStyle?.textStyle ?? itemStyle);
+
+                        Widget? leading;
+                        Widget? trailing;
+
+                        if (listTileStyle?.indicator ==
+                            PickerListTileIndicator.radio) {
+                          final Color radioColor =
+                              listTileStyle?.activeColor ??
+                              Theme.of(context).primaryColor;
+                          leading = Icon(
+                            isSelected
+                                ? Icons.radio_button_checked
+                                : Icons.radio_button_unchecked,
+                            color: isSelected ? radioColor : null,
+                          );
+                        } else if (listTileStyle?.indicator ==
+                            PickerListTileIndicator.checkmark) {
+                          if (isSelected) {
+                            final Color checkColor =
+                                listTileStyle?.activeColor ??
+                                Theme.of(context).primaryColor;
+                            trailing = Icon(Icons.check, color: checkColor);
+                          }
+                        }
+
                         return ListTile(
-                          title: Text(item.label, style: itemStyle),
-                          onTap: () {
-                            if (widget.onChanged != null) {
-                              widget.onChanged!(item.value);
-                            }
-                            setState(() {
-                              currentValue = item.value;
-                            });
-                            Navigator.pop(context);
-                          },
+                          leading: leading,
+                          trailing: trailing,
+                          title: Text(item.label, style: effectiveStyle),
+                          contentPadding:
+                              listTileStyle?.contentPadding ?? EdgeInsets.zero,
+                          tileColor: isSelected
+                              ? listTileStyle?.selectedTileColor
+                              : listTileStyle?.tileColor,
+                          onTap: onTap,
                         );
                       }),
                     ).toList(),

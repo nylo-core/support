@@ -170,7 +170,6 @@ void main() {
 
     nyTest('should handle empty string session as named session', () async {
       final emptyKey = Auth.key('');
-      final defaultKey = Auth.key();
 
       // Empty string is treated as a named session, not default
       expect(emptyKey, contains('_'));

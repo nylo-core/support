@@ -47,6 +47,8 @@ class FieldStyleDateTimePicker extends FieldStyle {
     this.lastDate,
     this.mode = DateTimeFieldPickerMode.dateAndTime,
     this.pickerPlatform = DateTimeFieldPickerPlatform.adaptive,
+    this.canClear = true,
+    this.clearIconData = Icons.clear,
   });
 
   TextStyle? style;
@@ -67,6 +69,8 @@ class FieldStyleDateTimePicker extends FieldStyle {
   DateTimeFieldPickerMode mode = DateTimeFieldPickerMode.dateAndTime;
   DateTimeFieldPickerPlatform pickerPlatform =
       DateTimeFieldPickerPlatform.adaptive;
+  bool canClear;
+  IconData clearIconData;
 
   @override
   FieldStyleDateTimePicker copyWith({
@@ -87,6 +91,8 @@ class FieldStyleDateTimePicker extends FieldStyle {
     DateTime? lastDate,
     DateTimeFieldPickerMode? mode,
     DateTimeFieldPickerPlatform? pickerPlatform,
+    bool? canClear,
+    IconData? clearIconData,
     double? footerSpacing,
     double? headerSpacing,
   }) {
@@ -113,6 +119,8 @@ class FieldStyleDateTimePicker extends FieldStyle {
       lastDate: lastDate ?? this.lastDate,
       mode: mode ?? this.mode,
       pickerPlatform: pickerPlatform ?? this.pickerPlatform,
+      canClear: canClear ?? this.canClear,
+      clearIconData: clearIconData ?? this.clearIconData,
     );
   }
 }
@@ -455,7 +463,7 @@ class FieldStyleTextField extends FieldStyle {
     );
   }
 
-  static emailAddress() {
+  static FieldStyleTextField emailAddress() {
     FieldStyleTextField _base = base();
     return _base.copyWith(
       keyboardType: TextInputType.emailAddress,
@@ -482,7 +490,7 @@ class FieldStyleTextField extends FieldStyle {
     );
   }
 
-  static basic({FieldStyleTextField? field}) {
+  static FieldStyleTextField basic({FieldStyleTextField? field}) {
     FieldStyleTextField _base = base();
     return _base.copyWith(
       filled: true,
@@ -684,6 +692,114 @@ class FieldStyleTextField extends FieldStyle {
   }
 }
 
+/// Indicator type for picker list tiles.
+enum PickerListTileIndicator {
+  /// No indicator (default behavior).
+  none,
+
+  /// Radio button indicator (leading).
+  radio,
+
+  /// Checkmark indicator (trailing).
+  checkmark,
+}
+
+/// Style configuration for individual list tiles in a picker bottom sheet.
+///
+/// Use the named factories for common patterns:
+/// - [PickerListTileStyle.radio] — radio button indicator
+/// - [PickerListTileStyle.checkmark] — checkmark indicator
+/// - [PickerListTileStyle.custom] — fully custom builder
+class PickerListTileStyle {
+  const PickerListTileStyle({
+    this.builder,
+    this.indicator = PickerListTileIndicator.none,
+    this.activeColor,
+    this.textStyle,
+    this.selectedTextStyle,
+    this.contentPadding,
+    this.tileColor,
+    this.selectedTileColor,
+  });
+
+  /// Radio button style — shows a radio icon as the leading widget.
+  factory PickerListTileStyle.radio({
+    Color? activeColor,
+    TextStyle? textStyle,
+    TextStyle? selectedTextStyle,
+    EdgeInsetsGeometry? contentPadding,
+    Color? tileColor,
+    Color? selectedTileColor,
+  }) {
+    return PickerListTileStyle(
+      indicator: PickerListTileIndicator.radio,
+      activeColor: activeColor,
+      textStyle: textStyle,
+      selectedTextStyle: selectedTextStyle,
+      contentPadding: contentPadding,
+      tileColor: tileColor,
+      selectedTileColor: selectedTileColor,
+    );
+  }
+
+  /// Checkmark style — shows a check icon as the trailing widget when selected.
+  factory PickerListTileStyle.checkmark({
+    Color? activeColor,
+    TextStyle? textStyle,
+    TextStyle? selectedTextStyle,
+    EdgeInsetsGeometry? contentPadding,
+    Color? tileColor,
+    Color? selectedTileColor,
+  }) {
+    return PickerListTileStyle(
+      indicator: PickerListTileIndicator.checkmark,
+      activeColor: activeColor,
+      textStyle: textStyle,
+      selectedTextStyle: selectedTextStyle,
+      contentPadding: contentPadding,
+      tileColor: tileColor,
+      selectedTileColor: selectedTileColor,
+    );
+  }
+
+  /// Fully custom builder for complete control over the tile widget.
+  factory PickerListTileStyle.custom({
+    required Widget Function(
+      FormOption option,
+      bool isSelected,
+      VoidCallback onTap,
+    )
+    builder,
+  }) {
+    return PickerListTileStyle(builder: builder);
+  }
+
+  /// Custom builder that overrides the default list tile rendering.
+  final Widget Function(FormOption option, bool isSelected, VoidCallback onTap)?
+  builder;
+
+  /// Which indicator preset to use.
+  final PickerListTileIndicator indicator;
+
+  /// Color for active indicator icons (radio / checkmark).
+  final Color? activeColor;
+
+  /// Text style for unselected items.
+  final TextStyle? textStyle;
+
+  /// Text style for the currently selected item.
+  final TextStyle? selectedTextStyle;
+
+  /// Content padding for each list tile.
+  final EdgeInsetsGeometry? contentPadding;
+
+  /// Background color for unselected tiles.
+  final Color? tileColor;
+
+  /// Background color for the selected tile.
+  final Color? selectedTileColor;
+}
+
 /// FieldStylePicker is used to define the style for a picker field.
 ///
 /// Style configuration for picker fields that display selection options in a modal.
@@ -694,6 +810,7 @@ class FieldStyleTextField extends FieldStyle {
 class FieldStylePicker extends FieldStyle {
   FieldStylePicker({
     this.bottomModalSheetStyle,
+    this.listTileStyle,
     this.containerHeight = 50.0,
     this.containerPadding = const EdgeInsets.symmetric(
       horizontal: 10,
@@ -719,11 +836,17 @@ class FieldStylePicker extends FieldStyle {
     this.bottomSheetDividerColor,
     this.placeholderGap = 10.0,
     this.widthBreakpoint = 200.0,
+    this.placeholderAlignment,
+    this.selectedValueAlignment = Alignment.centerLeft,
+    this.selectedValuePadding = const EdgeInsets.only(top: 10),
     super.headerSpacing,
     super.footerSpacing,
   });
 
   BottomModalSheetStyle? bottomModalSheetStyle;
+
+  /// Style for individual list tiles in the picker bottom sheet.
+  final PickerListTileStyle? listTileStyle;
 
   /// Height of the picker container
   final double containerHeight;
@@ -773,9 +896,24 @@ class FieldStylePicker extends FieldStyle {
   /// Width breakpoint for switching between compact and full layout
   final double widthBreakpoint;
 
+  /// Alignment of the placeholder/selected-value row
+  final MainAxisAlignment? placeholderAlignment;
+
+  /// Alignment of the selected value text within the picker container.
+  ///
+  /// When set, overrides the default alignment behavior (left for compact, center for full layout).
+  /// Use values like [Alignment.centerLeft], [Alignment.center], or [Alignment.centerRight].
+  final Alignment? selectedValueAlignment;
+
+  /// Padding around the selected value text.
+  ///
+  /// Useful when [selectedValueAlignment] is set to avoid overlapping with the field name label.
+  final EdgeInsets? selectedValuePadding;
+
   @override
   FieldStylePicker copyWith({
     BottomModalSheetStyle? bottomModalSheetStyle,
+    PickerListTileStyle? listTileStyle,
     double? containerHeight,
     EdgeInsets? containerPadding,
     BorderRadius? containerBorderRadius,
@@ -792,12 +930,16 @@ class FieldStylePicker extends FieldStyle {
     NyColor? bottomSheetDividerColor,
     double? placeholderGap,
     double? widthBreakpoint,
+    MainAxisAlignment? placeholderAlignment,
+    Alignment? selectedValueAlignment,
+    EdgeInsets? selectedValuePadding,
     double? headerSpacing,
     double? footerSpacing,
   }) {
     return FieldStylePicker(
       bottomModalSheetStyle:
           bottomModalSheetStyle ?? this.bottomModalSheetStyle,
+      listTileStyle: listTileStyle ?? this.listTileStyle,
       containerHeight: containerHeight ?? this.containerHeight,
       containerPadding: containerPadding ?? this.containerPadding,
       containerBorderRadius:
@@ -819,6 +961,10 @@ class FieldStylePicker extends FieldStyle {
           bottomSheetDividerColor ?? this.bottomSheetDividerColor,
       placeholderGap: placeholderGap ?? this.placeholderGap,
       widthBreakpoint: widthBreakpoint ?? this.widthBreakpoint,
+      placeholderAlignment: placeholderAlignment ?? this.placeholderAlignment,
+      selectedValueAlignment:
+          selectedValueAlignment ?? this.selectedValueAlignment,
+      selectedValuePadding: selectedValuePadding ?? this.selectedValuePadding,
       headerSpacing: headerSpacing ?? this.headerSpacing,
       footerSpacing: footerSpacing ?? this.footerSpacing,
     );
@@ -932,6 +1078,18 @@ class FieldStyleSwitchBox extends FieldStyle {
     this.selectedTileColor,
     this.onFocusChange,
     this.enableFeedback,
+    this.activeTrackColor,
+    this.inactiveThumbColor,
+    this.inactiveTrackColor,
+    this.activeThumbImage,
+    this.onActiveThumbImageError,
+    this.inactiveThumbImage,
+    this.onInactiveThumbImageError,
+    this.thumbColor,
+    this.trackColor,
+    this.trackOutlineColor,
+    this.thumbIcon,
+    this.dragStartBehavior = DragStartBehavior.start,
     super.headerSpacing,
     super.footerSpacing,
   });

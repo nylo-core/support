@@ -166,12 +166,18 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     }
 
     TextStyle textStyle = TextStyle();
+    NavigationHubLayout? _layout = layout(context);
     if (currentIndex == page.key) {
-      NavigationHubLayout? _layout = layout(context);
       textStyle =
           _layout?.selectedLabelStyle?.copyWith() ?? textStyle.copyWith();
       if (_layout?.selectedItemColor != null) {
         textStyle = textStyle.copyWith(color: _layout?.selectedItemColor);
+      }
+    } else {
+      textStyle =
+          _layout?.unselectedLabelStyle?.copyWith() ?? textStyle.copyWith();
+      if (_layout?.unselectedItemColor != null) {
+        textStyle = textStyle.copyWith(color: _layout?.unselectedItemColor);
       }
     }
     Widget textWidget = Text(page.value.title ?? "", style: textStyle);
@@ -179,7 +185,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     return BottomNavigationBarItem(
       icon: page.value.icon ?? textWidget,
       label: page.value.icon == null ? "" : page.value.title,
-      activeIcon: page.value.activeIcon ?? textWidget,
+      activeIcon: page.value.activeIcon ?? page.value.icon ?? textWidget,
       backgroundColor: page.value.backgroundColor,
       tooltip: page.value.tooltip,
     );

@@ -121,6 +121,7 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
   ///
   /// [widgetData] is the widget to wrap.
   /// [defaultValue] is an optional fallback widget.
+  // ignore: avoid_shadowing_type_parameters
   WidgetStateProperty<T>? getWidgetStateProperty<T>(
     Widget? widgetData, {
     Icon? defaultValue,

@@ -8,9 +8,7 @@ import '/widgets/ny_widgets.dart';
 /// Provide the [name] of the state and then return a value in the callback [setValue].
 ///
 /// Example using data param
-/// updateState<double>(NotificationCounter.state, data: {
-///   "value": 10
-/// });
+/// `updateState<double>(NotificationCounter.state, data: {"value": 10});`
 ///
 /// Example in your NyState widget
 /// @override
@@ -20,15 +18,9 @@ import '/widgets/ny_widgets.dart';
 ///
 ///
 /// Example using setValue param
-/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
-///   if (currentValue == null) return 1;
-///   return (currentValue + 1);
-/// });
+/// `updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) { ... });`
 ///
-/// updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) {
-///   [currentValue] will contain the last value e.g. 1
-///   return (currentValue + 1);
-/// });
+/// `updateState<double>(ShoppingCartIcon.state, setValue: (currentValue) { ... });`
 ///
 /// Example in your NyState widget
 /// @override

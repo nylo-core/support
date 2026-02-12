@@ -365,22 +365,14 @@ void main() {
 
     nyGroup('callback setters', () {
       nyTest('onSuccess sets success callback', () async {
-        bool callbackCalled = false;
-
-        apiService.onSuccess((response, data) {
-          callbackCalled = true;
-        });
+        apiService.onSuccess((response, data) {});
 
         // Callback is stored internally
         expect(true, isTrue);
       });
 
       nyTest('onError sets error callback', () async {
-        bool callbackCalled = false;
-
-        apiService.onError((dioException) {
-          callbackCalled = true;
-        });
+        apiService.onError((dioException) {});
 
         // Callback is stored internally
         expect(true, isTrue);

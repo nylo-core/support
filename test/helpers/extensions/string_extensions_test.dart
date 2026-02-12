@@ -26,9 +26,9 @@ void main() {
         final color = hexString.toHexColor();
 
         expect(color, isA<Color>());
-        expect(color.red, 255);
-        expect(color.green, 87);
-        expect(color.blue, 51);
+        expect((color.r * 255).round(), 255);
+        expect((color.g * 255).round(), 87);
+        expect((color.b * 255).round(), 51);
       });
 
       nyTest('should throw for null string', () async {
@@ -43,7 +43,7 @@ void main() {
 
         final color = hexString.toHexColor();
 
-        expect(color.green, 255);
+        expect((color.g * 255).round(), 255);
       });
     });
 
@@ -322,11 +322,11 @@ void main() {
     });
 
     nyTest('should handle various hex color formats', () async {
-      expect('000000'.toHexColor().red, 0);
-      expect('FFFFFF'.toHexColor().red, 255);
-      expect('FF0000'.toHexColor().red, 255);
-      expect('00FF00'.toHexColor().green, 255);
-      expect('0000FF'.toHexColor().blue, 255);
+      expect(('000000'.toHexColor().r * 255).round(), 0);
+      expect(('FFFFFF'.toHexColor().r * 255).round(), 255);
+      expect(('FF0000'.toHexColor().r * 255).round(), 255);
+      expect(('00FF00'.toHexColor().g * 255).round(), 255);
+      expect(('0000FF'.toHexColor().b * 255).round(), 255);
     });
 
     nyTest('should handle complex JSON array', () async {

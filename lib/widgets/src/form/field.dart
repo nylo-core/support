@@ -3,6 +3,7 @@ import 'dart:math';
 
 import 'package:date_field/date_field.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_multi_formatter/flutter_multi_formatter.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
@@ -74,7 +75,7 @@ class Field {
   ///
   /// Returns the raw data value stored in this field, which may be
   /// of any type depending on the field configuration.
-  get value => _value;
+  dynamic get value => _value;
 
   /// Directly sets the field value and updates the UI widget.
   ///
@@ -201,7 +202,7 @@ class Field {
   ///
   /// [updated] is the stream controller that will receive notifications
   /// when this field's value or state changes.
-  setUpdated(StreamController? updated) {
+  void setUpdated(StreamController? updated) {
     this.updated = updated;
   }
 
@@ -340,7 +341,7 @@ class Field {
        this.style = style ?? FieldStyleTextField() {
     CurrencyMeta currencyMeta = CurrencyInputMatcher.getCurrencyMeta(
       "currency:" + currency,
-      value: value ?? "0",
+      value: value ?? dummyData ?? "0",
       onChanged: onChanged,
     );
 
@@ -351,6 +352,7 @@ class Field {
     );
 
     _value = currencyMeta.initialValue;
+    dummyData = null;
 
     setOnChanged(onChanged);
     widget = NyFormTextField.fromField(this);
@@ -508,7 +510,7 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
-    required FormCollection options,
+    FormCollection options = const FormCollection.empty(),
     FieldStylePicker? style,
     Function(dynamic value)? onChanged,
   }) : this.style = style ?? FieldStylePicker(),
@@ -535,7 +537,7 @@ class Field {
     this.footer,
     this.hidden = false,
     this.readOnly,
-    required FormCollection options,
+    FormCollection options = const FormCollection.empty(),
     FieldStyleRadio? style,
     Function(dynamic value)? onChanged,
   }) : _value = value,
@@ -740,7 +742,7 @@ class Field {
   Field.datetime(
     this.key, {
     this.label,
-    String? value,
+    dynamic value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -749,6 +751,10 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
+    DateTime? firstDate,
+    DateTime? lastDate,
+    DateFormat? dateFormat,
+    DateTime? initialPickerDateTime,
     FieldStyleDateTimePicker? style,
     Function(dynamic value)? onChanged,
   }) : _value = value,
@@ -757,6 +763,10 @@ class Field {
            FieldStyleDateTimePicker(mode: DateTimeFieldPickerMode.dateAndTime) {
     this.style = (this.style as FieldStyleDateTimePicker).copyWith(
       mode: DateTimeFieldPickerMode.dateAndTime,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      dateFormat: dateFormat,
+      initialPickerDateTime: initialPickerDateTime,
     );
     setOnChanged(onChanged);
     widget = NyFormDateTimePicker.fromField(this);
@@ -775,6 +785,10 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
+    DateTime? firstDate,
+    DateTime? lastDate,
+    DateFormat? dateFormat,
+    DateTime? initialPickerDateTime,
     FieldStyleDateTimePicker? style,
     Function(dynamic value)? onChanged,
   }) : _value = value,
@@ -783,6 +797,10 @@ class Field {
            FieldStyleDateTimePicker(mode: DateTimeFieldPickerMode.date) {
     this.style = (this.style as FieldStyleDateTimePicker).copyWith(
       mode: DateTimeFieldPickerMode.date,
+      firstDate: firstDate,
+      lastDate: lastDate,
+      dateFormat: dateFormat,
+      initialPickerDateTime: initialPickerDateTime,
     );
     setOnChanged(onChanged);
     widget = NyFormDateTimePicker.fromField(this);
@@ -801,7 +819,7 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
-    required FormCollection options,
+    FormCollection options = const FormCollection.empty(),
     Function(dynamic value)? onChanged,
     FieldStyleChip? style,
   }) : style = style ?? FieldStyleChip(),

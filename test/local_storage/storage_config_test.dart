@@ -64,9 +64,7 @@ void main() {
       });
 
       nyTest('should create with custom Android options', () async {
-        final customAndroidOptions = AndroidOptions(
-          encryptedSharedPreferences: true,
-        );
+        final customAndroidOptions = AndroidOptions();
 
         final config = StorageConfig(androidOptions: customAndroidOptions);
 
@@ -87,9 +85,7 @@ void main() {
       });
 
       nyTest('should initialize with custom Android options', () async {
-        final customAndroidOptions = AndroidOptions(
-          encryptedSharedPreferences: true,
-        );
+        final customAndroidOptions = AndroidOptions();
 
         StorageConfig.init(androidOptions: customAndroidOptions);
 
@@ -130,9 +126,7 @@ void main() {
 
       nyTest('should allow setting Android options', () async {
         final config = StorageConfig();
-        final newAndroidOptions = AndroidOptions(
-          encryptedSharedPreferences: true,
-        );
+        final newAndroidOptions = AndroidOptions();
 
         config.androidOptions = newAndroidOptions;
 

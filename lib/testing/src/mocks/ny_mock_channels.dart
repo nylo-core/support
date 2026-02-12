@@ -72,8 +72,9 @@ class NyMockChannels {
   }) {
     if (documentsPath != null) _documentsPath = documentsPath;
     if (temporaryPath != null) _temporaryPath = temporaryPath;
-    if (applicationSupportPath != null)
+    if (applicationSupportPath != null) {
       _applicationSupportPath = applicationSupportPath;
+    }
     if (libraryPath != null) _libraryPath = libraryPath;
     if (cachePath != null) _cachePath = cachePath;
   }

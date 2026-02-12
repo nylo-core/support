@@ -157,7 +157,7 @@ extension NyStorageKeyExt on StorageKey {
   }
 
   /// Set a default value for a StorageKey
-  Future Function(bool inBackpack)? defaultValue<T>(value) {
+  Future Function(bool inBackpack)? defaultValue<T>(dynamic value) {
     return (inBackpack) async {
       dynamic localValue = await fromStorage();
       if (localValue == null) {

@@ -29,50 +29,50 @@ void main() {
       final color = nyHexColor('FF5733');
 
       expect(color, isA<Color>());
-      expect(color.red, 255);
-      expect(color.green, 87);
-      expect(color.blue, 51);
+      expect((color.r * 255).round(), 255);
+      expect((color.g * 255).round(), 87);
+      expect((color.b * 255).round(), 51);
     });
 
     nyTest('should handle hex with hash prefix', () async {
       final color = nyHexColor('#FF5733');
 
-      expect(color.red, 255);
-      expect(color.green, 87);
-      expect(color.blue, 51);
+      expect((color.r * 255).round(), 255);
+      expect((color.g * 255).round(), 87);
+      expect((color.b * 255).round(), 51);
     });
 
     nyTest('should handle lowercase hex', () async {
       final color = nyHexColor('ff5733');
 
-      expect(color.red, 255);
-      expect(color.green, 87);
-      expect(color.blue, 51);
+      expect((color.r * 255).round(), 255);
+      expect((color.g * 255).round(), 87);
+      expect((color.b * 255).round(), 51);
     });
 
     nyTest('should handle 8-digit hex with alpha', () async {
       final color = nyHexColor('80FF5733');
 
-      expect(color.alpha, 128);
-      expect(color.red, 255);
-      expect(color.green, 87);
-      expect(color.blue, 51);
+      expect((color.a * 255).round(), 128);
+      expect((color.r * 255).round(), 255);
+      expect((color.g * 255).round(), 87);
+      expect((color.b * 255).round(), 51);
     });
 
     nyTest('should convert white correctly', () async {
       final color = nyHexColor('FFFFFF');
 
-      expect(color.red, 255);
-      expect(color.green, 255);
-      expect(color.blue, 255);
+      expect((color.r * 255).round(), 255);
+      expect((color.g * 255).round(), 255);
+      expect((color.b * 255).round(), 255);
     });
 
     nyTest('should convert black correctly', () async {
       final color = nyHexColor('000000');
 
-      expect(color.red, 0);
-      expect(color.green, 0);
-      expect(color.blue, 0);
+      expect((color.r * 255).round(), 0);
+      expect((color.g * 255).round(), 0);
+      expect((color.b * 255).round(), 0);
     });
 
     nyTest('should convert primary colors correctly', () async {
@@ -80,17 +80,17 @@ void main() {
       final green = nyHexColor('00FF00');
       final blue = nyHexColor('0000FF');
 
-      expect(red.red, 255);
-      expect(red.green, 0);
-      expect(red.blue, 0);
+      expect((red.r * 255).round(), 255);
+      expect((red.g * 255).round(), 0);
+      expect((red.b * 255).round(), 0);
 
-      expect(green.red, 0);
-      expect(green.green, 255);
-      expect(green.blue, 0);
+      expect((green.r * 255).round(), 0);
+      expect((green.g * 255).round(), 255);
+      expect((green.b * 255).round(), 0);
 
-      expect(blue.red, 0);
-      expect(blue.green, 0);
-      expect(blue.blue, 255);
+      expect((blue.r * 255).round(), 0);
+      expect((blue.g * 255).round(), 0);
+      expect((blue.b * 255).round(), 255);
     });
   });
 

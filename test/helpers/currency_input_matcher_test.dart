@@ -422,14 +422,10 @@ void main() {
 
   nyGroup('CurrencyInputMatcher onChanged Callback', () {
     nyTest('should accept onChanged callback', () async {
-      num? capturedValue;
-
       final meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
-        onChanged: (value) {
-          capturedValue = value;
-        },
+        onChanged: (value) {},
       );
 
       expect(meta, isNotNull);

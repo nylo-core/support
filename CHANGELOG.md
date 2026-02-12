@@ -1,3 +1,38 @@
+## [7.2.0] - 2026-02-12
+
+### Added
+
+* **`FieldDefinition` class and `define()` helper** - Set both a value and options for form fields in `NyFormWidget.init`, enabling deferred option loading from APIs
+* **`PickerListTileStyle`** - Style configuration for picker bottom sheet list tiles with `radio`, `checkmark`, and `custom` builder presets via `PickerListTileIndicator`
+* **`FieldStylePicker` alignment properties** - Added `placeholderAlignment`, `selectedValueAlignment`, and `selectedValuePadding` for fine-grained picker layout control
+* **`FieldStyleDateTimePicker` clear controls** - Added `canClear` and `clearIconData` properties to control date/time field clearing behavior
+* **`FieldStyleSwitchBox` extended properties** - Added `activeTrackColor`, `inactiveThumbColor`, `inactiveTrackColor`, `thumbColor`, `trackColor`, `trackOutlineColor`, `thumbIcon`, `dragStartBehavior`, and thumb image properties
+* **`InputField` suffixIcon support** - Added `suffixIcon` parameter across all `InputField` constructors and `copyWith`
+* **`StyledText.template` key:text syntax** - New `{{key:text}}` placeholder syntax for localization-friendly styled text where the display text is separate from the style lookup key
+* **`FormCollection.empty()` constructor** - New const constructor for empty form collections, useful as a default for fields with deferred options
+* **`Field.datetime` / `Field.date` direct parameters** - Added `firstDate`, `lastDate`, `dateFormat`, and `initialPickerDateTime` directly on field constructors
+* **`Field.picker` / `Field.radio` / `Field.chips` optional options** - The `options` parameter is no longer required; defaults to `FormCollection.empty()` for deferred loading via `define()`
+* New `styled_text_test.dart` test suite for `StyledText.template` with key:text and pipe-key syntax
+
+### Fixed
+
+* **NavigationHub unselected label styling** - Now applies `unselectedLabelStyle` and `unselectedItemColor` to inactive tabs
+* **NavigationHub activeIcon fallback** - Falls back to `page.value.icon` before text widget when no `activeIcon` is set
+* **Form field state actions (picker, chips, radio)** - Changed `setValue` to `restoreValue` in clear/setValue actions to prevent redundant UI update cycles
+* **`NyResponse.ifSuccessful` / `when` null safety** - Fixed type promotion with local variable for proper null-safety
+* **`Field.currency` initial value** - Now uses `dummyData` as fallback for initial value when `value` is null
+* **`InputField` format-on-init** - Initial text values now pass through input formatters so programmatic values (e.g. from `define()`) display formatted
+* **`InputField` setValue with formatters** - The `setValue` state action now applies input formatters to the value
+
+### Changed
+
+* Added `WidgetsFlutterBinding.ensureInitialized()` to `Nylo.configure()` to ensure binding before configuration
+* Added explicit return types and `dynamic` parameter types across multiple methods for lint compliance
+* Removed global analyzer ignores for `non_constant_identifier_names` and `camel_case_types` from `analysis_options.yaml`; moved to targeted `ignore_for_file` comments
+* Validation `errorResponses` now uses `whereType<FormValidationError>()` instead of `where().cast()`
+* Updated test suite for Flutter Color API changes (`.r`/`.g`/`.b`/`.a`/`.toARGB32()`)
+* Documentation comment fixes for escaped generic types in dartdoc
+
 ## [7.1.0] - 2026-02-10
 
 ### Added

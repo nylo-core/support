@@ -65,10 +65,7 @@ void main() {
     });
 
     nyTest('should accept a callback', () async {
-      NyLogEntry? receivedEntry;
-      NyLogger.onLog = (entry) {
-        receivedEntry = entry;
-      };
+      NyLogger.onLog = (entry) {};
       expect(NyLogger.onLog, isNotNull);
       NyLogger.onLog = null; // reset
     });

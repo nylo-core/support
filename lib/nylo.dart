@@ -86,7 +86,7 @@ class Nylo {
   }
 
   /// Sync keys to the backpack instance.
-  Future<void> syncKeys(keys) async {
+  Future<void> syncKeys(dynamic keys) async {
     Future<List<Object?>> Function() keysToSync = await keys();
     List finalKeys = await keysToSync();
     for (var key in finalKeys) {
@@ -633,6 +633,7 @@ class Nylo {
     Map<AppLifecycleState, Function()>? appLifecycle,
     List<FutureOr<Runnable>>? services,
   }) async {
+    WidgetsFlutterBinding.ensureInitialized();
     // Register environment configuration first
     NyEnvRegistry.register(getter: env);
 

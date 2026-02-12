@@ -294,11 +294,13 @@ class DioApiService {
   /// [handleFailure] overrides the response on a failure
   ///
   /// Usage:
+  /// ```dart
   /// Future<NyResponse<List<User>>> fetchUsers() async {
   ///     return await network<List<User>>(
   ///         request: (request) => request.get("/users"),
   ///     );
   ///   }
+  /// ```
   Future<T?> network<T>({
     required Function(Dio api) request,
     Function(NyResponse<T> response)? handleSuccess,

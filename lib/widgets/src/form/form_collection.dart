@@ -95,6 +95,12 @@ class FormCollection {
   /// Private constructor for internal use.
   FormCollection._(this._options, this._isKeyValue);
 
+  /// Creates an empty [FormCollection] with no options.
+  ///
+  /// Useful as a default value for fields whose options will be loaded later
+  /// (e.g. from an API via `define()` in `init`).
+  const FormCollection.empty() : _options = const [], _isKeyValue = false;
+
   /// Creates a [FormCollection] from a list of structured option maps.
   ///
   /// Each map should contain 'value'/'id' and 'label'/'name' keys.
@@ -287,8 +293,9 @@ class FormCollection {
   }
 
   String? validateValue(String? value, {String? errorMessage}) {
-    if (value == null || value.isEmpty)
+    if (value == null || value.isEmpty) {
       return errorMessage ?? 'Please select an option';
+    }
     if (!isValidValue(value)) return errorMessage ?? 'Invalid selection';
     return null;
   }

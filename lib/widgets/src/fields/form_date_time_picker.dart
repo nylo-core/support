@@ -134,6 +134,8 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
               ),
             ),
           ),
+      canClear: style.canClear,
+      clearIconData: style.clearIconData,
       hideDefaultSuffixIcon: style.hideDefaultSuffixIcon,
       padding: style.padding ?? EdgeInsets.zero,
       style:

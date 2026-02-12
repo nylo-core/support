@@ -468,10 +468,8 @@ class FormValidationResult {
   }
 
   /// Get the error responses from the validation responses
-  List<FormValidationError> get errorResponses => responses
-      .where((response) => response is FormValidationError)
-      .cast<FormValidationError>()
-      .toList();
+  List<FormValidationError> get errorResponses =>
+      responses.whereType<FormValidationError>().toList();
 
   /// Get the validated data from the validation responses
   List<dynamic> validatedData() {

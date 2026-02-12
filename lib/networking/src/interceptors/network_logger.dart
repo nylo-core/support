@@ -468,8 +468,9 @@ class NetworkLogger extends Interceptor {
   String _serializeJson(dynamic value, [int indent = 0]) {
     if (value == null) return 'null';
     if (value is bool || value is num) return value.toString();
-    if (value is String)
+    if (value is String) {
       return '"${value.replaceAll('"', '\\"').replaceAll('\n', '\\n')}"';
+    }
     if (value is List) {
       if (value.isEmpty) return '[]';
       final items = value.map((e) => _serializeJson(e, indent + 1)).join(', ');
