@@ -1,3 +1,13 @@
+## [7.4.0] - 2026-02-14
+
+### Added
+
+* **`onLanguageChange` callback for `LanguageSwitcher.showBottomModal`** - New optional callback parameter that fires when the user selects a different language, providing the selected language key
+
+### Fixed
+
+* **`LanguageSwitcher.showBottomModal` future completing immediately** - Added missing `return` before `showModalBottomSheet` so the method's future now correctly waits for the modal to close before completing
+
 ## [7.3.1] - 2026-02-14
 
 ### Fixed

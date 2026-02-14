@@ -226,6 +226,7 @@ class LanguageSwitcher extends StatefulWidget {
     TextStyle? titleStyle,
     TextStyle? languageTextStyle,
     BorderRadius? borderRadius,
+    Function(String language)? onLanguageChange,
   }) async {
     // Capture navigator state before async operations
     final navigator = Navigator.of(context);
@@ -238,7 +239,7 @@ class LanguageSwitcher extends StatefulWidget {
     final isDark = Theme.of(context).brightness == Brightness.dark;
     final screenHeight = MediaQuery.of(context).size.height;
 
-    showModalBottomSheet(
+    return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
@@ -346,6 +347,9 @@ class LanguageSwitcher extends StatefulWidget {
                             state,
                             data: {"action": "refresh-page", "data": {}},
                           );
+                          if (!isSelected) {
+                            onLanguageChange?.call(data.key);
+                          }
                           navigator.pop();
                         },
                       );
