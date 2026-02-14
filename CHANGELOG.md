@@ -1,3 +1,16 @@
+## [7.3.1] - 2026-02-14
+
+### Fixed
+
+* **App lifecycle not assigned in `Nylo.init()`** - The `appLifecycle` parameter was accepted but never assigned to `_appLifecycle`, causing `nylo.appLifecycleStates` to always return null. Now correctly assigns the value during initialization
+
+### Changed
+
+* Removed unused `_formCasts` field and related methods (`addFormCasts`, `getFormCasts`) from the `Nylo` class
+* Removed unused `formCasts` parameter from `Nylo.configure()`
+* Updated `flutter_local_notifications` constraint to `^20.1.0`
+* Updated `timezone` constraint to `^0.10.0`
+
 ## [7.3.0] - 2026-02-14
 
 ### Added

@@ -45,7 +45,6 @@ class Nylo {
   Widget Function(FlutterErrorDetails errorDetails)? _errorStackErrorWidget;
   InitializationSettings? _initializationSettings;
   final Map<Type, NyEvent> _events = {};
-  final Map<String, dynamic> _formCasts = {};
   final Map<Type, NyApiService Function()> _apiDecoders = {};
   final Map<Type, NyApiService> _singletonApiDecoders = {};
   final List<NavigatorObserver> _navigatorObservers = [];
@@ -256,77 +255,6 @@ class Nylo {
     _errorStackErrorWidget = errorWidget;
   }
 
-  /// Enable external dev panel logging integration.
-  ///
-  /// This sets up callbacks for both console logging ([NyLogger]) and route
-  /// tracking ([NyRouteHistoryObserver]) to forward events to an external
-  /// logging system like DevPanelStore.
-  ///
-  /// The [onLog] callback receives console log messages with:
-  /// - `message`: The log message content
-  /// - `level`: The log level (`debug`, `info`, `warning`, `error`)
-  /// - `tag`: Optional tag for categorizing logs
-  /// - `stackTrace`: Optional stack trace for error logs
-  /// - `metadata`: Optional additional metadata
-  ///
-  /// The [onRouteChange] callback receives route navigation events with:
-  /// - `action`: The navigation action (`push`, `pop`, `remove`, `replace`)
-  /// - `routeName`: The name of the route
-  /// - `arguments`: Optional route arguments
-  /// - `previousRoute`: The name of the previous route
-  ///
-  /// Example with DevPanelStore:
-  /// ```dart
-  /// nylo.useDevPanelLogging(
-  ///   onLog: (message, level, {tag, stackTrace, metadata}) {
-  ///     DevPanelStore.instance.log(
-  ///       message,
-  ///       level: DevPanelLogLevel.values.byName(level),
-  ///       tag: tag,
-  ///       stackTrace: stackTrace,
-  ///       metadata: metadata,
-  ///     );
-  ///   },
-  ///   onRouteChange: (action, routeName, {arguments, previousRoute}) {
-  ///     switch (action) {
-  ///       case 'push':
-  ///         DevPanelStore.instance.trackRoutePush(routeName, arguments: arguments, previousRoute: previousRoute);
-  ///         break;
-  ///       case 'pop':
-  ///         DevPanelStore.instance.trackRoutePop(routeName, previousRoute: previousRoute);
-  ///         break;
-  ///       case 'replace':
-  ///         DevPanelStore.instance.trackRouteReplace(routeName, arguments: arguments, previousRoute: previousRoute);
-  ///         break;
-  ///       case 'remove':
-  ///         DevPanelStore.instance.trackRoutePop(routeName, previousRoute: previousRoute);
-  ///         break;
-  ///     }
-  ///   },
-  /// );
-  /// ```
-  void useDevPanelLogging({
-    void Function(
-      String message,
-      String level, {
-      String? tag,
-      String? stackTrace,
-      Map<String, dynamic>? metadata,
-    })?
-    onLog,
-    void Function(
-      String action,
-      String routeName, {
-      Object? arguments,
-      String? previousRoute,
-    })?
-    onRouteChange,
-  }) {
-    if (onRouteChange != null) {
-      NyRouteHistoryObserver.onRouteChange = onRouteChange;
-    }
-  }
-
   /// Use local notifications
   void useLocalNotifications({
     DarwinInitializationSettings? iosSettings,
@@ -434,14 +362,6 @@ class Nylo {
 
   /// Return all the registered events.
   Map<Type, NyEvent> getEvents() => _events;
-
-  /// Add form casts to Nylo
-  void addFormCasts(Map<String, dynamic> formTypes) {
-    _formCasts.addAll(formTypes);
-  }
-
-  /// Get form types from Nylo
-  Map<String, dynamic> getFormCasts() => _formCasts;
 
   /// Add [modelDecoders] to Nylo
   void addModelDecoders(Map<Type, dynamic> modelDecoders) {
@@ -652,6 +572,7 @@ class Nylo {
     if (setup != null) {
       nyloApp = await setup.setup();
     }
+    nyloApp._appLifecycle = appLifecycle;
     if (!isTestMode) {
       try {
         nyloApp._cache = await NyCache.getInstance();
@@ -1075,8 +996,6 @@ class Nylo {
 
     // Events
     Map<Type, NyEvent>? events,
-    Map<String, dynamic>? formCasts,
-
     // Auth & Storage
     String? authKey,
     dynamic syncKeys,
@@ -1126,7 +1045,6 @@ class Nylo {
 
     // Events
     if (events != null) addEvents(events);
-    if (formCasts != null) addFormCasts(formCasts);
 
     // Auth & Storage
     if (authKey != null) addAuthKey(authKey);
