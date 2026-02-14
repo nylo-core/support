@@ -1,3 +1,15 @@
+## [7.3.0] - 2026-02-14
+
+### Added
+
+* **Localization fallback locale support** - When a translation key is missing in the current locale, `NyLocalization` now automatically falls back to the default language before returning the raw key. Supports both top-level and nested (dot-notated) keys
+* **`NyLocalization.setValuesForTesting()`** - New test helper method for directly setting translation values and fallback values in unit tests
+
+### Fixed
+
+* **Date formatting initialization** - Added `initializeDateFormatting()` call in `Nylo.init()` to ensure all locale-specific date format data is available, preventing failures when formatting dates in non-default locales
+* **Modal keyboard overlap** - `NyBaseModal` now applies bottom padding matching `MediaQuery.viewInsets.bottom` when `isScrollControlled` is true, preventing the on-screen keyboard from covering modal content
+
 ## [7.2.0] - 2026-02-12
 
 ### Added

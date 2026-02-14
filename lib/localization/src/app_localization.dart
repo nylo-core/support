@@ -62,6 +62,8 @@ class NyLocalization {
   String? _assetsDir;
   Locale? _locale;
   Map<String, dynamic>? _values;
+  Map<String, dynamic>? _fallbackValues;
+  String? _fallbackLanguageCode;
   bool _debugMissingKeys = false;
 
   /// Enable or disable debug logging for missing translation keys
@@ -97,10 +99,18 @@ class NyLocalization {
       }
     }
 
+    _fallbackLanguageCode = languageCode;
+
     _values = await _loadLanguageFile(
       _locale!.languageCode,
       fallbackLanguageCode: languageCode,
     );
+
+    if (_locale!.languageCode != languageCode) {
+      _fallbackValues = await _loadLanguageFile(languageCode);
+    } else {
+      _fallbackValues = null;
+    }
   }
 
   /// Loads a language JSON file from assets.
@@ -150,6 +160,16 @@ class NyLocalization {
       isMissing = translatedValue == null;
     }
 
+    // Try fallback locale if key is missing
+    if (translatedValue == null && _fallbackValues != null) {
+      if (_isNestedKeyIn(key, _fallbackValues!)) {
+        translatedValue = _getNestedFrom(key, _fallbackValues!);
+      } else {
+        translatedValue = _fallbackValues![key];
+      }
+      isMissing = translatedValue == null;
+    }
+
     // Log missing key in debug mode
     if (_debugMissingKeys && isMissing) {
       NyLogger.debug("Missing translation key: $key");
@@ -194,23 +214,30 @@ class NyLocalization {
   String? _getNested(String key) {
     if (_isNestedCached(key)) return _values![key];
 
-    final keys = key.split('.');
-    final kHead = keys.first;
-
-    var value = _values![kHead];
-
-    for (var i = 1; i < keys.length; i++) {
-      if (value is Map<String, dynamic>) value = value[keys[i]];
-    }
+    final result = _getNestedFrom(key, _values!);
 
     /// If we found the value, cache it. If the value is null then
     /// we're not going to cache it, and returning null instead.
-    if (value != null) {
-      _cacheNestedKey(key, value);
+    if (result != null) {
+      _cacheNestedKey(key, result);
     }
 
-    return value;
+    return result;
   }
+
+  /// Look up a dot-notated [key] in an arbitrary [source] map.
+  String? _getNestedFrom(String key, Map<String, dynamic> source) {
+    final keys = key.split('.');
+    var value = source[keys.first];
+    for (var i = 1; i < keys.length; i++) {
+      if (value is Map<String, dynamic>) value = value[keys[i]];
+    }
+    return value is String ? value : null;
+  }
+
+  /// Check if [key] should be treated as nested in the given [source] map.
+  bool _isNestedKeyIn(String key, Map<String, dynamic> source) =>
+      !source.containsKey(key) && key.contains('.');
 
   /// Check if there is a cached value for [key].
   bool _isNestedCached(String key) => _values!.containsKey(key);
@@ -241,6 +268,11 @@ class NyLocalization {
     try {
       _values = await _loadLanguageFile(language);
       _locale = Locale(language);
+      if (_fallbackLanguageCode != null && language != _fallbackLanguageCode) {
+        _fallbackValues = await _loadLanguageFile(_fallbackLanguageCode!);
+      } else {
+        _fallbackValues = null;
+      }
     } catch (e) {
       NyLogger.error("Failed to load language: $language");
       return;
@@ -262,6 +294,12 @@ class NyLocalization {
     try {
       _values = await _loadLanguageFile(locale.languageCode);
       _locale = locale;
+      if (_fallbackLanguageCode != null &&
+          locale.languageCode != _fallbackLanguageCode) {
+        _fallbackValues = await _loadLanguageFile(_fallbackLanguageCode!);
+      } else {
+        _fallbackValues = null;
+      }
     } catch (e) {
       NyLogger.error("Failed to load locale: ${locale.languageCode}");
     }
@@ -290,4 +328,14 @@ class NyLocalization {
     GlobalCupertinoLocalizations.delegate,
     DefaultCupertinoLocalizations.delegate,
   ];
+
+  /// Sets translation values directly for testing purposes.
+  @visibleForTesting
+  void setValuesForTesting({
+    required Map<String, dynamic> values,
+    Map<String, dynamic>? fallbackValues,
+  }) {
+    _values = values;
+    _fallbackValues = fallbackValues;
+  }
 }

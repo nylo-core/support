@@ -139,6 +139,15 @@ abstract class NyBaseModal {
           );
         }
 
+        if (isScrollControlled) {
+          mainWidget = Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom,
+            ),
+            child: mainWidget,
+          );
+        }
+
         return mainWidget;
       },
     );

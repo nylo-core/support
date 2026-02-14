@@ -10,6 +10,7 @@ import '/controllers/ny_controllers.dart';
 import '/helpers/ny_helpers.dart';
 import 'package:timezone/data/latest_all.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 import '/event_bus/ny_event_bus.dart';
 import 'package:flutter/material.dart';
@@ -638,6 +639,7 @@ class Nylo {
     NyEnvRegistry.register(getter: env);
 
     Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
+    await initializeDateFormatting();
 
     try {
       await _configureLocalTimeZone();

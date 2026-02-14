@@ -301,4 +301,73 @@ void main() {
       }
     });
   });
+
+  nyGroup('fallback locale', () {
+    nyTest(
+      'should return fallback translation for missing top-level key',
+      () async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {'farewell': 'Tschüss'},
+          fallbackValues: {'greeting': 'Hello', 'farewell': 'Goodbye'},
+        );
+
+        // 'greeting' missing in de, present in en fallback
+        expect(NyLocalization.instance.translate('greeting'), 'Hello');
+        // 'farewell' present in de, should use de value
+        expect(NyLocalization.instance.translate('farewell'), 'Tschüss');
+      },
+    );
+
+    nyTest(
+      'should return fallback translation for missing nested key',
+      () async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {
+            'content': {'videos': 'Videos'},
+          },
+          fallbackValues: {
+            'content': {'ebooks': 'Ebooks', 'videos': 'Videos'},
+          },
+        );
+
+        // 'content.ebooks' missing in current locale
+        expect(NyLocalization.instance.translate('content.ebooks'), 'Ebooks');
+        // 'content.videos' present in current locale
+        expect(NyLocalization.instance.translate('content.videos'), 'Videos');
+      },
+    );
+
+    nyTest(
+      'should return key when missing in both current and fallback',
+      () async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {'a': '1'},
+          fallbackValues: {'b': '2'},
+        );
+
+        expect(NyLocalization.instance.translate('missing'), 'missing');
+      },
+    );
+
+    nyTest('should return key when no fallback values are set', () async {
+      NyLocalization.instance.setValuesForTesting(values: {'a': '1'});
+
+      expect(NyLocalization.instance.translate('missing'), 'missing');
+    });
+
+    nyTest(
+      'should support argument substitution with fallback value',
+      () async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {},
+          fallbackValues: {'welcome': 'Welcome, {{name}}!'},
+        );
+
+        expect(
+          NyLocalization.instance.translate('welcome', {'name': 'Alice'}),
+          'Welcome, Alice!',
+        );
+      },
+    );
+  });
 }
