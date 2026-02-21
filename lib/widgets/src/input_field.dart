@@ -1221,7 +1221,7 @@ class _InputFieldState extends NyState<InputField> {
       );
     }
 
-    if (widget.suffixIcon != null) {
+    if (widget.suffixIcon != null && widget.passwordViewable != true) {
       decoration = decoration.copyWith(
         suffixIcon: widget.suffixIcon,
         suffixIconConstraints: widget.decoration?.suffixIconConstraints,

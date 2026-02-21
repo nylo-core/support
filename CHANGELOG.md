@@ -1,3 +1,18 @@
+## [7.5.0] - 2026-02-21
+
+### Added
+
+* **`contentPadding` and `actionsPadding` for `NyBaseModal.show()` and `NyModalLayout`** - New optional padding parameters that allow fine-grained control over the modal's content area and actions section spacing
+
+### Fixed
+
+* **`FieldStyleTextField.password()` suffixIcon always rendered** - The password field style factory now conditionally sets the visibility toggle icon based on `passwordViewable`, returning `null` when disabled instead of always rendering a non-functional `IconButton`
+* **`InputField` suffixIcon overriding password toggle** - Custom `suffixIcon` is now only applied when `passwordViewable` is not true, preventing it from replacing the password visibility toggle button
+
+### Changed
+
+* Removed hardcoded English default titles from toast notification methods (`showToastSorry`, `showToastWarning`, `showToastInfo`, `showToastDanger`, `showToastOops`, `showToastSuccess`, `showToastCustom`). The `title` parameter now passes through as-is, allowing the toast notification registry to handle default titles consistently with the i18n approach
+
 ## [7.4.0] - 2026-02-14
 
 ### Added

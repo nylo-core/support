@@ -418,51 +418,43 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// Displays a Toast message containing "Sorry" for the title, you
   /// only need to provide a [description].
   void showToastSorry({String? title, required String description}) {
-    showToast(title: title ?? "Sorry", description: description, id: 'danger');
+    showToast(title: title, description: description, id: 'danger');
   }
 
   /// Displays a Toast message containing "Warning" for the title, you
   /// only need to provide a [description].
   void showToastWarning({String? title, required String description}) {
-    showToast(
-      title: title ?? "Warning",
-      description: description,
-      id: 'warning',
-    );
+    showToast(title: title, description: description, id: 'warning');
   }
 
   /// Displays a Toast message containing "Info" for the title, you
   /// only need to provide a [description].
   void showToastInfo({String? title, required String description}) {
-    showToast(title: title ?? "Info", description: description, id: 'info');
+    showToast(title: title, description: description, id: 'info');
   }
 
   /// Displays a Toast message containing "Error" for the title, you
   /// only need to provide a [description].
   void showToastDanger({String? title, required String description}) {
-    showToast(title: title ?? "Error", description: description, id: 'danger');
+    showToast(title: title, description: description, id: 'danger');
   }
 
   /// Displays a Toast message containing "Oops" for the title, you
   /// only need to provide a [description].
   void showToastOops({String? title, required String description}) {
-    showToast(title: title ?? "Oops", description: description, id: 'danger');
+    showToast(title: title, description: description, id: 'danger');
   }
 
   /// Displays a Toast message containing "Success" for the title, you
   /// only need to provide a [description].
   void showToastSuccess({String? title, required String description}) {
-    showToast(
-      title: title ?? "Success",
-      description: description,
-      id: 'success',
-    );
+    showToast(title: title, description: description, id: 'success');
   }
 
   /// Display a custom Toast message.
   void showToastCustom({String? title, String? description, String? id}) {
     showToast(
-      title: title ?? "",
+      title: title,
       description: description ?? "",
       id: id ?? 'success',
     );

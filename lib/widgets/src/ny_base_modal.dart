@@ -14,6 +14,8 @@ typedef ModalShowFunction =
       bool isScrollControlled,
       bool showCloseButton,
       EdgeInsets? headerPadding,
+      EdgeInsets? contentPadding,
+      EdgeInsets? actionsPadding,
       Color? backgroundColor,
       bool showHandle,
       Color? closeButtonColor,
@@ -54,6 +56,8 @@ abstract class NyBaseModal {
   /// [isScrollControlled] - Whether the modal can be scrolled (default: false)
   /// [showCloseButton] - Whether to show a close button (default: false)
   /// [headerPadding] - Padding for the main content when header is present
+  /// [contentPadding] - Padding for the main content
+  /// [actionsPadding] - Padding for the actions section
   /// [backgroundColor] - Background color of the modal
   /// [showHandle] - Whether to show the drag handle (default: true)
   /// [closeButtonColor] - Color of the close button background
@@ -73,6 +77,8 @@ abstract class NyBaseModal {
     bool isScrollControlled = false,
     bool showCloseButton = false,
     EdgeInsets? headerPadding,
+    EdgeInsets? contentPadding,
+    EdgeInsets? actionsPadding,
     Color? backgroundColor,
     bool showHandle = true,
     Color? closeButtonColor,
@@ -99,6 +105,8 @@ abstract class NyBaseModal {
           decoration: modalDecoration,
           handleColor: handleColor,
           backgroundColor: modalBackgroundColor,
+          contentPadding: contentPadding,
+          actionsPadding: actionsPadding,
           child: child,
         );
 
@@ -183,6 +191,12 @@ class NyModalLayout extends StatelessWidget {
   /// Background color of the modal content area
   final Color? backgroundColor;
 
+  /// Padding for the main content
+  final EdgeInsets? contentPadding;
+
+  /// Padding for the actions section
+  final EdgeInsets? actionsPadding;
+
   const NyModalLayout({
     super.key,
     required this.child,
@@ -193,6 +207,8 @@ class NyModalLayout extends StatelessWidget {
     this.decoration,
     this.handleColor,
     this.backgroundColor,
+    this.contentPadding,
+    this.actionsPadding,
   });
 
   @override
@@ -224,17 +240,26 @@ class NyModalLayout extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 8),
-          child,
+          Padding(padding: contentPadding ?? EdgeInsets.zero, child: child),
           const SizedBox(height: 16),
           if (actionsColumn.isNotEmpty)
-            Column(mainAxisSize: MainAxisSize.min, children: actionsColumn),
+            Padding(
+              padding: actionsPadding ?? EdgeInsets.zero,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: actionsColumn,
+              ),
+            ),
           if (actionsRow.isNotEmpty)
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: actionsRow.map((element) {
-                if (element is SizedBox) return element;
-                return Expanded(child: element);
-              }).toList(),
+            Padding(
+              padding: actionsPadding ?? EdgeInsets.zero,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: actionsRow.map((element) {
+                  if (element is SizedBox) return element;
+                  return Expanded(child: element);
+                }).toList(),
+              ),
             ),
         ],
       ),

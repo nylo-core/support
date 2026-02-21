@@ -431,17 +431,14 @@ class FieldStyleTextField extends FieldStyle {
       filled: true,
       fillColor: Colors.grey.shade100,
       isDense: true,
-      suffixIcon: IconButton(
-        icon: Icon(
-          passwordViewable ? Icons.visibility : Icons.visibility_off,
-          // color: Theme.of(context).primaryColorDark,
-        ),
-        onPressed: () {
-          // setState(() {
-          //   _passwordVisible = !_passwordVisible;
-          // });
-        },
-      ),
+      suffixIcon: passwordViewable
+          ? IconButton(
+              icon: Icon(
+                passwordViewable ? Icons.visibility : Icons.visibility_off,
+              ),
+              onPressed: () {},
+            )
+          : null,
       contentPadding: const EdgeInsetsDirectional.symmetric(
         vertical: 14,
         horizontal: 14,
