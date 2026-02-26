@@ -336,9 +336,11 @@ class LanguageSwitcher extends StatefulWidget {
                         isDark: isDark,
                         onTap: () async {
                           await NyLocalization.instance.setLanguage(
-                            modalContext,
+                            context,
                             language: data.key,
                           );
+
+                          navigator.pop();
 
                           // store the language
                           await storeLanguage(object: {data.key: data.value});
@@ -350,7 +352,6 @@ class LanguageSwitcher extends StatefulWidget {
                           if (!isSelected) {
                             onLanguageChange?.call(data.key);
                           }
-                          navigator.pop();
                         },
                       );
                     },
@@ -1235,7 +1236,7 @@ class _LanguageListItem extends StatefulWidget {
   final bool isSelected;
   final Color selectedColor;
   final bool isDark;
-  final VoidCallback onTap;
+  final Future<void> Function() onTap;
   final TextStyle? textStyle;
 
   @override
@@ -1247,6 +1248,7 @@ class _LanguageListItemState extends State<_LanguageListItem>
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   bool _isPressed = false;
+  bool _isLoading = false;
 
   @override
   void initState() {
@@ -1293,7 +1295,14 @@ class _LanguageListItemState extends State<_LanguageListItem>
         onTapDown: _onTapDown,
         onTapUp: _onTapUp,
         onTapCancel: _onTapCancel,
-        onTap: widget.onTap,
+        onTap: () async {
+          setState(() => _isLoading = true);
+          try {
+            await widget.onTap();
+          } finally {
+            if (mounted) setState(() => _isLoading = false);
+          }
+        },
         child: AnimatedContainer(
           duration: const Duration(milliseconds: 200),
           curve: Curves.easeOutCubic,
@@ -1368,31 +1377,39 @@ class _LanguageListItemState extends State<_LanguageListItem>
                   ],
                 ),
               ),
-              // Checkmark for selected
-              AnimatedOpacity(
-                opacity: widget.isSelected ? 1.0 : 0.0,
-                duration: const Duration(milliseconds: 200),
-                child: AnimatedScale(
-                  scale: widget.isSelected ? 1.0 : 0.5,
+              // Loading spinner or checkmark for selected
+              if (_isLoading)
+                const SizedBox(
+                  width: 28,
+                  height: 28,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: Color(0xFF34C759),
+                  ),
+                )
+              else
+                AnimatedOpacity(
+                  opacity: widget.isSelected ? 1.0 : 0.0,
                   duration: const Duration(milliseconds: 200),
-                  curve: Curves.easeOutBack,
-                  child: Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: widget.isDark
-                          ? const Color(0xFF34C759)
-                          : const Color(0xFF34C759),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 18,
+                  child: AnimatedScale(
+                    scale: widget.isSelected ? 1.0 : 0.5,
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutBack,
+                    child: Container(
+                      width: 28,
+                      height: 28,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF34C759),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 18,
+                      ),
                     ),
                   ),
                 ),
-              ),
             ],
           ),
         ),

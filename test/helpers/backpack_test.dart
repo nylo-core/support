@@ -1,6 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
+import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
+
+/// Test model for Backpack deserialization tests
+class _BackpackTestModel extends Model {
+  String? name;
+  int? age;
+
+  _BackpackTestModel.fromJson(Map<String, dynamic> data) {
+    name = data['name'];
+    age = data['age'];
+  }
+
+  @override
+  Map<String, dynamic> toJson() => {'name': name, 'age': age};
+}
 
 void main() {
   NyTest.init();
@@ -308,6 +323,77 @@ void main() {
 
         expect(data, isNull);
       });
+    });
+
+    nyGroup('Map deserialization', () {
+      nyTest(
+        'should deserialize Map value to typed model when T is specified',
+        () async {
+          // Set up Nylo with model decoders so dataToModel works
+          final nylo = Nylo();
+          nylo.addModelDecoders({
+            _BackpackTestModel: (data) => _BackpackTestModel.fromJson(data),
+          });
+
+          // Simulate what syncKeys does: store a raw Map in Backpack
+          Backpack.instance.save('user_model', {'name': 'Alice', 'age': 30});
+
+          final result = Backpack.instance.read<_BackpackTestModel>(
+            'user_model',
+          );
+
+          expect(result, isA<_BackpackTestModel>());
+          expect(result?.name, 'Alice');
+          expect(result?.age, 30);
+        },
+      );
+
+      nyTest(
+        'should cache deserialized model in Backpack after first read',
+        () async {
+          final nylo = Nylo();
+          nylo.addModelDecoders({
+            _BackpackTestModel: (data) => _BackpackTestModel.fromJson(data),
+          });
+
+          Backpack.instance.save('cached_model', {'name': 'Bob', 'age': 25});
+
+          // First read deserializes
+          final first = Backpack.instance.read<_BackpackTestModel>(
+            'cached_model',
+          );
+          // Second read should return cached model instance
+          final second = Backpack.instance.read<_BackpackTestModel>(
+            'cached_model',
+          );
+
+          expect(identical(first, second), isTrue);
+        },
+      );
+
+      nyTest('should return raw Map when T is dynamic', () async {
+        Backpack.instance.save('raw_map', {'key': 'value'});
+
+        final result = Backpack.instance.read('raw_map');
+
+        expect(result, isA<Map>());
+        expect(result['key'], 'value');
+      });
+
+      nyTest(
+        'should fall through gracefully for Map without matching decoder',
+        () async {
+          final nylo = Nylo();
+          nylo.addModelDecoders({});
+
+          Backpack.instance.save('no_decoder_map', {'name': 'test'});
+
+          // Reading with a type that has no decoder should not throw
+          final result = Backpack.instance.read('no_decoder_map');
+
+          expect(result, isA<Map>());
+        },
+      );
     });
 
     nyGroup('isNyloInitialized', () {

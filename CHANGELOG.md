@@ -1,3 +1,20 @@
+## [7.6.0] - 2026-02-26
+
+### Added
+
+* **`Backpack.read<T>()` Map deserialization** - When a value stored in the Backpack is a raw `Map<String, dynamic>` (e.g. from `syncKeys`), calling `read<T>()` with a typed parameter now automatically deserializes it into the corresponding model and caches the result for subsequent reads
+* **Loading indicator for `LanguageSwitcher` list items** - Tapping a language in `LanguageSwitcher.showBottomModal` now displays a `CircularProgressIndicator` on the selected item while the language switch processes, providing clear visual feedback
+
+### Fixed
+
+* **`CollectionView` `findChildIndexCallback` renamed to `findItemIndexCallback`** - Updated the `ListView.separated` builder to use the renamed Flutter SDK parameter, fixing compatibility with recent Flutter versions
+* **`LanguageSwitcher` modal not closing immediately on selection** - Moved `navigator.pop()` to execute before `storeLanguage` and `onLanguageChange` so the bottom sheet dismisses instantly rather than waiting for async operations to complete
+
+### Changed
+
+* Replaced `T.toString() != 'dynamic'` and `_isType<T, U>()` helper calls with direct `T != dynamic` / `T == Type` comparisons in `Backpack` and `NyStorage` for cleaner, more idiomatic type checking
+* Changed `_LanguageListItem.onTap` type from `VoidCallback` to `Future<void> Function()` to support async tap handling with loading state
+
 ## [7.5.0] - 2026-02-21
 
 ### Added

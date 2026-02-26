@@ -18,7 +18,7 @@ class Backpack {
       return null;
     }
     dynamic value = _values[key];
-    if (T.toString() != 'dynamic' && (value is String)) {
+    if (T != dynamic && (value is String)) {
       dynamic nyJson = _NyJson.tryDecode(value);
       if (nyJson != null) {
         T model = dataToModel<T>(data: nyJson);
@@ -26,7 +26,13 @@ class Backpack {
         return model;
       }
     }
-
+    if (T != dynamic && (value is Map<String, dynamic>)) {
+      try {
+        T model = dataToModel<T>(data: value);
+        _values[key] = model;
+        return model;
+      } catch (_) {}
+    }
     return value;
   }
 

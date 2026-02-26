@@ -830,7 +830,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       primary: widget.primary,
       physics: widget.physics,
       shrinkWrap: widget.shrinkWrap ?? false,
-      findChildIndexCallback: widget.findChildIndexCallback,
+      findItemIndexCallback: widget.findChildIndexCallback,
       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       addRepaintBoundaries: widget.addRepaintBoundaries,
       addSemanticIndexes: widget.addSemanticIndexes,

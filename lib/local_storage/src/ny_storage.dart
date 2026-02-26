@@ -189,7 +189,7 @@ class NyStorage {
     }
 
     // Handle model deserialization
-    if (!_isType<T, dynamic>()) {
+    if (T != dynamic) {
       try {
         return dataToModel<T>(
           data: jsonDecode(data),
@@ -231,7 +231,7 @@ class NyStorage {
           return null;
         }
       case 'model':
-        if (!_isType<T, dynamic>()) {
+        if (T != dynamic) {
           try {
             return dataToModel<T>(
               data: jsonDecode(value),
@@ -408,10 +408,7 @@ class NyStorage {
     List<dynamic> listData = jsonDecode(data);
 
     // Check if T is a primitive type
-    if (_isType<T, dynamic>() ||
-        _isType<T, String>() ||
-        _isType<T, double>() ||
-        _isType<T, int>()) {
+    if (T == dynamic || T == String || T == double || T == int) {
       return List.from(listData).toList().cast();
     }
 
@@ -454,10 +451,7 @@ class NyStorage {
   /// Save a list of objects to a [collection] using a [key].
   static Future<void> saveCollection<T>(String key, List<T> collection) async {
     // Check if T is a primitive type
-    if (_isType<T, dynamic>() ||
-        _isType<T, String>() ||
-        _isType<T, double>() ||
-        _isType<T, int>()) {
+    if (T == dynamic || T == String || T == double || T == int) {
       await save(key, jsonEncode(collection));
       return;
     }

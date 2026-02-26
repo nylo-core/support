@@ -1491,6 +1491,68 @@ void main() {
       });
     });
 
+    nyGroup('model deserialization', () {
+      nyTest(
+        'should deserialize model from envelope when T is specified',
+        () async {
+          final modelDecoders = <Type, dynamic>{
+            TestModel: (data) => TestModel.fromJson(data),
+          };
+
+          await NyStorage.save(
+            'typed_model',
+            TestModel(name: 'Alice', age: 30),
+          );
+
+          final result = await NyStorage.read<TestModel>(
+            'typed_model',
+            modelDecoders: modelDecoders,
+          );
+
+          expect(result, isA<TestModel>());
+          expect(result?.name, 'Alice');
+          expect(result?.age, 30);
+        },
+      );
+
+      nyTest(
+        'should return raw JSON when T is dynamic for model envelope',
+        () async {
+          await NyStorage.save(
+            'dynamic_model',
+            TestModel(name: 'Bob', age: 25),
+          );
+
+          final result = await NyStorage.read('dynamic_model');
+
+          // With T=dynamic, should return raw decoded JSON (not a TestModel)
+          expect(result, isNot(isA<TestModel>()));
+        },
+      );
+
+      nyTest(
+        'should deserialize model from legacy format when T is specified',
+        () async {
+          final modelDecoders = <Type, dynamic>{
+            TestModel: (data) => TestModel.fromJson(data),
+          };
+
+          // Simulate legacy format: raw JSON string without envelope
+          final json = '{"name":"Charlie","age":40}';
+          await NyStorage.manager().write(key: 'legacy_model', value: json);
+
+          final result = await NyStorage.read<TestModel>(
+            'legacy_model',
+            modelDecoders: modelDecoders,
+          );
+
+          expect(result, isA<TestModel>());
+          expect(result?.name, 'Charlie');
+          expect(result?.age, 40);
+        },
+      );
+    });
+
     nyGroup('deprecated methods', () {
       nyTest('deleteCollection should work same as delete', () async {
         await NyStorage.saveCollection<String>('deprecated_col', ['a', 'b']);
