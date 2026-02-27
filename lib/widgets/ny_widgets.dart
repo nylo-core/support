@@ -31,6 +31,7 @@ export 'src/fields/form_checkbox.dart';
 export 'src/fields/form_date_time_picker.dart';
 export 'src/fields/form_switch_box.dart';
 export 'src/fields/form_text_field.dart';
+export 'src/fields/form_builder.dart';
 
 // Event bus
 export 'src/event_bus/update_state.dart';

@@ -124,6 +124,8 @@ class Field {
       return NyFormSlider.stateActions(stateKey);
     } else if (fieldWidget is NyFormRangeSlider) {
       return NyFormRangeSlider.stateActions(stateKey);
+    } else if (fieldWidget is NyFormBuilder) {
+      return NyFormBuilder.stateActions(stateKey);
     }
     return null;
   }
@@ -868,5 +870,46 @@ class Field {
        this.style = style ?? FieldStyleRangeSlider() {
     setOnChanged(onChanged);
     widget = NyFormRangeSlider.fromField(this);
+  }
+
+  /// Field.builder is a constructor that lets developers create custom form
+  /// fields inline using a builder function.
+  ///
+  /// The [builder] receives the [BuildContext], an [onChanged] callback to
+  /// report value changes to the form, and the [currentValue] of the field.
+  ///
+  /// Example:
+  /// ```dart
+  /// Field.builder(
+  ///   'favorite_color',
+  ///   builder: (context, onChanged, value) {
+  ///     return ColorPicker(
+  ///       selected: value,
+  ///       onColorChanged: (color) => onChanged(color),
+  ///     );
+  ///   },
+  ///   value: Colors.blue,
+  ///   validator: FormValidator().notEmpty(),
+  /// )
+  /// ```
+  Field.builder(
+    this.key, {
+    required NyFieldBuilder builder,
+    this.label,
+    dynamic value,
+    this.validator,
+    this.autofocus = false,
+    this.dummyData,
+    this.header,
+    this.footer,
+    this.titleStyle,
+    this.hidden = false,
+    this.readOnly,
+    FieldStyle? style,
+    Function(dynamic value)? onChanged,
+  }) : _value = value,
+       this.style = style {
+    setOnChanged(onChanged);
+    widget = NyFormBuilder.fromField(this, builder: builder);
   }
 }
