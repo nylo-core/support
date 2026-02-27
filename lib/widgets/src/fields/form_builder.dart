@@ -70,14 +70,14 @@ class _NyFormBuilderState extends FieldBaseState<NyFormBuilder> {
   @override
   Map<String, Function> get stateActions => {
     "clear": () {
-      setState(() {
-        currentValue = null;
-      });
+      currentValue = null;
+      widget.field.restoreValue(null);
+      setState(() {});
     },
     "setValue": (dynamic data) {
-      setState(() {
-        currentValue = data["value"];
-      });
+      currentValue = data["value"];
+      widget.field.restoreValue(currentValue);
+      setState(() {});
     },
   };
 
