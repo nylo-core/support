@@ -87,6 +87,7 @@ class _NyFormBuilderState extends FieldBaseState<NyFormBuilder> {
       context,
       (dynamic value) {
         currentValue = value;
+        widget.field.restoreValue(value);
         if (widget.onChanged != null) {
           widget.onChanged!(value);
         }
