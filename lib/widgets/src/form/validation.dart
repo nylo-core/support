@@ -10,6 +10,7 @@ class FormValidator {
   String? attribute;
   dynamic data;
   List<FormRule> rules = [];
+  bool _isNullable = false;
 
   /// Create a new form validator with [message] and [data]
   FormValidator({this.data, this.attribute});
@@ -415,6 +416,14 @@ class FormValidator {
     return this;
   }
 
+  /// Mark this validator as nullable.
+  /// When nullable, if the value is null or empty, validation will pass.
+  /// If the value is not null/empty, all rules will be applied.
+  FormValidator nullable() {
+    _isNullable = true;
+    return this;
+  }
+
   /// Add a rule to the form validator
   void _addRule(FormRule rule) {
     rules.add(rule);
@@ -435,6 +444,10 @@ class FormValidator {
       this.data,
       this.attribute,
     );
+
+    if (_isNullable && (this.data == null || this.data.toString().isEmpty)) {
+      return result;
+    }
 
     for (FormRule rule in rules) {
       bool response = rule.validate(this.data);

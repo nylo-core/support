@@ -5,11 +5,12 @@ import '/widgets/ny_widgets.dart';
 ///
 /// Receives the [BuildContext], an [onChanged] callback to report value changes
 /// to the form, and the [currentValue] of the field.
-typedef NyFieldBuilder = Widget Function(
-  BuildContext context,
-  Function(dynamic value) onChanged,
-  dynamic currentValue,
-);
+typedef NyFieldBuilder =
+    Widget Function(
+      BuildContext context,
+      Function(dynamic value) onChanged,
+      dynamic currentValue,
+    );
 
 /// A builder widget for forms that lets developers create custom fields inline.
 ///
@@ -83,17 +84,13 @@ class _NyFormBuilderState extends FieldBaseState<NyFormBuilder> {
 
   @override
   Widget view(BuildContext context) {
-    return widget.builder(
-      context,
-      (dynamic value) {
-        currentValue = value;
-        widget.field.restoreValue(value);
-        if (widget.onChanged != null) {
-          widget.onChanged!(value);
-        }
-        setState(() {});
-      },
-      currentValue,
-    );
+    return widget.builder(context, (dynamic value) {
+      currentValue = value;
+      widget.field.restoreValue(value);
+      if (widget.onChanged != null) {
+        widget.onChanged!(value);
+      }
+      setState(() {});
+    }, currentValue);
   }
 }

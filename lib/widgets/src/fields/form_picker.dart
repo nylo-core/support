@@ -210,63 +210,22 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
           child: currentValue != null
               ? SizedBox(
                   width: double.infinity,
-                  child: Stack(
+                  child: Column(
+                    crossAxisAlignment: style.selectedValueAlignment != null
+                        ? style.selectedValueAlignment!.x < 0
+                              ? CrossAxisAlignment.start
+                              : style.selectedValueAlignment!.x > 0
+                              ? CrossAxisAlignment.end
+                              : CrossAxisAlignment.center
+                        : CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      if (style.selectedValueAlignment != null)
-                        Positioned.fill(
-                          child: Align(
-                            alignment: style.selectedValueAlignment!,
-                            child: Padding(
-                              padding:
-                                  style.selectedValuePadding ?? EdgeInsets.zero,
-                              child: Text(
-                                getOptions().getLabelByValue(
-                                      currentValue.toString(),
-                                    ) ??
-                                    currentValue.toString(),
-                                textAlign: style.selectedValueAlignment!.x < 0
-                                    ? TextAlign.left
-                                    : style.selectedValueAlignment!.x > 0
-                                    ? TextAlign.right
-                                    : TextAlign.center,
-                                style: selectedValueStyle,
-                              ),
-                            ),
-                          ),
-                        ),
-                      if (style.selectedValueAlignment == null &&
-                          width <= widthBreakpoint)
-                        Positioned(
-                          left: 0,
-                          right: 0,
-                          bottom: 0,
-                          child: Text(
-                            getOptions().getLabelByValue(
-                                  currentValue.toString(),
-                                ) ??
-                                currentValue.toString(),
-                            textAlign: TextAlign.left,
-                            style: selectedValueStyle,
-                          ),
-                        ),
-                      if (style.selectedValueAlignment == null &&
-                          width > widthBreakpoint)
-                        Positioned.fill(
-                          child: Center(
-                            child: Text(
-                              getOptions().getLabelByValue(
-                                    currentValue.toString(),
-                                  ) ??
-                                  currentValue.toString(),
-                              textAlign: TextAlign.center,
-                              style: selectedValueStyle,
-                            ),
-                          ),
-                        ),
-                      Positioned(
-                        left: 0,
-                        top: 5,
-                        child: Text(widget.field.name, style: fieldNameStyle),
+                      Text(widget.field.name, style: fieldNameStyle),
+                      SizedBox(height: 2),
+                      Text(
+                        getOptions().getLabelByValue(currentValue.toString()) ??
+                            currentValue.toString(),
+                        style: selectedValueStyle,
                       ),
                     ],
                   ),

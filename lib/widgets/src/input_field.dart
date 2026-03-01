@@ -1302,6 +1302,7 @@ class _InputFieldState extends NyState<InputField> {
       textCapitalization: widget.textCapitalization,
       obscureText: _obscured,
       focusNode: widget.focusNode ?? _focus,
+      autocorrect: widget.autocorrect,
       enableSuggestions: widget.enableSuggestions,
       onChanged: onChanged != null
           ? (String value) {

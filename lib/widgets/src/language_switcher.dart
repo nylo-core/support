@@ -7,6 +7,145 @@ import '/widgets/ny_widgets.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+/// Configures animations for [LanguageSwitcher] inline popup trigger and bottom modal list items.
+class LanguageSwitcherAnimationStyle {
+  const LanguageSwitcherAnimationStyle({
+    this.triggerScale = 1.0,
+    this.triggerScaleDuration = const Duration(milliseconds: 150),
+    this.triggerScaleCurve = Curves.easeInOut,
+    this.popupAnimationStyle,
+    this.popupContentFadeDuration = Duration.zero,
+    this.tapScale = 0.98,
+    this.tapScaleDuration = const Duration(milliseconds: 150),
+    this.tapScaleCurve = Curves.easeInOut,
+    this.transitionDuration = const Duration(milliseconds: 200),
+    this.transitionCurve = Curves.easeOutCubic,
+    this.checkmarkCurve = Curves.easeOutBack,
+  });
+
+  /// Scale applied to the trigger button when the popup opens (1.0 = no scale).
+  final double triggerScale;
+
+  /// Duration of the trigger scale animation.
+  final Duration triggerScaleDuration;
+
+  /// Curve of the trigger scale animation.
+  final Curve triggerScaleCurve;
+
+  /// Flutter's built-in popup menu animation control. Null uses Flutter default.
+  final AnimationStyle? popupAnimationStyle;
+
+  /// Duration for fading in popup menu item content after the popup opens.
+  final Duration popupContentFadeDuration;
+
+  /// Scale applied to list items on press in the bottom modal.
+  final double tapScale;
+
+  /// Duration of the list item tap scale animation.
+  final Duration tapScaleDuration;
+
+  /// Curve of the list item tap scale animation.
+  final Curve tapScaleCurve;
+
+  /// Duration for container, opacity, and checkmark transitions in the bottom modal.
+  final Duration transitionDuration;
+
+  /// Curve for container transitions in the bottom modal.
+  final Curve transitionCurve;
+
+  /// Curve for the checkmark scale animation in the bottom modal.
+  final Curve checkmarkCurve;
+
+  /// No animations.
+  const LanguageSwitcherAnimationStyle.none()
+    : triggerScale = 1.0,
+      triggerScaleDuration = Duration.zero,
+      triggerScaleCurve = Curves.linear,
+      popupAnimationStyle = AnimationStyle.noAnimation,
+      popupContentFadeDuration = Duration.zero,
+      tapScale = 1.0,
+      tapScaleDuration = Duration.zero,
+      tapScaleCurve = Curves.linear,
+      transitionDuration = Duration.zero,
+      transitionCurve = Curves.linear,
+      checkmarkCurve = Curves.linear;
+
+  /// Subtle, refined animations.
+  factory LanguageSwitcherAnimationStyle.subtle() =>
+      LanguageSwitcherAnimationStyle(
+        triggerScale: 0.99,
+        triggerScaleDuration: Duration(milliseconds: 100),
+        popupAnimationStyle: AnimationStyle(
+          duration: Duration(milliseconds: 150),
+        ),
+        popupContentFadeDuration: Duration(milliseconds: 120),
+        tapScale: 0.99,
+        tapScaleDuration: Duration(milliseconds: 100),
+        transitionDuration: Duration(milliseconds: 150),
+      );
+
+  /// Playful, springy animations.
+  factory LanguageSwitcherAnimationStyle.bouncy() =>
+      LanguageSwitcherAnimationStyle(
+        triggerScale: 0.95,
+        triggerScaleDuration: Duration(milliseconds: 200),
+        triggerScaleCurve: Curves.easeOutBack,
+        popupContentFadeDuration: Duration(milliseconds: 200),
+        tapScale: 0.95,
+        tapScaleDuration: Duration(milliseconds: 200),
+        tapScaleCurve: Curves.easeOutBack,
+        transitionDuration: Duration(milliseconds: 300),
+        transitionCurve: Curves.easeOutCubic,
+        checkmarkCurve: Curves.elasticOut,
+      );
+
+  /// Smooth fade-in with gentle scale.
+  factory LanguageSwitcherAnimationStyle.fadeIn() =>
+      LanguageSwitcherAnimationStyle(
+        triggerScale: 1.0,
+        popupAnimationStyle: AnimationStyle(
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeIn,
+        ),
+        popupContentFadeDuration: Duration(milliseconds: 250),
+        tapScale: 1.0,
+        tapScaleDuration: Duration.zero,
+        transitionDuration: Duration(milliseconds: 300),
+        transitionCurve: Curves.easeIn,
+        checkmarkCurve: Curves.easeIn,
+      );
+
+  /// Create a copy with overridden properties.
+  LanguageSwitcherAnimationStyle copyWith({
+    double? triggerScale,
+    Duration? triggerScaleDuration,
+    Curve? triggerScaleCurve,
+    AnimationStyle? popupAnimationStyle,
+    Duration? popupContentFadeDuration,
+    double? tapScale,
+    Duration? tapScaleDuration,
+    Curve? tapScaleCurve,
+    Duration? transitionDuration,
+    Curve? transitionCurve,
+    Curve? checkmarkCurve,
+  }) {
+    return LanguageSwitcherAnimationStyle(
+      triggerScale: triggerScale ?? this.triggerScale,
+      triggerScaleDuration: triggerScaleDuration ?? this.triggerScaleDuration,
+      triggerScaleCurve: triggerScaleCurve ?? this.triggerScaleCurve,
+      popupAnimationStyle: popupAnimationStyle ?? this.popupAnimationStyle,
+      popupContentFadeDuration:
+          popupContentFadeDuration ?? this.popupContentFadeDuration,
+      tapScale: tapScale ?? this.tapScale,
+      tapScaleDuration: tapScaleDuration ?? this.tapScaleDuration,
+      tapScaleCurve: tapScaleCurve ?? this.tapScaleCurve,
+      transitionDuration: transitionDuration ?? this.transitionDuration,
+      transitionCurve: transitionCurve ?? this.transitionCurve,
+      checkmarkCurve: checkmarkCurve ?? this.checkmarkCurve,
+    );
+  }
+}
+
 /// [LanguageSwitcher] is a widget that allows you to switch languages in your app.
 /// You can use it in the [AppBar] or as a bottom sheet modal using the [showBottomModal] method.
 /// Example:
@@ -44,6 +183,7 @@ class LanguageSwitcher extends StatefulWidget {
     this.elevation = 8,
     this.langPath = 'lang',
     this.textStyle,
+    this.animationStyle = const LanguageSwitcherAnimationStyle(),
   });
 
   final Widget? icon;
@@ -62,6 +202,7 @@ class LanguageSwitcher extends StatefulWidget {
   final int elevation;
   final EdgeInsetsGeometry? padding;
   final Function(Map<String, dynamic> language)? onLanguageChange;
+  final LanguageSwitcherAnimationStyle animationStyle;
 
   static String state = "ny_lang_switcher";
 
@@ -227,9 +368,11 @@ class LanguageSwitcher extends StatefulWidget {
     TextStyle? languageTextStyle,
     BorderRadius? borderRadius,
     Function(String language)? onLanguageChange,
+    LanguageSwitcherAnimationStyle? animationStyle,
+    bool useRootNavigator = false,
   }) async {
     // Capture navigator state before async operations
-    final navigator = Navigator.of(context);
+    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
 
     List<Map<String, String>> list = await getLanguageList();
     Map<String, dynamic>? currentLang = await currentLanguage();
@@ -242,6 +385,7 @@ class LanguageSwitcher extends StatefulWidget {
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
+      useRootNavigator: useRootNavigator,
       backgroundColor: Colors.transparent,
       builder: (BuildContext modalContext) {
         final effectiveBackgroundColor =
@@ -334,6 +478,9 @@ class LanguageSwitcher extends StatefulWidget {
                         selectedColor: effectiveSelectedColor,
                         textStyle: languageTextStyle,
                         isDark: isDark,
+                        animationStyle:
+                            animationStyle ??
+                            const LanguageSwitcherAnimationStyle(),
                         onTap: () async {
                           await NyLocalization.instance.setLanguage(
                             context,
@@ -982,6 +1129,7 @@ class LanguageSwitcher extends StatefulWidget {
 class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
   Map<String, dynamic>? selectedLanguage;
   List<Map<String, String>> languages = [];
+  bool _isOpen = false;
 
   _LanguageSwitcherState() {
     stateName = LanguageSwitcher.state;
@@ -1010,8 +1158,16 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
 
     // Modern styled popup menu
     return PopupMenuButton<String>(
-      onSelected: _onChange,
-      onOpened: widget.onTap,
+      popUpAnimationStyle: widget.animationStyle.popupAnimationStyle,
+      onSelected: (value) {
+        setState(() => _isOpen = false);
+        _onChange(value);
+      },
+      onOpened: () {
+        setState(() => _isOpen = true);
+        widget.onTap?.call();
+      },
+      onCanceled: () => setState(() => _isOpen = false),
       elevation: widget.elevation.toDouble(),
       position: PopupMenuPosition.under,
       shape: RoundedRectangleBorder(
@@ -1040,102 +1196,116 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
           value: item.key,
           height: widget.itemHeight,
           onTap: widget.dropdownOnTap,
-          child: Container(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: Row(
-              children: [
-                // Flag container
-                Container(
-                  width: 32,
-                  height: 32,
-                  decoration: BoxDecoration(
-                    color: isDark ? Colors.grey.shade800 : Colors.grey.shade100,
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Center(
-                    child: Text(itemFlag, style: const TextStyle(fontSize: 18)),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                // Language name
-                Expanded(
-                  child: Text(
-                    item.value,
-                    style:
-                        widget.textStyle ??
-                        TextStyle(
-                          fontSize: 15,
-                          fontWeight: isSelected
-                              ? FontWeight.w600
-                              : FontWeight.w500,
-                          color: isDark ? Colors.white : Colors.black87,
-                          letterSpacing: -0.2,
-                        ),
-                  ),
-                ),
-                // Selected indicator
-                if (isSelected)
+          child: _PopupContentFade(
+            fadeDuration: widget.animationStyle.popupContentFadeDuration,
+            popupDuration: widget.animationStyle.popupAnimationStyle?.duration,
+            child: Container(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Row(
+                children: [
+                  // Flag container
                   Container(
-                    width: 20,
-                    height: 20,
-                    decoration: const BoxDecoration(
-                      color: Color(0xFF34C759),
-                      shape: BoxShape.circle,
+                    width: 32,
+                    height: 32,
+                    decoration: BoxDecoration(
+                      color: isDark
+                          ? Colors.grey.shade800
+                          : Colors.grey.shade100,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
-                      Icons.check_rounded,
-                      color: Colors.white,
-                      size: 14,
+                    child: Center(
+                      child: Text(
+                        itemFlag,
+                        style: const TextStyle(fontSize: 18),
+                      ),
                     ),
                   ),
-              ],
+                  const SizedBox(width: 12),
+                  // Language name
+                  Expanded(
+                    child: Text(
+                      item.value,
+                      style:
+                          widget.textStyle ??
+                          TextStyle(
+                            fontSize: 15,
+                            fontWeight: isSelected
+                                ? FontWeight.w600
+                                : FontWeight.w500,
+                            color: isDark ? Colors.white : Colors.black87,
+                            letterSpacing: -0.2,
+                          ),
+                    ),
+                  ),
+                  // Selected indicator
+                  if (isSelected)
+                    Container(
+                      width: 20,
+                      height: 20,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFF34C759),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.check_rounded,
+                        color: Colors.white,
+                        size: 14,
+                      ),
+                    ),
+                ],
+              ),
             ),
           ),
         );
       }).toList(),
-      child: Container(
-        padding:
-            widget.padding ??
-            const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-        decoration: BoxDecoration(
-          color: isDark
-              ? Colors.grey.shade800.withValues(alpha: 0.5)
-              : Colors.grey.shade100,
-          borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-          border: Border.all(
-            color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
-            width: 1,
-          ),
-        ),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            // Flag
-            Text(flagEmoji, style: const TextStyle(fontSize: 20)),
-            const SizedBox(width: 10),
-            // Language name
-            Text(
-              selectedName,
-              style:
-                  widget.textStyle ??
-                  TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.w500,
-                    color: isDark ? Colors.white : Colors.black87,
-                    letterSpacing: -0.2,
-                  ),
+      child: AnimatedScale(
+        scale: _isOpen ? widget.animationStyle.triggerScale : 1.0,
+        duration: widget.animationStyle.triggerScaleDuration,
+        curve: widget.animationStyle.triggerScaleCurve,
+        child: Container(
+          padding:
+              widget.padding ??
+              const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+          decoration: BoxDecoration(
+            color: isDark
+                ? Colors.grey.shade800.withValues(alpha: 0.5)
+                : Colors.grey.shade100,
+            borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
+            border: Border.all(
+              color: isDark ? Colors.grey.shade700 : Colors.grey.shade300,
+              width: 1,
             ),
-            const SizedBox(width: 6),
-            // Dropdown icon
-            widget.icon ??
-                Icon(
-                  Icons.keyboard_arrow_down_rounded,
-                  size: widget.iconSize,
-                  color:
-                      widget.iconEnabledColor ??
-                      (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
-                ),
-          ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // Flag
+              Text(flagEmoji, style: const TextStyle(fontSize: 20)),
+              const SizedBox(width: 10),
+              // Language name
+              Text(
+                selectedName,
+                style:
+                    widget.textStyle ??
+                    TextStyle(
+                      fontSize: 15,
+                      fontWeight: FontWeight.w500,
+                      color: isDark ? Colors.white : Colors.black87,
+                      letterSpacing: -0.2,
+                    ),
+              ),
+              const SizedBox(width: 6),
+              // Dropdown icon
+              widget.icon ??
+                  Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    size: widget.iconSize,
+                    color:
+                        widget.iconEnabledColor ??
+                        (isDark ? Colors.grey.shade400 : Colors.grey.shade600),
+                  ),
+            ],
+          ),
         ),
       ),
     );
@@ -1227,6 +1397,7 @@ class _LanguageListItem extends StatefulWidget {
     required this.selectedColor,
     required this.isDark,
     required this.onTap,
+    required this.animationStyle,
     this.textStyle,
   });
 
@@ -1237,6 +1408,7 @@ class _LanguageListItem extends StatefulWidget {
   final Color selectedColor;
   final bool isDark;
   final Future<void> Function() onTap;
+  final LanguageSwitcherAnimationStyle animationStyle;
   final TextStyle? textStyle;
 
   @override
@@ -1254,13 +1426,16 @@ class _LanguageListItemState extends State<_LanguageListItem>
   void initState() {
     super.initState();
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 150),
+      duration: widget.animationStyle.tapScaleDuration,
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 1.0,
-      end: 0.98,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _scaleAnimation =
+        Tween<double>(begin: 1.0, end: widget.animationStyle.tapScale).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: widget.animationStyle.tapScaleCurve,
+          ),
+        );
   }
 
   @override
@@ -1304,8 +1479,8 @@ class _LanguageListItemState extends State<_LanguageListItem>
           }
         },
         child: AnimatedContainer(
-          duration: const Duration(milliseconds: 200),
-          curve: Curves.easeOutCubic,
+          duration: widget.animationStyle.transitionDuration,
+          curve: widget.animationStyle.transitionCurve,
           margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
@@ -1390,11 +1565,11 @@ class _LanguageListItemState extends State<_LanguageListItem>
               else
                 AnimatedOpacity(
                   opacity: widget.isSelected ? 1.0 : 0.0,
-                  duration: const Duration(milliseconds: 200),
+                  duration: widget.animationStyle.transitionDuration,
                   child: AnimatedScale(
                     scale: widget.isSelected ? 1.0 : 0.5,
-                    duration: const Duration(milliseconds: 200),
-                    curve: Curves.easeOutBack,
+                    duration: widget.animationStyle.transitionDuration,
+                    curve: widget.animationStyle.checkmarkCurve,
                     child: Container(
                       width: 28,
                       height: 28,
@@ -1414,6 +1589,61 @@ class _LanguageListItemState extends State<_LanguageListItem>
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Fades popup menu item content in sync with the popup route's animation.
+///
+/// On open, content fades in with a delay derived from [fadeDuration].
+/// On close, content fades out early so it is invisible before the popup
+/// surface finishes shrinking (preventing overflow artifacts).
+class _PopupContentFade extends StatelessWidget {
+  const _PopupContentFade({
+    required this.fadeDuration,
+    this.popupDuration,
+    required this.child,
+  });
+
+  final Duration fadeDuration;
+  final Duration? popupDuration;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (fadeDuration == Duration.zero) return child;
+
+    final animation = ModalRoute.of(context)?.animation;
+    if (animation == null) return child;
+
+    final totalMs =
+        (popupDuration ?? const Duration(milliseconds: 300)).inMilliseconds;
+    final fadeMs = fadeDuration.inMilliseconds;
+    final intervalStart = (1.0 - fadeMs / totalMs).clamp(0.0, 0.9);
+
+    return AnimatedBuilder(
+      animation: animation,
+      builder: (_, child) {
+        final isReversing = animation.status == AnimationStatus.reverse;
+        final double opacity;
+        if (isReversing) {
+          // Fade out quickly so content is hidden before popup fully shrinks
+          opacity = Interval(
+            0.5,
+            1.0,
+            curve: Curves.easeIn,
+          ).transform(animation.value);
+        } else {
+          // Fade in with a delay matching the popup surface appearance
+          opacity = Interval(
+            intervalStart,
+            1.0,
+            curve: Curves.easeOut,
+          ).transform(animation.value);
+        }
+        return Opacity(opacity: opacity.clamp(0.0, 1.0), child: child);
+      },
+      child: child,
     );
   }
 }

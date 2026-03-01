@@ -1,3 +1,21 @@
+## [7.7.0] - 2026-03-01
+
+### Added
+
+* **`Field.builder` constructor** - New constructor that lets developers create custom form fields inline using a builder function, without needing to subclass `NyFieldStatefulWidget`. Includes `NyFormBuilder` widget and `FormBuilderStateActions` with `clear` and `setValue` support
+* **`FormValidator.nullable()` method** - Mark a validator as nullable so that null or empty values automatically pass validation; non-empty values still have all rules applied
+* **`LanguageSwitcherAnimationStyle`** - New configuration class for controlling animations on the `LanguageSwitcher` inline popup trigger and bottom modal list items, with preset factories: `none()`, `subtle()`, `bouncy()`, and `fadeIn()`
+* **`useRootNavigator` parameter for `LanguageSwitcher.showBottomModal`** - Allows the bottom modal to be presented above all navigators when using nested navigation
+
+### Fixed
+
+* **`InputField` `autocorrect` property not forwarded** - The `autocorrect` parameter was accepted by the widget but never passed to the underlying `TextField`
+
+### Changed
+
+* Simplified `NyFormPicker` selected value layout from a `Stack` with `Positioned` widgets to a `Column`, improving readability and consistency
+* `LanguageSwitcher` inline popup now supports trigger scale animation, popup content fade-in via `_PopupContentFade`, and configurable animation durations and curves for list item transitions
+
 ## [7.6.0] - 2026-02-26
 
 ### Added
