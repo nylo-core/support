@@ -38,12 +38,33 @@ class ArgumentsWrapper {
     );
   }
 
+  /// Safely converts [value] for JSON encoding.
+  /// Returns the value as-is if it's a primitive type, otherwise falls back
+  /// to [toString()] so that non-serializable route data (e.g. model instances,
+  /// enums) won't crash [jsonEncode].
+  static dynamic _safeEncode(dynamic value) {
+    if (value == null || value is String || value is num || value is bool) {
+      return value;
+    }
+    if (value is List) {
+      return value.map(_safeEncode).toList();
+    }
+    if (value is Map) {
+      return value.map((k, v) => MapEntry(k.toString(), _safeEncode(v)));
+    }
+    try {
+      return jsonDecode(jsonEncode(value));
+    } catch (_) {
+      return value.toString();
+    }
+  }
+
   @override
   String toString() {
     return jsonEncode({
       "type": "ArgumentsWrapper",
-      'data': baseArguments?.data,
-      'queryParameters': queryParameters?.data,
+      'data': _safeEncode(baseArguments?.data),
+      'queryParameters': _safeEncode(queryParameters?.data),
       'pageTransitionType': pageTransitionType?.toString(),
       'prefix': prefix,
     });
@@ -64,11 +85,16 @@ class ArgumentsWrapper {
   Map<String, dynamic> toMap() {
     return {
       'type': 'ArgumentsWrapper',
-      'data': baseArguments?.data,
-      'queryParameters': queryParameters?.data,
+      'data': _safeEncode(baseArguments?.data),
+      'queryParameters': _safeEncode(queryParameters?.data),
       'prefix': prefix,
       'pageTransitionType': pageTransitionType?.toString(),
       'transitionType': transitionType?.pageTransitionType?.toString(),
     };
   }
+
+  /// Converts to a JSON-serializable map.
+  /// Required by Flutter's [NavigatorState] which calls [jsonEncode] on route
+  /// arguments during state restoration and post-navigation logging.
+  Map<String, dynamic> toJson() => toMap();
 }

@@ -1,3 +1,10 @@
+## [7.7.1] - 2026-03-02
+
+### Fixed
+
+* **`ArgumentsWrapper` JSON serialization crash** - Route arguments containing non-serializable objects (e.g. model instances, enums) would throw a `JsonUnsupportedObjectError` when Flutter's `NavigatorState` called `jsonEncode` during state restoration or post-navigation logging. A new `_safeEncode()` helper now recursively converts non-primitive values to safe representations before encoding
+* **Missing `toJson()` on `ArgumentsWrapper`** - Added `toJson()` method required by Flutter's `NavigatorState` for JSON encoding route arguments
+
 ## [7.7.0] - 2026-03-01
 
 ### Added
