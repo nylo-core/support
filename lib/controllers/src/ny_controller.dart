@@ -29,9 +29,9 @@ class NyController extends BaseController {
   }
 
   /// Pop the page
-  void pop({dynamic result}) {
+  void pop({dynamic result, bool rootNavigator = false}) {
     if (state == null) return;
-    StateAction.pop(state!, result: result);
+    StateAction.pop(state!, result: result, rootNavigator: rootNavigator);
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you

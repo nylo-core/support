@@ -151,11 +151,8 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
       case 'pop':
         {
           dynamic result = stateData['result'];
-          if (result != null) {
-            pop(result: result);
-            return;
-          }
-          pop();
+          bool rootNavigator = stateData['rootNavigator'] ?? false;
+          pop(result: result, rootNavigator: rootNavigator);
           break;
         }
       case 'toast-success':
@@ -391,9 +388,9 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Pop the current widget from the stack.
-  void pop({dynamic result}) {
+  void pop({dynamic result, bool rootNavigator = false}) {
     if (!mounted) return;
-    Navigator.of(context).pop(result);
+    Navigator.of(context, rootNavigator: rootNavigator).pop(result);
   }
 
   /// Show a toast notification.

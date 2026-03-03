@@ -1,3 +1,11 @@
+## [7.8.0] - 2026-03-03
+
+### Added
+
+* **`NavigationHubStateActions.refreshTab()`** - Refresh a specific tab by index, forcing it to rebuild with a new `UniqueKey`
+* **`NavigationHubStateActions.refresh()`** - Refresh all tabs in the navigation hub, forcing them all to rebuild
+* **`rootNavigator` parameter for `pop()`** - Added `rootNavigator` option to `NyBaseState.pop()`, `NyController.pop()`, `StateAction.pop()`, and `BuildContext.pop()` to support popping from the root navigator when using nested navigation
+
 ## [7.7.1] - 2026-03-02
 
 ### Fixed

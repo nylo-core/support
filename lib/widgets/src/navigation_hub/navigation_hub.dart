@@ -116,6 +116,17 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
           Backpack.instance.save('${stateName}_current_tab', index);
           break;
         }
+      case 'refresh-tab':
+        {
+          int index = data['tab-index'];
+          navigatorKeys[index] = UniqueKey();
+          break;
+        }
+      case 'refresh':
+        {
+          navigatorKeys.updateAll((key, value) => UniqueKey());
+          break;
+        }
       default:
         {}
     }
@@ -876,6 +887,18 @@ class NavigationHubStateActions extends StateActions {
   /// Disable the alert for the [tab]
   void alertDisableTab({required int tab}) {
     updateState(_navigationTabStateName(tab), data: {"action": "disable"});
+  }
+
+  /// Refresh a specific tab, forcing it to rebuild
+  /// E.g. MyNavigationHub.refreshTab(0);
+  void refreshTab(int tabIndex) {
+    updateState(state, data: {"action": "refresh-tab", "tab-index": tabIndex});
+  }
+
+  /// Refresh all tabs, forcing them to rebuild
+  /// E.g. MyNavigationHub.refresh();
+  void refresh() {
+    updateState(state, data: {"action": "refresh"});
   }
 
   /// Navigate to the next page in a journey layout

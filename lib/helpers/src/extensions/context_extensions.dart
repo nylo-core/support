@@ -34,8 +34,8 @@ extension NyContextExt on BuildContext {
   }
 
   /// Pop the current page
-  void pop<T extends Object?>({T? result}) {
-    Navigator.of(this).pop(result);
+  void pop<T extends Object?>({T? result, bool rootNavigator = false}) {
+    Navigator.of(this, rootNavigator: rootNavigator).pop(result);
   }
 
   /// Get the width of the screen

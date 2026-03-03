@@ -26,8 +26,11 @@ class StateAction {
   }
 
   /// Pop the page
-  static void pop(dynamic state, {dynamic result}) {
-    _updateState(_findStateName(state), "pop", {"setState": result});
+  static void pop(dynamic state, {dynamic result, bool rootNavigator = false}) {
+    _updateState(_findStateName(state), "pop", {
+      "result": result,
+      "rootNavigator": rootNavigator,
+    });
   }
 
   /// Displays a Toast message containing "Sorry" for the title, you

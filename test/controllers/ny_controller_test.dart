@@ -111,6 +111,27 @@ void main() {
 
         expect(mockEventBus.firedEvents, isEmpty);
       });
+
+      nyTest('passes rootNavigator through event data', () async {
+        final controller = TestNyController();
+        controller.state = 'PopPageState';
+
+        controller.pop(rootNavigator: true);
+
+        final event = mockEventBus.firedEvents.first as UpdateState;
+        expect(event.data['action'], 'pop');
+        expect(event.data['data']['rootNavigator'], true);
+      });
+
+      nyTest('defaults rootNavigator to false in event data', () async {
+        final controller = TestNyController();
+        controller.state = 'PopPageState';
+
+        controller.pop();
+
+        final event = mockEventBus.firedEvents.first as UpdateState;
+        expect(event.data['data']['rootNavigator'], false);
+      });
     });
 
     nyGroup('setState()', () {
