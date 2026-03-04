@@ -86,13 +86,19 @@ class NyController extends BaseController {
 
   /// Display a custom Toast message.
   /// Use [id] to specify a custom toast style registered via [Nylo.addToastNotifications].
-  void showToastCustom({String? title, String? description, String? id}) {
+  void showToastCustom({
+    String? title,
+    String? description,
+    String? id,
+    Map<String, dynamic>? data,
+  }) {
     if (state == null) return;
     StateAction.showToastCustom(
       state!,
       title: title,
       description: description ?? '',
       id: id,
+      data: data,
     );
   }
 

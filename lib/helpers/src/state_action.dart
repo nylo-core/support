@@ -118,11 +118,13 @@ class StateAction {
     String? title,
     required String description,
     String? id,
+    Map<String, dynamic>? data,
   }) {
     _updateState(_findStateName(state), "toast-custom", {
       "title": title ?? "",
       "description": description,
       "id": id,
+      "data": data,
     });
   }
 
