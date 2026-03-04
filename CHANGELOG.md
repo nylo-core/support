@@ -1,3 +1,9 @@
+## [7.8.1] - 2026-03-04
+
+### Changed
+
+* Updated dependency constraints: `dio` ^5.9.2, `skeletonizer` ^2.1.3, `error_stack` ^2.0.1, `flutter_local_notifications` ^21.0.0-dev.2, `timezone` ^0.11.0, `app_badge_plus` ^1.2.7, `uuid` ^4.5.3, `characters` ^1.4.1, `ffi` ^2.2.0, `patrol` ^4.1.1
+
 ## [7.8.0] - 2026-03-03
 
 ### Added
