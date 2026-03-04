@@ -209,6 +209,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
             title: stateData['title'],
             description: stateData['description'],
             id: stateData['id'],
+            data: stateData['data'] is Map<String, dynamic> ? stateData['data'] : null,
           );
           break;
         }
@@ -401,6 +402,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     String? title,
     String? description,
     Duration? duration,
+    Map<String, dynamic>? data,
   }) {
     if (!mounted) return;
     showToastNotification(
@@ -409,6 +411,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
       title: title,
       description: description,
       duration: duration,
+      data: data,
     );
   }
 
@@ -449,11 +452,17 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Display a custom Toast message.
-  void showToastCustom({String? title, String? description, String? id}) {
+  void showToastCustom({
+    String? title,
+    String? description,
+    String? id,
+    Map<String, dynamic>? data,
+  }) {
     showToast(
       title: title,
       description: description ?? "",
       id: id ?? 'success',
+      data: data,
     );
   }
 
