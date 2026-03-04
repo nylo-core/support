@@ -149,7 +149,7 @@ void main() {
           final registry = ToastNotificationRegistry.instance;
 
           // Registry is empty
-          expect(registry.styles, isEmpty);
+          expect(registry.styleIds, isEmpty);
 
           // get returns null when no success fallback
           final factory = registry.get('nonexistent');
@@ -409,6 +409,119 @@ void main() {
         final meta = ToastMeta(duration: const Duration(hours: 24));
 
         expect(meta.duration, const Duration(hours: 24));
+      });
+    });
+
+    nyGroup('data factory support', () {
+      nyTest('registerWithData stores a ToastStyleDataFactory', () async {
+        final registry = ToastNotificationRegistry.instance;
+
+        registry.registerWithData('custom_data', (Map<String, dynamic> data) {
+          return (ToastMeta meta, void Function(ToastMeta) update) {
+            return Text(data['message'] ?? 'default');
+          };
+        });
+
+        expect(registry.has('custom_data'), isTrue);
+      });
+
+      nyTest('resolve calls data factory with provided data', () async {
+        final registry = ToastNotificationRegistry.instance;
+        Map<String, dynamic>? receivedData;
+
+        registry.registerWithData('data_toast', (Map<String, dynamic> data) {
+          receivedData = data;
+          return (ToastMeta meta, void Function(ToastMeta) update) {
+            return const SizedBox();
+          };
+        });
+
+        final factory = registry.resolve('data_toast', {'name': 'Alice'});
+        expect(factory, isNotNull);
+        expect(receivedData, {'name': 'Alice'});
+      });
+
+      nyTest('resolve works with old-style ToastStyleFactory (backward compat)', () async {
+        final registry = ToastNotificationRegistry.instance;
+        var factoryCalled = false;
+
+        registry.register('old_style', (ToastMeta meta, void Function(ToastMeta) update) {
+          factoryCalled = true;
+          return const SizedBox();
+        });
+
+        final factory = registry.resolve('old_style', {'ignored': true});
+        expect(factory, isNotNull);
+
+        factory!(ToastMeta(title: 'Test'), (updated) {});
+        expect(factoryCalled, isTrue);
+      });
+
+      nyTest('registerAll accepts mix of old and new style factories', () async {
+        final registry = ToastNotificationRegistry.instance;
+
+        ToastStyleFactory oldFactory = (ToastMeta meta, void Function(ToastMeta) update) {
+          return const Text('old');
+        };
+
+        ToastStyleDataFactory newFactory = (Map<String, dynamic> data) {
+          return (ToastMeta meta, void Function(ToastMeta) update) {
+            return Text(data['label'] ?? 'new');
+          };
+        };
+
+        registry.registerAll({
+          'old': oldFactory,
+          'new': newFactory,
+        });
+
+        expect(registry.has('old'), isTrue);
+        expect(registry.has('new'), isTrue);
+
+        // Both should resolve
+        final resolvedOld = registry.resolve('old', {});
+        final resolvedNew = registry.resolve('new', {'label': 'hello'});
+        expect(resolvedOld, isNotNull);
+        expect(resolvedNew, isNotNull);
+      });
+
+      nyTest('resolve returns null when no styles registered', () async {
+        final registry = ToastNotificationRegistry.instance;
+        final factory = registry.resolve('nonexistent', {});
+        expect(factory, isNull);
+      });
+
+      nyTest('resolve falls back to success style for unknown id', () async {
+        final registry = ToastNotificationRegistry.instance;
+
+        registry.register('success', (ToastMeta meta, void Function(ToastMeta) update) {
+          return const Text('Success');
+        });
+
+        final factory = registry.resolve('unknown', {});
+        expect(factory, isNotNull);
+      });
+
+      nyTest('data map with title and description keys is passed through', () async {
+        final registry = ToastNotificationRegistry.instance;
+        Map<String, dynamic>? receivedData;
+
+        registry.registerWithData('follower', (Map<String, dynamic> data) {
+          receivedData = data;
+          return (ToastMeta meta, void Function(ToastMeta) update) {
+            return const SizedBox();
+          };
+        });
+
+        registry.resolve('follower', {
+          'title': 'New Follower',
+          'description': 'Kanye followed you',
+          'avatar': 'https://example.com/avatar.png',
+        });
+
+        expect(receivedData!['title'], 'New Follower');
+        expect(receivedData!['description'], 'Kanye followed you');
+        expect(receivedData!['avatar'], 'https://example.com/avatar.png');
       });
     });
   });

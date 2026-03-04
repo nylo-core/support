@@ -354,6 +354,11 @@ enum ToastNotificationPosition { top, bottom, center }
 typedef ToastStyleFactory =
     Widget Function(ToastMeta meta, void Function(ToastMeta) updateMeta);
 
+/// Typedef for a data-aware toast style factory.
+/// Receives a [data] map and returns a [ToastStyleFactory].
+/// This allows toast styles to use dynamic data passed at call time.
+typedef ToastStyleDataFactory = ToastStyleFactory Function(Map<String, dynamic> data);
+
 /// Toast Meta makes it easy to use pre-defined styles in the toast alert.
 class ToastMeta {
   /// Icon widget displayed in the toast notification.
@@ -534,27 +539,53 @@ class ToastMeta {
 /// Registry for toast notification styles.
 /// Stores widget factories keyed by string IDs (e.g., "success", "warning").
 /// Use [ToastNotificationRegistry.register] to add custom toast styles.
+///
+/// Supports both static [ToastStyleFactory] styles and data-aware
+/// [ToastStyleDataFactory] styles that receive data at call time.
 class ToastNotificationRegistry {
   ToastNotificationRegistry._();
 
   static final ToastNotificationRegistry instance =
       ToastNotificationRegistry._();
 
-  final Map<String, ToastStyleFactory> _styles = {};
+  final Map<String, ToastStyleDataFactory> _styles = {};
 
   /// Register a single toast style with the given [id].
+  /// The factory is wrapped to ignore data (backward compatible).
   void register(String id, ToastStyleFactory factory) {
+    _styles[id] = (_) => factory;
+  }
+
+  /// Register a data-aware toast style with the given [id].
+  /// The factory receives a [Map<String, dynamic>] data map at call time.
+  void registerWithData(String id, ToastStyleDataFactory factory) {
     _styles[id] = factory;
   }
 
   /// Register multiple toast styles at once.
-  void registerAll(Map<String, ToastStyleFactory> styles) {
-    _styles.addAll(styles);
+  /// Accepts both [ToastStyleFactory] and [ToastStyleDataFactory] values.
+  void registerAll(Map<String, dynamic> styles) {
+    for (final entry in styles.entries) {
+      final value = entry.value;
+      if (value is ToastStyleDataFactory) {
+        _styles[entry.key] = value;
+      } else if (value is ToastStyleFactory) {
+        _styles[entry.key] = (_) => value;
+      }
+    }
   }
 
-  /// Get a toast widget factory by [id].
-  /// Returns the "success" factory with a debug warning if [id] is not found.
-  ToastStyleFactory? get(String id) {
+  /// Resolve a toast style by [id], passing [data] to data-aware factories.
+  /// Returns the [ToastStyleFactory] ready to build the widget,
+  /// or the "success" factory with a debug warning if [id] is not found.
+  ToastStyleFactory? resolve(String id, Map<String, dynamic> data) {
+    final dataFactory = _get(id);
+    if (dataFactory == null) return null;
+    return dataFactory(data);
+  }
+
+  /// Internal lookup by [id] with fallback to "success".
+  ToastStyleDataFactory? _get(String id) {
     if (_styles.containsKey(id)) {
       return _styles[id];
     }
@@ -568,11 +599,18 @@ class ToastNotificationRegistry {
     return _styles['success'];
   }
 
+  /// Get a toast widget factory by [id].
+  /// Returns the "success" factory with a debug warning if [id] is not found.
+  /// Prefer [resolve] for data-aware factory support.
+  ToastStyleFactory? get(String id) {
+    return resolve(id, {});
+  }
+
   /// Check if a toast style with [id] exists.
   bool has(String id) => _styles.containsKey(id);
 
-  /// Get all registered toast styles.
-  Map<String, ToastStyleFactory> get styles => Map.unmodifiable(_styles);
+  /// Get all registered toast style IDs.
+  Set<String> get styleIds => _styles.keys.toSet();
 
   /// Clear all registered styles (useful for testing).
   void clear() => _styles.clear();

@@ -196,7 +196,7 @@ void main() {
         expect(registry.has('three'), isFalse);
       });
 
-      nyTest('styles map is empty after clear', () async {
+      nyTest('styleIds is empty after clear', () async {
         final registry = ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
@@ -206,27 +206,12 @@ void main() {
         registry.register('test', factory);
         registry.clear();
 
-        expect(registry.styles, isEmpty);
+        expect(registry.styleIds, isEmpty);
       });
     });
 
-    nyGroup('styles getter', () {
-      nyTest('returns unmodifiable map', () async {
-        final registry = ToastNotificationRegistry.instance;
-
-        Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
-          return const SizedBox();
-        }
-
-        registry.register('test', factory);
-
-        final styles = registry.styles;
-
-        // Attempting to modify should throw
-        expect(() => styles['new'] = factory, throwsUnsupportedError);
-      });
-
-      nyTest('returns all registered styles', () async {
+    nyGroup('styleIds getter', () {
+      nyTest('returns all registered style IDs', () async {
         final registry = ToastNotificationRegistry.instance;
 
         Widget factory1(ToastMeta meta, void Function(ToastMeta) update) {
@@ -240,17 +225,17 @@ void main() {
         registry.register('style1', factory1);
         registry.register('style2', factory2);
 
-        final styles = registry.styles;
+        final ids = registry.styleIds;
 
-        expect(styles.length, 2);
-        expect(styles.containsKey('style1'), isTrue);
-        expect(styles.containsKey('style2'), isTrue);
+        expect(ids.length, 2);
+        expect(ids.contains('style1'), isTrue);
+        expect(ids.contains('style2'), isTrue);
       });
 
-      nyTest('returns empty map when no styles registered', () async {
+      nyTest('returns empty set when no styles registered', () async {
         final registry = ToastNotificationRegistry.instance;
 
-        expect(registry.styles, isEmpty);
+        expect(registry.styleIds, isEmpty);
       });
     });
 
