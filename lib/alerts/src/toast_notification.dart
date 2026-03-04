@@ -68,6 +68,10 @@ StyledToastAnimation _toStyledAnimationFromType(ToastAnimationType type) {
 /// or a custom ID registered via [Nylo.addToastNotifications].
 /// Set a [title] and [description] to personalize the message.
 ///
+/// Pass [data] to provide custom key-value pairs to data-aware toast styles.
+/// If [title] or [description] are also provided, they take priority over
+/// matching keys in the [data] map.
+///
 /// Optional callbacks:
 /// - [action] - Called when the toast is tapped
 /// - [onDismiss] - Called when the toast is dismissed (auto or manual)
@@ -76,15 +80,14 @@ StyledToastAnimation _toStyledAnimationFromType(ToastAnimationType type) {
 /// Example:
 /// ```dart
 /// showToastNotification(context, id: "success", description: "Item saved!");
-/// showToastNotification(context, id: "customToast", title: "Hello");
-/// showToastNotification(context, id: "info", position: ToastNotificationPosition.bottom);
-/// showToastNotification(context, id: "warning", onDismiss: () => print("Dismissed!"));
+/// showToastNotification(context, id: "new_follower", data: {'name': 'Alice', 'avatar': '...'});
 /// ```
 void showToastNotification(
   BuildContext context, {
   String id = 'success',
   String? title,
   String? description,
+  Map<String, dynamic>? data,
   Duration? duration,
   ToastNotificationPosition? position,
   ToastAnimation? animation,
@@ -93,6 +96,13 @@ void showToastNotification(
   VoidCallback? onShow,
 }) {
   final registry = ToastNotificationRegistry.instance;
+
+  // Merge data map with title/description (explicit params win)
+  final mergedData = <String, dynamic>{
+    if (data != null) ...data,
+    if (title != null) 'title': title,
+    if (description != null) 'description': description,
+  };
 
   // Create base ToastMeta with user-provided overrides
   ToastMeta toastMeta = ToastMeta(
@@ -104,13 +114,14 @@ void showToastNotification(
     action: action,
     onDismiss: onDismiss,
     onShow: onShow,
+    metaData: mergedData.isEmpty ? null : mergedData,
     dismiss: () {
       ToastManager().dismissAll(showAnim: true);
     },
   );
 
   // Look up the widget factory from the registry
-  final factory = registry.get(id);
+  final factory = registry.resolve(id, mergedData);
 
   Widget toastWidget;
   if (factory != null) {
