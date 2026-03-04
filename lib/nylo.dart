@@ -317,25 +317,24 @@ class Nylo {
 
   /// Add toast notification styles to the registry.
   /// Pass a map of style IDs to widget factory functions.
+  /// Accepts both [ToastStyleFactory] (static) and [ToastStyleDataFactory] (data-aware) values.
   ///
   /// Example:
   /// ```dart
-  /// nylo.addToastNotifications(ToastNotification.styles);
-  /// ```
-  ///
-  /// To add custom styles:
-  /// ```dart
   /// nylo.addToastNotifications({
-  ///   ...ToastNotification.styles,
-  ///   'custom': ToastNotification.style(
-  ///     icon: Icon(Icons.star, color: Colors.purple, size: 20),
-  ///     color: Colors.purple.shade50,
-  ///     defaultTitle: 'Custom!',
-  ///     position: ToastNotificationPosition.bottom,
+  ///   'success': ToastNotification.style(
+  ///     icon: Icon(Icons.check, color: Colors.green, size: 20),
+  ///     color: Colors.green.shade50,
+  ///     defaultTitle: 'Success',
+  ///   ),
+  ///   'new_follower': (data) => ToastNotification.style(
+  ///     icon: CircleAvatar(backgroundImage: NetworkImage(data['avatar'])),
+  ///     color: Colors.white,
+  ///     defaultTitle: "${data['name']} followed you",
   ///   ),
   /// });
   /// ```
-  void addToastNotifications(Map<String, ToastStyleFactory> styles) {
+  void addToastNotifications(Map<String, dynamic> styles) {
     ToastNotificationRegistry.instance.registerAll(styles);
   }
 
@@ -987,7 +986,7 @@ class Nylo {
     String? initialThemeId,
 
     // Notifications
-    Map<String, ToastStyleFactory>? toastNotifications,
+    Map<String, dynamic>? toastNotifications,
 
     // Decoders & Controllers
     Map<Type, dynamic>? modelDecoders,
