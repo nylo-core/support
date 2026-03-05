@@ -141,8 +141,8 @@ Future<dynamic> nyApi<T>({
   String? baseUrl,
   int? page,
   int? perPage,
-  String queryParamPage = "page",
-  String? queryParamPerPage,
+  String paramPage = "page",
+  String? paramPerPage,
   int retry = 0,
   Duration? retryDelay,
   bool Function(DioException dioException)? retryIf,
@@ -185,8 +185,8 @@ Future<dynamic> nyApi<T>({
   if (page != null) {
     apiService.setPagination(
       page,
-      paramPage: queryParamPage,
-      paramPerPage: queryParamPerPage,
+      paramPage: paramPage,
+      paramPerPage: paramPerPage,
       perPage: perPage,
     );
   }
@@ -330,8 +330,8 @@ Future api<T extends NyApiService>(
   String? bearerToken,
   String? baseUrl,
   int? page,
-  String? queryNamePage,
-  String? queryNamePerPage,
+  String? paramPage,
+  String? paramPerPage,
   int? perPage,
   int retry = 0,
   Duration? retryDelay,
@@ -351,8 +351,8 @@ Future api<T extends NyApiService>(
   events: events,
   page: page,
   perPage: perPage,
-  queryParamPage: queryNamePage ?? "page",
-  queryParamPerPage: queryNamePerPage,
+  paramPage: paramPage ?? "page",
+  paramPerPage: paramPerPage,
   retry: retry,
   retryDelay: retryDelay,
   retryIf: retryIf,

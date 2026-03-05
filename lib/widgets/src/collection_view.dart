@@ -137,6 +137,7 @@ class CollectionView<T> extends StatefulWidget {
 
   // Pullable-specific fields
   final bool isPullable;
+  final bool enablePullDown;
   final Function()? onRefresh;
   final Function()? beforeRefresh;
   final Function(dynamic data)? afterRefresh;
@@ -182,6 +183,7 @@ class CollectionView<T> extends StatefulWidget {
        mainAxisSpacing = null,
        crossAxisSpacing = null,
        isPullable = false,
+       enablePullDown = true,
        paginatedData = null,
        onRefresh = null,
        beforeRefresh = null,
@@ -226,6 +228,7 @@ class CollectionView<T> extends StatefulWidget {
        mainAxisSpacing = null,
        crossAxisSpacing = null,
        isPullable = false,
+       enablePullDown = true,
        paginatedData = null,
        onRefresh = null,
        beforeRefresh = null,
@@ -270,6 +273,7 @@ class CollectionView<T> extends StatefulWidget {
   }) : kind = CollectionViewKind.grid,
        separatorBuilder = null,
        isPullable = false,
+       enablePullDown = true,
        paginatedData = null,
        onRefresh = null,
        beforeRefresh = null,
@@ -293,6 +297,7 @@ class CollectionView<T> extends StatefulWidget {
     super.key,
     required this.builder,
     required Function(int iteration) data,
+    this.enablePullDown = true,
     this.onRefresh,
     this.beforeRefresh,
     this.afterRefresh,
@@ -348,6 +353,7 @@ class CollectionView<T> extends StatefulWidget {
     required this.builder,
     required Function(int iteration) data,
     required this.separatorBuilder,
+    this.enablePullDown = true,
     this.onRefresh,
     this.beforeRefresh,
     this.afterRefresh,
@@ -404,6 +410,7 @@ class CollectionView<T> extends StatefulWidget {
     this.crossAxisCount = 2,
     this.mainAxisSpacing = 0,
     this.crossAxisSpacing = 0,
+    this.enablePullDown = true,
     this.onRefresh,
     this.beforeRefresh,
     this.afterRefresh,
@@ -760,19 +767,19 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       }
 
       return SmartRefresher(
-        enablePullDown: true,
+        enablePullDown: widget.enablePullDown,
         enablePullUp: false,
         header: _headerType(),
         footer: _buildFooter(loadingWidget),
         controller: _refreshController,
-        onRefresh: _onRefresh,
+        onRefresh: widget.enablePullDown ? _onRefresh : null,
         onLoading: null,
         child: emptyChild,
       );
     }
 
     return SmartRefresher(
-      enablePullDown: true,
+      enablePullDown: widget.enablePullDown,
       enablePullUp: true,
       header: _headerType(),
       footer: _buildFooter(loadingWidget),

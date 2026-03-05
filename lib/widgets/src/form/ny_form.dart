@@ -146,17 +146,19 @@ abstract class NyFormWidget extends StatefulWidget {
 
   /// Set field in the form
   static void stateSetValue(String stateName, String key, dynamic value) {
-    updateState(
-      state(stateName),
-      data: {"action": "setValue", "key": key, "value": value},
+    stateAction(
+      "setValue",
+      state: state(stateName),
+      data: {"key": key, "value": value},
     );
   }
 
   /// Set field options in the form
   static void stateSetOptions(String stateName, String key, dynamic value) {
-    updateState(
-      state(stateName),
-      data: {"action": "setOptions", "key": key, "value": value},
+    stateAction(
+      "setOptions",
+      state: state(stateName),
+      data: {"key": key, "value": value},
     );
   }
 
@@ -179,7 +181,7 @@ abstract class NyFormWidget extends StatefulWidget {
   }) {
     stateAction(
       "submit",
-      state: name,
+      state: state(name),
       data: {
         "onSuccess": onSuccess,
         "onFailure": onFailure,
@@ -465,9 +467,10 @@ class NyFormActions {
       NyFormWidget.stateSetValue(formName, key, value);
 
   /// Clear a specific field in the form
-  void clearField(String key) => updateState(
-    NyFormWidget.state(formName),
-    data: {"action": "clearField", "key": key},
+  void clearField(String key) => stateAction(
+    "clearField",
+    state: NyFormWidget.state(formName),
+    data: {"key": key},
   );
 
   /// Clear all form data

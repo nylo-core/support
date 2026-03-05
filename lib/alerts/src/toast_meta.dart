@@ -357,7 +357,8 @@ typedef ToastStyleFactory =
 /// Typedef for a data-aware toast style factory.
 /// Receives a [data] map and returns a [ToastStyleFactory].
 /// This allows toast styles to use dynamic data passed at call time.
-typedef ToastStyleDataFactory = ToastStyleFactory Function(Map<String, dynamic> data);
+typedef ToastStyleDataFactory =
+    ToastStyleFactory Function(Map<String, dynamic> data);
 
 /// Toast Meta makes it easy to use pre-defined styles in the toast alert.
 class ToastMeta {

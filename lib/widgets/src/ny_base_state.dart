@@ -209,7 +209,9 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
             title: stateData['title'],
             description: stateData['description'],
             id: stateData['id'],
-            data: stateData['data'] is Map<String, dynamic> ? stateData['data'] : null,
+            data: stateData['data'] is Map<String, dynamic>
+                ? stateData['data']
+                : null,
           );
           break;
         }

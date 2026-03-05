@@ -1,3 +1,17 @@
+## [7.9.0] - 2026-03-05
+
+### Added
+
+* **Data-aware toast notification styles** - Toast styles can now receive dynamic data at call time via a new `ToastStyleDataFactory` typedef. Register data-aware styles with `registerWithData()` or pass both static and data-aware factories to `registerAll()` and `addToastNotifications()`
+* **`data` parameter for toast helpers** - Added optional `data` parameter to `showToastNotification()`, `NyBaseState.showToast()`, `NyBaseState.showToastCustom()`, `NyController.showToastCustom()`, and `StateAction.showToastCustom()` to pass custom key-value pairs to data-aware toast styles
+* **`ToastNotificationRegistry.resolve()`** - New method that resolves a toast style by ID and passes data to data-aware factories, replacing direct `get()` calls internally
+* **`enablePullDown` parameter for `CollectionView`** - Added `enablePullDown` option to all `CollectionView` constructors (`.list`, `.separated`, `.grid`, `.pullable`, `.pullableSeparated`, `.pullableGrid`) to control whether pull-to-refresh is enabled
+
+### Changed
+
+* **Renamed API pagination parameters** - `queryParamPage` renamed to `paramPage` and `queryParamPerPage`/`queryNamePerPage` renamed to `paramPerPage` in `nyApi()` and `api()` helpers for consistency
+* **`NyFormWidget` state methods use `stateAction()`** - Refactored `stateSetValue()`, `stateSetOptions()`, `clearField()`, and `submit()` to use `stateAction()` instead of `updateState()` for cleaner form state management
+
 ## [7.8.1] - 2026-03-04
 
 ### Changed
