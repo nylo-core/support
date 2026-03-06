@@ -88,7 +88,7 @@ class _ButtonStateState extends NyState<ButtonState> {
         );
         late String formId;
         if (widget.onSubmit!.$2!.$1 is NyFormData) {
-          formId = (widget.onSubmit!.$2!.$1 as NyFormData).stateName;
+          formId = (widget.onSubmit!.$2!.$1 as NyFormData).name!;
         } else {
           formId = widget.onSubmit!.$2!.$1 as String;
         }

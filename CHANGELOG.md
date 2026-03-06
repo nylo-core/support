@@ -1,3 +1,9 @@
+## [7.9.1] - 2026-03-06
+
+### Fixed
+
+* **Form submit button not calling `onSubmit`** - Fixed `ButtonState` passing `NyFormData.stateName` (already prefixed with `form_`) to `NyFormWidget.submit()`, which added the prefix again resulting in `form_form_FormName`. Now correctly passes `NyFormData.name` so the state name resolves properly
+
 ## [7.9.0] - 2026-03-05
 
 ### Added
