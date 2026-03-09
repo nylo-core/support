@@ -304,6 +304,7 @@ class FieldStyleTextField extends FieldStyle {
     this.filled = false,
     this.isDense = false,
     this.suffixIcon,
+    this.enableInteractiveSelection = true,
   }) : decoration = decoration;
 
   final String? labelText;
@@ -381,6 +382,7 @@ class FieldStyleTextField extends FieldStyle {
   final Color? fillColor;
   final bool? isDense;
   final Widget? suffixIcon;
+  final bool enableInteractiveSelection;
 
   static FieldStyleTextField base() {
     return FieldStyleTextField(
@@ -550,20 +552,19 @@ class FieldStyleTextField extends FieldStyle {
     int? maxLength,
     MouseCursor? mouseCursor,
     String? validationErrorMessage,
-    TextCapitalization textCapitalization = TextCapitalization.none,
+    TextCapitalization? textCapitalization,
     MaxLengthEnforcement? maxLengthEnforcement,
     AppPrivateCommandCallback? onAppPrivateCommand,
-    List<TextInputFormatter>? inputFormatters = const [],
-    bool? enabled = true,
-    double cursorWidth = 2.0,
-    double? cursorHeight = 20.0, // Default height if not provided
+    List<TextInputFormatter>? inputFormatters,
+    bool? enabled,
+    double? cursorWidth,
+    double? cursorHeight,
     Radius? cursorRadius,
     Color? cursorColor,
-    Brightness? keyboardAppearance = Brightness.light, // Default appearance
+    Brightness? keyboardAppearance,
     EdgeInsets? scrollPadding,
-    TextSelectionControls? selectionControls = null, // Default to null
-    DragStartBehavior dragStartBehavior =
-        DragStartBehavior.start, // Default behavior
+    TextSelectionControls? selectionControls,
+    DragStartBehavior? dragStartBehavior,
     GestureTapCallback? onTap,
     TapRegionCallback? onTapOutside,
     InputDecoration? decoration,
@@ -572,7 +573,8 @@ class FieldStyleTextField extends FieldStyle {
     ScrollController? scrollController,
     ScrollPhysics? scrollPhysics,
     Iterable<String>? autofillHints,
-    Clip? clipBehavior = Clip.hardEdge, // Default to hard edge clipping
+    Clip? clipBehavior,
+    bool? enableInteractiveSelection,
     Function(FormValidationResponse handleError)? handleValidationError,
     bool? passwordVisible,
     String? type,
@@ -633,20 +635,19 @@ class FieldStyleTextField extends FieldStyle {
       mouseCursor: mouseCursor ?? this.mouseCursor,
       validationErrorMessage:
           validationErrorMessage ?? this.validationErrorMessage,
-      textCapitalization: textCapitalization,
-      maxLengthEnforcement:
-          maxLengthEnforcement ?? MaxLengthEnforcement.enforced,
-      onAppPrivateCommand: onAppPrivateCommand,
-      inputFormatters: inputFormatters,
+      textCapitalization: textCapitalization ?? this.textCapitalization,
+      maxLengthEnforcement: maxLengthEnforcement ?? this.maxLengthEnforcement,
+      onAppPrivateCommand: onAppPrivateCommand ?? this.onAppPrivateCommand,
+      inputFormatters: inputFormatters ?? this.inputFormatters,
       enabled: enabled ?? this.enabled,
-      cursorWidth: cursorWidth,
+      cursorWidth: cursorWidth ?? this.cursorWidth,
       cursorHeight: cursorHeight ?? this.cursorHeight,
       cursorRadius: cursorRadius ?? this.cursorRadius,
       cursorColor: cursorColor ?? this.cursorColor,
       keyboardAppearance: keyboardAppearance ?? this.keyboardAppearance,
       scrollPadding: scrollPadding ?? this.scrollPadding,
       selectionControls: selectionControls ?? this.selectionControls,
-      dragStartBehavior: dragStartBehavior,
+      dragStartBehavior: dragStartBehavior ?? this.dragStartBehavior,
       onTap: onTap ?? this.onTap,
       onTapOutside: onTapOutside ?? this.onTapOutside,
       decoration: decoration ?? this.decoration,
@@ -656,6 +657,8 @@ class FieldStyleTextField extends FieldStyle {
       scrollPhysics: scrollPhysics ?? this.scrollPhysics,
       autofillHints: autofillHints ?? this.autofillHints,
       clipBehavior: clipBehavior ?? this.clipBehavior,
+      enableInteractiveSelection:
+          enableInteractiveSelection ?? this.enableInteractiveSelection,
       passwordVisible: passwordVisible ?? this.passwordVisible,
       prefixIcon: prefixIcon ?? this.prefixIcon,
       backgroundColor: backgroundColor ?? this.backgroundColor,

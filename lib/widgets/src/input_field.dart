@@ -79,6 +79,7 @@ class InputField extends StatefulWidget {
   final String? maskMatch;
   final bool? maskedReturnValue;
   final DecoratorTextField? decorator;
+  final bool enableInteractiveSelection;
   final Field? field;
   final String? stateName;
 
@@ -159,6 +160,7 @@ class InputField extends StatefulWidget {
     this.decorator,
     this.field,
     this.stateName,
+    this.enableInteractiveSelection = true,
   });
 
   /// CapitalizeWords Text Field - auto-capitalizes each word
@@ -236,6 +238,7 @@ class InputField extends StatefulWidget {
     String? stateName,
     bool? passwordVisible,
     bool? passwordViewable,
+    bool enableInteractiveSelection = true,
   }) : this(
          key: key,
          controller: controller,
@@ -311,6 +314,7 @@ class InputField extends StatefulWidget {
          stateName: stateName,
          passwordVisible: passwordVisible,
          passwordViewable: passwordViewable,
+         enableInteractiveSelection: enableInteractiveSelection,
        );
 
   InputField.fromFieldStyleText({
@@ -399,6 +403,7 @@ class InputField extends StatefulWidget {
          maskMatch: style?.maskMatch,
          maskedReturnValue: style?.maskedReturnValue,
          decorator: style?.decorator,
+         enableInteractiveSelection: style?.enableInteractiveSelection ?? true,
        );
 
   /// Password Text Field - obscured by default with visibility toggle
@@ -477,6 +482,7 @@ class InputField extends StatefulWidget {
     bool? maskedReturnValue,
     DecoratorTextField? decorator,
     String? stateName,
+    bool enableInteractiveSelection = true,
   }) : this(
          key: key,
          controller: controller,
@@ -552,6 +558,7 @@ class InputField extends StatefulWidget {
          maskedReturnValue: maskedReturnValue,
          decorator: decorator,
          stateName: stateName,
+         enableInteractiveSelection: enableInteractiveSelection,
        );
 
   /// Email Address Text Field - email keyboard with autofocus
@@ -630,6 +637,7 @@ class InputField extends StatefulWidget {
     bool? maskedReturnValue,
     DecoratorTextField? decorator,
     String? stateName,
+    bool enableInteractiveSelection = true,
   }) : this(
          key: key,
          controller: controller,
@@ -705,6 +713,7 @@ class InputField extends StatefulWidget {
          maskedReturnValue: maskedReturnValue,
          decorator: decorator,
          stateName: stateName,
+         enableInteractiveSelection: enableInteractiveSelection,
        );
 
   /// Copy with method
@@ -783,6 +792,7 @@ class InputField extends StatefulWidget {
     String? maskMatch,
     bool? maskedReturnValue,
     DecoratorTextField? decorator,
+    bool? enableInteractiveSelection,
   }) {
     return InputField(
       labelText: labelText ?? this.labelText,
@@ -857,6 +867,8 @@ class InputField extends StatefulWidget {
       maskMatch: maskMatch ?? this.maskMatch,
       maskedReturnValue: maskedReturnValue ?? this.maskedReturnValue,
       decorator: decorator ?? this.decorator,
+      enableInteractiveSelection:
+          enableInteractiveSelection ?? this.enableInteractiveSelection,
     );
   }
 
@@ -981,6 +993,7 @@ class InputField extends StatefulWidget {
       maskMatch: maskMatch,
       maskedReturnValue: maskedReturnValue,
       decorator: decorator,
+      enableInteractiveSelection: enableInteractiveSelection,
     );
   }
 
@@ -1353,6 +1366,7 @@ class _InputFieldState extends NyState<InputField> {
       scrollPhysics: widget.scrollPhysics,
       autofillHints: widget.autofillHints,
       clipBehavior: widget.clipBehavior,
+      enableInteractiveSelection: widget.enableInteractiveSelection,
     );
 
     if (widget.header != null || widget.footer != null) {

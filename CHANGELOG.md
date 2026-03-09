@@ -1,3 +1,13 @@
+## [7.10.0] - 2026-03-09
+
+### Added
+
+* **`enableInteractiveSelection` for `InputField` and `FieldStyleTextField`** - New parameter to control whether text selection handles and toolbar are shown. Available on `InputField`, `InputField.compact`, `InputField.password`, `InputField.email`, `InputField.fromFieldStyleText`, and `FieldStyleTextField`
+
+### Fixed
+
+* **`FieldStyleTextField.copyWith` losing existing values** - Parameters like `textCapitalization`, `maxLengthEnforcement`, `onAppPrivateCommand`, `inputFormatters`, `cursorWidth`, `dragStartBehavior`, and `clipBehavior` now correctly fall back to `this.xxx` instead of overriding with hardcoded defaults
+
 ## [7.9.1] - 2026-03-06
 
 ### Fixed
