@@ -11,7 +11,16 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
 
     /// Set the state name if the widget is a NyStatefulWidget
     if (widget is NyStatefulWidget) {
-      stateName = (widget as NyStatefulWidget).controller.state;
+      final _controller = (widget as NyStatefulWidget).controller;
+      if (_controller.context == null) {
+        _controller.construct(context);
+      }
+      if ((widget as NyStatefulWidget).state != null &&
+          _controller.state == "/") {
+        _controller.state = (widget as NyStatefulWidget).state!;
+      }
+
+      stateName = _controller.state;
     }
 
     if (allowStateUpdates && eventBus != null) {

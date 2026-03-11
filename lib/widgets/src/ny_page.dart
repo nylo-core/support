@@ -83,6 +83,15 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
 
     awaitData(
       perform: () async {
+        final _controller = (widget as NyStatefulWidget).controller;
+        if (_controller.context == null) {
+          await _controller.construct(context);
+        }
+        if ((widget as NyStatefulWidget).state != null &&
+            _controller.state == "/") {
+          _controller.state = (widget as NyStatefulWidget).state!;
+        }
+
         NyArgument? nyArgument = NyArgument(data());
         PageRequest pageRequest = PageRequest(
           context: context,

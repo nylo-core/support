@@ -1,3 +1,13 @@
+## [7.11.0] - 2026-03-11
+
+### Added
+
+* **`action()` method on `StateActions`** - New convenience method to call `stateAction()` directly from any `StateActions` instance, accepting an action name and optional data parameter
+
+### Fixed
+
+* **Controller not initialized before `init()` in `NyPage` and `NyState`** - The controller is now eagerly constructed with the current `context` if it hasn't been initialized yet, and the widget's state name is propagated to the controller before use. This fixes issues where the controller was not ready during early lifecycle methods
+
 ## [7.10.0] - 2026-03-09
 
 ### Added
