@@ -33,37 +33,34 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
     super.initState();
     WidgetsBinding.instance.addObserver(this);
 
-    if (stateManaged) {
-      /// Set the state name if the widget is a NyStatefulWidget
-      if (widget is NyStatefulWidget) {
-        stateName = (widget as NyStatefulWidget).child.runtimeType.toString();
-        if (!(stateName?.contains("Closure:") ?? false)) {
-          stateName = "Closure: $stateName";
-        }
-        if (stateName?.contains("Closure: _") ?? false) {
-          stateName = stateName?.replaceAll("Closure: _", "Closure: () => _");
-        }
+    /// Set the state name if the widget is a NyStatefulWidget
+    if (widget is NyStatefulWidget) {
+      stateName = (widget as NyStatefulWidget).child.runtimeType.toString();
+      if (!(stateName?.contains("Closure:") ?? false)) {
+        stateName = "Closure: $stateName";
+      }
+      if (stateName?.contains("Closure: _") ?? false) {
+        stateName = stateName?.replaceAll("Closure: _", "Closure: () => _");
+      }
+    }
+
+    if (stateManaged && allowStateUpdates) {
+      List<EventBusHistoryEntry> eventHistory = eventBus!.history
+          .where(
+            (element) => element.event.runtimeType.toString() == 'UpdateState',
+          )
+          .toList();
+      if (eventHistory.isNotEmpty) {
+        stateData = eventHistory.last.event.props[1];
       }
 
-      if (allowStateUpdates) {
-        List<EventBusHistoryEntry> eventHistory = eventBus!.history
-            .where(
-              (element) =>
-                  element.event.runtimeType.toString() == 'UpdateState',
-            )
-            .toList();
-        if (eventHistory.isNotEmpty) {
-          stateData = eventHistory.last.event.props[1];
-        }
+      eventSubscription = eventBus!.on<UpdateState>().listen((event) async {
+        if (event.stateName != stateName) return;
 
-        eventSubscription = eventBus!.on<UpdateState>().listen((event) async {
-          if (event.stateName != stateName) return;
-
-          await stateUpdated(event.data);
-          await _whenStateAction(event.data);
-          if (mounted) setState(() {});
-        });
-      }
+        await stateUpdated(event.data);
+        await _whenStateAction(event.data);
+        if (mounted) setState(() {});
+      });
     }
 
     if (widget is! NyStatefulWidget) {

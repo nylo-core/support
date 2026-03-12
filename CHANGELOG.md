@@ -1,3 +1,15 @@
+## [7.11.1] - 2026-03-12
+
+### Fixed
+
+* **`toast-oops` calling wrong toast method** - The `toast-oops` state action was incorrectly calling `showToastInfo()` instead of `showToastOops()`, causing oops-style toasts to display as info-style toasts
+* **`Field.password()` not respecting `viewable` parameter** - The `viewable` parameter was not being passed through to `FieldStyleTextField.password()`, so the password visibility toggle setting was ignored when constructing password fields
+
+### Changed
+
+* **`NyPage.initState()` state name resolution** - The state name for `NyStatefulWidget` is now resolved unconditionally in `initState()`, rather than only when `stateManaged` is true. The event bus subscription logic is now a single `stateManaged && allowStateUpdates` check with reduced nesting
+* Updated dependency constraints: `flutter_local_notifications` ^21.0.0, `timezone` ^0.11.0, `patrol` ^4.3.0
+
 ## [7.11.0] - 2026-03-11
 
 ### Added

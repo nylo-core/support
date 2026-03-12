@@ -181,7 +181,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
         }
       case 'toast-oops':
         {
-          showToastInfo(
+          showToastOops(
             title: stateData['title'],
             description: stateData['description'],
           );

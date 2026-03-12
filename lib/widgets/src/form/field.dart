@@ -377,7 +377,8 @@ class Field {
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
   }) : _value = value,
-       this.style = style ?? FieldStyleTextField.password() {
+       this.style =
+           style ?? FieldStyleTextField.password(passwordViewable: viewable) {
     this.style = (this.style as FieldStyleTextField).copyWith(
       passwordViewable: viewable,
       keyboardType: TextInputType.visiblePassword,
