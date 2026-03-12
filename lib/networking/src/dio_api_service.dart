@@ -613,6 +613,10 @@ class DioApiService {
       } else {
         morphedData = response.data as T?;
       }
+    } else if (response.data is T) {
+      // When skipMorph is true (callback handles processing),
+      // still pass through the raw data so callbacks can access response.data
+      morphedData = response.data as T;
     }
 
     // Create the enhanced response object

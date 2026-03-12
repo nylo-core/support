@@ -1,3 +1,9 @@
+## [7.11.2] - 2026-03-12
+
+### Fixed
+
+* **Response data unavailable in `handleSuccess`/`handleFailure` callbacks** - When `skipMorph` was true (a callback was provided), `morphedData` was left null, so `nyResponse.data` was inaccessible inside the callback. The raw response data is now passed through to `morphedData` when the type matches, allowing callbacks to access `nyResponse.data`
+
 ## [7.11.1] - 2026-03-12
 
 ### Fixed
