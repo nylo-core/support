@@ -807,9 +807,16 @@ final Map<Type, dynamic> modelDecoders = {$match
   }) async {
     String name = className.replaceAll(RegExp(r'(_?provider)'), "");
 
-    String filePath = '$folderPath/${name.snakeCase}_provider.dart';
-
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    String filePath = createPathForDartFile(
+      folderPath: folderPath,
+      className: name,
+      prefix: "provider",
+      creationPath: creationPath,
+    );
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(
       filePath,
@@ -856,12 +863,20 @@ final Map<Type, NyProvider> providers = {$match
     String value, {
     String folderPath = routeGuardsFolder,
     bool forceCreate = false,
+    String? creationPath,
   }) async {
     String name = className.replaceAll(RegExp(r'(_?route_guard)'), "");
 
-    String filePath = '$folderPath/${name.snakeCase}_route_guard.dart';
-
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    String filePath = createPathForDartFile(
+      folderPath: folderPath,
+      className: name,
+      prefix: "route_guard",
+      creationPath: creationPath,
+    );
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(
       filePath,
@@ -880,12 +895,20 @@ final Map<Type, NyProvider> providers = {$match
     String value, {
     String folderPath = formsFolder,
     bool forceCreate = false,
+    String? creationPath,
   }) async {
     String name = className.replaceAll(RegExp(r'(_?form)'), "");
 
-    String filePath = '$folderPath/${name.snakeCase}_form.dart';
-
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    String filePath = createPathForDartFile(
+      folderPath: folderPath,
+      className: name,
+      prefix: "form",
+      creationPath: creationPath,
+    );
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(
       filePath,
@@ -909,12 +932,20 @@ final Map<Type, NyProvider> providers = {$match
     String folderPath = eventsFolder,
     bool forceCreate = false,
     bool addToConfig = true,
+    String? creationPath,
   }) async {
     String name = className.replaceAll(RegExp(r'(_?event)'), "");
 
-    String filePath = '$folderPath/${name.snakeCase}_event.dart';
-
     await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    String filePath = createPathForDartFile(
+      folderPath: folderPath,
+      className: name,
+      prefix: "event",
+      creationPath: creationPath,
+    );
+
     await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
     await _createNewFile(
       filePath,
@@ -926,7 +957,10 @@ final Map<Type, NyProvider> providers = {$match
       },
     );
 
-    String classImport = makeImportPathEvent(name.snakeCase);
+    String classImport = makeImportPathEvent(
+      name.snakeCase,
+      creationPath: creationPath ?? "",
+    );
     await MetroService.addToConfig(
       configName: "events",
       classImport: classImport,

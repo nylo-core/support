@@ -226,10 +226,24 @@ void main() {
       );
     });
 
+    nyTest('makeImportPathEvent with creation path', () async {
+      expect(
+        makeImportPathEvent('login', creationPath: 'auth'),
+        "import '/app/events/auth/login_event.dart';",
+      );
+    });
+
     nyTest('makeImportPathProviders should generate correct path', () async {
       expect(
         makeImportPathProviders('auth'),
         "import '/app/providers/auth_provider.dart';",
+      );
+    });
+
+    nyTest('makeImportPathProviders with creation path', () async {
+      expect(
+        makeImportPathProviders('auth', creationPath: 'services'),
+        "import '/app/providers/services/auth_provider.dart';",
       );
     });
   });

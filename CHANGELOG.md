@@ -1,3 +1,14 @@
+## [7.12.0] - 2026-03-29
+
+### Added
+
+* **`creationPath` support for Metro scaffolding commands** - Provider, route guard, form, and event scaffolding commands now support `creationPath` using `createPathForDartFile` and `createDirectoriesFromCreationPath` for consistent nested directory path handling
+* **`setState` callback parameter for `NyFieldBuilder`** - The `NyFieldBuilder` typedef now includes a `setState` callback parameter. A `NyFieldBuilderLegacy` typedef is available for backward compatibility. `Field.builder` accepts both signatures
+
+### Changed
+
+* Updated dependency constraints: `flutter_timezone` ^5.0.2, `patrol` ^4.5.0
+
 ## [7.11.2] - 2026-03-12
 
 ### Fixed

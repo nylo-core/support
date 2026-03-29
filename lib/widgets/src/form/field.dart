@@ -895,7 +895,7 @@ class Field {
   /// ```
   Field.builder(
     this.key, {
-    required NyFieldBuilder builder,
+    required Function builder,
     this.label,
     dynamic value,
     this.validator,
@@ -908,7 +908,11 @@ class Field {
     this.readOnly,
     FieldStyle? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
+  }) : assert(
+         builder is NyFieldBuilder || builder is NyFieldBuilderLegacy,
+         'builder must match NyFieldBuilder or NyFieldBuilderLegacy signature',
+       ),
+       _value = value,
        this.style = style {
     setOnChanged(onChanged);
     widget = NyFormBuilder.fromField(this, builder: builder);

@@ -4,8 +4,19 @@ import '/widgets/ny_widgets.dart';
 /// Typedef for the builder function used by [Field.builder].
 ///
 /// Receives the [BuildContext], an [onChanged] callback to report value changes
-/// to the form, and the [currentValue] of the field.
+/// to the form, the [currentValue] of the field, and a [setState] callback
+/// to trigger a rebuild.
 typedef NyFieldBuilder =
+    Widget Function(
+      BuildContext context,
+      Function(dynamic value) onChanged,
+      dynamic currentValue,
+      Function() setState,
+    );
+
+/// Legacy typedef without [setState] parameter.
+/// Kept for backward compatibility with existing [Field.builder] callbacks.
+typedef NyFieldBuilderLegacy =
     Widget Function(
       BuildContext context,
       Function(dynamic value) onChanged,
@@ -22,10 +33,13 @@ typedef NyFieldBuilder =
 /// ```dart
 /// Field.builder(
 ///   'favorite_color',
-///   builder: (context, onChanged, value) {
+///   builder: (context, onChanged, value, setState) {
 ///     return ColorPicker(
 ///       selected: value,
-///       onColorChanged: (color) => onChanged(color),
+///       onColorChanged: (color) {
+///         onChanged(color);
+///         setState(); // call setState if your widget needs a rebuild
+///       },
 ///     );
 ///   },
 ///   value: Colors.blue,
@@ -36,7 +50,7 @@ class NyFormBuilder extends NyFieldStatefulWidget {
     : onChanged = field.onChanged;
 
   final Field field;
-  final NyFieldBuilder builder;
+  final Function builder;
   final Function(dynamic value)? onChanged;
 
   @override
@@ -84,13 +98,26 @@ class _NyFormBuilderState extends FieldBaseState<NyFormBuilder> {
 
   @override
   Widget view(BuildContext context) {
-    return widget.builder(context, (dynamic value) {
+    void onChanged(dynamic value) {
       currentValue = value;
       widget.field.restoreValue(value);
       if (widget.onChanged != null) {
         widget.onChanged!(value);
       }
-      setState(() {});
-    }, currentValue);
+    }
+
+    if (widget.builder is NyFieldBuilder) {
+      return (widget.builder as NyFieldBuilder)(
+        context,
+        onChanged,
+        currentValue,
+        () => setState(() {}),
+      );
+    }
+    return (widget.builder as NyFieldBuilderLegacy)(
+      context,
+      onChanged,
+      currentValue,
+    );
   }
 }
