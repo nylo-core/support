@@ -46,6 +46,16 @@ import 'package:flutter/material.dart';
 /// )
 /// ```
 ///
+/// Example using wildcard `*` to style all placeholders:
+/// ```dart
+/// StyledText.template(
+///   "Hello {{name}}, welcome to {{app}}!",
+///   styles: {
+///     "*": TextStyle(color: Colors.blue, fontWeight: FontWeight.bold),
+///   },
+/// )
+/// ```
+///
 /// Example using template text with localization (`{{key:text}}` syntax):
 /// ```dart
 /// StyledText.template(
@@ -188,6 +198,11 @@ class _StyledTextState extends State<StyledText> {
           return entry.value;
         }
       }
+    }
+
+    // Wildcard fallback
+    if (map.containsKey('*')) {
+      return map['*'];
     }
 
     return null;

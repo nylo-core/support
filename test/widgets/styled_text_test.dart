@@ -155,6 +155,94 @@ void main() {
       });
     });
 
+    nyGroup('wildcard * key', () {
+      testWidgets('applies style to all placeholders', (tester) async {
+        final wildcardStyle = TextStyle(
+          color: Colors.blue,
+          fontWeight: FontWeight.bold,
+        );
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "Hello {{name}}, welcome to {{app}}!",
+              styles: {"*": wildcardStyle},
+            ),
+          ),
+        );
+
+        final spans = _extractSpans(tester);
+        expect(spans[0].text, 'Hello ');
+        expect(spans[1].text, 'name');
+        expect(spans[1].style!.color, Colors.blue);
+        expect(spans[1].style!.fontWeight, FontWeight.bold);
+        expect(spans[2].text, ', welcome to ');
+        expect(spans[3].text, 'app');
+        expect(spans[3].style!.color, Colors.blue);
+        expect(spans[3].style!.fontWeight, FontWeight.bold);
+        expect(spans[4].text, '!');
+      });
+
+      testWidgets('exact key overrides wildcard', (tester) async {
+        final wildcardStyle = TextStyle(color: Colors.blue);
+        final nameStyle = TextStyle(color: Colors.red);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "Hello {{name}}, welcome to {{app}}!",
+              styles: {"*": wildcardStyle, "name": nameStyle},
+            ),
+          ),
+        );
+
+        final spans = _extractSpans(tester);
+        expect(spans[1].text, 'name');
+        expect(spans[1].style!.color, Colors.red);
+        expect(spans[3].text, 'app');
+        expect(spans[3].style!.color, Colors.blue);
+      });
+
+      testWidgets('pipe key overrides wildcard', (tester) async {
+        final wildcardStyle = TextStyle(color: Colors.blue);
+        final pipeStyle = TextStyle(color: Colors.green);
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "{{a}}, {{b}}, {{c}}",
+              styles: {"*": wildcardStyle, "a|b": pipeStyle},
+            ),
+          ),
+        );
+
+        final spans = _extractSpans(tester);
+        expect(spans[0].text, 'a');
+        expect(spans[0].style!.color, Colors.green);
+        expect(spans[2].text, 'b');
+        expect(spans[2].style!.color, Colors.green);
+        expect(spans[4].text, 'c');
+        expect(spans[4].style!.color, Colors.blue);
+      });
+
+      testWidgets('wildcard onTap applies to all placeholders', (tester) async {
+        int tapCount = 0;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "{{a}} and {{b}}",
+              onTap: {"*": () => tapCount++},
+            ),
+          ),
+        );
+
+        final spans = _extractSpans(tester);
+        expect(spans[0].recognizer, isA<TapGestureRecognizer>());
+        expect(spans[2].recognizer, isA<TapGestureRecognizer>());
+
+        (spans[0].recognizer as TapGestureRecognizer).onTap!();
+        (spans[2].recognizer as TapGestureRecognizer).onTap!();
+        expect(tapCount, 2);
+      });
+    });
+
     nyGroup('localization simulation', () {
       testWidgets('same keys render different display text per locale', (
         tester,

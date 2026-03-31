@@ -145,7 +145,16 @@ class NyConnectivity {
 }
 
 /// Connectivity state enum for NyConnective widget.
-enum NyConnectivityState { wifi, mobile, ethernet, vpn, bluetooth, other, none }
+enum NyConnectivityState {
+  wifi,
+  mobile,
+  ethernet,
+  vpn,
+  bluetooth,
+  satellite,
+  other,
+  none,
+}
 
 /// Extension to convert ConnectivityResult to NyConnectivityState.
 extension ConnectivityResultExtension on ConnectivityResult {
@@ -165,6 +174,8 @@ extension ConnectivityResultExtension on ConnectivityResult {
         return NyConnectivityState.other;
       case ConnectivityResult.none:
         return NyConnectivityState.none;
+      case ConnectivityResult.satellite:
+        return NyConnectivityState.satellite;
     }
   }
 }

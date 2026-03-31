@@ -1,3 +1,14 @@
+## [7.13.0] - 2026-03-31
+
+### Added
+
+* **Satellite connectivity support for `Connective` widget and `NyConnectivityState`** - Added `satellite` value to the `NyConnectivityState` enum with mapping from `ConnectivityResult.satellite`, and added `onSatellite` widget parameter to `Connective` for rendering satellite-specific UI
+* **Wildcard `*` key for `StyledText.template` styles and onTap** - When no exact or pipe-delimited key matches a placeholder, the styles/onTap map now falls back to a `*` wildcard key, allowing a single style or tap handler to apply to all placeholders
+
+### Changed
+
+* Updated dependency constraint: `connectivity_plus` ^7.1.0
+
 ## [7.12.0] - 2026-03-29
 
 ### Added

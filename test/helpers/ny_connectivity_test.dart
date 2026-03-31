@@ -8,7 +8,7 @@ void main() {
 
   nyGroup('NyConnectivityState', () {
     nyTest('should have all expected values', () async {
-      expect(NyConnectivityState.values, hasLength(7));
+      expect(NyConnectivityState.values, hasLength(8));
       expect(NyConnectivityState.values, contains(NyConnectivityState.wifi));
       expect(NyConnectivityState.values, contains(NyConnectivityState.mobile));
       expect(
@@ -19,6 +19,10 @@ void main() {
       expect(
         NyConnectivityState.values,
         contains(NyConnectivityState.bluetooth),
+      );
+      expect(
+        NyConnectivityState.values,
+        contains(NyConnectivityState.satellite),
       );
       expect(NyConnectivityState.values, contains(NyConnectivityState.other));
       expect(NyConnectivityState.values, contains(NyConnectivityState.none));

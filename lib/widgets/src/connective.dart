@@ -45,6 +45,9 @@ class Connective extends StatefulWidget {
   /// Widget to show when connected via Bluetooth.
   final Widget? onBluetooth;
 
+  /// Widget to show when connected via Satellite.
+  final Widget? onSatellite;
+
   /// Widget to show for other connection types.
   final Widget? onOther;
 
@@ -83,6 +86,7 @@ class Connective extends StatefulWidget {
     this.onEthernet,
     this.onVpn,
     this.onBluetooth,
+    this.onSatellite,
     this.onOther,
     this.onNone,
     this.child,
@@ -103,6 +107,7 @@ class Connective extends StatefulWidget {
        onEthernet = null,
        onVpn = null,
        onBluetooth = null,
+       onSatellite = null,
        onOther = null,
        onNone = null,
        child = null;
@@ -168,6 +173,9 @@ class _ConnectiveState extends State<Connective> {
     if (results.contains(ConnectivityResult.bluetooth)) {
       return NyConnectivityState.bluetooth;
     }
+    if (results.contains(ConnectivityResult.satellite)) {
+      return NyConnectivityState.satellite;
+    }
     if (results.contains(ConnectivityResult.other)) {
       return NyConnectivityState.other;
     }
@@ -198,6 +206,7 @@ class _ConnectiveState extends State<Connective> {
       NyConnectivityState.ethernet => widget.onEthernet,
       NyConnectivityState.vpn => widget.onVpn,
       NyConnectivityState.bluetooth => widget.onBluetooth,
+      NyConnectivityState.satellite => widget.onSatellite,
       NyConnectivityState.other => widget.onOther,
       NyConnectivityState.none => widget.onNone,
     };
