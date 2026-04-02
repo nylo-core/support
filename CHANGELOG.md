@@ -1,3 +1,9 @@
+## [7.14.0] - 2026-04-02
+
+### Added
+
+* **`isDismissible` and `enableDrag` parameters for `NyBaseModal.show()`** - New optional parameters to control whether the modal can be dismissed by tapping the barrier (`isDismissible`, defaults to `true`) and whether the modal supports drag-to-dismiss gestures (`enableDrag`, defaults to `true`). Both are passed through to the underlying `showModalBottomSheet`
+
 ## [7.13.0] - 2026-03-31
 
 ### Added

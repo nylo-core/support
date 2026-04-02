@@ -12,6 +12,8 @@ typedef ModalShowFunction =
       Widget? header,
       bool useSafeArea,
       bool isScrollControlled,
+      bool isDismissible,
+      bool enableDrag,
       bool showCloseButton,
       EdgeInsets? headerPadding,
       EdgeInsets? contentPadding,
@@ -75,6 +77,8 @@ abstract class NyBaseModal {
     Widget? header,
     bool useSafeArea = false,
     bool isScrollControlled = false,
+    bool isDismissible = true,
+    bool enableDrag = true,
     bool showCloseButton = false,
     EdgeInsets? headerPadding,
     EdgeInsets? contentPadding,
@@ -92,6 +96,8 @@ abstract class NyBaseModal {
       context: context,
       useRootNavigator: useRootNavigator,
       isScrollControlled: isScrollControlled,
+      isDismissible: isDismissible,
+      enableDrag: enableDrag,
       useSafeArea: useSafeArea,
       backgroundColor:
           backgroundColor ??
