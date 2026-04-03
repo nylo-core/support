@@ -1,3 +1,9 @@
+## [7.14.1] - 2026-04-03
+
+### Fixed
+
+* **`bottomToTop` and `topToBottom` page transitions animating the previous route** - Added `canTransitionFrom` override to `PageTransition` that returns `false` for `bottomToTop` and `topToBottom` transition types, preventing the outgoing page from sliding away during modal-style transitions
+
 ## [7.14.0] - 2026-04-02
 
 ### Added

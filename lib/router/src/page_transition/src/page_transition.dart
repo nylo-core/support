@@ -164,6 +164,17 @@ class PageTransition<T> extends PageRouteBuilder<T> {
       (reverseDuration ?? duration) ?? Duration(milliseconds: 300);
 
   @override
+  bool canTransitionFrom(TransitionRoute<dynamic> previousRoute) {
+    switch (type) {
+      case PageTransitionType.bottomToTop:
+      case PageTransitionType.topToBottom:
+        return false;
+      default:
+        return super.canTransitionFrom(previousRoute);
+    }
+  }
+
+  @override
   Widget buildTransitions(
     BuildContext context,
     Animation<double> animation,
