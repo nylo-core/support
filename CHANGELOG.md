@@ -1,3 +1,9 @@
+## [7.15.0] - 2026-04-06
+
+### Added
+
+* **Environment variable interpolation in `NyEnvRegistry`** - String env values now support `${VAR_NAME}` syntax to reference other env keys. For example, `APP_URL=https://${APP_DOMAIN}` will resolve by looking up `APP_DOMAIN`. Supports chained references, non-string value conversion, and circular reference protection
+
 ## [7.14.1] - 2026-04-03
 
 ### Fixed

@@ -193,6 +193,106 @@ void main() {
   });
 
   // ═══════════════════════════════════════════════════════════════════════════
+  // Variable Interpolation
+  // ═══════════════════════════════════════════════════════════════════════════
+
+  nyGroup('variable interpolation', () {
+    nyTest('should resolve basic interpolation', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({
+          'APP_DOMAIN': 'example.com',
+          'APP_URL': 'https://\${APP_DOMAIN}',
+        }),
+      );
+
+      expect(NyEnvRegistry.get('APP_URL'), 'https://example.com');
+    });
+
+    nyTest('should resolve multiple references in one value', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({
+          'FIRST': 'John',
+          'LAST': 'Doe',
+          'GREETING': 'Hello \${FIRST} \${LAST}',
+        }),
+      );
+
+      expect(NyEnvRegistry.get('GREETING'), 'Hello John Doe');
+    });
+
+    nyTest('should resolve chained references', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({'A': 'base', 'B': '\${A}/mid', 'C': '\${B}/end'}),
+      );
+
+      expect(NyEnvRegistry.get('C'), 'base/mid/end');
+    });
+
+    nyTest('should leave missing references as-is', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({'URL': 'https://\${UNDEFINED}/path'}),
+      );
+
+      expect(NyEnvRegistry.get('URL'), 'https://\${UNDEFINED}/path');
+    });
+
+    nyTest('should handle circular references without looping', () async {
+      NyEnvRegistry.register(getter: mockEnv({'A': '\${B}', 'B': '\${A}'}));
+
+      // Should not throw or hang — circular ref left unresolved
+      final result = NyEnvRegistry.get('A');
+      expect(result, isA<String>());
+    });
+
+    nyTest('should not interpolate non-string values', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({'DEBUG': true, 'PORT': 8080, 'RATE': 3.14}),
+      );
+
+      expect(NyEnvRegistry.get('DEBUG'), isTrue);
+      expect(NyEnvRegistry.get('PORT'), 8080);
+      expect(NyEnvRegistry.get('RATE'), 3.14);
+    });
+
+    nyTest('should convert non-string referenced value to string', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({'PORT': 8080, 'URL': 'http://localhost:\${PORT}'}),
+      );
+
+      expect(NyEnvRegistry.get('URL'), 'http://localhost:8080');
+    });
+
+    nyTest('should leave dollar signs without braces unchanged', () async {
+      NyEnvRegistry.register(getter: mockEnv({'PRICE': 'costs \$5'}));
+
+      expect(NyEnvRegistry.get('PRICE'), 'costs \$5');
+    });
+
+    nyTest('should handle self-reference without looping', () async {
+      NyEnvRegistry.register(getter: mockEnv({'A': '\${A}'}));
+
+      expect(NyEnvRegistry.get('A'), '\${A}');
+    });
+
+    nyTest('should return plain strings unchanged', () async {
+      NyEnvRegistry.register(getter: mockEnv({'PLAIN': 'hello world'}));
+
+      expect(NyEnvRegistry.get('PLAIN'), 'hello world');
+    });
+
+    nyTest('should work through getEnv helper', () async {
+      NyEnvRegistry.register(
+        getter: mockEnv({
+          'DOMAIN': 'example.com',
+          'API_URL': 'https://api.\${DOMAIN}',
+        }),
+      );
+
+      expect(getEnv('API_URL'), 'https://api.example.com');
+    });
+  });
+
+  // ═══════════════════════════════════════════════════════════════════════════
   // Edge Cases and Error Handling
   // ═══════════════════════════════════════════════════════════════════════════
 
