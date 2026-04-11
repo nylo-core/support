@@ -530,6 +530,12 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   }
 
   @override
+  void didUpdateWidget(covariant CollectionView<T> oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _syncDataInitialized = false;
+  }
+
+  @override
   void dispose() {
     _refreshController.dispose();
     super.dispose();

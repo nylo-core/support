@@ -1,3 +1,13 @@
+## [7.18.1] - 2026-04-11
+
+### Fixed
+
+* **CollectionView not updating when parent rebuilds with new data** - Sync data callbacks (e.g. `data: () => _filteredList`) were only read once due to `_syncDataInitialized` flag introduced in v7.16.0, breaking filtering/search patterns. Added `didUpdateWidget` override to reset the flag on parent rebuilds while preserving `stateActions` behavior
+
+### Added
+
+* **CollectionView test coverage** - Added 29 tests covering `CollectionItem` helpers, sync/async data, empty states, headers, spacing, transform/sort, separated/grid layouts, parent-driven data updates, and configuration options
+
 ## [7.18.0] - 2026-04-11
 
 ### Added
