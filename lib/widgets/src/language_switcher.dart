@@ -206,6 +206,10 @@ class LanguageSwitcher extends StatefulWidget {
 
   static String state = "ny_lang_switcher";
 
+  /// Returns a [LanguageSwitcherStateActions] instance for the given [stateName].
+  static LanguageSwitcherStateActions stateActions([String? stateName]) =>
+      LanguageSwitcherStateActions(stateName ?? state);
+
   /// Get the current language
   static Future<Map<String, dynamic>?> currentLanguage({String? key}) async {
     key ??= state;
@@ -492,10 +496,7 @@ class LanguageSwitcher extends StatefulWidget {
                           // store the language
                           await storeLanguage(object: {data.key: data.value});
 
-                          updateState(
-                            state,
-                            data: {"action": "refresh-page", "data": {}},
-                          );
+                          LanguageSwitcher.stateActions().refresh();
                           if (!isSelected) {
                             onLanguageChange?.call(data.key);
                           }
@@ -1126,6 +1127,27 @@ class LanguageSwitcher extends StatefulWidget {
   createState() => _LanguageSwitcherState();
 }
 
+/// State actions for [LanguageSwitcher].
+///
+/// Example usage:
+/// ```dart
+/// LanguageSwitcher.stateActions().refresh();
+/// LanguageSwitcher.stateActions().setLanguage("es");
+/// ```
+class LanguageSwitcherStateActions extends StateActions {
+  LanguageSwitcherStateActions(super.state);
+
+  /// Refresh the language switcher, re-fetching the language list.
+  void refresh() {
+    action("refresh");
+  }
+
+  /// Programmatically set the language by locale code.
+  void setLanguage(String localeCode) {
+    action("setLanguage", data: {"localeCode": localeCode});
+  }
+}
+
 class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
   Map<String, dynamic>? selectedLanguage;
   List<Map<String, String>> languages = [];
@@ -1134,6 +1156,20 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
   _LanguageSwitcherState() {
     stateName = LanguageSwitcher.state;
   }
+
+  @override
+  Map<String, Function> get stateActions => {
+    'refresh': (_) async {
+      languages = await LanguageSwitcher.getLanguageList();
+      selectedLanguage = await LanguageSwitcher.currentLanguage();
+      setState(() {});
+    },
+    'setLanguage': (data) async {
+      if (data is! Map || !data.containsKey('localeCode')) return;
+      String localeCode = data['localeCode'];
+      await _onChange(localeCode);
+    },
+  };
 
   @override
   get init => () async {

@@ -1023,11 +1023,33 @@ class InputField extends StatefulWidget {
       TextFieldStateActions(stateName);
 }
 
-/// Provides state management actions for [InputField] widgets.
+/// State actions for [InputField].
 ///
-/// Extends [FormStateActions] to provide text field-specific operations.
+/// Example usage:
+/// ```dart
+/// InputField.stateActions("my_field").clear();
+/// InputField.stateActions("my_field").setValue("Hello");
+/// InputField.stateActions("my_field").focus();
+/// InputField.stateActions("my_field").unfocus();
+/// InputField.stateActions("my_field").toggleObscure();
+/// ```
 class TextFieldStateActions extends FormStateActions {
   TextFieldStateActions(super.state);
+
+  /// Request focus on the text field.
+  void focus() {
+    action("focus");
+  }
+
+  /// Remove focus from the text field.
+  void unfocus() {
+    action("unfocus");
+  }
+
+  /// Toggle password visibility.
+  void toggleObscure() {
+    action("toggleObscure");
+  }
 }
 
 class _InputFieldState extends NyState<InputField> {
@@ -1062,6 +1084,15 @@ class _InputFieldState extends NyState<InputField> {
       }
       widget.controller.text = text;
       setState(() {});
+    },
+    "focus": (_) {
+      _focus.requestFocus();
+    },
+    "unfocus": (_) {
+      _focus.unfocus();
+    },
+    "toggleObscure": (_) {
+      _toggleObscured();
     },
   };
 

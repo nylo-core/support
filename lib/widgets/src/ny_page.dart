@@ -42,6 +42,7 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
       if (stateName?.contains("Closure: _") ?? false) {
         stateName = stateName?.replaceAll("Closure: _", "Closure: () => _");
       }
+      (widget as NyStatefulWidget).controller.state = stateName;
     }
 
     if (stateManaged && allowStateUpdates) {

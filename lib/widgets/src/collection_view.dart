@@ -448,12 +448,20 @@ class CollectionView<T> extends StatefulWidget {
        paginatedData = data,
        this.data = null;
 
+  /// Returns a [CollectionViewStateActions] instance for the given [stateName].
+  static CollectionViewStateActions stateActions(String stateName) =>
+      CollectionViewStateActions(stateName);
+
   /// Resets the state.
+  @Deprecated('Use CollectionView.stateActions(stateName).reset() instead')
   static void stateReset(String stateName) {
     updateState(stateName, data: {"action": "reset", "data": {}});
   }
 
   /// Removes an item from the list at the given index.
+  @Deprecated(
+    'Use CollectionView.stateActions(stateName).removeFromIndex(index) instead',
+  )
   static void removeFromIndex(String stateName, int index) {
     updateState(
       stateName,
@@ -465,8 +473,51 @@ class CollectionView<T> extends StatefulWidget {
   }
 }
 
+/// State actions for [CollectionView].
+///
+/// Example usage:
+/// ```dart
+/// CollectionView.stateActions("my_list").reset();
+/// CollectionView.stateActions("my_list").addItem(newItem);
+/// CollectionView.stateActions("my_list").removeFromIndex(2);
+/// ```
+class CollectionViewStateActions extends StateActions {
+  CollectionViewStateActions(super.state);
+
+  /// Resets the CollectionView, clearing data and re-fetching.
+  void reset() {
+    action("reset");
+  }
+
+  /// Removes the item at [index] from the list.
+  void removeFromIndex(int index) {
+    action("removeFromIndex", data: {"index": index});
+  }
+
+  /// Re-fetches data from the data callback.
+  void refreshData() {
+    action("refreshData");
+  }
+
+  /// Appends [item] to the end of the list.
+  void addItem(dynamic item) {
+    action("addItem", data: {"item": item});
+  }
+
+  /// Inserts [item] at [index] in the list.
+  void insertItem(int index, dynamic item) {
+    action("insertItem", data: {"index": index, "item": item});
+  }
+
+  /// Replaces the item at [index] with [item].
+  void updateItemAtIndex(int index, dynamic item) {
+    action("updateItemAtIndex", data: {"index": index, "item": item});
+  }
+}
+
 class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   List<T> _data = [];
+  bool _syncDataInitialized = false;
   int _iteration = 1;
   final RefreshController _refreshController = RefreshController(
     initialRefresh: false,
@@ -474,8 +525,8 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
 
   @override
   void initState() {
-    super.initState();
     stateName = widget.stateName;
+    super.initState();
   }
 
   @override
@@ -487,6 +538,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   @override
   get init => () {
     _iteration = 1;
+    _syncDataInitialized = false;
 
     if (widget.isPullable) {
       // Pullable mode - use paginatedData
@@ -560,6 +612,34 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       int index = data['index'];
       if (index < 0 || index >= _data.length) return;
       _data.removeAt(index);
+      setState(() {});
+    },
+    'refreshData': (_) async {
+      _data = [];
+      await reboot();
+    },
+    'addItem': (data) {
+      if (data is! Map || !data.containsKey('item')) return;
+      _data.add(data['item']);
+      setState(() {});
+    },
+    'insertItem': (data) {
+      if (data is! Map ||
+          !data.containsKey('index') ||
+          !data.containsKey('item'))
+        return;
+      int index = (data['index'] as int).clamp(0, _data.length);
+      _data.insert(index, data['item']);
+      setState(() {});
+    },
+    'updateItemAtIndex': (data) {
+      if (data is! Map ||
+          !data.containsKey('index') ||
+          !data.containsKey('item'))
+        return;
+      int index = data['index'];
+      if (index < 0 || index >= _data.length) return;
+      _data[index] = data['item'];
       setState(() {});
     },
   };
@@ -720,7 +800,10 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   /// Build regular (non-pullable) view
   Widget _buildRegularView(Widget loadingWidget) {
     if (widget.data is! Future Function()) {
-      _data = widget.data!() ?? [];
+      if (!_syncDataInitialized) {
+        _data = widget.data!() ?? [];
+        _syncDataInitialized = true;
+      }
       if (_data.isEmpty) {
         return _buildEmptyWidget();
       }
