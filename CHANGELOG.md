@@ -1,3 +1,20 @@
+## [7.16.0] - 2026-04-11
+
+### Fixed
+
+* **CollectionView `stateActions` not working with synchronous data** - State actions like `addItem`, `insertItem`, `removeFromIndex`, and `updateItemAtIndex` were being overwritten on every rebuild because `_buildRegularView` re-called the data callback. Now synchronous data is only fetched once and preserved across rebuilds
+* **`NyPage` controller state name assignment** - Controller now receives the correct state name
+
+### Added
+
+* **New `InputField` state actions** - `focus()`, `unfocus()`, and `toggleObscure()` for programmatic control of text fields
+* **New `LanguageSwitcher.stateActions()`** - `refresh()` and `setLanguage()` methods for programmatic language switching
+
+### Changed
+
+* Bumped `app_badge_plus` to `^1.2.8`
+* Bumped `connectivity_plus` to `^7.1.1`
+
 ## [7.15.0] - 2026-04-06
 
 ### Added
