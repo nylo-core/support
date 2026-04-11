@@ -154,6 +154,124 @@ void expectApiNotCalled(String endpoint, {String? method}) {
   );
 }
 
+/// Assert that an API endpoint was called with specific request data.
+///
+/// Checks both that the endpoint was called and that the request body
+/// matches [data] via deep equality.
+///
+/// Example:
+/// ```dart
+/// expectApiCalledWith('/users', method: 'POST', data: {'name': 'John'});
+/// ```
+void expectApiCalledWith(String endpoint, {String? method, dynamic data}) {
+  final calls = NyMockApi.getCallsFor(endpoint).where((c) {
+    if (method != null && c.method != method.toUpperCase()) return false;
+    return true;
+  }).toList();
+
+  expect(calls, isNotEmpty, reason: 'Expected "$endpoint" to have been called');
+
+  if (data != null) {
+    final hasMatchingData = calls.any((c) {
+      try {
+        expect(c.data, equals(data));
+        return true;
+      } catch (_) {
+        return false;
+      }
+    });
+
+    expect(
+      hasMatchingData,
+      isTrue,
+      reason:
+          'Expected "$endpoint" to have been called with data $data '
+          'but actual calls had: ${calls.map((c) => c.data).toList()}',
+    );
+  }
+}
+
+/// Assert that a widget of the given [type] appears exactly [count] times.
+///
+/// Example:
+/// ```dart
+/// expectWidgetCount(ListTile, 3);
+/// expectWidgetCount(Icon, 0);
+/// ```
+void expectWidgetCount(Type type, int count) {
+  expect(
+    find.byType(type),
+    findsNWidgets(count),
+    reason: 'Expected $count widget(s) of type $type',
+  );
+}
+
+/// Assert that the given text is visible in the widget tree.
+///
+/// Example:
+/// ```dart
+/// expectTextVisible('Welcome');
+/// expectTextVisible('Hello, John');
+/// ```
+void expectTextVisible(String text) {
+  expect(
+    find.text(text),
+    findsOneWidget,
+    reason: 'Expected text "$text" to be visible',
+  );
+}
+
+/// Assert that the given text is not visible in the widget tree.
+///
+/// Example:
+/// ```dart
+/// expectTextNotVisible('Error');
+/// expectTextNotVisible('Loading...');
+/// ```
+void expectTextNotVisible(String text) {
+  expect(
+    find.text(text),
+    findsNothing,
+    reason: 'Expected text "$text" to not be visible',
+  );
+}
+
+/// Assert that a widget matching [finder] is visible in the widget tree.
+///
+/// Works with any [Finder] — types, keys, icons, or custom finders.
+///
+/// Example:
+/// ```dart
+/// expectVisible(find.byType(FloatingActionButton));
+/// expectVisible(find.byIcon(Icons.notifications));
+/// expectVisible(find.byKey(Key('submit_btn')));
+/// ```
+void expectVisible(Finder finder) {
+  expect(
+    finder,
+    findsOneWidget,
+    reason: 'Expected widget to be visible: $finder',
+  );
+}
+
+/// Assert that no widget matching [finder] is visible in the widget tree.
+///
+/// Works with any [Finder] — types, keys, icons, or custom finders.
+///
+/// Example:
+/// ```dart
+/// expectNotVisible(find.byType(ErrorBanner));
+/// expectNotVisible(find.byIcon(Icons.error));
+/// expectNotVisible(find.byKey(Key('loading_spinner')));
+/// ```
+void expectNotVisible(Finder finder) {
+  expect(
+    finder,
+    findsNothing,
+    reason: 'Expected widget to not be visible: $finder',
+  );
+}
+
 /// Assert that the current locale matches.
 void expectLocale(String locale) {
   final currentLocale = NyLocalization.instance.languageCode;

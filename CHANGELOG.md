@@ -1,3 +1,18 @@
+## [7.18.0] - 2026-04-11
+
+### Added
+
+* **New `actingAsGuest()` test helper** - Semantic alias for `logout()` that reads better in test setup
+* **New `expectApiCalledWith()` test helper** - Assert that an API endpoint was called with specific request data, checking both endpoint and request body via deep equality
+* **New `expectWidgetCount()` test helper** - Assert that a widget of a given type appears exactly N times
+* **New `expectTextVisible()` / `expectTextNotVisible()` test helpers** - Assert text presence or absence in the widget tree
+* **New `expectVisible()` / `expectNotVisible()` test helpers** - Assert widget presence or absence using any Finder
+* **New `assertOnRoute()` test helper** - Assert the current route matches a given route without implying navigation just occurred
+* **New `navigateBack()` test helper** - Pop the current route and settle, simulating the back button
+* **New `tapText()` test helper** - Find a widget by text, tap it, and settle in one call
+* **New `fillField()` test helper** - Tap a form field, enter text, and settle in one call
+* **New `scrollTo()` test helper** - Scroll until a widget is visible in the nearest Scrollable
+
 ## [7.17.0] - 2026-04-11
 
 ### Added

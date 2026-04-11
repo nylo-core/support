@@ -349,6 +349,105 @@ extension NyWidgetTesterExtension on WidgetTester {
     }
   }
 
+  /// Assert that the current route matches the given route.
+  ///
+  /// Use this to verify you're on the expected page. Reads as
+  /// "I should be here right now" — a general check, not an assertion
+  /// about having just navigated.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.visit(DashboardPage.path);
+  /// tester.assertOnRoute(DashboardPage.path);
+  /// ```
+  void assertOnRoute(RouteView route) {
+    final currentRoute = Nylo.getCurrentRouteName();
+    expect(
+      currentRoute,
+      route.$1,
+      reason:
+          'Expected to be on route "${route.$1}" but current route is "$currentRoute"',
+    );
+  }
+
+  /// Navigate back by popping the current route, then settle.
+  ///
+  /// Simulates pressing the back button. Useful for testing
+  /// multi-page navigation flows.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.visit(DashboardPage.path);
+  /// await tester.tapText('Profile');
+  /// tester.assertNavigatedTo(ProfilePage.path);
+  ///
+  /// await tester.navigateBack();
+  /// tester.assertOnRoute(DashboardPage.path);
+  /// ```
+  Future<void> navigateBack() async {
+    NyNavigator.instance.router.navigatorKey!.currentState!.pop();
+    await settle();
+  }
+
+  /// Find a widget by its text, tap it, and settle.
+  ///
+  /// A one-liner for the most common interaction pattern in widget tests.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.tapText('Login');
+  /// await tester.tapText('Submit');
+  /// ```
+  Future<void> tapText(String text) async {
+    await tap(find.text(text));
+    await settle();
+  }
+
+  /// Tap a form field, enter text into it, and settle.
+  ///
+  /// Combines the tap-focus, text-entry, and settle steps into one call.
+  /// Named `fillField` to avoid confusion with Flutter's [enterText].
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.fillField(find.byKey(Key('email')), 'test@example.com');
+  /// await tester.fillField(find.byKey(Key('password')), 'secret123');
+  /// ```
+  Future<void> fillField(Finder finder, String text) async {
+    await tap(finder);
+    await pump();
+    await enterText(finder, text);
+    await settle();
+  }
+
+  /// Scroll until a widget is visible in the nearest [Scrollable].
+  ///
+  /// Wraps Flutter's [scrollUntilVisible] with sensible defaults and
+  /// graceful error handling.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.scrollTo(find.text('Item 50'));
+  /// await tester.tapText('Item 50');
+  /// ```
+  Future<void> scrollTo(
+    Finder finder, {
+    Finder? scrollable,
+    double delta = 100,
+  }) async {
+    try {
+      await scrollUntilVisible(
+        finder,
+        delta,
+        scrollable: scrollable ?? find.byType(Scrollable).first,
+      );
+    } catch (e) {
+      // Gracefully handle if already visible or scrollable not found
+      await pump(const Duration(milliseconds: 100));
+    }
+    await settle();
+  }
+
   /// Simulate an [AppLifecycleState] change on any NyPage in the widget tree.
   ///
   /// This triggers the `didChangeAppLifecycleState` callback, allowing you

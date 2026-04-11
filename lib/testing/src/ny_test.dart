@@ -155,6 +155,19 @@ class NyTest {
     _currentUser = null;
   }
 
+  /// Set the test to run as an unauthenticated guest.
+  ///
+  /// A semantic alias for [logout] that reads better in test setup.
+  ///
+  /// Example:
+  /// ```dart
+  /// NyTest.actingAsGuest();
+  /// expectGuest();
+  /// ```
+  static void actingAsGuest() {
+    logout();
+  }
+
   /// Mock an API service type.
   ///
   /// Example:
