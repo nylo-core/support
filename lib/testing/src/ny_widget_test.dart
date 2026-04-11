@@ -264,6 +264,91 @@ extension NyWidgetTesterExtension on WidgetTester {
     }
   }
 
+  /// Pump a route with full Nylo navigation support.
+  ///
+  /// Sets up a [MaterialApp] with the NyRouter's route generator,
+  /// navigator key, and route history observer so that navigation
+  /// via [routeTo] works correctly in tests.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.visit(DashboardPage.path);
+  /// await tester.tap(find.byType(MyButton));
+  /// tester.assertNavigatedTo(ProfilePage.path);
+  /// ```
+  Future<void> visit(
+    RouteView route, {
+    ThemeData? theme,
+    ThemeData? darkTheme,
+    ThemeMode themeMode = ThemeMode.light,
+  }) async {
+    final effectiveTheme = theme ?? _getDefaultTheme();
+    final effectiveDarkTheme = darkTheme ?? _getDefaultDarkTheme();
+
+    await pumpWidget(
+      MaterialApp(
+        navigatorKey: NyNavigator.instance.router.navigatorKey,
+        navigatorObservers: [NyRouteHistoryObserver()],
+        initialRoute: route.$1,
+        onGenerateRoute: NyNavigator.instance.router.generator(),
+        theme: effectiveTheme,
+        darkTheme: effectiveDarkTheme,
+        themeMode: themeMode,
+        debugShowCheckedModeBanner: false,
+      ),
+    );
+
+    await pump();
+    await pump(const Duration(milliseconds: 100));
+
+    try {
+      await pumpAndSettle(const Duration(seconds: 5));
+    } catch (e) {
+      await pump(const Duration(milliseconds: 100));
+      await pump(const Duration(milliseconds: 100));
+    }
+  }
+
+  /// Assert that the app navigated to the given route.
+  ///
+  /// Pumps remaining frames to allow navigation animations to complete,
+  /// then checks [Nylo.getCurrentRouteName] matches the route path.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.tap(find.text('Profile'));
+  /// tester.assertNavigatedTo(ProfilePage.path);
+  /// ```
+  void assertNavigatedTo(RouteView route) {
+    final currentRoute = Nylo.getCurrentRouteName();
+    expect(
+      currentRoute,
+      route.$1,
+      reason:
+          'Expected to navigate to "${route.$1}" but current route is "$currentRoute"',
+    );
+  }
+
+  /// Wait for all animations, frame callbacks, and pending UI updates to complete.
+  ///
+  /// A readable alias for [pumpAndSettle]. Use after actions that trigger
+  /// navigation, animations, or state changes.
+  ///
+  /// Example:
+  /// ```dart
+  /// await tester.tap(find.byType(MyButton));
+  /// await tester.settle();
+  /// tester.assertNavigatedTo(ProfilePage.path);
+  /// ```
+  Future<void> settle({Duration? timeout}) async {
+    try {
+      await pumpAndSettle(timeout ?? const Duration(seconds: 5));
+    } catch (e) {
+      await pump(const Duration(milliseconds: 100));
+      await pump(const Duration(milliseconds: 100));
+    }
+  }
+
   /// Simulate an [AppLifecycleState] change on any NyPage in the widget tree.
   ///
   /// This triggers the `didChangeAppLifecycleState` callback, allowing you

@@ -1,3 +1,11 @@
+## [7.17.0] - 2026-04-11
+
+### Added
+
+* **New `visit()` test helper** - Pump a route with full Nylo navigation support, setting up `MaterialApp` with the NyRouter's route generator, navigator key, and route history observer so that `routeTo` navigation works correctly in tests
+* **New `assertNavigatedTo()` test helper** - Assert that the app navigated to a given route by checking `Nylo.getCurrentRouteName()` matches the expected route path
+* **New `settle()` test helper** - A readable alias for `pumpAndSettle` that waits for all animations, frame callbacks, and pending UI updates to complete
+
 ## [7.16.0] - 2026-04-11
 
 ### Fixed
