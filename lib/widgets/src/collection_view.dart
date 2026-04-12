@@ -621,8 +621,30 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       setState(() {});
     },
     'refreshData': (_) async {
+      setLoading(true);
       _data = [];
-      await reboot();
+      _iteration = 1;
+      _syncDataInitialized = false;
+      if (widget.isPullable) {
+        _refreshController.refreshCompleted(resetFooterState: true);
+      }
+
+      try {
+        dynamic result;
+        if (widget.isPullable && widget.paginatedData != null) {
+          result = await Future.value(widget.paginatedData!(_iteration));
+        } else if (widget.data != null) {
+          result = await Future.value(widget.data!());
+        }
+        if (result != null) {
+          assert(result is List<T>, "Data must be a List<$T>");
+          _data = result;
+        }
+      } catch (e) {
+        NyLogger.error(e.toString());
+      }
+
+      setLoading(false);
     },
     'addItem': (data) {
       if (data is! Map || !data.containsKey('item')) return;

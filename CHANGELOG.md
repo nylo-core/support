@@ -1,3 +1,19 @@
+## [7.19.0] - 2026-04-12
+
+### Changed (BREAKING)
+
+* **`Connective` widget redesigned** - Flipped semantics from "show when connected" to "show when missing". Removed `onWifi`, `onMobile`, `onEthernet`, `onVpn`, `onBluetooth`, `onSatellite`, `onOther`, `onNone` parameters in favour of a single `noInternet` parameter that displays a fallback when the device has no internet (wifi, mobile, or ethernet). Migration: replace `onNone: widget` with `noInternet: widget`. Use `Connective.builder()` for any custom connectivity handling
+* **Removed `showLoadingOnInit` and `loadingWidget`** from `Connective` - the initial connectivity check is near-instant, making a loading state unnecessary
+* **`OfflineBanner` now checks for internet absence** (wifi/mobile/ethernet) rather than `NyConnectivityState.none`, correctly showing the banner when the device only has non-internet connections
+
+### Added
+
+* **New `NyConnectivity.hasInternet()` helper** - Checks specifically for wifi, mobile, or ethernet connectivity. Stricter than `isOnline()` which passes for any non-none result
+
+### Fixed
+
+* **`CollectionView.refreshData` state action** - Re-fetches data explicitly for both pullable and regular modes instead of relying on `reboot()`, resetting pagination, loading state, and footer state correctly
+
 ## [7.18.1] - 2026-04-11
 
 ### Fixed

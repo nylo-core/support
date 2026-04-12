@@ -81,6 +81,17 @@ class NyConnectivity {
     return results.contains(ConnectivityResult.bluetooth);
   }
 
+  /// Check if the device has internet connectivity (wifi, mobile, or ethernet).
+  ///
+  /// Unlike [isOnline], this does not consider VPN, bluetooth, or satellite
+  /// as internet connections.
+  static Future<bool> hasInternet() async {
+    final results = await status();
+    return results.contains(ConnectivityResult.wifi) ||
+        results.contains(ConnectivityResult.mobile) ||
+        results.contains(ConnectivityResult.ethernet);
+  }
+
   /// Get a stream of connectivity changes.
   ///
   /// Example:

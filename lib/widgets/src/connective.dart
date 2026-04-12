@@ -6,19 +6,18 @@ import '/localization/ny_localization.dart';
 
 /// A widget that rebuilds based on connectivity state.
 ///
-/// Provides different builders for different connection types,
-/// or a general builder that receives the connectivity state.
+/// Use [noInternet] to show a fallback widget when the device has no
+/// internet connection (wifi, mobile, or ethernet).
 ///
-/// Example with specific builders:
+/// Example:
 /// ```dart
 /// Connective(
-///   onWifi: Text('Connected via WiFi'),
-///   onMobile: Text('Connected via Mobile Data'),
-///   onNone: Text('No connection'),
+///   noInternet: Center(child: Text('No internet connection')),
+///   child: MyContent(),
 /// )
 /// ```
 ///
-/// Example with builder:
+/// Example with builder for full control:
 /// ```dart
 /// Connective.builder(
 ///   builder: (context, state, results) {
@@ -30,31 +29,10 @@ import '/localization/ny_localization.dart';
 /// )
 /// ```
 class Connective extends StatefulWidget {
-  /// Widget to show when connected via WiFi.
-  final Widget? onWifi;
+  /// Widget to show when internet is unavailable (wifi, mobile, ethernet all absent).
+  final Widget? noInternet;
 
-  /// Widget to show when connected via mobile data.
-  final Widget? onMobile;
-
-  /// Widget to show when connected via Ethernet.
-  final Widget? onEthernet;
-
-  /// Widget to show when connected via VPN.
-  final Widget? onVpn;
-
-  /// Widget to show when connected via Bluetooth.
-  final Widget? onBluetooth;
-
-  /// Widget to show when connected via Satellite.
-  final Widget? onSatellite;
-
-  /// Widget to show for other connection types.
-  final Widget? onOther;
-
-  /// Widget to show when offline.
-  final Widget? onNone;
-
-  /// Default widget to show if no specific handler is provided.
+  /// Default widget to show when internet is available.
   final Widget? child;
 
   /// Builder function for custom handling.
@@ -65,12 +43,6 @@ class Connective extends StatefulWidget {
   )?
   builder;
 
-  /// Whether to show a loading indicator while checking initial state.
-  final bool showLoadingOnInit;
-
-  /// Custom loading widget.
-  final Widget? loadingWidget;
-
   /// Callback when connectivity changes.
   final void Function(
     NyConnectivityState state,
@@ -78,20 +50,11 @@ class Connective extends StatefulWidget {
   )?
   onConnectivityChanged;
 
-  /// Creates a Connective widget with specific builders for each state.
+  /// Creates a Connective widget with connectivity requirements.
   const Connective({
     super.key,
-    this.onWifi,
-    this.onMobile,
-    this.onEthernet,
-    this.onVpn,
-    this.onBluetooth,
-    this.onSatellite,
-    this.onOther,
-    this.onNone,
+    this.noInternet,
     this.child,
-    this.showLoadingOnInit = false,
-    this.loadingWidget,
     this.onConnectivityChanged,
   }) : builder = null;
 
@@ -99,17 +62,8 @@ class Connective extends StatefulWidget {
   const Connective.builder({
     super.key,
     required this.builder,
-    this.showLoadingOnInit = false,
-    this.loadingWidget,
     this.onConnectivityChanged,
-  }) : onWifi = null,
-       onMobile = null,
-       onEthernet = null,
-       onVpn = null,
-       onBluetooth = null,
-       onSatellite = null,
-       onOther = null,
-       onNone = null,
+  }) : noInternet = null,
        child = null;
 
   @override
@@ -117,7 +71,6 @@ class Connective extends StatefulWidget {
 }
 
 class _ConnectiveState extends State<Connective> {
-  static const _defaultLoading = Center(child: CircularProgressIndicator());
   static const _empty = SizedBox.shrink();
 
   StreamSubscription<List<ConnectivityResult>>? _subscription;
@@ -188,10 +141,16 @@ class _ConnectiveState extends State<Connective> {
     super.dispose();
   }
 
+  bool _hasInternet() {
+    return _results.contains(ConnectivityResult.wifi) ||
+        _results.contains(ConnectivityResult.mobile) ||
+        _results.contains(ConnectivityResult.ethernet);
+  }
+
   @override
   Widget build(BuildContext context) {
-    if (_isLoading && widget.showLoadingOnInit) {
-      return widget.loadingWidget ?? _defaultLoading;
+    if (_isLoading && widget.builder == null) {
+      return widget.child ?? _empty;
     }
 
     // Use custom builder if provided
@@ -199,19 +158,12 @@ class _ConnectiveState extends State<Connective> {
       return widget.builder!(context, _state, _results);
     }
 
-    // Use specific state widgets
-    final stateWidget = switch (_state) {
-      NyConnectivityState.wifi => widget.onWifi,
-      NyConnectivityState.mobile => widget.onMobile,
-      NyConnectivityState.ethernet => widget.onEthernet,
-      NyConnectivityState.vpn => widget.onVpn,
-      NyConnectivityState.bluetooth => widget.onBluetooth,
-      NyConnectivityState.satellite => widget.onSatellite,
-      NyConnectivityState.other => widget.onOther,
-      NyConnectivityState.none => widget.onNone,
-    };
+    // Show fallback if no internet connection
+    if (widget.noInternet != null && !_hasInternet()) {
+      return widget.noInternet!;
+    }
 
-    return stateWidget ?? widget.child ?? _empty;
+    return widget.child ?? _empty;
   }
 }
 
@@ -268,7 +220,10 @@ class OfflineBanner extends StatelessWidget {
 
     return Connective.builder(
       builder: (context, state, results) {
-        final isOffline = state == NyConnectivityState.none;
+        final isOffline =
+            !results.contains(ConnectivityResult.wifi) &&
+            !results.contains(ConnectivityResult.mobile) &&
+            !results.contains(ConnectivityResult.ethernet);
 
         if (animate) {
           return AnimatedPositioned(
@@ -319,21 +274,23 @@ class OfflineBanner extends StatelessWidget {
 extension ConnectiveExtension on Widget {
   /// Wraps the widget in a Connective that shows an offline placeholder.
   Widget connectiveOr({required Widget offline}) {
-    return Connective(onNone: offline, child: this);
+    return Connective(noInternet: offline, child: this);
   }
 
   /// Only shows the widget when online, otherwise shows nothing.
   Widget onlyOnline() {
-    return Connective(onNone: const SizedBox.shrink(), child: this);
+    return Connective(noInternet: const SizedBox.shrink(), child: this);
   }
 
   /// Only shows the widget when offline, otherwise shows nothing.
   Widget onlyOffline() {
     return Connective.builder(
       builder: (context, state, results) {
-        return state == NyConnectivityState.none
-            ? this
-            : const SizedBox.shrink();
+        final hasInternet =
+            results.contains(ConnectivityResult.wifi) ||
+            results.contains(ConnectivityResult.mobile) ||
+            results.contains(ConnectivityResult.ethernet);
+        return hasInternet ? const SizedBox.shrink() : this;
       },
     );
   }
