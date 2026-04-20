@@ -1,3 +1,9 @@
+## [7.20.0] - 2026-04-20
+
+### Added
+
+* **New `useSafeArea` option on `NavigationHubLayout.journey()`** - Controls whether journey content is wrapped in a `SafeArea`. Defaults to `true` (existing behavior). Set to `false` for edge-to-edge journey pages where backgrounds should extend under system UI (status bar, home indicator)
+
 ## [7.19.0] - 2026-04-12
 
 ### Changed (BREAKING)

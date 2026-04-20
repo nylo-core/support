@@ -441,19 +441,20 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       ],
     );
 
+    Widget body = (_layout?.useSafeArea ?? true)
+        ? SafeArea(child: content)
+        : content;
+
     if (_layout?.backgroundGradient != null) {
       return Scaffold(
         body: Container(
           decoration: BoxDecoration(gradient: _layout?.backgroundGradient),
-          child: SafeArea(child: content),
+          child: body,
         ),
       );
     }
 
-    return Scaffold(
-      backgroundColor: _layout?.backgroundColor,
-      body: SafeArea(child: content),
-    );
+    return Scaffold(backgroundColor: _layout?.backgroundColor, body: body);
   }
 
   /// Build the tab icon
@@ -726,6 +727,15 @@ class NavigationHubLayout {
   /// Individual tabs can override this via [NavigationTab.journey(progressStyle: ...)].
   JourneyProgressStyle? progressStyle;
 
+  /// Whether to wrap journey content in a [SafeArea].
+  ///
+  /// When `true` (default), content is inset from system UI (status bar,
+  /// home indicator). Set to `false` for edge-to-edge journey pages where
+  /// a background should extend under system UI.
+  ///
+  /// Only applies to [NavigationHubLayout.journey].
+  bool? useSafeArea;
+
   /// Custom builder for complete control over the bottom navigation bar.
   ///
   /// When provided, this builder receives [NavBarData] containing the
@@ -814,6 +824,7 @@ class NavigationHubLayout {
     this.backgroundColor,
     this.backgroundGradient,
     this.progressStyle,
+    this.useSafeArea = true,
   }) {
     kind = "journey";
   }
