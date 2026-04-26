@@ -1,3 +1,9 @@
+## [7.20.2] - 2026-04-26
+
+### Changed
+
+* Bumped `error_stack` dependency from `^2.0.1` to `^2.1.1`
+
 ## [7.20.1] - 2026-04-26
 
 ### Fixed
