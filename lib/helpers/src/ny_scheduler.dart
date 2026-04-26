@@ -67,9 +67,17 @@ class NyScheduler {
     return await readBool(key);
   }
 
-  /// Get the key for a task that runs once
+  /// Get the full storage key for a task that runs once.
+  /// Use this with [NyStorage.delete] to reset the task.
   static String getKeyTaskOnce(String name) {
-    return "${name}_once";
+    return key("${name}_once");
+  }
+
+  /// Clear the executed state for a task scheduled with [taskOnce].
+  /// After calling this, the next [taskOnce] invocation with the same
+  /// [name] will execute the callback again.
+  static Future<void> clearTaskOnce(String name) async {
+    await _secureStorage.delete(key: key("${name}_once"));
   }
 
   /// Run a task daily

@@ -1,3 +1,17 @@
+## [7.20.1] - 2026-04-26
+
+### Fixed
+
+* **`NyScheduler.getKeyTaskOnce(name)` now returns the full prefixed storage key** (`ny_scheduler_${name}_once`) instead of the unprefixed `${name}_once`. This makes the documented reset pattern `await NyStorage.delete(NyScheduler.getKeyTaskOnce("welcome_to_app"))` actually delete the stored flag
+
+### Added
+
+* **`NyScheduler.clearTaskOnce(name)`** convenience method that clears a once-task's executed state without needing to compute the storage key manually
+
+### Changed
+
+* Bumped `app_badge_plus` dependency from `^1.2.8` to `^1.2.9`
+
 ## [7.20.0] - 2026-04-20
 
 ### Added
