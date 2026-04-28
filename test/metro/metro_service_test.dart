@@ -170,7 +170,6 @@ void main() {
       expect(widgetsFolder, 'lib/resources/widgets');
       expect(pagesFolder, 'lib/resources/pages');
       expect(modelsFolder, 'lib/app/models');
-      expect(themesFolder, 'lib/resources/themes');
       expect(providerFolder, 'lib/app/providers');
       expect(formsFolder, 'lib/app/forms');
       expect(eventsFolder, 'lib/app/events');
@@ -178,7 +177,6 @@ void main() {
       expect(bootstrapFolder, 'lib/bootstrap');
       expect(configFolder, 'lib/config');
       expect(commandsFolder, 'lib/app/commands');
-      expect(themeColorsFolder, 'lib/resources/themes/styles');
       expect(routeGuardsFolder, 'lib/routes/guards');
       expect(langFolder, 'lang');
     });

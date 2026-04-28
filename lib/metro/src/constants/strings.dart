@@ -2,7 +2,6 @@
 const String fileOption = 'file';
 const String helpFlag = 'help';
 const String forceFlag = 'force';
-const String themeDarkFlag = 'dark';
 const String controllerFlag = 'controller';
 const String modelFlag = 'model';
 const String jsonFlag = 'json';
@@ -22,7 +21,6 @@ const String controllersFolder = 'lib/app/controllers';
 const String widgetsFolder = 'lib/resources/widgets';
 const String pagesFolder = 'lib/resources/pages';
 const String modelsFolder = 'lib/app/models';
-const String themesFolder = 'lib/resources/themes';
 const String providerFolder = 'lib/app/providers';
 const String formsFolder = 'lib/app/forms';
 const String eventsFolder = 'lib/app/events';
@@ -32,7 +30,6 @@ const String networkingInterceptorsFolder =
 const String bootstrapFolder = 'lib/bootstrap';
 const String configFolder = 'lib/config';
 const String commandsFolder = 'lib/app/commands';
-const String themeColorsFolder = 'lib/resources/themes/styles';
 const String routeGuardsFolder = 'lib/routes/guards';
 const String langFolder = 'lang';
 

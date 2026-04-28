@@ -1,3 +1,9 @@
+## [7.21.0] - 2026-04-28
+
+### Removed (BREAKING)
+
+* **Metro CLI theme scaffolding commands removed** - The `make:theme` and `make:theme_colors` Metro commands have been removed along with their underlying methods (`MetroService.makeTheme`, `MetroService.makeThemeColors`, `MetroService.addToTheme`). The `themesFolder`, `themeColorsFolder`, and `themeDarkFlag` constants have also been removed. Themes can still be created manually in `lib/resources/themes/`
+
 ## [7.20.2] - 2026-04-26
 
 ### Changed

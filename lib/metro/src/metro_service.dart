@@ -318,58 +318,6 @@ final Map<Type, BaseController> controllers = {$match
     );
   }
 
-  /// Adds a Theme to your config/theme.dart file.
-  static Future<void> addToTheme(String className) async {
-    String name = className.replaceAll(RegExp(r'(_?theme)'), "");
-    ReCase nameReCase = ReCase(name);
-
-    String classesToAdd =
-        """import '/resources/themes/styles/${nameReCase.snakeCase}_theme_colors.dart';
-import '/resources/themes/${nameReCase.snakeCase}_theme.dart';""";
-
-    String template =
-        """BaseThemeConfig<ColorStyles>(
-    id: '${nameReCase.snakeCase}_theme',
-    description: "${nameReCase.titleCase} theme",
-    theme: ${nameReCase.paramCase}Theme,
-    colors: ${nameReCase.pascalCase}ThemeColors(),
-  ),""";
-
-    String filePath = "lib/config/theme.dart";
-    String originalFile = await loadAsset(filePath);
-
-    // create new file
-    if (originalFile.contains(template)) {
-      return;
-    }
-
-    RegExp reg = RegExp(
-      r'final List<BaseThemeConfig<ColorStyles>> appThemes = \[([^}]*)\];',
-    );
-    final match = _getFirstRegexMatch(reg, originalFile);
-    if (match == null) {
-      return;
-    }
-
-    String temp =
-        """final List<BaseThemeConfig<ColorStyles>> appThemes = [$match $template
-];""";
-
-    String newFile = originalFile.replaceFirst(
-      RegExp(
-        r'final List<BaseThemeConfig<ColorStyles>> appThemes = \[([^}]*)\];',
-      ),
-      temp,
-    );
-
-    // Add import
-    newFile = "$classesToAdd\n$newFile";
-
-    // save new file
-    final File file = File(filePath);
-    await file.writeAsString(newFile);
-  }
-
   /// Runs a process
   static Future<int> runProcess(String command) async {
     List<String> commands = command.split(" ");
@@ -772,30 +720,6 @@ final Map<Type, dynamic> modelDecoders = {$match
     );
   }
 
-  /// Creates a new Theme.
-  static Future<void> makeTheme(
-    String className,
-    String value, {
-    String folderPath = themesFolder,
-    bool forceCreate = false,
-  }) async {
-    String name = className.replaceAll(RegExp(r'(_?theme)'), "");
-
-    String filePath = '$folderPath/${name.snakeCase}_theme.dart';
-
-    await _makeDirectory(folderPath);
-    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
-    await _createNewFile(
-      filePath,
-      value,
-      onSuccess: () {
-        final linkText = '${name.snakeCase}_theme';
-        final link = MetroConsole.hyperlink(linkText, filePath);
-        MetroConsole.writeInGreen('[Theme] $link created 🎉');
-      },
-    );
-  }
-
   /// Creates a new Provider.
   static Future<void> makeProvider(
     String className,
@@ -1063,29 +987,6 @@ final Map<Type, NyApiService> apiDecoders = {$match
     );
   }
 
-  /// Creates a new Theme Colors file.
-  static Future<void> makeThemeColors(
-    String className,
-    String value, {
-    String folderPath = themeColorsFolder,
-    bool forceCreate = false,
-  }) async {
-    String filePath =
-        '$folderPath/${className.toLowerCase()}_theme_colors.dart';
-
-    await _makeDirectory(folderPath);
-    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
-    await _createNewFile(
-      filePath,
-      value,
-      onSuccess: () {
-        final linkText = '${className.toLowerCase()}_theme_colors';
-        final link = MetroConsole.hyperlink(linkText, filePath);
-        MetroConsole.writeInGreen('[Theme Colors] $link created 🎉');
-      },
-    );
-  }
-
   /// Check if a file exist by passing in a [path].
   static Future<bool> hasFile(String path) async => await File(path).exists();
 
@@ -1245,18 +1146,6 @@ final Map<Type, NyApiService> apiDecoders = {$match
             );
             break;
           }
-        case themesFolder:
-          {
-            if (templateName.contains("_theme")) {
-              templateName = templateName.replaceAll("_theme", "");
-            }
-            await makeTheme(
-              templateName,
-              template.stub,
-              forceCreate: (hasForceFlag ?? false),
-            );
-            break;
-          }
         case providerFolder:
           {
             if (templateName.contains("_provider")) {
@@ -1293,18 +1182,6 @@ final Map<Type, NyApiService> apiDecoders = {$match
               template.stub,
               forceCreate: (hasForceFlag ?? false),
               addToConfig: true,
-            );
-            break;
-          }
-        case themeColorsFolder:
-          {
-            if (templateName.contains("_theme_colors")) {
-              templateName = templateName.replaceAll("_theme_colors", "");
-            }
-            await makeThemeColors(
-              templateName,
-              template.stub,
-              forceCreate: (hasForceFlag ?? false),
             );
             break;
           }
