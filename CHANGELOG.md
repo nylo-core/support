@@ -1,3 +1,13 @@
+## [7.22.0] - 2026-04-28
+
+### Added
+
+* **Toast helper methods now accept `duration` and `data` parameters** - `showToastSorry`, `showToastWarning`, `showToastInfo`, `showToastDanger`, `showToastOops`, and `showToastSuccess` now forward optional `duration` (custom display time) and `data` (custom payload) arguments to the underlying `showToast` call
+
+### Changed
+
+* **`description` parameter on toast helpers is now optional** - `showToastSorry`, `showToastWarning`, `showToastInfo`, `showToastDanger`, `showToastOops`, and `showToastSuccess` no longer require `description`, aligning their signatures with the underlying `showToast` method. Existing call sites continue to work unchanged
+
 ## [7.21.0] - 2026-04-28
 
 ### Removed (BREAKING)

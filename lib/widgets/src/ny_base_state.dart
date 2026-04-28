@@ -419,38 +419,104 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Displays a Toast message containing "Sorry" for the title, you
   /// only need to provide a [description].
-  void showToastSorry({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'danger');
+  void showToastSorry({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'danger',
+    );
   }
 
   /// Displays a Toast message containing "Warning" for the title, you
   /// only need to provide a [description].
-  void showToastWarning({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'warning');
+  void showToastWarning({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'warning',
+    );
   }
 
   /// Displays a Toast message containing "Info" for the title, you
   /// only need to provide a [description].
-  void showToastInfo({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'info');
+  void showToastInfo({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'info',
+    );
   }
 
   /// Displays a Toast message containing "Error" for the title, you
   /// only need to provide a [description].
-  void showToastDanger({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'danger');
+  void showToastDanger({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'danger',
+    );
   }
 
   /// Displays a Toast message containing "Oops" for the title, you
   /// only need to provide a [description].
-  void showToastOops({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'danger');
+  void showToastOops({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'danger',
+    );
   }
 
   /// Displays a Toast message containing "Success" for the title, you
   /// only need to provide a [description].
-  void showToastSuccess({String? title, required String description}) {
-    showToast(title: title, description: description, id: 'success');
+  void showToastSuccess({
+    String? title,
+    String? description,
+    Duration? duration,
+    Map<String, dynamic>? data,
+  }) {
+    showToast(
+      title: title,
+      description: description,
+      duration: duration,
+      data: data,
+      id: 'success',
+    );
   }
 
   /// Display a custom Toast message.
