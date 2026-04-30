@@ -1,3 +1,9 @@
+## [7.23.0] - 2026-04-30
+
+### Added
+
+* **`NyStateManaged` widget** - A new `StatefulWidget` that accepts a `child` (either a `State` instance or a function returning one) and an optional `stateName`, allowing pre-built states to be wired into the widget tree directly via `createState`. Exported from `package:nylo_support/widgets/ny_widgets.dart`
+
 ## [7.22.0] - 2026-04-28
 
 ### Added

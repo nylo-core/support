@@ -8,6 +8,7 @@ export 'src/pullable.dart';
 export 'src/collection_view.dart';
 export 'src/language_switcher.dart';
 export 'src/ny_stateful_widget.dart';
+export 'src/ny_state_managed_widget.dart';
 export 'src/ny_state.dart';
 export 'src/ny_page.dart';
 export 'src/button_state.dart';
