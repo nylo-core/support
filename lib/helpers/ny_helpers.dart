@@ -21,3 +21,7 @@ export '/helpers/src/ny_url.dart';
 export '/helpers/src/mixins/api_service.dart';
 export '/helpers/src/button_animation_style.dart';
 export '/helpers/src/button_splash_style.dart';
+export '/helpers/src/str.dart';
+export '/helpers/src/number.dart';
+export '/helpers/src/arr.dart';
+export '/helpers/src/obj.dart';
