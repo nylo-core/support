@@ -555,8 +555,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
           _data = [];
           return;
         }
-        assert(data is List<T>, "Data must be a List<$T>");
-        _data = data;
+        _data = _coerceToList(data);
       } else {
         awaitData(
           perform: () async {
@@ -565,8 +564,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
               _data = [];
               return;
             }
-            assert(data is List<T>, "Data must be a List<$T>");
-            _data = data;
+            _data = _coerceToList(data);
           },
         );
       }
@@ -576,10 +574,10 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
         final data = widget.data!();
         if (data == null) {
           _data = [];
-          return;
+        } else {
+          _data = _coerceToList(data);
         }
-        assert(data is List<T>, "Data must be a List<$T>");
-        _data = data;
+        _syncDataInitialized = true;
         return;
       }
       awaitData(
@@ -589,8 +587,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
             _data = [];
             return;
           }
-          assert(data is List<T>, "Data must be a List<$T>");
-          _data = data;
+          _data = _coerceToList(data);
         },
       );
     }
@@ -622,9 +619,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     },
     'refreshData': (_) async {
       setLoading(true);
-      _data = [];
       _iteration = 1;
-      _syncDataInitialized = false;
       if (widget.isPullable) {
         _refreshController.refreshCompleted(resetFooterState: true);
       }
@@ -636,10 +631,8 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
         } else if (widget.data != null) {
           result = await Future.value(widget.data!());
         }
-        if (result != null) {
-          assert(result is List<T>, "Data must be a List<$T>");
-          _data = result;
-        }
+        _data = result == null ? [] : _coerceToList(result);
+        _syncDataInitialized = true;
       } catch (e) {
         NyLogger.error(e.toString());
       }
@@ -675,55 +668,60 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   /// Refresh the list (for pullable mode)
   Future<void> _onRefresh() async {
     _iteration = 1;
-    _data = [];
 
     if (widget.beforeRefresh != null) {
       await widget.beforeRefresh!();
     }
 
-    List<T>? newData = [];
+    dynamic rawData;
     if (widget.paginatedData is! Future Function(int)) {
-      newData = widget.paginatedData!(_iteration);
+      rawData = widget.paginatedData!(_iteration);
     } else {
-      newData = await widget.paginatedData!(_iteration);
+      rawData = await widget.paginatedData!(_iteration);
     }
-    if (newData == null) {
-      _refreshController.loadNoData();
+    if (rawData == null) {
+      if (mounted) {
+        _refreshController.refreshCompleted(resetFooterState: true);
+      }
       return;
     }
 
-    _data = newData;
-
+    List<T> resolved = _coerceToList(rawData);
     if (widget.afterRefresh != null) {
-      _data = widget.afterRefresh!(_data);
+      final after = widget.afterRefresh!(resolved);
+      if (after is List<T>) {
+        resolved = after;
+      } else if (after is List) {
+        resolved = after.cast<T>();
+      }
     }
 
-    if (widget.onRefresh == null) {
-      _refreshController.refreshCompleted(resetFooterState: true);
-      setState(() {});
-      return;
+    if (widget.onRefresh != null) {
+      await widget.onRefresh!();
     }
-    await widget.onRefresh!();
 
+    if (!mounted) return;
+    setState(() {
+      _data = resolved;
+    });
     _refreshController.refreshCompleted(resetFooterState: true);
-
-    setState(() {});
   }
 
   /// Load more data (for pullable mode)
   Future<void> _onLoading() async {
     _iteration++;
 
-    List<T>? newData = [];
+    dynamic rawData;
     if (widget.paginatedData is! Future Function(int)) {
-      newData = widget.paginatedData!(_iteration);
+      rawData = widget.paginatedData!(_iteration);
     } else {
-      newData = await widget.paginatedData!(_iteration);
+      rawData = await widget.paginatedData!(_iteration);
     }
-    if (newData == null) {
+    if (rawData == null) {
       _refreshController.loadNoData();
       return;
     }
+    final List<T> newData = _coerceToList(rawData);
     if (newData.isEmpty) {
       _refreshController.loadNoData();
       return;
@@ -782,6 +780,16 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     return result;
   }
 
+  /// Coerces a raw value into a `List<T>`. Accepts a `List<T>` directly, casts
+  /// a generic `List` (e.g. `List<dynamic>` decoded from a JSON API response)
+  /// to `List<T>`, and falls back to an empty list otherwise.
+  List<T> _coerceToList(dynamic data) {
+    if (data is List<T>) return data;
+    if (data is List) return data.cast<T>();
+    assert(false, "Data must be a List<$T>");
+    return [];
+  }
+
   /// Returns the header widget based on headerStyle
   Widget _headerType() {
     return switch (widget.headerStyle) {
@@ -829,7 +837,8 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   Widget _buildRegularView(Widget loadingWidget) {
     if (widget.data is! Future Function()) {
       if (!_syncDataInitialized) {
-        _data = widget.data!() ?? [];
+        final raw = widget.data!();
+        _data = raw == null ? [] : _coerceToList(raw);
         _syncDataInitialized = true;
       }
       if (_data.isEmpty) {

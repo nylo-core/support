@@ -1,3 +1,12 @@
+## [7.24.1] - 2026-05-10
+
+### Fixed
+
+* **`CollectionView` no longer crashes mid-refresh on long lists** - `_onRefresh` previously assigned `_data = []` synchronously *before* awaiting the new data, which could leave the live `SliverList` pointing at an empty list mid-frame and throw `RangeError` when cached children relayed out. `_data` is now mutated only inside `setState` after the new data resolves
+* **`CollectionView` accepts `List<dynamic>` returned from JSON-decoded API responses** - previously a `List<dynamic>` (the typical shape from `jsonDecode`) would trip an internal `List<T>` assertion. The widget now lazily casts via `List.cast<T>()`, so callers no longer have to call `.cast<T>()` themselves
+* **`CollectionView.stateActions(name).refreshData()` no longer clears the list mid-fetch** - `_data` was being cleared synchronously before the new data resolved, briefly showing an empty state. The list is now preserved until the new data is ready
+* **Null result from `paginatedData` on pull-to-refresh now preserves the existing list** instead of incorrectly calling `loadNoData()`. The refresh indicator settles and the previous data remains visible
+
 ## [7.24.0] - 2026-05-07
 
 ### Added
