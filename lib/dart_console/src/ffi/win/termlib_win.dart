@@ -33,18 +33,23 @@ class TermLibWindows implements TermLib {
     SetConsoleMode(inputHandle, dwMode);
   }
 
+  /// Console-mode bitmask used to return the Windows console to standard
+  /// interactive line input after a raw-mode read. Exposed (via the static
+  /// getter, not the SetConsoleMode call) so tests can pin the value and
+  /// catch a regression to `0` if anyone re-introduces a bitwise-AND chain.
+  static int get disabledRawModeMask =>
+      ENABLE_ECHO_INPUT |
+      ENABLE_EXTENDED_FLAGS |
+      ENABLE_INSERT_MODE |
+      ENABLE_LINE_INPUT |
+      ENABLE_MOUSE_INPUT |
+      ENABLE_PROCESSED_INPUT |
+      ENABLE_QUICK_EDIT_MODE |
+      ENABLE_VIRTUAL_TERMINAL_INPUT;
+
   @override
   void disableRawMode() {
-    final dwMode =
-        ENABLE_ECHO_INPUT &
-        ENABLE_EXTENDED_FLAGS &
-        ENABLE_INSERT_MODE &
-        ENABLE_LINE_INPUT &
-        ENABLE_MOUSE_INPUT &
-        ENABLE_PROCESSED_INPUT &
-        ENABLE_QUICK_EDIT_MODE &
-        ENABLE_VIRTUAL_TERMINAL_INPUT;
-    SetConsoleMode(inputHandle, dwMode);
+    SetConsoleMode(inputHandle, disabledRawModeMask);
   }
 
   void hideCursor() {

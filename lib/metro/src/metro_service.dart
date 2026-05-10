@@ -324,16 +324,17 @@ final Map<Type, BaseController> controllers = {$match
 
     final processArguments = commands.getRange(1, commands.length).toList();
 
+    // `ProcessStartMode.inheritStdio` hands the parent's stdin/stdout/stderr
+    // file descriptors to the child directly. Previously this code wired the
+    // streams up with `stdin.pipe(process.stdin)`, which left the parent's
+    // stdin in a "consumed" state after the child exited and broke any
+    // subsequent `readLineSync`-based prompt.
     final process = await Process.start(
       commands.first,
       processArguments,
       runInShell: true,
+      mode: ProcessStartMode.inheritStdio,
     );
-
-    // Connect all streams
-    process.stdout.pipe(stdout);
-    process.stderr.pipe(stderr);
-    stdin.pipe(process.stdin); // This pipes stdin to the child process
 
     final exitCode = await process.exitCode;
 

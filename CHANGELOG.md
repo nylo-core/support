@@ -1,3 +1,10 @@
+## [7.24.2] - 2026-05-10
+
+### Fixed
+
+* **`MetroService.runProcess` no longer breaks the parent CLI's stdin** - the helper used to wire `stdin.pipe(process.stdin)` to the child, which left the parent's stdin in a consumed state once the child exited. Subsequent `readLineSync`-based prompts (e.g. in scaffold-ui's auth/iap dialogs) returned `null` and the unhandled `!`-on-null tore down the program. The child now inherits the parent's file descriptors directly via `ProcessStartMode.inheritStdio`, leaving the parent's stdin untouched
+* **`dart_console.disableRawMode()` no longer zeroes the Windows console mode** - the disabled-mode bitmask was built with `&` instead of `|`, so the OR-only-makes-sense flags resolved to `0` and `SetConsoleMode(handle, 0)` killed line input, echo, and processed input. As a result, `stdin.readLineSync` on Windows could not detect Enter after a `Console.readKey` call. The mask is now correctly OR-combined
+
 ## [7.24.1] - 2026-05-10
 
 ### Fixed
