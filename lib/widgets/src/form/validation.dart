@@ -6,6 +6,42 @@ export 'validation/form_rule.dart';
 export 'validation/form_validation_response.dart';
 export 'validation/rules.dart';
 
+/// Signature for the closure-based validator used by `InputField.validate`.
+///
+/// The closure receives a fresh [FormValidator] and the field's current
+/// value, and is expected to register rules — typically via
+/// `validate.that(data, attribute).<rule>()`.
+typedef FormValidatorCallback =
+    void Function(FormValidator validate, dynamic data);
+
+/// Validates form field input using a typed rule pipeline.
+///
+/// There are three patterns for building a validator:
+///
+/// 1. Named constructor — single rule:
+/// ```dart
+/// FormValidator.notEmpty()
+/// FormValidator.email()
+/// ```
+///
+/// 2. Chainable fluent API — multiple rules:
+/// ```dart
+/// FormValidator().notEmpty().minLength(3)
+/// FormValidator().email().nullable()
+/// ```
+///
+/// 3. Explicit list of [FormRule] objects:
+/// ```dart
+/// FormValidator.rule([
+///   FormRuleNotEmpty(null),
+///   FormRuleMinLength(3, null),
+/// ])
+/// ```
+///
+/// Call `.nullable()` to skip all rules when the value is null or empty.
+///
+/// Passed to `InputField.formValidator`; the first failing rule's message is
+/// shown beneath the field via `InputDecoration.errorText`.
 class FormValidator {
   String? attribute;
   dynamic data;
@@ -15,12 +51,35 @@ class FormValidator {
   /// Create a new form validator with [message] and [data]
   FormValidator({this.data, this.attribute});
 
-  /// Create a new form validator with [rules]
+  /// Create a validator from an explicit list of [FormRule] objects.
+  ///
+  /// [rules] is a `List<FormRule>`. For most cases, prefer the named
+  /// constructors (e.g. `FormValidator.notEmpty()`) or the chainable fluent
+  /// API (e.g. `FormValidator().notEmpty().minLength(3)`).
   FormValidator.rule(this.rules, {this.data});
 
   /// Sets the attribute name for error messages.
   void setAttribute(String? attribute) {
     this.attribute = attribute;
+  }
+
+  /// Configures the validator with the value and attribute to validate, then
+  /// returns `this` so rules can be chained.
+  ///
+  /// Designed for use inside the `InputField.validate` closure:
+  /// ```dart
+  /// InputField(
+  ///   validate: (validate, data) {
+  ///     validate.that(data, "Username").minLength(3);
+  ///   },
+  /// )
+  /// ```
+  FormValidator that(dynamic data, [String? attribute]) {
+    setData(data);
+    if (attribute != null) {
+      setAttribute(attribute);
+    }
+    return this;
   }
 
   /// Validate a password with a strength of 1 or 2

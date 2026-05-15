@@ -20,7 +20,28 @@ class InputField extends StatefulWidget {
   final FocusNode? focusNode;
   final String? hintText;
   final TextStyle? hintStyle;
+
+  /// Validates the field's current value. See [FormValidator] for the three
+  /// supported patterns (named constructor, chainable API, or explicit rule
+  /// list). The first failing rule's message renders as the field's error text.
   final FormValidator? formValidator;
+
+  /// Closure-based validator. Receives a fresh [FormValidator] and the
+  /// current field value; register rules via
+  /// `validate.that(data, attribute).<rule>()`.
+  ///
+  /// Mutually exclusive with [formValidator] — set one or the other.
+  ///
+  /// ```dart
+  /// InputField(
+  ///   controller: _controller,
+  ///   labelText: "Username",
+  ///   validate: (validate, data) {
+  ///     validate.that(data, "Username").minLength(3);
+  ///   },
+  /// )
+  /// ```
+  final FormValidatorCallback? validate;
   final String? dummyData;
   final Function(String value)? onChanged;
   final TextInputAction? textInputAction;
@@ -101,6 +122,7 @@ class InputField extends StatefulWidget {
     this.hintStyle,
     this.focusNode,
     this.formValidator,
+    this.validate,
     this.dummyData,
     this.onChanged,
     this.style,
@@ -161,7 +183,10 @@ class InputField extends StatefulWidget {
     this.field,
     this.stateName,
     this.enableInteractiveSelection = true,
-  });
+  }) : assert(
+         formValidator == null || validate == null,
+         'Provide either formValidator or validate, not both.',
+       );
 
   /// CapitalizeWords Text Field - auto-capitalizes each word
   InputField.capitalizeWords({
@@ -182,6 +207,7 @@ class InputField extends StatefulWidget {
     TextStyle? hintStyle,
     FocusNode? focusNode,
     FormValidator? formValidator,
+    FormValidatorCallback? validate,
     String? dummyData,
     Function(String value)? onChanged,
     StrutStyle? strutStyle,
@@ -257,6 +283,7 @@ class InputField extends StatefulWidget {
          hintStyle: hintStyle,
          focusNode: focusNode,
          formValidator: formValidator,
+         validate: validate,
          dummyData: dummyData,
          onChanged: onChanged,
          strutStyle: strutStyle,
@@ -321,6 +348,7 @@ class InputField extends StatefulWidget {
     required Field field,
     FieldStyleTextField? style,
     FormValidator? formValidator,
+    FormValidatorCallback? validate,
     Function(String value)? onChanged,
   }) : this(
          field: field,
@@ -345,6 +373,7 @@ class InputField extends StatefulWidget {
          hintStyle: style?.hintStyle,
          focusNode: style?.focusNode,
          formValidator: formValidator,
+         validate: validate,
          dummyData: style?.dummyData,
          onChanged: onChanged,
          strutStyle: style?.strutStyle,
@@ -425,6 +454,7 @@ class InputField extends StatefulWidget {
     TextStyle? hintStyle,
     FocusNode? focusNode,
     FormValidator? formValidator,
+    FormValidatorCallback? validate,
     String? dummyData,
     Function(String value)? onChanged,
     TextStyle? style,
@@ -501,6 +531,7 @@ class InputField extends StatefulWidget {
          hintStyle: hintStyle,
          focusNode: focusNode,
          formValidator: formValidator,
+         validate: validate,
          dummyData: dummyData,
          onChanged: onChanged,
          style: style,
@@ -579,6 +610,7 @@ class InputField extends StatefulWidget {
     TextStyle? hintStyle,
     FocusNode? focusNode,
     FormValidator? formValidator,
+    FormValidatorCallback? validate,
     String? dummyData,
     Function(String value)? onChanged,
     TextStyle? style,
@@ -655,6 +687,7 @@ class InputField extends StatefulWidget {
          hintStyle: hintStyle,
          focusNode: focusNode,
          formValidator: formValidator,
+         validate: validate,
          dummyData: dummyData,
          onChanged: onChanged,
          style: style,
@@ -732,6 +765,7 @@ class InputField extends StatefulWidget {
     String? hintText,
     TextStyle? hintStyle,
     FormValidator? formValidator,
+    FormValidatorCallback? validate,
     String? dummyData,
     Function(String value)? onChanged,
     TextInputAction? textInputAction,
@@ -812,6 +846,7 @@ class InputField extends StatefulWidget {
       passwordViewable: passwordViewable ?? this.passwordViewable,
       hintStyle: hintStyle ?? this.hintStyle,
       formValidator: formValidator ?? this.formValidator,
+      validate: validate ?? this.validate,
       dummyData: dummyData ?? this.dummyData,
       onChanged: onChanged ?? this.onChanged,
       textInputAction: textInputAction ?? this.textInputAction,
@@ -890,6 +925,7 @@ class InputField extends StatefulWidget {
       hintText: hintText,
       hintStyle: hintStyle,
       formValidator: formValidator,
+      validate: validate,
       dummyData: dummyData,
       onChanged: onChanged,
       style: style,
@@ -1058,6 +1094,8 @@ class _InputFieldState extends NyState<InputField> {
   bool _obscured = false;
   bool _passedValidation = false;
   TextInputFormatter? maskTextInputFormatter;
+  String? _lastErrorMessage;
+  bool _hasReportedFirstResult = false;
 
   _InputFieldState(String? stateName) {
     if (stateName != null) {
@@ -1166,19 +1204,43 @@ class _InputFieldState extends NyState<InputField> {
   String? _validate() {
     if (didChange == false) return null;
 
-    if (widget.formValidator != null) {
-      widget.formValidator?.setAttribute(widget.labelText);
-      FormValidationResult? response = widget.formValidator?.check(
-        controllerValue,
-      );
-
-      if (response?.isValid == false) {
-        return response?.getFirstErrorMessage();
-      }
-
-      return null;
+    FormValidator? validator;
+    if (widget.validate != null) {
+      validator = FormValidator(attribute: widget.labelText);
+      widget.validate!(validator, controllerValue);
+    } else if (widget.formValidator != null) {
+      validator = widget.formValidator!;
+      validator.setAttribute(widget.labelText);
     }
-    return null;
+
+    if (validator == null) return null;
+
+    final FormValidationResult result = validator.check(controllerValue);
+    final String? errorMessage = result.isValid
+        ? null
+        : result.getFirstErrorMessage();
+
+    _reportValidationResult(result, errorMessage);
+
+    return errorMessage;
+  }
+
+  /// Notify [InputField.handleValidationError] on result transitions, deferred
+  /// to the next frame so callers can safely call `setState` from inside it.
+  void _reportValidationResult(FormValidationResult result, String? message) {
+    final handler = widget.handleValidationError;
+    if (handler == null) return;
+
+    final bool changed =
+        !_hasReportedFirstResult || message != _lastErrorMessage;
+    if (!changed) return;
+
+    _lastErrorMessage = message;
+    _hasReportedFirstResult = true;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      handler(result);
+    });
   }
 
   @override

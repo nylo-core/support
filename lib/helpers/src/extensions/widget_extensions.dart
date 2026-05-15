@@ -507,6 +507,37 @@ extension NyStatefulExt on StatefulWidget {
     return Flexible(key: key, flex: flex, fit: fit, child: this);
   }
 
+  /// Add padding to the widget.
+  Padding paddingOnly({
+    double left = 0.0,
+    double top = 0.0,
+    double right = 0.0,
+    double bottom = 0.0,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(
+        top: top,
+        left: left,
+        right: right,
+        bottom: bottom,
+      ),
+      child: this,
+    );
+  }
+
+  /// Add symmetric padding to the widget.
+  Padding paddingSymmetric({double horizontal = 0.0, double vertical = 0.0}) {
+    return Padding(
+      padding: EdgeInsets.symmetric(vertical: vertical, horizontal: horizontal),
+      child: this,
+    );
+  }
+
+  /// Make a widget visible when a condition is true.
+  Widget visibleWhen(bool condition) {
+    return Visibility(visible: condition, child: this);
+  }
+
   /// Make gradient fader from the bottom of the widget.
   /// [strength] ranges from 0.0 (subtle) to 1.0 (strong).
   FadeOverlay faderBottom({double strength = 0.2, Color color = Colors.black}) {

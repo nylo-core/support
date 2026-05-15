@@ -1,3 +1,16 @@
+## [7.25.0] - 2026-05-15
+
+### Added
+
+* **Closure-based validator on `InputField`** - New `validate` parameter accepts `(FormValidator validate, dynamic data) { ... }`, letting you build rules inline without constructing a `FormValidator` up front. Use `validate.that(data, "Field").minLength(3)` inside the closure. Mutually exclusive with the existing `formValidator` parameter (enforced via assertion)
+* **`FormValidator.that(data, [attribute])`** - New chainable configuration method that sets the value and attribute in a single call and returns `this`, designed for use inside `InputField.validate` closures
+* **`FormValidatorCallback` typedef** - Public signature `void Function(FormValidator validate, dynamic data)` for the closure used by `InputField.validate`
+* **`paddingOnly`, `paddingSymmetric`, and `visibleWhen` extensions on `StatefulWidget`** - Previously only available on `StatelessWidget`; `StyledText` and other `StatefulWidget`s can now be wrapped via these fluent helpers (e.g. `StyledText.template(...).paddingOnly(top: 20)`)
+
+### Fixed
+
+* **`InputField.handleValidationError` now fires when validation results change** - The callback was declared but never invoked by the internal `_validate` flow. Results are now reported on each transition (first run and whenever the error message changes), deferred to the next frame so handlers can safely call `setState`
+
 ## [7.24.2] - 2026-05-10
 
 ### Fixed
