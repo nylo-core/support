@@ -230,6 +230,7 @@ class NyLogger {
 
   /// Applies ANSI color to a message based on the log type.
   /// ANSI colors are not supported on web (dart:io unavailable).
+  // test: wasnaker github desktop check
   static String _colorize(String message, String? type) {
     if (kIsWeb || !useColors || !kDebugMode) return message;
     if (!stdout.supportsAnsiEscapes) return message;
