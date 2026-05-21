@@ -1,4 +1,3 @@
-import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
@@ -30,9 +29,9 @@ extension NyMapExt on Map? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 }
 
@@ -44,9 +43,9 @@ extension NyListExt on List? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 
   /// Convert a list to [Row]

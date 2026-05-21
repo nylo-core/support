@@ -52,6 +52,14 @@ class Nylo {
   final Map<Type, dynamic> _controllerDecoders = {};
   final Map<Type, dynamic> _singletonControllers = {};
   Function(String route, dynamic data)? onDeepLinkAction;
+
+  /// Callback invoked for each incoming external URI when [useDeepLinks] is
+  /// enabled. Return `true` to let Nylo route automatically; return `false`
+  /// to suppress automatic routing (e.g. to handle the URI manually).
+  Future<bool> Function(Uri uri)? onIncomingLinkAction;
+  bool? _useDeepLinks;
+  String? _deepLinkFallbackRoute;
+  NyDeepLinkHandler? _deepLinkHandler;
   FlutterLocalNotificationsPlugin? _localNotifications;
   bool? _useLocalNotifications;
   Function(NotificationResponse details)? _onDidReceiveLocalNotification;
@@ -134,8 +142,30 @@ class Nylo {
   ///  print("Deep link route: $route");
   ///  print("Deep link data: $data");
   ///  });
+  @Deprecated(
+    'Use onIncomingLink((Uri uri) async => true) instead. '
+    'The old form fires on every named route, not just deep links. '
+    'Will be removed in 8.0.',
+  )
   void onDeepLink(Function(String route, dynamic data) callback) {
     onDeepLinkAction = callback;
+  }
+
+  /// Register a callback fired for every incoming external URI captured by
+  /// [useDeepLinks]. Return `true` to let Nylo route automatically; return
+  /// `false` to handle the URI yourself.
+  ///
+  /// ```dart
+  /// nylo.onIncomingLink((Uri uri) async {
+  ///   if (uri.path == '/login') {
+  ///     // custom handling
+  ///     return false;
+  ///   }
+  ///   return true;
+  /// });
+  /// ```
+  void onIncomingLink(Future<bool> Function(Uri uri) callback) {
+    onIncomingLinkAction = callback;
   }
 
   /// Find a [controller]
@@ -294,6 +324,24 @@ class Nylo {
     _onDidReceiveLocalNotification = onDidReceiveLocalNotification;
     _onDidReceiveBackgroundNotificationResponse =
         onDidReceiveBackgroundNotificationResponse;
+  }
+
+  /// Enable platform deep-link capture (Android App Links, iOS Universal
+  /// Links, custom URL schemes, web URLs).
+  ///
+  /// When enabled, Nylo subscribes to incoming URIs and routes them through
+  /// the registered router. Pair with [onIncomingLink] to intercept URIs
+  /// before routing.
+  ///
+  /// [fallbackRoute] is navigated to when an incoming URI's path is not
+  /// registered. If omitted, the existing unknown-route handler is used.
+  ///
+  /// ```dart
+  /// nylo.useDeepLinks(fallbackRoute: HomePage.path);
+  /// ```
+  void useDeepLinks({String? fallbackRoute}) {
+    _useDeepLinks = true;
+    _deepLinkFallbackRoute = fallbackRoute;
   }
 
   /// Check if the app should monitor app usage
@@ -596,6 +644,18 @@ class Nylo {
           FlutterLocalNotificationsPlugin();
       if (nyloApp._initializationSettings != null) {
         nyloApp.setLocalNotifications(flutterLocalNotificationsPlugin);
+      }
+    }
+    if (nyloApp._useDeepLinks == true && !isTestMode) {
+      nyloApp._deepLinkHandler = NyDeepLinkHandler(
+        fallbackRoute: nyloApp._deepLinkFallbackRoute,
+      );
+      try {
+        await nyloApp._deepLinkHandler!.init();
+        nyloApp._deepLinkHandler!.listen();
+      } catch (e) {
+        // Unsupported platform or plugin failure; continue without deep links.
+        NyLogger.error('Deep link initialization failed: $e');
       }
     }
 

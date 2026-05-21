@@ -1,3 +1,27 @@
+## [7.26.0] - 2026-05-21
+
+### Added
+
+* **Deep linking support** - New `Nylo.useDeepLinks({String? fallbackRoute})` opts the app into platform deep-link capture (Android App Links, iOS Universal Links, custom URL schemes, and web URLs) through the new `app_links` dependency. Captured URIs are routed through the registered `NyRouter`; a path that is not registered routes to `fallbackRoute` when one is supplied, otherwise it falls through to the existing unknown-route handler
+* **`Nylo.onIncomingLink((Uri uri) async => bool)`** - Registers a callback invoked for every captured deep link before routing. Return `true` to let Nylo route automatically, or `false` to handle the URI yourself
+* **`NyDeepLinkHandler`** - Exported from `router/ny_router.dart`; encapsulates cold-start and warm-start URI capture and dispatch, with injectable `AppLinks` and dispatcher seams for testing
+
+### Changed
+
+* **Relaxed `collection` from `^1.19.1` to `^1.18.0`** - `collection` is also vendored by the Flutter SDK; the looser floor removes the same class of resolution conflict as the `characters` fix below
+* **Corrected the `environment` Flutter constraint from `>=3.24.0` to `>=3.38.4`** - the previous value could not be satisfied alongside the `sdk: ^3.10.7` Dart constraint (Flutter 3.24 ships Dart 3.5), so it now states the true minimum
+
+### Deprecated
+
+* **`Nylo.onDeepLink(callback)`** - Superseded by `Nylo.onIncomingLink`. The old form fires on every named route, not just deep links; it will be removed in 8.0
+
+### Fixed
+
+* **Nylo no longer crashes on Flutter web during boot** - `NyLogger._colorize()` accessed `stdout.supportsAnsiEscapes`, which throws `Unsupported operation` on web because `dart:io` is unavailable in the browser. `stdout` access is now guarded behind a `kIsWeb` check
+* **`.dd()` no longer throws `UnsupportedError` on Flutter web** - the `dd()` ("dump and die") extensions on `String`, `int`, `double`, `bool`, `Map`, `List`, and `DateTime` called `dart:io`'s `exit(0)`, which is unavailable on web. Dump-and-exit now routes through the new `NyLogger.dd()` helper, which skips the `exit()` step on web and behaves like `dump()` there
+* **`flutter pub get` now resolves across all supported Flutter releases** - `characters` was constrained to `^1.4.1`, but the Flutter SDK vendors `characters` at an exact version and the 3.38 stable line ships `1.4.0`. Dependency resolution therefore failed on any Flutter release that bundles `characters 1.4.0`. The constraint is now `^1.4.0`, which resolves whether the SDK bundles `1.4.0` or `1.4.1`
+* **Router page transitions compile on Flutter 3.44+** - Flutter 3.44 relocated `CupertinoPageTransitionsBuilder` from the material library to the cupertino library. The router transition files (`ny_page_transition_settings.dart`, `page_transition.dart`, `transition_type.dart`) now import `package:flutter/cupertino.dart` so the class resolves on current Flutter releases
+
 ## [7.25.0] - 2026-05-15
 
 ### Added

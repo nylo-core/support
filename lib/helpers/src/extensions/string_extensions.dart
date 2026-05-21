@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart' show Color;
 import '../helper.dart' show nyHexColor;
@@ -15,9 +14,9 @@ extension NyStrExt on String? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump(this ?? "", tag);
-    exit(0);
+    NyLogger.dd(this ?? "", tag);
   }
 
   /// jsonDecode a [String].
@@ -38,9 +37,9 @@ extension NyStringExt on String {
 
   /// dump the value to the console and exit the app.
   /// [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump(toString(), tag);
-    exit(0);
+    NyLogger.dd(toString(), tag);
   }
 
   /// Convert a string to boolean.

@@ -203,6 +203,16 @@ class NyLogger {
     _loggerPrint(message ?? "", tag, alwaysPrint);
   }
 
+  /// Dumps a [message] (with optional [tag]) to the console, then exits the app.
+  ///
+  /// The exit is skipped on web, where `dart:io`'s `exit()` is unavailable and
+  /// would throw `UnsupportedError`. On web this behaves like [dump].
+  static void dd(dynamic message, String? tag) {
+    dump(message, tag);
+    if (kIsWeb) return;
+    exit(0);
+  }
+
   /// Log json data [message] to the console.
   /// It will only print if your app's environment is in debug mode.
   /// You can override this by setting [alwaysPrint] = true.
@@ -230,7 +240,6 @@ class NyLogger {
 
   /// Applies ANSI color to a message based on the log type.
   /// ANSI colors are not supported on web (dart:io unavailable).
-  // test: wasnaker github desktop check
   static String _colorize(String message, String? type) {
     if (kIsWeb || !useColors || !kDebugMode) return message;
     if (!stdout.supportsAnsiEscapes) return message;

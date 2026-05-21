@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import '../ny_logger.dart';
 
 /// Extensions for [int]
@@ -10,9 +8,9 @@ extension NyIntExt on int? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 }
 
@@ -24,9 +22,9 @@ extension NyDoubleExt on double? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 }
 
@@ -38,8 +36,8 @@ extension NyBoolExt on bool? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 }

@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:get_time_ago/get_time_ago.dart';
 import 'package:intl/intl.dart' as intl;
 import '../ny_logger.dart';
@@ -283,8 +281,8 @@ extension NyDateTimeExt on DateTime? {
   }
 
   /// dump the value to the console and exit the app. [tag] is optional.
+  /// On web the exit step is skipped (`dart:io`'s `exit()` is unavailable).
   void dd({String? tag}) {
-    NyLogger.dump((this ?? "").toString(), tag);
-    exit(0);
+    NyLogger.dd((this ?? "").toString(), tag);
   }
 }

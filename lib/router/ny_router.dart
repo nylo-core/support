@@ -3,6 +3,7 @@ export 'src/ny_router.dart';
 export 'src/ny_navigator.dart';
 export 'src/route_matcher.dart';
 export 'src/router_functions.dart';
+export 'src/ny_deep_link.dart';
 
 // Models
 export 'src/models/ny_page_transition_settings.dart';
