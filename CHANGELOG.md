@@ -1,3 +1,9 @@
+## [7.26.2] - 2026-05-23
+
+### Changed
+
+* **Bumped `error_stack` from `^2.1.3` to `^2.1.4`** - routine compatibility refresh
+
 ## [7.26.1] - 2026-05-23
 
 ### Changed
