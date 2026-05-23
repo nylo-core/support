@@ -6,8 +6,8 @@ import 'package:win32/win32.dart';
 import '../termlib.dart';
 
 class TermLibWindows implements TermLib {
-  late final int inputHandle;
-  late final int outputHandle;
+  late final HANDLE inputHandle;
+  late final HANDLE outputHandle;
 
   @override
   int setWindowHeight(int height) {
@@ -30,14 +30,14 @@ class TermLibWindows implements TermLib {
         (~ENABLE_PROCESSED_INPUT) &
         (~ENABLE_LINE_INPUT) &
         (~ENABLE_WINDOW_INPUT);
-    SetConsoleMode(inputHandle, dwMode);
+    SetConsoleMode(inputHandle, CONSOLE_MODE(dwMode));
   }
 
   /// Console-mode bitmask used to return the Windows console to standard
   /// interactive line input after a raw-mode read. Exposed (via the static
   /// getter, not the SetConsoleMode call) so tests can pin the value and
   /// catch a regression to `0` if anyone re-introduces a bitwise-AND chain.
-  static int get disabledRawModeMask =>
+  static CONSOLE_MODE get disabledRawModeMask =>
       ENABLE_ECHO_INPUT |
       ENABLE_EXTENDED_FLAGS |
       ENABLE_INSERT_MODE |
@@ -53,7 +53,8 @@ class TermLibWindows implements TermLib {
   }
 
   void hideCursor() {
-    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()..ref.bVisible = 0;
+    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()
+      ..ref.bVisible = false;
     try {
       SetConsoleCursorInfo(outputHandle, lpConsoleCursorInfo);
     } finally {
@@ -62,7 +63,8 @@ class TermLibWindows implements TermLib {
   }
 
   void showCursor() {
-    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()..ref.bVisible = 1;
+    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()
+      ..ref.bVisible = true;
     try {
       SetConsoleCursorInfo(outputHandle, lpConsoleCursorInfo);
     } finally {
@@ -123,7 +125,7 @@ class TermLibWindows implements TermLib {
   }
 
   TermLibWindows() {
-    outputHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-    inputHandle = GetStdHandle(STD_INPUT_HANDLE);
+    outputHandle = GetStdHandle(STD_OUTPUT_HANDLE).value;
+    inputHandle = GetStdHandle(STD_INPUT_HANDLE).value;
   }
 }

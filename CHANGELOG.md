@@ -1,3 +1,11 @@
+## [7.26.1] - 2026-05-23
+
+### Changed
+
+* **Bumped `win32` from `^5.15.0` to `^6.3.0`** - the v6 API tightens the FFI surface: console handles are now exposed as the typed `HANDLE` struct (with `.value` returning the raw `int`), `SetConsoleMode` accepts a `CONSOLE_MODE` wrapper around its mode bitmask, and `CONSOLE_CURSOR_INFO.bVisible` is a `bool` instead of a `0`/`1` integer. `TermLibWindows` (`lib/dart_console/src/ffi/win/termlib_win.dart`) has been updated for each of these: `inputHandle`/`outputHandle` are now `HANDLE`, populated via `GetStdHandle(...).value`; `disableRawMode()` wraps its bitmask in `CONSOLE_MODE(...)`; `disabledRawModeMask` is now typed `CONSOLE_MODE`; and `hideCursor`/`showCursor` set `bVisible = false`/`bVisible = true`
+* **Bumped `app_links` from `^6.3.2` to `^7.0.0`** - keeps the deep-link plumbing introduced in 7.26.0 (`Nylo.useDeepLinks`, `Nylo.onIncomingLink`, `NyDeepLinkHandler`) aligned with the latest plugin
+* **Bumped `flutter_secure_storage` from `^10.0.0` to `^10.3.0`**, `error_stack` from `^2.1.2` to `^2.1.3`, `flutter_multi_formatter` from `^2.13.10` to `^2.13.11`, `app_badge_plus` from `^1.2.9` to `^1.2.10`, and `patrol` from `^4.5.0` to `^4.6.0` - routine compatibility refreshes
+
 ## [7.26.0] - 2026-05-21
 
 ### Added
