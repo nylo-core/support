@@ -49,7 +49,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 ```yaml
 dependencies:
-  nylo_support: ^7.26.2
+  nylo_support: ^7.27.0
 ```
 
 ### Documentation

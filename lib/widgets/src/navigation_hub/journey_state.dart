@@ -7,7 +7,7 @@ import '/widgets/ny_widgets.dart';
 /// This class extends [NyState] with journey-specific functionality to make it easier
 /// to create onboarding flows and multi-step journeys.
 abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
-  JourneyState({super.path, required this.navigationHubState});
+  JourneyState({super.name, super.path, required this.navigationHubState});
 
   /// The state name of the navigation hub
   final String navigationHubState;

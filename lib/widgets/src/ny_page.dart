@@ -10,7 +10,7 @@ import 'package:flutter/material.dart';
 abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
     with WidgetsBindingObserver {
   /// Base NyPage
-  NyPage({super.path});
+  NyPage({super.name, super.path});
 
   /// Check if the widget should be loaded.
   @override

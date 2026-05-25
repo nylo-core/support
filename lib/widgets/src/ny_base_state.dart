@@ -19,7 +19,7 @@ import 'package:skeletonizer/skeletonizer.dart';
 
 abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// Base NyState
-  NyBaseState({String? path}) : stateName = path;
+  NyBaseState({String? name, String? path}) : stateName = name ?? path;
 
   /// Helper to get the [TextTheme].
   TextTheme get textTheme => Theme.of(context).textTheme;

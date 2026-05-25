@@ -70,6 +70,18 @@ void updateState<T>(
 
 /// Send a state action to a [NyState] or [NyPage] in your application.
 /// Provide the [state] and the [action] you want to send.
-void stateAction(String action, {required dynamic state, dynamic data}) {
-  updateState(state, data: {"action": action, "data": data});
+///
+/// Pass [id] to target a specific instance of a `NyStateManaged` widget — the
+/// routing key becomes `"${state}_$id"`.
+void stateAction(
+  String action, {
+  required dynamic state,
+  dynamic data,
+  String? id,
+}) {
+  dynamic target = state;
+  if (id != null && state is String) {
+    target = "${state}_$id";
+  }
+  updateState(target, data: {"action": action, "data": data});
 }

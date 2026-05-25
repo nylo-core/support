@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
   /// Base NyState
-  NyState({super.path});
+  NyState({super.name, super.path});
 
   @override
   void initState() {
@@ -21,6 +21,14 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
       }
 
       stateName = _controller.state;
+    }
+
+    /// Set the state name from a NyStateManaged widget that declares its baseState
+    if (widget is NyStateManaged) {
+      final managed = widget as NyStateManaged;
+      if (managed.baseState != null) {
+        stateName = managed.stateKey;
+      }
     }
 
     if (allowStateUpdates && eventBus != null) {

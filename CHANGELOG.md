@@ -1,3 +1,15 @@
+## [7.27.0] - 2026-05-25
+
+### Added
+
+* **Multi-instance `NyStateManaged` widgets** - `NyStateManaged` now exposes a `baseState` (widget-type identifier) and an `id` (instance identifier) constructor parameter, plus a composed `stateKey` getter that resolves to `baseState` when `id` is null and `"${baseState}_$id"` otherwise. Multiple instances of the same managed widget can now receive scoped state updates rather than sharing a single routing key
+* **`stateAction(action, state:, id:)`** - The state-action helper accepts a new optional `id` argument; when `state` is a `String` and `id` is supplied, the dispatch key becomes `"${state}_$id"`, delivering the action to the matching `NyStateManaged` instance only
+* **`name` constructor parameter on `NyBaseState`, `NyState`, `NyPage`, and `JourneyState`** - Provides an explicit state-name override. When set it takes precedence over the existing `path` argument (`stateName = name ?? path`). `NyState.initState` additionally adopts the parent `NyStateManaged.stateKey` as its `stateName` when the managed widget declares a `baseState`, so the routing key flows from the widget down to its state automatically
+
+### Deprecated
+
+* **`NyStateManaged.stateName` (constructor parameter and getter)** - Superseded by `id`. The constructor still accepts `stateName` and forwards it to `id` (`id = id ?? stateName`), and the `stateName` getter now returns `id`, so existing call sites keep compiling. New code should pass `baseState` + `id` and read `stateKey` for the composed routing key
+
 ## [7.26.2] - 2026-05-23
 
 ### Changed
