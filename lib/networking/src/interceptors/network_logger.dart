@@ -1,6 +1,6 @@
-import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:characters/characters.dart';
 import 'package:dio/dio.dart';
 import 'package:uuid/uuid.dart';
 
@@ -553,16 +553,34 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printBlock(String msg) {
-    final lines = (msg.length / maxWidth).ceil();
-    for (var i = 0; i < lines; ++i) {
-      logPrint(
-        (i >= 0 ? '║ ' : '') +
-            msg.substring(
-              i * maxWidth,
-              math.min<int>(i * maxWidth + maxWidth, msg.length),
-            ),
-      );
+    for (final chunk in _chunk(msg, maxWidth)) {
+      logPrint('║ $chunk');
     }
+  }
+
+  /// Split [text] into chunks of at most [width] characters without breaking
+  /// multi-byte characters across chunk boundaries.
+  ///
+  /// [String.substring] slices on UTF-16 code-unit boundaries, which can cut a
+  /// surrogate pair (any non-BMP character, e.g. an emoji) in half. The lone
+  /// surrogates that result are encoded as U+FFFD on stdout, which crashes the
+  /// Flutter tool's log reader. Iterating grapheme clusters keeps emoji — and
+  /// composed sequences like flags and ZWJ emoji — whole.
+  List<String> _chunk(String text, int width) {
+    if (width <= 0) return [text];
+    final chunks = <String>[];
+    final buffer = StringBuffer();
+    var count = 0;
+    for (final grapheme in text.characters) {
+      buffer.write(grapheme);
+      if (++count >= width) {
+        chunks.add(buffer.toString());
+        buffer.clear();
+        count = 0;
+      }
+    }
+    if (buffer.isNotEmpty) chunks.add(buffer.toString());
+    return chunks;
   }
 
   String _indent([int tabCount = kInitialTab]) => tabStep * tabCount;
@@ -607,12 +625,10 @@ class NetworkLogger extends Interceptor {
         final indent = _indent(tabs);
         final linWidth = maxWidth - indent.length;
         if (msg.length + indent.length > linWidth) {
-          final lines = (msg.length / linWidth).ceil();
-          for (var i = 0; i < lines; ++i) {
+          final chunks = _chunk(msg, linWidth);
+          for (var i = 0; i < chunks.length; ++i) {
             final multilineKey = i == 0 ? "$key:" : "";
-            logPrint(
-              '║${_indent(tabs)} $multilineKey ${msg.substring(i * linWidth, math.min<int>(i * linWidth + linWidth, msg.length))}',
-            );
+            logPrint('║${_indent(tabs)} $multilineKey ${chunks[i]}');
           }
         } else {
           logPrint('║${_indent(tabs)} $key: $msg${!isLast ? ',' : ''}');

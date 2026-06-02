@@ -1,3 +1,9 @@
+## [7.27.1] - 2026-06-02
+
+### Fixed
+
+* **`NetworkLogger` crashing the Flutter tool's log reader on multi-byte characters** - The interceptor wrapped long request/response lines with `String.substring`, which slices on UTF-16 code-unit boundaries and can cut a surrogate pair (any non-BMP character, e.g. an emoji) in half. The resulting lone surrogates are encoded as U+FFFD on stdout, which crashed the Flutter tool's log reader. Line wrapping now iterates grapheme clusters via `package:characters`, keeping emoji - along with composed sequences like flags and ZWJ emoji - whole. This affects both `_printBlock` and the key/value pretty-printer in `lib/networking/src/interceptors/network_logger.dart`
+
 ## [7.27.0] - 2026-05-25
 
 ### Added
