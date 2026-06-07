@@ -1,3 +1,11 @@
+## [7.27.2] - 2026-06-08
+
+### Changed
+
+* **Bumped `flutter_local_notifications` from `^21.0.0` to `^22.0.0`** - the v22 line ships a dedicated web implementation (the new `flutter_local_notifications_web`) and advances the platform interface to `12.0.0`
+* **Bumped `app_links` from `^7.0.0` to `^7.1.1`, `flutter_timezone` from `^5.0.2` to `^5.1.0`, `app_badge_plus` from `^1.2.10` to `^1.3.0`, `flutter_secure_storage` from `^10.3.0` to `^10.3.1`, and `patrol` (dev) from `^4.6.0` to `^4.6.1`** - routine compatibility refreshes
+* **Raised the `environment` constraints to `sdk: ^3.12.0` and `flutter: ">=3.44.0"`** - the upgraded dependencies lift the resolved floor to Dart 3.12.0 / Flutter 3.44.0, so the declared minimums now state the true requirement
+
 ## [7.27.1] - 2026-06-02
 
 ### Fixed

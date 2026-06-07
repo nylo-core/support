@@ -49,7 +49,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 ```yaml
 dependencies:
-  nylo_support: ^7.27.1
+  nylo_support: ^7.27.2
 ```
 
 ### Documentation
@@ -59,8 +59,8 @@ dependencies:
 
 ### Requirements
 
-- Dart >= 3.10.7
-- Flutter >= 3.24.0
+- Dart >= 3.12.0
+- Flutter >= 3.44.0
 
 ### Changelog
 
