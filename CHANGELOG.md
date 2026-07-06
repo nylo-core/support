@@ -1,3 +1,10 @@
+## [7.27.3] - 2026-07-06
+
+### Changed
+
+* **Re-tightened `collection` from `^1.18.0` to `^1.19.1` and `characters` from `^1.4.0` to `^1.4.1`** - both packages are vendored by the Flutter SDK, and the `>=3.44.0` floor adopted in 7.27.2 ships `collection 1.19.1` and `characters 1.4.1`, so the constraints now match the versions the minimum supported Flutter provides
+* **Bumped `dio` from `^5.9.2` to `^5.10.0`, `connectivity_plus` from `^7.1.1` to `^7.2.0`, `app_links` from `^7.1.1` to `^7.2.0`, `equatable` from `^2.0.8` to `^2.1.0`, `get_time_ago` from `^2.3.2` to `^2.4.0`, `flutter_local_notifications` from `^22.0.0` to `^22.0.1`, `path_provider` from `^2.1.5` to `^2.1.6`, `timezone` from `^0.11.0` to `^0.11.1`, and `app_badge_plus` from `^1.3.0` to `^1.3.1`** - routine compatibility refreshes
+
 ## [7.27.2] - 2026-06-08
 
 ### Changed
