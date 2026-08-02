@@ -1,3 +1,9 @@
+## [7.27.4] - 2026-08-02
+
+### Changed
+
+* **Bumped `dio` from `^5.10.0` to `^5.11.0`, `connectivity_plus` from `^7.2.0` to `^7.3.1`, `flutter_local_notifications` from `^22.0.1` to `^22.2.0`, `uuid` from `^4.5.3` to `^4.6.0`, `app_links` from `^7.2.0` to `^7.2.1`, `app_badge_plus` from `^1.3.1` to `^1.3.2`, `get_time_ago` from `^2.4.0` to `^2.4.1`, `error_stack` from `^2.1.4` to `^2.1.5`, and `patrol` (dev) from `^4.6.1` to `^4.8.0`** - routine compatibility refreshes
+
 ## [7.27.3] - 2026-07-06
 
 ### Changed

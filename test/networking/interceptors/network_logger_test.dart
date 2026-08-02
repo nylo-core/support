@@ -478,7 +478,10 @@ class _MockErrorInterceptorHandler extends ErrorInterceptorHandler {
   void next(DioException error) {}
 
   @override
-  void reject(DioException error) {}
+  void reject(
+    DioException error, [
+    bool callFollowingErrorInterceptor = false,
+  ]) {}
 
   @override
   void resolve(Response response) {}
