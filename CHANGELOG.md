@@ -5,6 +5,11 @@
 * **Bumped `intl` from `^0.20.2` to `^0.20.3`, `flutter_local_notifications` from `^22.2.0` to `^22.3.0`, `app_badge_plus` from `^1.3.2` to `^1.3.4`, `win32` from `^6.3.0` to `^6.4.0`, and `patrol` (dev) from `^4.8.0` to `^4.9.0`** - routine compatibility refreshes
 * **Excluded platform build output directories (`build/`, `android/`, `ios/`, `web/`, `windows/`, `macos/`, `linux/`) from static analysis in `analysis_options.yaml`** - keeps the analyzer focused on the package's Dart sources
 
+### Fixed
+
+* **`MetroService.discoverCustomCommands` returning an unawaited `Future` inside its try block** - an asynchronous failure from `discoverCommands` would escape the surrounding catch instead of surfacing the "Error loading custom commands" console message; the return is now awaited in `lib/metro/src/metro_service.dart`
+* **`CollectionView` passing the deprecated `cacheExtent` parameter to its internal `ListView`s** - Flutter deprecated `cacheExtent` in favour of `scrollCacheExtent` after v3.41.0-0.0.pre. The three list builders in `lib/widgets/src/collection_view.dart` now pass `scrollCacheExtent`, converting the widget's `double? cacheExtent` to `ScrollCacheExtent.pixels(...)` - the same pixel semantics as before, so the public `CollectionView.cacheExtent` API is unchanged
+
 ## [7.27.4] - 2026-08-02
 
 ### Changed
