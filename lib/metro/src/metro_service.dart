@@ -1274,7 +1274,7 @@ final Map<Type, NyApiService> apiDecoders = {$match
       if (await configFile.exists()) {
         final jsonStr = await configFile.readAsString();
         final List<dynamic> commandConfigs = jsonDecode(jsonStr);
-        return discoverCommands(commandConfigs);
+        return await discoverCommands(commandConfigs);
       }
     } catch (e) {
       MetroConsole.writeInRed(

@@ -1,5 +1,6 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart' show ScrollCacheExtent;
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
 import '/helpers/ny_helpers.dart';
@@ -910,6 +911,10 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     );
   }
 
+  ScrollCacheExtent? get _scrollCacheExtent => widget.cacheExtent == null
+      ? null
+      : ScrollCacheExtent.pixels(widget.cacheExtent!);
+
   Widget _buildListView() {
     return switch (widget.kind) {
       CollectionViewKind.builder => _buildListViewBuilder(),
@@ -930,7 +935,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       addRepaintBoundaries: widget.addRepaintBoundaries,
       addSemanticIndexes: widget.addSemanticIndexes,
-      cacheExtent: widget.cacheExtent,
+      scrollCacheExtent: _scrollCacheExtent,
       dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
       keyboardDismissBehavior:
           widget.keyboardDismissBehavior ??
@@ -961,7 +966,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       addRepaintBoundaries: widget.addRepaintBoundaries,
       addSemanticIndexes: widget.addSemanticIndexes,
-      cacheExtent: widget.cacheExtent,
+      scrollCacheExtent: _scrollCacheExtent,
       dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
       keyboardDismissBehavior:
           widget.keyboardDismissBehavior ??
@@ -1023,7 +1028,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       addAutomaticKeepAlives: widget.addAutomaticKeepAlives,
       addRepaintBoundaries: widget.addRepaintBoundaries,
       addSemanticIndexes: widget.addSemanticIndexes,
-      cacheExtent: widget.cacheExtent,
+      scrollCacheExtent: _scrollCacheExtent,
       dragStartBehavior: widget.dragStartBehavior ?? DragStartBehavior.start,
       keyboardDismissBehavior:
           widget.keyboardDismissBehavior ??
