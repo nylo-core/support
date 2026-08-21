@@ -320,10 +320,7 @@ void main() {
 
       expect(logged, hasLength(1));
       expect(logged.single.type, 'error');
-      expect(
-        logged.single.message,
-        contains('"a-hub-that-nextpage-misses"'),
-      );
+      expect(logged.single.message, contains('"a-hub-that-nextpage-misses"'));
     });
 
     nyWidgetTest('is reported by previousPage()', (tester) async {

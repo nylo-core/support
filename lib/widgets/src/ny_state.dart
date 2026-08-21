@@ -15,6 +15,7 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
       if (_controller.context == null) {
         _controller.construct(context);
       }
+
       /// Take the name from the widget, so this state listens on the name its
       /// senders use. A `name` or `path` given to this state wins over it.
       stateName ??= (widget as NyStatefulWidget).state;
