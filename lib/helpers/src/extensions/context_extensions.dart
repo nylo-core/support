@@ -6,6 +6,7 @@ import '/widgets/src/form/validation.dart';
 import '../typedefs.dart';
 import '/themes/ny_themes.dart';
 import '../state_action.dart';
+import '../state_name.dart';
 import '../helper.dart';
 import '../backpack.dart';
 import '../ny_logger.dart';
@@ -89,19 +90,18 @@ extension RouteViewExt on RouteView {
   }
 
   /// Get the state name of the route.
-  String stateName() {
-    String fullPath = this.$2.toString();
-    String pathName = fullPath.split(" => ").last;
-
-    String template = "Closure: () => _{page_name}State";
-    return template.replaceAll("{page_name}", pathName);
-  }
+  ///
+  /// e.g. `("/my-page", (_) => MyPage())` -> `Closure: () => _MyPageState`
+  ///
+  /// This is the name the page's [NyPage] listens on, so the same value can be
+  /// passed to [updateState], [stateAction] and `NyStatefulWidget(stateName:)`.
+  String stateName() => nyStateNameForRoute(this);
 
   /// Get the ny page name.
-  String nyPageName() {
-    return "${this.$2.runtimeType.toString().replaceAll("BuildContext", "")}State"
-        .replaceAll("() => ", "() => _");
-  }
+  ///
+  /// e.g. `("/my-page", (_) => MyPage())` -> `() => _MyPageState`
+  String nyPageName() =>
+      nyStateSignatureForWidget(nyWidgetTypeNameForRoute(this));
 
   /// Refresh the page
   dynamic stateRefresh() {

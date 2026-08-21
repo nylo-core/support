@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import '/controllers/ny_controllers.dart';
 import '/helpers/ny_helpers.dart';
+import '/helpers/src/state_name.dart';
 import '/nylo.dart';
 
 /// StatefulWidget's include a [BaseController] to access from your child state.
@@ -9,14 +10,25 @@ abstract class NyStatefulWidget<T extends BaseController>
   /// Get the route [controller].
   late final T controller;
 
-  /// State name
-  final String? state;
+  /// The state name passed to the constructor, when one was given.
+  final String? declaredStateName;
 
   /// Child state
   final dynamic child;
 
+  /// State name
+  ///
+  /// The `stateName` given to the constructor, otherwise the name derived from
+  /// this widget's class - e.g. `MyPage` -> `Closure: () => _MyPageState`.
+  ///
+  /// This is the name the widget's [NyPage] or [NyState] listens on, and the
+  /// same name [RouteViewExt.stateName] gives a sender holding the widget's
+  /// [RouteView], so both ends read one class: this one.
+  String? get state =>
+      declaredStateName ?? nyStateNameForWidget(runtimeType.toString());
+
   NyStatefulWidget({super.key, this.child, String? stateName})
-    : state = stateName ?? child.toString() {
+    : declaredStateName = stateName {
     Nylo nylo = Backpack.instance.nylo();
     controller = nylo.getController(T) ?? NyController();
   }

@@ -7,7 +7,7 @@ import '/local_storage/ny_local_storage.dart';
 import '/router/ny_router.dart';
 
 abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
-  NavigationHub(this.pages);
+  NavigationHub(this.pages, {super.name, super.path});
 
   /// Generate the pages
   final dynamic Function() pages;
@@ -850,6 +850,14 @@ Map<int, NavigationTab> _sortMapByKey(Map<int, NavigationTab> unsortedMap) {
   return Map.fromEntries(sortedEntries);
 }
 
+/// State names already reported as reaching no hub, so a hub addressed on every
+/// step of a journey is only reported the first time.
+///
+/// Kept here rather than on the instance because a name is addressed through
+/// many [NavigationHubStateActions]: [JourneyState] builds one per step page,
+/// alongside the hub's own `static stateActions`.
+final Set<String> _reportedMissingHubs = {};
+
 /// Navigation hub state actions
 class NavigationHubStateActions extends StateActions {
   NavigationHubStateActions(super.state);
@@ -912,6 +920,36 @@ class NavigationHubStateActions extends StateActions {
     updateState(state, data: {"action": "refresh"});
   }
 
+  /// Log when no [NavigationHub] is listening on [state], once per name.
+  ///
+  /// A hub saves `${state}_current_tab` as the first thing its `init` does, so
+  /// a missing key means the hub is running under a different name and every
+  /// tab update sent from here is dropped by the event bus without a trace.
+  ///
+  /// Reported once because a journey calls this on every step it cannot
+  /// advance, and a name that reaches no hub reaches none of them.
+  void _reportMissingHub() {
+    if (_reportedMissingHubs.contains(state)) return;
+    _reportedMissingHubs.add(state);
+
+    try {
+      NyLogger.error(
+        'NavigationHubStateActions: no NavigationHub is listening on "$state". '
+        'Tab updates sent to this name will not reach a hub. '
+        'Build the hub with the same name it is addressed by, e.g. '
+        'MyHub({super.key}) : super(child: () => _MyHubState(), stateName: path.stateName()); '
+        'static NavigationHubStateActions stateActions = NavigationHubStateActions(path.stateName());',
+        alwaysPrint: true,
+      );
+    } catch (_) {
+      /// Reporting a hub cannot break navigating one: the logger reads the env
+      /// and [Nylo.instance], so it throws where neither is registered - a
+      /// widget test that pumps a page without booting Nylo. The name stays
+      /// marked, so a journey that cannot advance does not try again on every
+      /// step.
+    }
+  }
+
   /// Navigate to the next page in a journey layout
   /// Returns true if navigation was successful, false if already at last page
   Future<bool> nextPage() async {
@@ -924,6 +962,10 @@ class NavigationHubStateActions extends StateActions {
       '${state}_total_pages',
     );
     int? totalPages = totalPagesData is int ? totalPagesData : null;
+
+    if (currentData == null) {
+      _reportMissingHub();
+    }
 
     // If we don't know total pages, we can't validate if we're at the end
     // So we'll just try to navigate to the next page
@@ -944,6 +986,10 @@ class NavigationHubStateActions extends StateActions {
     // Get current page index
     dynamic currentData = await Backpack.instance.read('${state}_current_tab');
     int currentIndex = (currentData is int) ? currentData : 0;
+
+    if (currentData == null) {
+      _reportMissingHub();
+    }
 
     if (currentIndex > 0) {
       updateState(

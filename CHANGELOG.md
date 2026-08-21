@@ -1,3 +1,23 @@
+## [7.28.0] - 2026-08-21
+
+### Added
+
+* **`name` and `path` constructor parameters on `NavigationHub`** - `NavigationHub(this.pages, {super.name, super.path})` forwards both to `NyPage`, so a hub can declare the state name it is addressed by. This lets a hub and the `NavigationHubStateActions` that drive it agree on one name, e.g. `MyHub({super.key}) : super(child: () => _MyHubState(), stateName: path.stateName());` alongside `static NavigationHubStateActions stateActions = NavigationHubStateActions(path.stateName());`
+* **`NyStatefulWidget.declaredStateName`** - Holds the `stateName` passed to the constructor, when one was given. The existing `state` member becomes a computed getter that returns `declaredStateName` when set and otherwise derives the name from the widget's own class, so the name a widget listens on is always available even where no `stateName` was declared
+* **A reported route whose builder names no page** - A route built from a function declared to return `Widget` - a tear-off of a named function, or a variable typed as the `RouteView` signature - carries that declared type at runtime instead of the page class, so the page behind it cannot be read back from the route and the derived state name reaches nothing. `NyLogger.error` now names such a route once, with both ways to address it: build the route from a closure that returns the page, `("/my-page", (_) => MyPage())`, or give the page a name of its own via `super(child: () => _MyPageState(), stateName: "/my-page")`. Previously the state update was dropped by the event bus in silence
+* **A reported state name that reaches no `NavigationHub`** - `NavigationHubStateActions.nextPage()` and `previousPage()` now report once, via `NyLogger.error`, when no hub is listening on the name they address, detected from the absence of the `${state}_current_tab` key a hub writes as the first thing its `init` does. A journey that could not advance previously did so without a trace
+
+### Changed
+
+* **State names are built from the page's widget class on both ends of a state update** - Every name now resolves through a single helper (`lib/helpers/src/state_name.dart`), so the listening end (`NyPage`, `NyState`) and the sending end (`RouteViewExt.stateName`, `updateState` with a `RouteView`, `stateAction`) build the same string from the same class. The widget class is the anchor because it is the only class both ends can see - a sender holds a `RouteView`, which knows the widget it builds and nothing about the state behind it. For the naming convention Metro scaffolds (`MyPage` with `_MyPageState`) the resulting name is unchanged; a state class named outside that convention now resolves to `Closure: () => _${WidgetClass}State` on both ends rather than to its own class name
+* **`NyState` points its controller at the page it is used from** - `_controller.state` is now assigned the resolved `stateName` on every `initState`, rather than only when it still held the initial `"/"`. A controller registered as a singleton is shared by every page that asks for it, so `controller.refreshPage()` and the other controller state helpers now address the page they are called from instead of the name an earlier page left behind
+
+### Fixed
+
+* **State updates not arriving in obfuscated builds** - The listening end read the state class (`child.runtimeType`) while senders read the widget class from the route builder's return type. `flutter build --obfuscate` renames a widget and its state to two unrelated symbols, so the two ends produced names that no longer matched and every update sent to the page was dropped. Both ends now read the widget class, which a compiler that renames classes renames for both at once. `updateState`'s history lookup contributed the same failure through `element.event.runtimeType.toString() != 'UpdateState'`, a comparison against a class name that obfuscation rewrites; it now tests `event is! UpdateState` and reads the event's `data` field rather than `props[1]`
+* **`NyPage` adopting another page's state data on init** - Restoring from the event bus history took the last `UpdateState` entry regardless of which state it was sent to, so a page could open holding a payload addressed to a different page. The lookup now matches `stateName` before taking the most recent entry
+* **`JourneyState.isLastStep` reporting the last step where a journey has no steps** - With `totalSteps` at `0` the comparison read `0 >= -1` and answered true, so a step whose hub data had not been read yet was treated as the end of the journey. The getter now requires `totalSteps > 0`
+
 ## [7.27.5] - 2026-08-18
 
 ### Changed

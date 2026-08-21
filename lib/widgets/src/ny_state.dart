@@ -15,12 +15,16 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
       if (_controller.context == null) {
         _controller.construct(context);
       }
-      if ((widget as NyStatefulWidget).state != null &&
-          _controller.state == "/") {
-        _controller.state = (widget as NyStatefulWidget).state!;
-      }
+      /// Take the name from the widget, so this state listens on the name its
+      /// senders use. A `name` or `path` given to this state wins over it.
+      stateName ??= (widget as NyStatefulWidget).state;
 
-      stateName = _controller.state;
+      /// Point the controller at this page, so `controller.refreshPage()` and
+      /// the other controller state helpers address the page the controller is
+      /// being used from. A controller declared as a singleton is shared by
+      /// every page that asks for it, so the name an earlier page left behind
+      /// is replaced rather than kept.
+      _controller.state = stateName;
     }
 
     /// Set the state name from a NyStateManaged widget that declares its baseState

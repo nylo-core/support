@@ -1,6 +1,7 @@
 import '/event_bus/ny_event_bus.dart';
 import 'backpack.dart';
 import 'ny_logger.dart';
+import 'state_name.dart';
 import '/router/ny_router.dart';
 import '/widgets/ny_widgets.dart';
 
@@ -46,20 +47,20 @@ void updateState<T>(
     stateName = name;
   }
   if (name is RouteView) {
-    stateName =
-        "Closure: ${"${name.$2.runtimeType.toString().replaceAll("BuildContext", "")}State".replaceAll("() => ", "() => _")}";
+    stateName = nyStateNameForRoute(name);
   }
 
   dynamic dataUpdate = data;
   if (setValue != null) {
     List<EventBusHistoryEntry> eventHistory = eventBus.history.where((element) {
-      if (element.event.runtimeType.toString() != 'UpdateState') {
+      final event = element.event;
+      if (event is! UpdateState) {
         return false;
       }
-      return (element.event as dynamic).stateName == stateName;
+      return event.stateName == stateName;
     }).toList();
     if (eventHistory.isNotEmpty) {
-      T? lastValue = eventHistory.last.event.props[1] as T?;
+      T? lastValue = (eventHistory.last.event as UpdateState).data as T?;
       dataUpdate = setValue(lastValue);
     }
   }

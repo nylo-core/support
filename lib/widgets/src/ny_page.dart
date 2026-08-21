@@ -2,7 +2,6 @@ import 'package:error_stack/error_stack.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/widgets/ny_widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
-import '/event_bus/ny_event_bus.dart' show EventBusHistoryEntry;
 import '/nylo.dart';
 import '/router/ny_router.dart';
 import 'package:flutter/material.dart';
@@ -35,25 +34,16 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
 
     /// Set the state name if the widget is a NyStatefulWidget
     if (widget is NyStatefulWidget) {
-      stateName = (widget as NyStatefulWidget).child.runtimeType.toString();
-      if (!(stateName?.contains("Closure:") ?? false)) {
-        stateName = "Closure: $stateName";
-      }
-      if (stateName?.contains("Closure: _") ?? false) {
-        stateName = stateName?.replaceAll("Closure: _", "Closure: () => _");
-      }
+      /// Take the name from the widget, so this page listens on the name its
+      /// senders use: a `stateName` passed to [NyStatefulWidget] when the
+      /// developer gave one, otherwise the name derived from the widget class.
+      /// A `name` or `path` given to this state wins over both.
+      stateName ??= (widget as NyStatefulWidget).state;
       (widget as NyStatefulWidget).controller.state = stateName;
     }
 
     if (stateManaged && allowStateUpdates) {
-      List<EventBusHistoryEntry> eventHistory = eventBus!.history
-          .where(
-            (element) => element.event.runtimeType.toString() == 'UpdateState',
-          )
-          .toList();
-      if (eventHistory.isNotEmpty) {
-        stateData = eventHistory.last.event.props[1];
-      }
+      _restoreStateFromHistory();
 
       eventSubscription = eventBus!.on<UpdateState>().listen((event) async {
         if (event.stateName != stateName) return;
@@ -84,10 +74,6 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
         final _controller = (widget as NyStatefulWidget).controller;
         if (_controller.context == null) {
           await _controller.construct(context);
-        }
-        if ((widget as NyStatefulWidget).state != null &&
-            _controller.state == "/") {
-          _controller.state = (widget as NyStatefulWidget).state!;
         }
 
         NyArgument? nyArgument = NyArgument(data());
@@ -147,6 +133,19 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
       }
     }
     return _buildWidget(context);
+  }
+
+  /// Restores state data from the event bus history.
+  void _restoreStateFromHistory() {
+    final lastEvent = eventBus!.history
+        .where((entry) => entry.event is UpdateState)
+        .map((entry) => entry.event as UpdateState)
+        .where((event) => event.stateName == stateName)
+        .lastOrNull;
+
+    if (lastEvent != null) {
+      stateData = lastEvent.data;
+    }
   }
 
   /// Handle a state action for the current state

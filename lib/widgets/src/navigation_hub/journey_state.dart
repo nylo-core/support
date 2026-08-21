@@ -36,7 +36,7 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
   bool get isFirstStep => currentStep == 0;
 
   /// Whether this is the last step
-  bool get isLastStep => currentStep >= totalSteps - 1;
+  bool get isLastStep => totalSteps > 0 && currentStep >= totalSteps - 1;
 
   /// The completion percentage (0.0 to 1.0)
   double get completionPercentage =>
