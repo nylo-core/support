@@ -68,6 +68,43 @@ void main() {
       });
     });
 
+    nyGroup('package and description', () {
+      nyTest('default to null for project commands', () async {
+        final command = NyCommand(name: 'deploy', category: 'app');
+
+        expect(command.package, isNull);
+        expect(command.description, isNull);
+        expect(command.isFromPackage, isFalse);
+      });
+
+      nyTest('are kept for package commands', () async {
+        final command = NyCommand(
+          name: 'create',
+          category: 'demo',
+          package: 'demo_package',
+          description: 'Create a new record',
+        );
+
+        expect(command.package, equals('demo_package'));
+        expect(command.description, equals('Create a new record'));
+        expect(command.isFromPackage, isTrue);
+      });
+    });
+
+    nyGroup('fullName', () {
+      nyTest('joins category and name with a colon', () async {
+        expect(
+          NyCommand(name: 'create', category: 'demo').fullName,
+          equals('demo:create'),
+        );
+      });
+
+      nyTest('tolerates missing parts', () async {
+        expect(NyCommand().fullName, equals(':'));
+        expect(NyCommand(name: 'create').fullName, equals(':create'));
+      });
+    });
+
     nyGroup('name property', () {
       nyTest('should allow setting name after construction', () async {
         // Arrange

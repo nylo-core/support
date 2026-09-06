@@ -1,3 +1,19 @@
+## [7.29.0] - 2026-09-06
+
+### Added
+
+* **Metro commands contributed by packages** - A dependency can ship a `metro_commands.json` in its package root (entries shaped like `commands.json`, but `script` must name a Dart file directly inside the package's own `bin/` folder, e.g. `"my_command.dart"`), and Metro now discovers it automatically through `.dart_tool/package_config.json` via the new `MetroService.discoverPackageCommands`. Each discovered command runs as `dart run <package>:<executable>` from the project's working directory, so its imports resolve through the project rather than the package. `MetroService.discoverCustomCommands` now merges the project's own `commands.json` with every package's commands through the new `MetroService.mergeCommands`, with `reservedCommands` (built-ins) taking precedence over the project, and the project over packages; a shadowed command is dropped with a console warning naming whether "your project" or which package already claims it. `NyCommand` gained `package` (`null` for project commands), `description`, a computed `fullName` (`category:name`), and `isFromPackage`. The new `MetroService.customCommandsMenu` renders the menu text, listing project commands under `[Custom Commands]` and each package's under `[<package> Commands]`, with descriptions aligned in columns
+* **`MetroService.runProcessWithArguments`** - Runs an executable with its arguments passed as a list rather than joined into one shell string, so an argument containing spaces survives, and returns the child process's exit code while sharing the terminal's stdio
+
+### Changed
+
+* **`MetroService.runCommand` returns the command's exit code** - Its return type changed from `Future<void>` to `Future<int>`; an action whose result is not an `int` is treated as success (`0`). Existing callers that await the call without using its result are unaffected
+* **`MetroService.discoverCommands` gained `scriptDirectory`, `package`, `defaultCategory`, and `workingDirectory` parameters** - All optional, so existing calls are unaffected; they let package-contributed commands resolve their scripts from the package's own `bin/` folder and run from the project's directory instead of the built-in `lib/app/commands` convention
+
+### Fixed
+
+* **`MetroService.discoverCommands` treating same-named commands in different categories as duplicates** - Duplicate detection compared `name` alone, so `{category: "app", name: "sync"}` and `{category: "demo", name: "sync"}` in the same `commands.json` collapsed to one entry. The check now keys on `category:name`, matching the identity `fullName` and the menu already use
+
 ## [7.28.0] - 2026-08-21
 
 ### Added

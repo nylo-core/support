@@ -4,9 +4,9 @@ import '/metro/ny_metro.dart';
 import 'package:recase/recase.dart';
 
 class MetroService {
-  /// Run a command from the terminal
-  /// [menu] should contain the list of commands that can be run.
-  static Future<void> runCommand(
+  /// Runs a command from the terminal. [menu] lists the runnable commands.
+  /// Returns the exit code; an action that does not return an int counts as 0.
+  static Future<int> runCommand(
     List<String> arguments, {
     required List<NyCommand?> allCommands,
     required String menu,
@@ -15,7 +15,7 @@ class MetroService {
 
     if (argumentsForAction.isEmpty) {
       MetroConsole.writeInBlack(menu);
-      return;
+      return 0;
     }
 
     List<String> argumentSplit = arguments[0].split(":");
@@ -38,7 +38,8 @@ class MetroService {
     }
 
     argumentsForAction.removeAt(0);
-    await nyCommand.action!(argumentsForAction);
+    final dynamic result = await nyCommand.action!(argumentsForAction);
+    return result is int ? result : 0;
   }
 
   /// Creates a new Controller.
@@ -343,6 +344,24 @@ final Map<Type, BaseController> controllers = {$match
     }
 
     return exitCode;
+  }
+
+  /// Runs [executable] with [arguments] (as a list, so spaces survive), sharing
+  /// the terminal's stdio, and returns its exit code.
+  static Future<int> runProcessWithArguments(
+    String executable,
+    List<String> arguments, {
+    String? workingDirectory,
+  }) async {
+    final process = await Process.start(
+      executable,
+      arguments,
+      runInShell: true,
+      workingDirectory: workingDirectory,
+      mode: ProcessStartMode.inheritStdio,
+    );
+
+    return await process.exitCode;
   }
 
   /// Add a package to your pubspec.yaml file.
@@ -1223,36 +1242,58 @@ final Map<Type, NyApiService> apiDecoders = {$match
     }
   }
 
-  /// Discovers custom commands from a JSON file.
+  /// Builds sorted, de-duplicated [NyCommand]s from command configs. Scripts are
+  /// relative to [scriptDirectory]; [package] commands run in [workingDirectory].
   static Future<List<NyCommand>> discoverCommands(
-    List<dynamic> commandConfigs,
-  ) async {
-    // // Remove any duplicate commands from commandConfigs
+    List<dynamic> commandConfigs, {
+    String scriptDirectory = commandsFolder,
+    String? package,
+    String defaultCategory = 'app',
+    String? workingDirectory,
+  }) async {
+    // Remove any duplicate commands (same category and name) from commandConfigs
     final Set<String> commandNames = {};
     commandConfigs.removeWhere((config) {
-      final name = config['name'];
-      if (commandNames.contains(name)) {
+      final key = '${config['category'] ?? defaultCategory}:${config['name']}';
+      if (commandNames.contains(key)) {
         return true; // Remove duplicate
       } else {
-        commandNames.add(name);
+        commandNames.add(key);
         return false; // Keep unique
       }
     });
 
+    final String source = package == null
+        ? 'commands.json'
+        : packageCommandsManifest;
+
     // List of commands
     List<NyCommand> allCommands = commandConfigs.map<NyCommand>((config) {
-      assert(
-        config['name'] != null,
-        'Command "name" is required in commands.json',
-      );
+      assert(config['name'] != null, 'Command "name" is required in $source');
       assert(
         config['script'] != null,
-        'Command "script" is required in commands.json',
+        'Command "script" is required in $source',
       );
       return NyCommand(
         name: config['name'],
-        category: config.containsKey('category') ? config['category'] : "app",
-        action: (args) => _executeCommandScript(config['script'], args),
+        category: config['category'] ?? defaultCategory,
+        package: package,
+        description: config['description'] is String
+            ? config['description']
+            : null,
+        action: (args) => package == null
+            ? _executeCommandScript(
+                config['script'],
+                args,
+                scriptDirectory: scriptDirectory,
+              )
+            : _executePackageCommand(
+                package,
+                config['script'],
+                args,
+                binDirectory: scriptDirectory,
+                workingDirectory: workingDirectory,
+              ),
       );
     }).toList();
 
@@ -1267,14 +1308,54 @@ final Map<Type, NyApiService> apiDecoders = {$match
     return allCommands;
   }
 
-  /// Discovers custom commands from a JSON file.
-  static Future<List<NyCommand>> discoverCustomCommands() async {
+  /// Discovers the project's `commands.json` commands plus package commands (see
+  /// [discoverPackageCommands]). Precedence: [reservedCommands], project, packages.
+  static Future<List<NyCommand>> discoverCustomCommands({
+    Directory? projectDirectory,
+    Iterable<String> reservedCommands = const [],
+    void Function(String message)? onWarning,
+  }) async {
+    final void Function(String message) warn =
+        onWarning ?? MetroConsole.writeInYellow;
+
+    final List<NyCommand> projectCommands = await _discoverProjectCommands(
+      projectDirectory,
+    );
+    final List<NyCommand> packageCommands = await discoverPackageCommands(
+      projectDirectory: projectDirectory,
+      onWarning: warn,
+    );
+
+    return mergeCommands(
+      projectCommands: projectCommands,
+      packageCommands: packageCommands,
+      reservedCommands: reservedCommands,
+      onWarning: warn,
+    );
+  }
+
+  /// Discovers the commands registered in the project's
+  /// `lib/app/commands/commands.json`.
+  static Future<List<NyCommand>> _discoverProjectCommands(
+    Directory? projectDirectory,
+  ) async {
+    final Directory commandsDirectory = projectDirectory == null
+        ? Directory(commandsFolder)
+        : Directory.fromUri(
+            projectDirectory.absolute.uri.resolve('$commandsFolder/'),
+          );
+
     try {
-      final configFile = File('lib/app/commands/commands.json');
+      final File configFile = File.fromUri(
+        commandsDirectory.absolute.uri.resolve('commands.json'),
+      );
       if (await configFile.exists()) {
         final jsonStr = await configFile.readAsString();
         final List<dynamic> commandConfigs = jsonDecode(jsonStr);
-        return await discoverCommands(commandConfigs);
+        return await discoverCommands(
+          commandConfigs,
+          scriptDirectory: commandsDirectory.path,
+        );
       }
     } catch (e) {
       MetroConsole.writeInRed(
@@ -1284,17 +1365,256 @@ final Map<Type, NyApiService> apiDecoders = {$match
     return [];
   }
 
-  /// Executes a command script.
-  static Future<void> _executeCommandScript(
-    String scriptPath,
-    List<String> args,
-  ) async {
-    final script = File('lib/app/commands/$scriptPath');
-    if (await script.exists()) {
-      await runProcess('dart run ${script.path} ${args.join(' ')}');
-    } else {
-      MetroConsole.writeInRed('Command script not found: $scriptPath');
+  /// Discovers commands from packages in `.dart_tool/package_config.json` that ship
+  /// a `metro_commands.json` (like commands.json; scripts must live in `bin/`).
+  static Future<List<NyCommand>> discoverPackageCommands({
+    Directory? projectDirectory,
+    void Function(String message)? onWarning,
+  }) async {
+    final void Function(String message) warn =
+        onWarning ?? MetroConsole.writeInYellow;
+
+    final Directory project = (projectDirectory ?? Directory.current).absolute;
+    final Uri projectUri = project.uri;
+    final File packageConfig = File.fromUri(
+      projectUri.resolve(packageConfigPath),
+    );
+    if (!await packageConfig.exists()) return [];
+
+    List<dynamic> packages;
+    try {
+      final dynamic decoded = jsonDecode(await packageConfig.readAsString());
+      packages = (decoded is Map && decoded['packages'] is List)
+          ? decoded['packages']
+          : const [];
+    } catch (e) {
+      warn('[Metro] Could not read $packageConfigPath: $e');
+      return [];
     }
+
+    final List<NyCommand> commands = [];
+    for (final dynamic package in packages) {
+      if (package is! Map) continue;
+      final dynamic name = package['name'];
+      final dynamic rootUri = package['rootUri'];
+      if (name is! String || rootUri is! String) continue;
+
+      // rootUri is relative to the package_config.json file itself and may be
+      // percent-encoded, so resolve it as a URI rather than joining strings.
+      Uri packageRoot;
+      try {
+        packageRoot = packageConfig.uri.resolveUri(Uri.parse(rootUri));
+      } on FormatException {
+        continue;
+      }
+      if (!packageRoot.path.endsWith('/')) {
+        packageRoot = packageRoot.replace(path: '${packageRoot.path}/');
+      }
+
+      // Skip the project itself - it registers its commands in commands.json.
+      if (packageRoot == projectUri) continue;
+
+      final File manifest = File.fromUri(
+        packageRoot.resolve(packageCommandsManifest),
+      );
+      if (!await manifest.exists()) continue;
+
+      try {
+        final dynamic decoded = jsonDecode(await manifest.readAsString());
+        if (decoded is! List) {
+          throw const FormatException('Expected a JSON array of commands');
+        }
+
+        final List<dynamic> configs = [];
+        for (final dynamic config in decoded) {
+          if (config is! Map ||
+              config['name'] is! String ||
+              config['script'] is! String) {
+            warn(
+              '[Metro] Ignoring an invalid command in $packageCommandsManifest of package "$name" - "name" and "script" are required',
+            );
+            continue;
+          }
+          if (!_isBinScriptName(config['script'])) {
+            warn(
+              '[Metro] Ignoring "${config['category'] ?? name}:${config['name']}" in $packageCommandsManifest of package "$name" - "script" must name a Dart file directly inside the package\'s bin/ folder, e.g. "my_command.dart"',
+            );
+            continue;
+          }
+          configs.add(config);
+        }
+
+        commands.addAll(
+          await discoverCommands(
+            configs,
+            scriptDirectory: packageRoot.resolve('bin/').toFilePath(),
+            package: name,
+            defaultCategory: name,
+            workingDirectory: project.path,
+          ),
+        );
+      } catch (e) {
+        warn(
+          '[Metro] Could not load $packageCommandsManifest from package "$name": $e',
+        );
+      }
+    }
+
+    commands.sort((a, b) {
+      final int byPackage = (a.package ?? '').compareTo(b.package ?? '');
+      if (byPackage != 0) return byPackage;
+      return a.fullName.compareTo(b.fullName);
+    });
+
+    return commands;
+  }
+
+  /// Whether [script] names a Dart file directly inside a `bin/` folder, the
+  /// only place `dart run <package>:<executable>` can run a file from.
+  static bool _isBinScriptName(String script) =>
+      script.endsWith('.dart') &&
+      script.length > '.dart'.length &&
+      !script.contains('/') &&
+      !script.contains('\\');
+
+  /// Merges project and package commands. Precedence: [reservedCommands] (built-ins),
+  /// then project, then packages; a shadowed command is dropped with an [onWarning].
+  static List<NyCommand> mergeCommands({
+    required List<NyCommand> projectCommands,
+    required List<NyCommand> packageCommands,
+    Iterable<String> reservedCommands = const [],
+    void Function(String message)? onWarning,
+  }) {
+    final void Function(String message) warn =
+        onWarning ?? MetroConsole.writeInYellow;
+    final Set<String> reserved = reservedCommands.toSet();
+    final Map<String, NyCommand> taken = {};
+    final List<NyCommand> merged = [];
+
+    for (final NyCommand command in projectCommands) {
+      final String key = command.fullName;
+      if (reserved.contains(key)) {
+        warn(
+          '[Metro] Skipping "$key" from $commandsFolder/commands.json - it is a built-in Metro command',
+        );
+        continue;
+      }
+      if (taken.containsKey(key)) continue;
+      taken[key] = command;
+      merged.add(command);
+    }
+
+    for (final NyCommand command in packageCommands) {
+      final String key = command.fullName;
+      if (reserved.contains(key)) {
+        warn(
+          '[Metro] Skipping "$key" from package "${command.package}" - it is a built-in Metro command',
+        );
+        continue;
+      }
+      final NyCommand? existing = taken[key];
+      if (existing != null) {
+        final String owner = existing.package == null
+            ? 'your project'
+            : 'package "${existing.package}"';
+        warn(
+          '[Metro] Skipping "$key" from package "${command.package}" - it is already defined by $owner',
+        );
+        continue;
+      }
+      taken[key] = command;
+      merged.add(command);
+    }
+
+    return merged;
+  }
+
+  /// Renders the menu section: project commands under `[Custom Commands]`, each
+  /// package under `[<package> Commands]`, descriptions aligned. Empty if none.
+  static String customCommandsMenu(List<NyCommand> commands) {
+    if (commands.isEmpty) return '';
+
+    final List<NyCommand> projectCommands = commands
+        .where((command) => command.package == null)
+        .toList();
+    final Map<String, List<NyCommand>> packageCommands = {};
+    for (final NyCommand command in commands) {
+      if (command.package == null) continue;
+      packageCommands.putIfAbsent(command.package!, () => []).add(command);
+    }
+
+    final StringBuffer buffer = StringBuffer();
+    void writeSection(String title, List<NyCommand> items) {
+      if (buffer.isNotEmpty) buffer.writeln();
+      buffer.writeln('[$title]');
+      int width = 0;
+      for (final NyCommand item in items) {
+        if (item.fullName.length > width) width = item.fullName.length;
+      }
+      for (final NyCommand item in items) {
+        buffer.write('  ${item.fullName}');
+        final String? description = item.description;
+        if (description != null && description.isNotEmpty) {
+          buffer.write(' ' * (width - item.fullName.length + 4));
+          buffer.write(description);
+        }
+        buffer.writeln();
+      }
+    }
+
+    if (projectCommands.isNotEmpty) {
+      writeSection('Custom Commands', projectCommands);
+    }
+    for (final MapEntry<String, List<NyCommand>> entry
+        in packageCommands.entries) {
+      writeSection('${entry.key} Commands', entry.value);
+    }
+
+    return buffer.toString();
+  }
+
+  /// Runs a project command script (`dart run <file>`, [scriptPath] relative to
+  /// [scriptDirectory]) and returns its exit code.
+  static Future<int> _executeCommandScript(
+    String scriptPath,
+    List<String> args, {
+    String scriptDirectory = commandsFolder,
+  }) async {
+    final File script = File.fromUri(
+      Directory(scriptDirectory).absolute.uri.resolve(scriptPath),
+    );
+    if (!await script.exists()) {
+      MetroConsole.writeInRed('Command script not found: ${script.path}');
+      return 1;
+    }
+    return await runProcessWithArguments('dart', ['run', script.path, ...args]);
+  }
+
+  /// Runs a package `bin/` command as `dart run <package>:<executable>` in the project,
+  /// so imports resolve through the project, not the package. Returns the exit code.
+  static Future<int> _executePackageCommand(
+    String package,
+    String script,
+    List<String> args, {
+    required String binDirectory,
+    String? workingDirectory,
+  }) async {
+    final File file = File.fromUri(
+      Directory(binDirectory).absolute.uri.resolve(script),
+    );
+    if (!await file.exists()) {
+      MetroConsole.writeInRed('Command script not found: ${file.path}');
+      return 1;
+    }
+    final String executable = script.substring(
+      0,
+      script.length - '.dart'.length,
+    );
+    return await runProcessWithArguments('dart', [
+      'run',
+      '$package:$executable',
+      ...args,
+    ], workingDirectory: workingDirectory);
   }
 
   /// Safely gets the first capture group from regex matches.

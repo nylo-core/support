@@ -98,6 +98,27 @@ void main() {
       expect(commands, hasLength(1));
     });
 
+    nyTest('should keep same-named commands in different categories', () async {
+      final commands = await MetroService.discoverCommands([
+        {'name': 'sync', 'script': 'a.dart', 'category': 'app'},
+        {'name': 'sync', 'script': 'b.dart', 'category': 'demo'},
+      ]);
+      expect(commands.map((c) => c.fullName), ['app:sync', 'demo:sync']);
+    });
+
+    nyTest('should use the given default category and package', () async {
+      final commands = await MetroService.discoverCommands(
+        [
+          {'name': 'create', 'script': 'c.dart', 'description': 'Create one'},
+        ],
+        package: 'demo_package',
+        defaultCategory: 'demo_package',
+      );
+      expect(commands.single.fullName, 'demo_package:create');
+      expect(commands.single.package, 'demo_package');
+      expect(commands.single.description, 'Create one');
+    });
+
     nyTest('should sort commands by category', () async {
       final commands = await MetroService.discoverCommands([
         {'name': 'zeta', 'script': 'z.dart', 'category': 'z'},
@@ -179,6 +200,11 @@ void main() {
       expect(commandsFolder, 'lib/app/commands');
       expect(routeGuardsFolder, 'lib/routes/guards');
       expect(langFolder, 'lang');
+    });
+
+    nyTest('package command paths should be correct', () async {
+      expect(packageCommandsManifest, 'metro_commands.json');
+      expect(packageConfigPath, '.dart_tool/package_config.json');
     });
 
     nyTest('flag names should be correct', () async {

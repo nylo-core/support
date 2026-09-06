@@ -42,3 +42,7 @@ String makeImportPathEvent(String name, {String creationPath = ""}) =>
     "import '/app/events/${creationPath != "" ? "$creationPath/" : ""}${name}_event.dart';";
 String makeImportPathProviders(String name, {String creationPath = ""}) =>
     "import '/app/providers/${creationPath != "" ? "$creationPath/" : ""}${name}_provider.dart';";
+
+// package commands
+const String packageCommandsManifest = 'metro_commands.json';
+const String packageConfigPath = '.dart_tool/package_config.json';
