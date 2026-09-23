@@ -33,7 +33,7 @@ class CounterPage extends NyStatefulWidget {
   CounterPage({super.key}) : super(child: () => _CounterPageState());
 }
 
-/// No `stateManaged` override: a page listens by default.
+/// Opts in to state actions the way Metro scaffolds a page.
 class _CounterPageState extends NyPage<CounterPage> {
   int count = 0;
   int inits = 0;
@@ -45,6 +45,9 @@ class _CounterPageState extends NyPage<CounterPage> {
   get init => () {
     inits++;
   };
+
+  @override
+  bool get stateManaged => true;
 
   @override
   Map<Object, Function> get stateActions => {
@@ -70,7 +73,7 @@ class _CounterPageState extends NyPage<CounterPage> {
   Widget view(BuildContext context) => Text('count $count');
 }
 
-/// A page that opts out of state updates.
+/// No `stateManaged` override: a page ignores state actions by default.
 class OptedOutPage extends NyStatefulWidget {
   static RouteView path = ("/opted-out", (_) => OptedOutPage());
   static final actions = path.actions;
@@ -80,9 +83,6 @@ class OptedOutPage extends NyStatefulWidget {
 
 class _OptedOutPageState extends NyPage<OptedOutPage> {
   int count = 0;
-
-  @override
-  bool get stateManaged => false;
 
   @override
   Map<Object, Function> get stateActions => {'bump': () => count++};
@@ -116,6 +116,9 @@ class _LogoPageState extends NyPage<LogoPage> {
   String axis = '';
   int stars = 0;
   int legacy = 0;
+
+  @override
+  bool get stateManaged => true;
 
   @override
   Map<Object, Function> get stateActions => {
@@ -215,7 +218,7 @@ void main() {
   });
 
   nyGroup('a page receiving actions', () {
-    nyWidgetTest('listens without a stateManaged override', (tester) async {
+    nyWidgetTest('listens once it opts in with stateManaged', (tester) async {
       await tester.pumpNyWidget(CounterPage());
       expect(find.text('count 0'), findsOneWidget);
 
@@ -276,7 +279,9 @@ void main() {
       expect(state.inits, 2);
     });
 
-    nyWidgetTest('a page that opts out receives nothing', (tester) async {
+    nyWidgetTest('a page without a stateManaged override receives nothing', (
+      tester,
+    ) async {
       await tester.pumpNyWidget(OptedOutPage());
 
       OptedOutPage.actions.call('bump');

@@ -30,7 +30,7 @@ dependencies:
   intl: ^0.20.3
   skeletonizer: ^3.0.0
   error_stack: ^2.1.7
-  date_field: ^7.0.0
+  date_field: ^6.0.3+1
   flutter_multi_formatter: ^2.13.11
   flutter_local_notifications: ^22.3.1
   path_provider: ^2.1.6
