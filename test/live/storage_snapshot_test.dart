@@ -51,7 +51,7 @@ class Unregistered {
   Map<String, dynamic> toJson() => {'a': 1};
 }
 
-/// What `metro live:export exported` would generate.
+/// What `export exported` in `metro live` would generate.
 class _ExportedSeeder extends Seeder {
   @override
   String get description => 'Onboarded Pro user';

@@ -32,7 +32,7 @@ import 'seeder.dart';
 /// it with your app, then run it from the terminal while the app runs in debug
 /// mode: `metro app:seed_cart --count 5`.
 abstract class LiveCommand with LiveOutput {
-  /// A one-line description shown by `metro live:commands`.
+  /// A one-line description, shown by the command's `--help`.
   String? get description => null;
 
   /// Declare the options and flags this command accepts.
@@ -48,9 +48,9 @@ abstract class LiveCommand with LiveOutput {
 
   /// Runs each seeder's `up()` in order, and shows what they changed.
   ///
-  /// The runs are recorded the same way as `metro live:seed`, so
-  /// `metro live:seed:rollback <name>` undoes them. Throws a [LiveException]
-  /// when a seeder fails, after putting back what it had changed.
+  /// The runs are recorded the same way as `seed` in `metro live`, so
+  /// `seed:rollback <name>` undoes them. Throws a [LiveException] when a
+  /// seeder fails, after putting back what it had changed.
   Future<void> seed(List<Seeder> seeders) async {
     final List<SeedRun> runs = await SeedRecorder.upAll(seeders);
     for (final SeedRun run in runs) {

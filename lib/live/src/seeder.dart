@@ -30,11 +30,12 @@ import 'storage_snapshot.dart';
 /// }
 /// ```
 ///
-/// Create one with `metro make:seeder demo_user`, run it with
-/// `metro live:seed demo_user`, and undo it with
-/// `metro live:seed:rollback demo_user`.
+/// Create one with `metro make:seeder demo_user`. Then, while your app is
+/// running, open `metro live` and run it with `seed demo_user`, or undo it
+/// with `seed:rollback demo_user`.
 abstract class Seeder with LiveOutput {
-  /// One line shown next to the seeder's name by `metro live:seed`.
+  /// One line shown next to the seeder's name when `seed` in `metro live`
+  /// lists the seeders.
   String? get description => null;
 
   /// The name this seeder is recorded under when it isn't registered with
@@ -97,7 +98,7 @@ abstract class Seeder with LiveOutput {
   void saveToBackpack(Map<String, dynamic> values) =>
       values.forEach(Backpack.instance.save);
 
-  /// Puts a [snapshot] taken with `metro live:export` into storage and
+  /// Puts a [snapshot] taken with `export` in `metro live` into storage and
   /// Backpack, and returns how many values it wrote.
   ///
   /// [snapshot] is the map an exported seeder holds:

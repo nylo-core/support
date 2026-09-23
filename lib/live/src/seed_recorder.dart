@@ -72,10 +72,10 @@ class SeedRun {
 
 /// Runs seeders, records what they change, and puts it back.
 ///
-/// `metro live:seed` and [Seeder.seed] use it. While a seeder's `up()` runs,
-/// `NyStorage` and `Backpack` report each change to a recording held in the
-/// current zone. The record of every seeded seeder is kept in storage under
-/// [recordKey], so it survives hot restarts.
+/// `seed` in `metro live` and [Seeder.seed] use it. While a seeder's `up()`
+/// runs, `NyStorage` and `Backpack` report each change to a recording held
+/// in the current zone. The record of every seeded seeder is kept in
+/// storage under [recordKey], so it survives hot restarts.
 class SeedRecorder {
   SeedRecorder._();
 

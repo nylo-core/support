@@ -437,7 +437,7 @@ Future<Object?> _backpackDelete(Map<String, dynamic> args) async {
   final Backpack backpack = Backpack.instance;
   final bool existed = backpack.contains(key);
   // Only the Backpack: anything saved to local storage under this key stays,
-  // and `storage:delete` is the command that removes both.
+  // and `storage <key> --delete` is the command that removes both.
   backpack.delete(key);
   return {'key': key, 'deleted': true, 'existed': existed};
 }

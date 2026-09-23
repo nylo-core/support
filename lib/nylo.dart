@@ -441,7 +441,7 @@ class Nylo {
   Map<String, LiveCommand Function()> getLiveCommands() =>
       Map.unmodifiable(_liveCommands);
 
-  /// Register seeders that `metro live:seed <name>` runs inside the app.
+  /// Register seeders that `seed <name>` in `metro live` runs inside the app.
   ///
   /// Keys are the names you run them by.
   ///

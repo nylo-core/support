@@ -12,7 +12,7 @@ import 'seeder.dart';
 /// What an app holds in `NyStorage` and `Backpack`, in a form that can be
 /// kept in a file or a seeder and put back into an app.
 ///
-/// `metro live:export` takes one with [capture]; `metro live:import` and an
+/// `export` in `metro live` takes one with [capture]; `seed <file>` and an
 /// exported seeder's `importSnapshot()` put it back with [apply].
 ///
 /// Storage values are written the way Dart types them: `7`, `1.5`, `true`,
@@ -534,14 +534,14 @@ class StorageSnapshot {
   }
 }
 
-/// The seeder `metro live:import` runs: puts a snapshot Metro sent into the
-/// app, recorded like any other seeder so `metro live:seed:rollback` undoes
-/// it.
+/// The seeder `seed <file>` runs in `metro live`: puts a snapshot Metro sent
+/// into the app, recorded like any other seeder so `seed:rollback` undoes it.
 class SnapshotSeeder extends Seeder {
   /// Creates a seeder that applies [snapshot] under [name].
   ///
   /// [source] is where the snapshot came from, such as the file it was read
-  /// from, and is kept in the seeder record for `metro live:seed`.
+  /// from. It is kept in the seeder record, so `seed` lists the seeder as
+  /// imported from there.
   SnapshotSeeder(this.snapshot, {required String name, this.source})
     : _name = name;
 

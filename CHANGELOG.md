@@ -1,3 +1,9 @@
+## [7.30.1] - 2026-09-23
+
+### Changed
+
+* **Nylo Live dartdoc names the commands as nylo_framework 7.2.0 ships them** - `Seeder`, `StorageSnapshot`, `SnapshotSeeder`, `LiveCommand.seed`, `SeedRecorder` and `Nylo.addSeeders` pointed at `metro live:seed`, `metro live:seed:rollback`, `metro live:export` and `metro live:import`, which aren't top-level commands. Seeding, rolling back and exporting run inside the `metro live` shell (`seed <name>`, `seed:rollback <name>`, `export`), and a snapshot file loads with `seed <file>`. `LiveCommand.description` is now documented as shown by the command's `--help`, since there is no `metro live:commands`. The 7.30.0 entry below uses the old names; read them as the shell commands
+
 ## [7.30.0] - 2026-09-23
 
 ### Added
