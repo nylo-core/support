@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '/helpers/ny_helpers.dart';
 import '/widgets/ny_widgets.dart';
 import '/local_storage/ny_local_storage.dart';
+import '/localization/ny_localization.dart';
 
 import '/router/ny_router.dart';
 
@@ -59,6 +60,16 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     // Store current tab index and total pages count for navigation helpers
     Backpack.instance.save('${stateName}_current_tab', currentIndex);
 
+    _loadPages();
+  };
+
+  /// The locale [pages] were last generated in.
+  Locale? _pagesLocale;
+
+  /// Generates the tabs from [pages] and remembers the locale they were built
+  /// in, so tab titles that call `.tr()` can follow a language change.
+  void _loadPages() {
+    _pagesLocale = NyLocalization.instance.locale;
     if (pages is Future Function()) {
       awaitData(
         perform: () async {
@@ -70,7 +81,25 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       _pages = pages();
       Backpack.instance.save('${stateName}_total_pages', _pages.length);
     }
-  };
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Depending on Localizations brings a language change to this hub.
+    Localizations.maybeLocaleOf(context);
+    if (_pagesLocale == null ||
+        _pagesLocale == NyLocalization.instance.locale) {
+      return;
+    }
+    if (pages is Future Function()) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _loadPages();
+      });
+      return;
+    }
+    _loadPages();
+  }
 
   /// The navigator key
   UniqueKey? getNavigationKey(MapEntry<int, NavigationTab> page) {

@@ -43,15 +43,7 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
     }
 
     if (stateManaged && allowStateUpdates) {
-      _restoreStateFromHistory();
-
-      eventSubscription = eventBus!.on<UpdateState>().listen((event) async {
-        if (event.stateName != stateName) return;
-
-        await stateUpdated(event.data);
-        await _whenStateAction(event.data);
-        if (mounted) setState(() {});
-      });
+      listenForStateUpdates();
     }
 
     if (widget is! NyStatefulWidget) {
@@ -133,52 +125,6 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
       }
     }
     return _buildWidget(context);
-  }
-
-  /// Restores state data from the event bus history.
-  void _restoreStateFromHistory() {
-    final lastEvent = eventBus!.history
-        .where((entry) => entry.event is UpdateState)
-        .map((entry) => entry.event as UpdateState)
-        .where((event) => event.stateName == stateName)
-        .lastOrNull;
-
-    if (lastEvent != null) {
-      stateData = lastEvent.data;
-    }
-  }
-
-  /// Handle a state action for the current state
-  Future _whenStateAction(dynamic data) async {
-    if (data is! Map) {
-      return;
-    }
-
-    if (!(data.containsKey('action'))) {
-      return;
-    }
-
-    String action = data['action'];
-    dynamic actionData = data.containsKey('data') ? data['data'] : null;
-
-    if (stateActions.containsKey(action)) {
-      final function = stateActions[action]!;
-
-      String functionString = function.runtimeType.toString();
-
-      // Determine if the function takes parameters based on its toString representation
-      bool hasParameters =
-          functionString.contains("(dynamic)") ||
-          functionString.contains("(Object?)") ||
-          !functionString.contains("()");
-
-      if (hasParameters) {
-        await Function.apply(function, [actionData]);
-        return;
-      }
-
-      await Function.apply(function, []);
-    }
   }
 
   @override

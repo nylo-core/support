@@ -1,4 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/localization/ny_localization.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 import 'package:nylo_support/widgets/ny_widgets.dart';
 
@@ -33,7 +34,7 @@ void main() {
     nyTest('has default message', () async {
       final rule = FormRuleEmail();
 
-      expect(rule.message, contains('valid email address'));
+      expect(rule.getMessage(), contains('valid email address'));
     });
 
     nyTest('accepts custom message', () async {
@@ -66,9 +67,9 @@ void main() {
       final rule1 = FormRulePassword(strength: 1);
       final rule2 = FormRulePassword(strength: 2);
 
-      expect(rule1.message, contains('uppercase'));
-      expect(rule1.message, contains('digit'));
-      expect(rule2.message, contains('special character'));
+      expect(rule1.getMessage(), contains('uppercase'));
+      expect(rule1.getMessage(), contains('digit'));
+      expect(rule2.getMessage(), contains('special character'));
     });
   });
 
@@ -90,7 +91,7 @@ void main() {
     nyTest('has default message', () async {
       final rule = FormRuleEquals(dataSource: 'test');
 
-      expect(rule.message, contains('must match'));
+      expect(rule.getMessage(), contains('must match'));
     });
   });
 
@@ -132,8 +133,8 @@ void main() {
     nyTest('has appropriate message', () async {
       final rule = FormRuleMinLength(10);
 
-      expect(rule.message, contains('10'));
-      expect(rule.message, contains('characters'));
+      expect(rule.getMessage(), contains('10'));
+      expect(rule.getMessage(), contains('characters'));
     });
   });
 
@@ -149,7 +150,7 @@ void main() {
     nyTest('has appropriate message', () async {
       final rule = FormRuleMaxLength(100);
 
-      expect(rule.message, contains('100'));
+      expect(rule.getMessage(), contains('100'));
     });
   });
 
@@ -215,7 +216,7 @@ void main() {
     nyTest('has default message', () async {
       final rule = FormRuleNotEmpty();
 
-      expect(rule.message, contains('not be empty'));
+      expect(rule.getMessage(), contains('not be empty'));
     });
   });
 
@@ -479,6 +480,114 @@ void main() {
 
       expect(rule.validate('abc'), true);
       expect(rule.validate('abcd'), false);
+    });
+  });
+
+  nyGroup('default messages', () {
+    nyTearDown(() {
+      NyLocalization.instance.setValuesForTesting(values: {});
+    });
+
+    nyTest('read as the English text they had before translation', () async {
+      final expected = <FormRule, String>{
+        FormRuleEmail(): 'The Field must be a valid email address.',
+        FormRulePassword(
+          strength: 1,
+        ): 'The Field must contain at least one uppercase letter, one digit, and a minimum of 8 characters.',
+        FormRulePassword(
+          strength: 2,
+        ): 'The Field must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.',
+        FormRuleEquals(dataSource: 'x'): 'The Field must match.',
+        FormRuleCustom(customValidation: (_) => true): 'The Field is invalid.',
+        FormRuleMinLength(3): 'The Field must be at least 3 characters long.',
+        FormRuleMinSize(2): 'The Field must be at least 2 in size.',
+        FormRuleMinValue(5): 'The Field must be at least 5.',
+        FormRuleMaxLength(10): 'The Field must be at most 10 characters long.',
+        FormRuleMaxSize(4): 'The Field must be at most 4 in size.',
+        FormRuleMaxValue(9): 'The Field must be at most 9.',
+        FormRuleRegex(RegExp('x')): 'The Field is invalid.',
+        FormRuleDateAgeIsYounger(30):
+            'The Field must be younger than 30 years.',
+        FormRuleDateAgeIsOlder(18): 'The Field must be older than 18 years.',
+        FormRuleDateInPast(): 'The Field must be in the past.',
+        FormRuleDateInFuture(): 'The Field must be in the future.',
+        FormRulePhoneNumberUs(): 'The Field is not a valid phone number.',
+        FormRulePhoneNumberUk(): 'The Field is not a valid phone number',
+        FormRuleUrl(): 'The Field must be a valid URL.',
+        FormRuleContains(['a', 'b']):
+            'The Field must contain one of the following values: a, b.',
+        FormRuleBeginsWith('ab'): "The Field must begin with 'ab'.",
+        FormRuleEndsWith('yz'): "The Field must end with 'yz'.",
+        FormRuleBooleanTrue(): 'The Field must be true.',
+        FormRuleBooleanFalse(): 'The Field must be false.',
+        FormRuleNotEmpty(): 'The Field must not be empty.',
+        FormRuleNumeric(): 'The Field must be a numeric value.',
+        FormRuleDate(): 'The Field must be a valid date.',
+        FormRuleCapitalized(): 'The Field must be capitalized.',
+        FormRuleLowercase(): 'The Field must be in lowercase.',
+        FormRuleUppercase(): 'The Field must be in uppercase.',
+        FormRuleZipcodeUs(): 'The Field field is not a valid zip code',
+        FormRulePostcodeUk(): 'The Field must be a valid UK postcode.',
+      };
+
+      expected.forEach((rule, message) {
+        expect(rule.getMessage('Field'), message, reason: '${rule.rule}');
+      });
+    });
+
+    nyTest('name the field "data" when no attribute is given', () async {
+      expect(FormRuleNotEmpty().getMessage(), 'The data must not be empty.');
+    });
+
+    nyTest('follow the active language', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {
+          'nylo': {
+            'validation': {
+              'min_length':
+                  'El campo {{attribute}} debe tener al menos {{minLength}} caracteres.',
+            },
+          },
+        },
+      );
+
+      expect(
+        FormRuleMinLength(3).getMessage('Nombre'),
+        'El campo Nombre debe tener al menos 3 caracteres.',
+      );
+    });
+
+    nyTest('translate the attribute name', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {
+          'auth': {'email': 'Correo'},
+        },
+      );
+
+      expect(
+        FormRuleEmail().getMessage('auth.email'),
+        'The Correo must be a valid email address.',
+      );
+    });
+
+    nyTest('give way to a custom message, which may be a key', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {
+          'errors': {'too_short': '{{attribute}} is too short'},
+        },
+      );
+
+      expect(
+        FormRuleMinLength(
+          3,
+          'Use {{minLength}}+ for {{attribute}}',
+        ).getMessage('Name'),
+        'Use 3+ for Name',
+      );
+      expect(
+        FormRuleMinLength(3, 'errors.too_short').getMessage('Name'),
+        'Name is too short',
+      );
     });
   });
 }

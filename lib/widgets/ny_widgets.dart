@@ -17,6 +17,7 @@ export 'src/future_widget.dart';
 export 'src/connective.dart';
 export 'src/fade_overlay.dart';
 export 'src/models/state_actions.dart';
+export 'src/models/page_state_actions.dart';
 export 'src/text_tr.dart';
 export 'src/ny_base_modal.dart';
 

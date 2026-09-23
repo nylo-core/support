@@ -5,7 +5,7 @@ class FormRuleEmail extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be a valid email address.";
+  String? message = "nylo.validation.email";
 
   FormRuleEmail({this.rule = "email", String? message}) {
     if (message != null) {
@@ -58,7 +58,7 @@ class FormRulePassword extends FormRule {
   final int strength;
 
   @override
-  String? message = "The {{attribute}} must be a valid password.";
+  String? message;
 
   FormRulePassword({
     this.rule = "password",
@@ -70,11 +70,9 @@ class FormRulePassword extends FormRule {
       return;
     }
     if (strength == 2) {
-      this.message =
-          "The {{attribute}} must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.";
+      this.message = "nylo.validation.password_strength_2";
     } else {
-      this.message =
-          "The {{attribute}} must contain at least one uppercase letter, one digit, and a minimum of 8 characters.";
+      this.message = "nylo.validation.password_strength_1";
     }
   }
 
@@ -111,7 +109,7 @@ class FormRuleEquals extends FormRule {
   final dynamic dataSource;
 
   @override
-  String? message = "The {{attribute}} must match.";
+  String? message = "nylo.validation.equals";
 
   FormRuleEquals({
     this.rule = "equals",
@@ -136,7 +134,7 @@ class FormRuleCustom extends FormRule {
   final bool Function(dynamic data) customValidation;
 
   @override
-  String? message = "The {{attribute}} is invalid.";
+  String? message = "nylo.validation.custom";
 
   FormRuleCustom({
     this.rule = "custom",
@@ -166,13 +164,15 @@ class FormRuleMinLength extends FormRule {
   FormRuleMinLength(this.minLength, [this.message]) {
     this.rule = "min_length";
     if (message == null) {
-      message =
-          "The {{attribute}} must be at least $minLength characters long.";
+      message = "nylo.validation.min_length";
       return;
     } else {
       this.message = message?.replaceAll("{{minLength}}", minLength.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"minLength": "$minLength"};
 
   @override
   bool validate(data) {
@@ -195,11 +195,14 @@ class FormRuleMinSize extends FormRule {
   FormRuleMinSize(this.minSize, [String? message]) {
     this.rule = "min_size";
     if (message == null) {
-      this.message = "The {{attribute}} must be at least $minSize in size.";
+      this.message = "nylo.validation.min_size";
     } else {
       this.message = message.replaceAll("{{minSize}}", minSize.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"minSize": "$minSize"};
 
   @override
   bool validate(data) {
@@ -224,9 +227,12 @@ class FormRuleMinValue extends FormRule {
     if (message != null) {
       this.message = message.replaceAll("{{minValue}}", minValue.toString());
     } else {
-      this.message = "The {{attribute}} must be at least $minValue.";
+      this.message = "nylo.validation.min_value";
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"minValue": "$minValue"};
 
   @override
   bool validate(data) {
@@ -258,12 +264,14 @@ class FormRuleMaxLength extends FormRule {
   FormRuleMaxLength(this.maxLength, [String? message]) {
     this.rule = "max_length";
     if (message == null) {
-      this.message =
-          "The {{attribute}} must be at most $maxLength characters long.";
+      this.message = "nylo.validation.max_length";
     } else {
       this.message = message.replaceAll("{{maxLength}}", maxLength.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"maxLength": "$maxLength"};
 
   @override
   bool validate(data) {
@@ -286,11 +294,14 @@ class FormRuleMaxSize extends FormRule {
   FormRuleMaxSize(this.maxSize, [String? message]) {
     this.rule = "max_size";
     if (message == null) {
-      this.message = "The {{attribute}} must be at most $maxSize in size.";
+      this.message = "nylo.validation.max_size";
     } else {
       this.message = message.replaceAll("{{maxSize}}", maxSize.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"maxSize": "$maxSize"};
 
   @override
   bool validate(data) {
@@ -313,11 +324,14 @@ class FormRuleMaxValue extends FormRule {
   FormRuleMaxValue(this.maxValue, [String? message]) {
     rule = "max_value";
     if (message == null) {
-      this.message = "The {{attribute}} must be at most $maxValue.";
+      this.message = "nylo.validation.max_value";
     } else {
       this.message = message.replaceAll("{{maxValue}}", maxValue.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"maxValue": "$maxValue"};
 
   @override
   bool validate(data) {
@@ -340,7 +354,7 @@ class FormRuleRegex extends FormRule {
   FormRuleRegex(this.regex, [String? message]) {
     this.rule = "regex";
     if (message == null) {
-      this.message = "The {{attribute}} is invalid.";
+      this.message = "nylo.validation.regex";
     } else {
       this.message = message;
     }
@@ -367,11 +381,14 @@ class FormRuleDateAgeIsYounger extends FormRule {
   FormRuleDateAgeIsYounger(this.age, [String? message]) {
     this.rule = "date_age_is_younger";
     if (message == null) {
-      this.message = "The {{attribute}} must be younger than $age years.";
+      this.message = "nylo.validation.date_age_is_younger";
     } else {
       this.message = message.replaceAll("{{age}}", age.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"age": "$age"};
 
   @override
   bool validate(data) {
@@ -401,11 +418,14 @@ class FormRuleDateAgeIsOlder extends FormRule {
   FormRuleDateAgeIsOlder(this.age, [String? message]) {
     this.rule = "date_age_is_older";
     if (message == null) {
-      this.message = "The {{attribute}} must be older than $age years.";
+      this.message = "nylo.validation.date_age_is_older";
     } else {
       this.message = message.replaceAll("{{age}}", age.toString());
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"age": "$age"};
 
   @override
   bool validate(data) {
@@ -433,7 +453,7 @@ class FormRuleDateInPast extends FormRule {
   FormRuleDateInPast([String? message]) {
     this.rule = "date_in_past";
     if (message == null) {
-      this.message = "The {{attribute}} must be in the past.";
+      this.message = "nylo.validation.date_in_past";
     } else {
       this.message = message;
     }
@@ -458,7 +478,7 @@ class FormRuleDateInFuture extends FormRule {
   FormRuleDateInFuture([String? message]) {
     this.rule = "date_in_future";
     if (message == null) {
-      this.message = "The {{attribute}} must be in the future.";
+      this.message = "nylo.validation.date_in_future";
     } else {
       this.message = message;
     }
@@ -478,7 +498,7 @@ class FormRulePhoneNumberUs extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} is not a valid phone number.";
+  String? message = "nylo.validation.phone_number_us";
 
   FormRulePhoneNumberUs({this.rule = "phone_number_us", String? message}) {
     if (message != null) {
@@ -500,7 +520,7 @@ class FormRulePhoneNumberUk extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} is not a valid phone number";
+  String? message = "nylo.validation.phone_number_uk";
 
   FormRulePhoneNumberUk({this.rule = "phone_number_uk", String? message}) {
     if (message != null) {
@@ -523,7 +543,7 @@ class FormRuleUrl extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be a valid URL.";
+  String? message = "nylo.validation.url";
 
   FormRuleUrl({this.rule = "url", String? message}) {
     if (message != null) {
@@ -555,8 +575,7 @@ class FormRuleContains extends FormRule {
   FormRuleContains(this.values, [String? message]) {
     this.rule = "contains";
     if (message == null) {
-      this.message =
-          "The {{attribute}} must contain one of the following values: ${values.join(", ")}.";
+      this.message = "nylo.validation.contains";
     } else {
       this.message = message.replaceAll(
         "{{values}}",
@@ -564,6 +583,9 @@ class FormRuleContains extends FormRule {
       );
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"values": values.join(", ")};
 
   @override
   bool validate(data) {
@@ -588,9 +610,12 @@ class FormRuleBeginsWith extends FormRule {
     if (message != null) {
       this.message = message.replaceAll("{{prefix}}", prefix);
     } else {
-      this.message = "The {{attribute}} must begin with '$prefix'.";
+      this.message = "nylo.validation.begins_with";
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"prefix": prefix};
 
   @override
   bool validate(data) {
@@ -615,9 +640,12 @@ class FormRuleEndsWith extends FormRule {
     if (message != null) {
       this.message = message.replaceAll("{{suffix}}", suffix);
     } else {
-      this.message = "The {{attribute}} must end with '$suffix'.";
+      this.message = "nylo.validation.ends_with";
     }
   }
+
+  @override
+  Map<String, String> get messageArguments => {"suffix": suffix};
 
   @override
   bool validate(data) {
@@ -633,7 +661,7 @@ class FormRuleBooleanTrue extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be true.";
+  String? message = "nylo.validation.boolean_true";
 
   FormRuleBooleanTrue({this.rule = "boolean_true", String? message}) {
     if (message != null) {
@@ -652,7 +680,7 @@ class FormRuleBooleanFalse extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be false.";
+  String? message = "nylo.validation.boolean_false";
 
   FormRuleBooleanFalse({this.rule = "boolean_false", String? message}) {
     if (message != null) {
@@ -671,7 +699,7 @@ class FormRuleNotEmpty extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must not be empty.";
+  String? message = "nylo.validation.not_empty";
 
   FormRuleNotEmpty([String? message]) {
     this.rule = "not_empty";
@@ -695,7 +723,7 @@ class FormRuleNumeric extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be a numeric value.";
+  String? message = "nylo.validation.numeric";
 
   FormRuleNumeric({this.rule = "numeric", String? message}) {
     if (message != null) {
@@ -714,7 +742,7 @@ class FormRuleDate extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be a valid date.";
+  String? message = "nylo.validation.date";
 
   FormRuleDate({this.rule = "date", String? message}) {
     if (message != null) {
@@ -739,7 +767,7 @@ class FormRuleCapitalized extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be capitalized.";
+  String? message = "nylo.validation.capitalized";
 
   FormRuleCapitalized({this.rule = "capitalized", String? message}) {
     if (message != null) {
@@ -768,9 +796,13 @@ class FormRuleLowercase extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be in lowercase.";
+  String? message = "nylo.validation.lowercase";
 
-  FormRuleLowercase({this.rule = "lowercase", this.message});
+  FormRuleLowercase({this.rule = "lowercase", String? message}) {
+    if (message != null) {
+      this.message = message;
+    }
+  }
 
   @override
   bool validate(data) {
@@ -786,7 +818,7 @@ class FormRuleUppercase extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be in uppercase.";
+  String? message = "nylo.validation.uppercase";
 
   FormRuleUppercase({this.rule = "uppercase", String? message}) {
     if (message != null) {
@@ -808,7 +840,7 @@ class FormRuleZipcodeUs extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} field is not a valid zip code";
+  String? message = "nylo.validation.zipcode_us";
 
   FormRuleZipcodeUs({this.rule = "zipcode_us", String? message}) {
     if (message != null) {
@@ -828,7 +860,7 @@ class FormRulePostcodeUk extends FormRule {
   String? rule;
 
   @override
-  String? message = "The {{attribute}} must be a valid UK postcode.";
+  String? message = "nylo.validation.postcode_uk";
 
   FormRulePostcodeUk({this.rule = "postcode_uk", String? message}) {
     if (message != null) {

@@ -10,6 +10,7 @@ import '../state_name.dart';
 import '../helper.dart';
 import '../backpack.dart';
 import '../ny_logger.dart';
+import '/widgets/src/models/page_state_actions.dart';
 import '/local_storage/ny_local_storage.dart';
 import '/router/ny_router.dart';
 
@@ -103,9 +104,17 @@ extension RouteViewExt on RouteView {
   String nyPageName() =>
       nyStateSignatureForWidget(nyWidgetTypeNameForRoute(this));
 
+  /// Actions for the page this route builds.
+  ///
+  /// e.g. `HomePage.path.actions.showToast("hello")`. A page usually keeps one
+  /// on its class - `static final actions = path.actions;` - so a call site
+  /// reads `HomePage.actions.showToast("hello")`.
+  PageStateActions get actions => PageStateActions(this);
+
   /// Refresh the page
+  @Deprecated('Use `actions.refreshPage()` instead')
   dynamic stateRefresh() {
-    return StateAction.refreshPage(this.$1);
+    return StateAction.refreshPage(stateName());
   }
 
   /// Route to a new page.

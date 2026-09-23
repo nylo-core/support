@@ -156,7 +156,7 @@ class NyController extends BaseController {
   void confirmAction(
     Function() action, {
     required String title,
-    String dismissText = "Cancel",
+    String dismissText = "nylo.confirm_action.cancel",
   }) {
     if (state == null) return;
     StateAction.confirmAction(

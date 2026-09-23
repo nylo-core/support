@@ -1,6 +1,15 @@
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/local_notifications/ny_local_notifications.dart';
+import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
+
+/// Helper function to create an EnvGetter from a Map for testing
+EnvGetter mockEnv(Map<String, dynamic> values) =>
+    (String key, {dynamic defaultValue}) => values[key] ?? defaultValue;
 
 void main() {
   NyTest.init();
@@ -163,6 +172,91 @@ void main() {
         final notification = PushNotification(title: 'Test', body: 'Body');
 
         expect(notification, isA<LocalNotification>());
+      });
+    });
+
+    nyGroup('resolveAndroidScheduleMode', () {
+      final plugin = FlutterLocalNotificationsPlugin();
+
+      setUp(() async {
+        // The fallback logs a warning, which needs Nylo initialized
+        await Nylo.init(env: mockEnv({'APP_DEBUG': true}));
+      });
+
+      void mockCanScheduleExactNotifications(bool canScheduleExact) {
+        AndroidFlutterLocalNotificationsPlugin.registerWith();
+        debugDefaultTargetPlatformOverride = TargetPlatform.android;
+        TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            .setMockMethodCallHandler(
+              const MethodChannel('dexterous.com/flutter/local_notifications'),
+              (MethodCall methodCall) async =>
+                  methodCall.method == 'canScheduleExactNotifications'
+                  ? canScheduleExact
+                  : null,
+            );
+        addTearDown(() {
+          debugDefaultTargetPlatformOverride = null;
+          NyMockChannels.tearDown();
+          NyMockChannels.setup();
+        });
+      }
+
+      nyTest('keeps exact modes when exact alarms are permitted', () async {
+        mockCanScheduleExactNotifications(true);
+
+        for (final mode in [
+          AndroidScheduleMode.exact,
+          AndroidScheduleMode.exactAllowWhileIdle,
+          AndroidScheduleMode.alarmClock,
+        ]) {
+          expect(
+            await LocalNotification.resolveAndroidScheduleMode(plugin, mode),
+            mode,
+          );
+        }
+      });
+
+      nyTest(
+        'falls back to inexact modes when exact alarms are not permitted',
+        () async {
+          mockCanScheduleExactNotifications(false);
+
+          expect(
+            await LocalNotification.resolveAndroidScheduleMode(
+              plugin,
+              AndroidScheduleMode.exact,
+            ),
+            AndroidScheduleMode.inexact,
+          );
+          expect(
+            await LocalNotification.resolveAndroidScheduleMode(
+              plugin,
+              AndroidScheduleMode.exactAllowWhileIdle,
+            ),
+            AndroidScheduleMode.inexactAllowWhileIdle,
+          );
+          expect(
+            await LocalNotification.resolveAndroidScheduleMode(
+              plugin,
+              AndroidScheduleMode.alarmClock,
+            ),
+            AndroidScheduleMode.inexactAllowWhileIdle,
+          );
+        },
+      );
+
+      nyTest('leaves inexact modes unchanged', () async {
+        mockCanScheduleExactNotifications(false);
+
+        for (final mode in [
+          AndroidScheduleMode.inexact,
+          AndroidScheduleMode.inexactAllowWhileIdle,
+        ]) {
+          expect(
+            await LocalNotification.resolveAndroidScheduleMode(plugin, mode),
+            mode,
+          );
+        }
       });
     });
   });

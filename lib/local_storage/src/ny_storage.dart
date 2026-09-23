@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '/helpers/ny_helpers.dart';
+import '/live/src/seed_zone.dart';
 import '/testing/src/ny_time.dart';
 import 'storage_manager.dart';
 import 'storage_utils.dart';
@@ -16,6 +17,7 @@ class NyStorage {
 
   /// Writes to storage
   static Future<void> _write(String key, String value) async {
+    await currentSeedRecording?.storageWillChange(key);
     await manager().write(key: key, value: value);
   }
 
@@ -26,11 +28,13 @@ class NyStorage {
 
   /// Deletes from storage
   static Future<void> _delete(String key) async {
+    await currentSeedRecording?.storageWillChange(key);
     await manager().delete(key: key);
   }
 
   /// Deletes all from storage
   static Future<void> _deleteAllStorage() async {
+    await currentSeedRecording?.storageWillClear();
     await manager().deleteAll();
   }
 

@@ -64,6 +64,20 @@ class NyLogger {
   /// ```
   static NyLogCallback? onLog;
 
+  static final List<NyLogCallback> _listeners = [];
+
+  /// Add a listener that receives every log entry, alongside [onLog].
+  ///
+  /// Unlike [onLog], several listeners can be registered at once.
+  static void addListener(NyLogCallback listener) {
+    if (!_listeners.contains(listener)) _listeners.add(listener);
+  }
+
+  /// Remove a listener added with [addListener].
+  static void removeListener(NyLogCallback listener) {
+    _listeners.remove(listener);
+  }
+
   /// Interpolates context values into a message string.
   /// Example: _interpolate('User {id} logged in', {'id': '123'}) => 'User 123 logged in'
   static String _interpolate(String message, Map<String, dynamic>? context) {
@@ -272,16 +286,20 @@ class NyLogger {
     // Interpolate context into message
     final interpolatedMessage = _interpolate(message.toString(), context);
 
-    // Always notify listener if set (even in production)
-    onLog?.call(
-      NyLogEntry(
+    // Always notify listeners if set (even in production)
+    if (onLog != null || _listeners.isNotEmpty) {
+      final NyLogEntry entry = NyLogEntry(
         message: interpolatedMessage,
         type: type,
         dateTime: now,
         stackTrace: stackTrace,
         context: context,
-      ),
-    );
+      );
+      onLog?.call(entry);
+      for (final NyLogCallback listener in List.of(_listeners)) {
+        listener(entry);
+      }
+    }
 
     // Check if we should print to console
     bool canPrint = (getEnv(_appDebugKey, defaultValue: true));

@@ -511,9 +511,9 @@ class FormValidator {
     for (FormRule rule in rules) {
       bool response = rule.validate(this.data);
       if (!response) {
-        result.responses.add(FormValidationError(rule));
+        result.responses.add(FormValidationError(rule, attribute: attribute));
       } else {
-        result.responses.add(FormValidationSuccess(rule));
+        result.responses.add(FormValidationSuccess(rule, attribute: attribute));
       }
     }
 
@@ -592,10 +592,5 @@ class FormValidationResult {
   }
 
   /// Format the message for the validation rule.
-  String _formatMessage(FormRule rule) {
-    if (rule.message != null) {
-      return rule.message!.replaceAll('{{attribute}}', attribute ?? 'data');
-    }
-    return '';
-  }
+  String _formatMessage(FormRule rule) => rule.getMessage(attribute) ?? '';
 }

@@ -159,8 +159,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        // .tr() returns the key when localization is not initialized
-        expect(find.text('nylo.collection_view.no_results'), findsOneWidget);
+        // nylo.* keys fall back to English when localization is not initialized
+        expect(find.text('No results found'), findsOneWidget);
       });
 
       testWidgets('renders header before items', (tester) async {

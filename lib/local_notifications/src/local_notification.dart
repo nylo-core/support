@@ -158,10 +158,48 @@ class LocalNotification {
         body: _body,
         scheduledDate: tz.TZDateTime.parse(tz.local, sendAtDateTime),
         notificationDetails: notificationDetails,
-        androidScheduleMode: androidScheduleMode,
+        androidScheduleMode: await resolveAndroidScheduleMode(
+          flutterLocalNotificationsPlugin,
+          androidScheduleMode,
+        ),
         payload: _payload,
       );
     });
+  }
+
+  /// Returns [androidScheduleMode], or its inexact equivalent when the app
+  /// isn't allowed to schedule exact alarms.
+  ///
+  /// Exact modes need the `SCHEDULE_EXACT_ALARM` permission, which Android 14+
+  /// denies by default, and `zonedSchedule` throws `exact_alarms_not_permitted`
+  /// without it.
+  @visibleForTesting
+  static Future<AndroidScheduleMode> resolveAndroidScheduleMode(
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+    AndroidScheduleMode androidScheduleMode,
+  ) async {
+    final AndroidScheduleMode inexactMode = switch (androidScheduleMode) {
+      AndroidScheduleMode.exact => AndroidScheduleMode.inexact,
+      AndroidScheduleMode.exactAllowWhileIdle ||
+      AndroidScheduleMode.alarmClock =>
+        AndroidScheduleMode.inexactAllowWhileIdle,
+      _ => androidScheduleMode,
+    };
+    if (inexactMode == androidScheduleMode) return androidScheduleMode;
+
+    final bool canScheduleExact =
+        await flutterLocalNotificationsPlugin
+            .resolvePlatformSpecificImplementation<
+              AndroidFlutterLocalNotificationsPlugin
+            >()
+            ?.canScheduleExactNotifications() ??
+        true;
+    if (canScheduleExact) return androidScheduleMode;
+
+    NyLogger.warning(
+      'Exact alarms are not permitted, scheduling with ${inexactMode.name} instead',
+    );
+    return inexactMode;
   }
 
   Future<void> _sendImmediateNotification(

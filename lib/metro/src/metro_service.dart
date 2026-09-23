@@ -924,6 +924,41 @@ final Map<Type, NyProvider> providers = {$match
     );
   }
 
+  /// Creates a new seeder in `lib/app/seeders`.
+  ///
+  /// Registering it with the app is left to the caller.
+  static Future<String> makeSeeder(
+    String className,
+    String value, {
+    String folderPath = seedersFolder,
+    bool forceCreate = false,
+    String? creationPath,
+  }) async {
+    String name = className.replaceAll(RegExp(r'(_?seeder)'), "");
+
+    await _makeDirectory(folderPath);
+    await createDirectoriesFromCreationPath(creationPath, folderPath);
+
+    String filePath = createPathForDartFile(
+      folderPath: folderPath,
+      className: name,
+      prefix: "seeder",
+      creationPath: creationPath,
+    );
+
+    await _checkIfFileExists(filePath, shouldForceCreate: forceCreate);
+    await _createNewFile(
+      filePath,
+      value,
+      onSuccess: () {
+        final linkText = '${name.snakeCase}_seeder';
+        final link = MetroConsole.hyperlink(linkText, filePath);
+        MetroConsole.writeInGreen('[Seeder] $link created 🎉');
+      },
+    );
+    return filePath;
+  }
+
   /// Creates a new API service.
   static Future<void> makeApiService(
     String className,

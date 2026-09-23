@@ -1,6 +1,19 @@
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/widgets/ny_widgets.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
+
+import '../controllers/mocks/mock_event_bus.dart';
+
+/// A one-field form whose only rule fails when the field is empty.
+class _NameFormData extends NyFormData {
+  _NameFormData() : super('name_form');
+
+  @override
+  List<dynamic> fields() => [
+    Field.text("Name", validator: FormValidator.notEmpty()),
+  ];
+}
 
 void main() {
   NyTest.init();
@@ -436,6 +449,56 @@ void main() {
       validator.setAttribute('Email');
       final result = validator.check('');
       expect(result.errorMessages(), contains('Email is required'));
+    });
+
+    nyTest('error responses name the field in their message', () async {
+      final validator = FormValidator.notEmpty();
+      validator.setAttribute('Name');
+      final result = validator.check('');
+      expect(result.errorResponses.first.attribute, 'Name');
+      expect(
+        result.errorResponses.first.message,
+        'The Name must not be empty.',
+      );
+    });
+
+    nyTest('a field names itself in its error messages', () async {
+      final field = Field.text('Name', validator: FormValidator.notEmpty());
+      final result = field.validate();
+      expect(
+        result?.errorResponses.first.message,
+        'The Name must not be empty.',
+      );
+    });
+  });
+
+  // ===========================================================================
+  // NyFormData.submit error toast
+  // ===========================================================================
+
+  nyGroup('NyFormData.submit', () {
+    late MockEventBus mockEventBus;
+
+    nySetUp(() {
+      mockEventBus = MockEventBus();
+      Backpack.instance.save('event_bus', mockEventBus);
+    });
+
+    nyTearDown(() {
+      mockEventBus.reset();
+    });
+
+    nyTest('the error toast names the field that failed', () async {
+      final form = _NameFormData()..initFields();
+      List<FormValidationError>? errors;
+
+      await form.submit(onSuccess: (_) {}, onFailure: (e) => errors = e);
+
+      final toast = mockEventBus.firedEvents
+          .whereType<UpdateState>()
+          .firstWhere((event) => event.data['action'] == 'showToast');
+      expect(toast.data['data']['message'], 'The Name must not be empty.');
+      expect(errors?.first.message, 'The Name must not be empty.');
     });
   });
 }

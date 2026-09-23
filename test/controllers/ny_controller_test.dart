@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/controllers/ny_controllers.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
+import 'package:nylo_support/localization/ny_localization.dart';
 import 'package:nylo_support/router/ny_router.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 import 'package:nylo_support/widgets/src/event_bus/update_state.dart';
@@ -245,6 +246,26 @@ void main() {
         expect(event.data['data']['title'], 'Sorry');
       });
 
+      nyTest('default toast titles follow the active language', () async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {
+            'nylo': {
+              'toast': {'sorry': 'Lo sentimos'},
+            },
+          },
+        );
+        addTearDown(
+          () => NyLocalization.instance.setValuesForTesting(values: {}),
+        );
+        final controller = TestNyController();
+        controller.state = 'ToastPageState';
+
+        controller.showToastSorry(description: 'We apologize');
+
+        final event = mockEventBus.firedEvents.first as UpdateState;
+        expect(event.data['data']['title'], 'Lo sentimos');
+      });
+
       nyTest('showToastCustom fires with toast-custom action', () async {
         final controller = TestNyController();
         controller.state = 'ToastPageState';
@@ -429,7 +450,7 @@ void main() {
         controller.confirmAction(() {}, title: 'Delete item?');
 
         final event = mockEventBus.firedEvents.first as UpdateState;
-        expect(event.data['data']['dismissText'], 'Cancel');
+        expect(event.data['data']['dismissText'], 'nylo.confirm_action.cancel');
       });
 
       nyTest('does nothing when state is null', () async {

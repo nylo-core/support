@@ -173,26 +173,76 @@ abstract class NyFormWidget extends StatefulWidget {
   }
 
   /// Submit the form
-  static void submit(
+  ///
+  /// The returned [Future] completes once the form has validated and
+  /// [onSuccess] or [onFailure] has finished, including any [Future] it
+  /// returns, so a button whose `onPressed` returns it stays locked until
+  /// then. It completes with the error if either callback throws.
+  ///
+  /// If no form named [name] is mounted, nothing is submitted and the
+  /// [Future] completes straight away.
+  static Future<void> submit(
     String name, {
     required Function(dynamic value) onSuccess,
     Function(List<FormValidationError>)? onFailure,
     bool showToastError = true,
   }) {
+    final String formState = state(name);
+    if (!_subscribedForms.containsKey(formState)) {
+      _reportUnmountedForm(name);
+      return Future.value();
+    }
+
+    final Completer<void> completer = Completer<void>();
     stateAction(
       "submit",
-      state: state(name),
+      state: formState,
       data: {
         "onSuccess": onSuccess,
         "onFailure": onFailure,
         "showToastError": showToastError,
+        "completer": completer,
       },
     );
+    return completer.future;
   }
 
   @override
   // ignore: no_logic_in_create_state
   createState() => _NyFormWidgetState(formName);
+}
+
+/// How many mounted form states are listening on each form state name.
+///
+/// [NyFormWidget.submit] reads it to tell whether a submit will be answered:
+/// the event bus drops an update nobody listens for without a trace, which
+/// would leave the [Future] it returns - and any button waiting on that
+/// Future - pending for good.
+final Map<String, int> _subscribedForms = {};
+
+/// Form names already reported by [_reportUnmountedForm].
+final Set<String> _reportedUnmountedForms = {};
+
+/// Log, once per name, a submit sent to a form that is not mounted.
+///
+/// Reported once because a submit button calls this on every tap, and a name
+/// that reaches no form on the first tap reaches none on the next.
+void _reportUnmountedForm(String name) {
+  if (!_reportedUnmountedForms.add(name)) return;
+
+  try {
+    NyLogger.error(
+      'NyFormWidget.submit: no form named "$name" is mounted, so nothing was '
+      'submitted. A form is named after its class unless it is given a name, '
+      'so address it by the same name, e.g. '
+      "static NyFormActions get actions => const NyFormActions('LoginForm');",
+      alwaysPrint: true,
+    );
+  } catch (_) {
+    /// Reporting cannot break submitting: the logger reads the env and
+    /// [Nylo.instance], so it throws where neither is registered - a widget
+    /// test that pumps a form without booting Nylo.
+  }
 }
 
 /// Internal NyFormData subclass that delegates fields() and init to the widget.
@@ -215,12 +265,39 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
   Future<List<Widget>>? _formDataFuture;
   late _InlineFormData _formData;
 
+  /// The name this state is counted under in [_subscribedForms], if any.
+  String? _subscribedName;
+
   _NyFormWidgetState(String formName) {
     stateName = 'form_$formName';
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    /// Only a state subscribed to the event bus can answer a submit.
+    if (eventSubscription != null) {
+      _subscribedName = stateName;
+      _subscribedForms.update(
+        stateName!,
+        (count) => count + 1,
+        ifAbsent: () => 1,
+      );
+    }
+  }
+
+  @override
   void dispose() {
+    final String? subscribedName = _subscribedName;
+    if (subscribedName != null) {
+      final int remaining = (_subscribedForms[subscribedName] ?? 1) - 1;
+      if (remaining > 0) {
+        _subscribedForms[subscribedName] = remaining;
+      } else {
+        _subscribedForms.remove(subscribedName);
+      }
+    }
     _formData.dispose();
     super.dispose();
   }
@@ -313,12 +390,23 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
       final onFailure =
           data['onFailure'] as Function(List<FormValidationError>)?;
       final showToastError = data['showToastError'] as bool? ?? true;
+      final completer = data['completer'] as Completer<void>?;
 
-      _formData.submit(
-        onSuccess: onSuccess,
-        onFailure: onFailure,
-        showToastError: showToastError,
-      );
+      try {
+        await _formData.submit(
+          onSuccess: onSuccess,
+          onFailure: onFailure,
+          showToastError: showToastError,
+        );
+      } catch (error, stackTrace) {
+        /// The error belongs to whoever awaits [NyFormWidget.submit]. With no
+        /// completer to carry it, or once another form of the same name has
+        /// answered, it is thrown on as before.
+        if (completer == null || completer.isCompleted) rethrow;
+        completer.completeError(error, stackTrace);
+        return;
+      }
+      if (completer != null && !completer.isCompleted) completer.complete();
     },
     "refresh-form": (_) {
       _formData.refreshFields();
@@ -487,7 +575,11 @@ class NyFormActions {
       NyFormWidget.stateSetOptions(formName, key, value);
 
   /// Submit the form
-  void submit({
+  ///
+  /// The returned [Future] completes once [onSuccess] or [onFailure] has
+  /// finished. Return it from a button's `onPressed` to keep the button
+  /// loading until then. See [NyFormWidget.submit].
+  Future<void> submit({
     required Function(dynamic) onSuccess,
     Function(List<FormValidationError>)? onFailure,
     bool showToastError = true,

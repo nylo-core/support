@@ -1,3 +1,5 @@
+import '/localization/ny_localization.dart';
+
 /// Represents a single option item for form components like dropdowns, radios, and chips.
 ///
 /// [FormOption] encapsulates a key-value pair where [value] is the actual data
@@ -294,9 +296,11 @@ class FormCollection {
 
   String? validateValue(String? value, {String? errorMessage}) {
     if (value == null || value.isEmpty) {
-      return errorMessage ?? 'Please select an option';
+      return errorMessage ?? 'nylo.form_collection.select_option'.tr();
     }
-    if (!isValidValue(value)) return errorMessage ?? 'Invalid selection';
+    if (!isValidValue(value)) {
+      return errorMessage ?? 'nylo.form_collection.invalid_selection'.tr();
+    }
     return null;
   }
 

@@ -30,6 +30,7 @@ const String networkingInterceptorsFolder =
 const String bootstrapFolder = 'lib/bootstrap';
 const String configFolder = 'lib/config';
 const String commandsFolder = 'lib/app/commands';
+const String seedersFolder = 'lib/app/seeders';
 const String routeGuardsFolder = 'lib/routes/guards';
 const String langFolder = 'lang';
 
@@ -40,6 +41,8 @@ String makeImportPathApiService(String name, {String creationPath = ""}) =>
     "import '/app/networking/${creationPath != "" ? "$creationPath/" : ""}${name}_api_service.dart';";
 String makeImportPathEvent(String name, {String creationPath = ""}) =>
     "import '/app/events/${creationPath != "" ? "$creationPath/" : ""}${name}_event.dart';";
+String makeImportPathSeeder(String name, {String creationPath = ""}) =>
+    "import '/app/seeders/${creationPath != "" ? "$creationPath/" : ""}${name}_seeder.dart';";
 String makeImportPathProviders(String name, {String creationPath = ""}) =>
     "import '/app/providers/${creationPath != "" ? "$creationPath/" : ""}${name}_provider.dart';";
 

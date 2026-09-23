@@ -96,16 +96,7 @@ class _ButtonStateState extends NyState<ButtonState> {
         NyFormWidget.submit(
           formId,
           onSuccess: (data) {
-            if (widget.onSubmit!.$2!.$2 is Future Function(dynamic data)) {
-              lockRelease(
-                widget.child.toString(),
-                perform: () async {
-                  await widget.onSubmit!.$2!.$2(data);
-                },
-              );
-            } else {
-              widget.onSubmit!.$2!.$2(data);
-            }
+            _lockWhile(() => widget.onSubmit!.$2!.$2(data));
           },
           onFailure: widget.onFailure,
           showToastError: widget.showToastError ?? true,
@@ -113,19 +104,27 @@ class _ButtonStateState extends NyState<ButtonState> {
       }
 
       try {
-        if (widget.onSubmit!.$1 is Future Function()) {
-          lockRelease(
-            widget.child.toString(),
-            perform: () async {
-              await widget.onSubmit!.$1!();
-            },
-          );
-        } else {
-          if (widget.onSubmit!.$1 != null) widget.onSubmit!.$1!();
-        }
+        if (widget.onSubmit!.$1 != null) _lockWhile(widget.onSubmit!.$1!);
       } catch (e) {
         printError(e.toString());
       }
     });
+  }
+
+  /// Calls [action], keeping the button locked until the [Future] it returns
+  /// completes.
+  ///
+  /// What [action] returns decides, not the type it was declared with: a
+  /// `void submit() async` method is typed `void Function()` but still returns
+  /// a [Future]. A call made while the button is locked is dropped, which
+  /// covers a second tap that lands before the button is redrawn as locked.
+  void _lockWhile(Function() action) {
+    final String name = widget.child.toString();
+    if (isLocked(name)) return;
+
+    final dynamic result = action();
+    if (result is Future) {
+      lockRelease(name, perform: () => result);
+    }
   }
 }

@@ -1,5 +1,6 @@
 import 'state.dart';
 import 'extensions.dart';
+import '/localization/ny_localization.dart';
 import '/router/ny_router.dart';
 
 /// [StateAction] class
@@ -41,7 +42,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-sorry", {
-      "title": title ?? "Sorry",
+      "title": title ?? "nylo.toast.sorry".tr(),
       "description": description,
     });
   }
@@ -54,7 +55,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-warning", {
-      "title": title ?? "Warning",
+      "title": title ?? "nylo.toast.warning".tr(),
       "description": description,
     });
   }
@@ -67,7 +68,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-info", {
-      "title": title ?? "Info",
+      "title": title ?? "nylo.toast.info".tr(),
       "description": description,
     });
   }
@@ -80,7 +81,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-danger", {
-      "title": title ?? "Error",
+      "title": title ?? "nylo.toast.error".tr(),
       "description": description,
     });
   }
@@ -93,7 +94,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-oops", {
-      "title": title ?? "Oops",
+      "title": title ?? "nylo.toast.oops".tr(),
       "description": description,
     });
   }
@@ -106,7 +107,7 @@ class StateAction {
     required String description,
   }) {
     _updateState(_findStateName(state), "toast-success", {
-      "title": title ?? "Success",
+      "title": title ?? "nylo.toast.success".tr(),
       "description": description,
     });
   }
@@ -145,7 +146,7 @@ class StateAction {
     dynamic state, {
     required Function() action,
     required String title,
-    String dismissText = "Cancel",
+    String dismissText = "nylo.confirm_action.cancel",
   }) async {
     _updateState(_findStateName(state), "confirm-action", {
       "action": action,

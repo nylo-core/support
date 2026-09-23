@@ -119,6 +119,27 @@ void main() {
           expect(result, 'simple_key');
         },
       );
+
+      nyTest(
+        'should return the English default for a nylo key when values null',
+        () async {
+          expect(
+            NyLocalization.instance.translate('nylo.toast.sorry'),
+            'Sorry',
+          );
+        },
+      );
+
+      nyTest(
+        'should fill arguments into a nylo default when values null',
+        () async {
+          final result = NyLocalization.instance.translate(
+            'nylo.validation.min_length',
+            {'attribute': 'Name', 'minLength': '3'},
+          );
+          expect(result, 'The Name must be at least 3 characters long.');
+        },
+      );
     });
 
     nyGroup('hasTranslation', () {
@@ -369,5 +390,59 @@ void main() {
         );
       },
     );
+  });
+
+  nyGroup('built-in nylo defaults', () {
+    nyTest('the active language wins over the default', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {
+          'nylo': {
+            'toast': {'sorry': 'Lo sentimos'},
+          },
+        },
+      );
+
+      expect(
+        NyLocalization.instance.translate('nylo.toast.sorry'),
+        'Lo sentimos',
+      );
+    });
+
+    nyTest('the fallback language wins over the default', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {},
+        fallbackValues: {
+          'nylo': {
+            'toast': {'sorry': 'Apologies'},
+          },
+        },
+      );
+
+      expect(
+        NyLocalization.instance.translate('nylo.toast.sorry'),
+        'Apologies',
+      );
+    });
+
+    nyTest('a nylo key missing from both languages uses the default', () async {
+      NyLocalization.instance.setValuesForTesting(
+        values: {'a': '1'},
+        fallbackValues: {'b': '2'},
+      );
+
+      expect(
+        NyLocalization.instance.translate('nylo.validation.begins_with', {
+          'attribute': 'Code',
+          'prefix': 'AB',
+        }),
+        "The Code must begin with 'AB'.",
+      );
+    });
+
+    nyTest('a path that runs past a string names no translation', () async {
+      NyLocalization.instance.setValuesForTesting(values: {'hello': 'Hello'});
+
+      expect(NyLocalization.instance.translate('hello.world'), 'hello.world');
+    });
   });
 }

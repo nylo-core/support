@@ -13,4 +13,14 @@ abstract class StateActions {
   void action(String action, {dynamic data}) {
     stateAction(action, state: state, data: data);
   }
+
+  /// Call the [name] action on the state, with optional [data].
+  ///
+  /// The same as [action] with the data positional, so an actions object reads
+  /// like a command: `HomePage.actions.call("shake_the_logo", {"times": 3})`.
+  /// As the method is named `call`, the object is callable as well:
+  /// `HomePage.actions("shake_the_logo")`.
+  void call(String name, [dynamic data]) {
+    action(name, data: data);
+  }
 }

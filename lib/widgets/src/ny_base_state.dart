@@ -212,6 +212,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
             data: stateData['data'] is Map<String, dynamic>
                 ? stateData['data']
                 : null,
+            duration: stateData['duration'],
           );
           break;
         }
@@ -281,7 +282,9 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
                   errors.add(
                     customMessage ??
                         result.getFirstErrorMessage() ??
-                        'Validation failed for $field',
+                        'nylo.validation.field_failed'.tr(
+                          arguments: {'attribute': field},
+                        ),
                   );
                 }
               } else if (rule is String) {
@@ -289,7 +292,12 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
                 if (rule.contains('required') &&
                     (value == null || value.toString().isEmpty)) {
                   String? customMessage = messages?[field];
-                  errors.add(customMessage ?? '$field is required');
+                  errors.add(
+                    customMessage ??
+                        'nylo.validation.field_required'.tr(
+                          arguments: {'attribute': field},
+                        ),
+                  );
                 }
               }
             }
@@ -322,6 +330,88 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
         }
       default:
         {}
+    }
+  }
+
+  /// Listen for the [UpdateState] events addressed to [stateName].
+  ///
+  /// Restores the last payload sent to this name from the event bus history
+  /// into [stateData], then subscribes so [stateUpdated] and
+  /// [handleStateAction] run for each new one, followed by a rebuild.
+  void listenForStateUpdates() {
+    final EventBus? bus = eventBus;
+    if (bus == null) return;
+
+    restoreStateFromHistory();
+
+    eventSubscription = bus.on<UpdateState>().listen((event) async {
+      if (event.stateName != stateName) return;
+
+      await stateUpdated(event.data);
+      await handleStateAction(event.data);
+      if (mounted) setState(() {});
+    });
+  }
+
+  /// Restore [stateData] from the last [UpdateState] sent to [stateName].
+  void restoreStateFromHistory() {
+    final lastEvent = eventBus?.history
+        .where((entry) => entry.event is UpdateState)
+        .map((entry) => entry.event as UpdateState)
+        .where((event) => event.stateName == stateName)
+        .lastOrNull;
+
+    if (lastEvent != null) {
+      stateData = lastEvent.data;
+    }
+  }
+
+  /// Run the handler registered in [stateActions] for a state action.
+  ///
+  /// An action sent with [stateAction], [StateActions.call] or
+  /// `NyController.updatePageState` carries a `String` name and one `data`
+  /// value: the handler is called with the value when it takes a parameter,
+  /// and without it when it takes none. A typed action, sent by a bodiless
+  /// method on a [PageStateActions] subclass, carries the method's [Symbol]
+  /// with its positional and named arguments, which are applied as given.
+  Future<void> handleStateAction(dynamic data) async {
+    if (data is! Map || !data.containsKey('action')) return;
+
+    final Object? action = data['action'];
+    if (action == null) return;
+
+    final Function? handler = stateActions[action];
+    if (handler == null) {
+      /// A typed action names a method the developer wrote, so nothing
+      /// answering it is a mistake worth reporting. A string action may be a
+      /// built-in that [stateUpdated] has already handled.
+      if (action is Symbol) {
+        NyLogger.error(
+          '$runtimeType has no handler for $action in stateActions. '
+          'Register one, e.g. { $action: yourMethod }.',
+        );
+      }
+      return;
+    }
+
+    if (action is Symbol) {
+      final List<dynamic> args = data['args'] as List<dynamic>? ?? const [];
+      final Map<Symbol, dynamic> named =
+          data['named'] as Map<Symbol, dynamic>? ?? const {};
+      await Function.apply(handler, args, named);
+      return;
+    }
+
+    final dynamic actionData = data['data'];
+    if (handler is Function(Never)) {
+      await Function.apply(handler, [actionData]);
+    } else if (handler is Function()) {
+      await Function.apply(handler, []);
+    } else {
+      NyLogger.error(
+        'The "$action" handler in $runtimeType.stateActions must take one '
+        'positional parameter or none.',
+      );
     }
   }
 
@@ -525,12 +615,14 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     String? description,
     String? id,
     Map<String, dynamic>? data,
+    Duration? duration,
   }) {
     showToast(
       title: title,
       description: description ?? "",
       id: id ?? 'success',
       data: data,
+      duration: duration,
     );
   }
 
@@ -695,6 +787,9 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// Use [isLocked] to check if the function is still locked.
   /// E.g.
   /// isLocked('update') // true/false
+  ///
+  /// The lock is released however [perform] ends. An [Exception] it throws is
+  /// logged; anything else is rethrown once the lock is released.
   Future<void> lockRelease(
     String name, {
     required Function perform,
@@ -709,9 +804,13 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
       await perform();
     } on Exception catch (e) {
       NyLogger.error(e.toString());
+    } finally {
+      _updateLockState(
+        shouldSetState: shouldSetState,
+        name: name,
+        value: false,
+      );
     }
-
-    _updateLockState(shouldSetState: shouldSetState, name: name, value: false);
   }
 
   /// Update the lock state.
@@ -899,11 +998,31 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     )!;
   }
 
-  /// Get the state actions
-  Map<String, Function> get stateActions => _stateActions;
+  /// The handlers this state runs for the actions sent to it.
+  ///
+  /// A `String` key names an action sent with [stateAction],
+  /// [StateActions.call] or `NyController.updatePageState`; its handler takes
+  /// the action's data as one parameter, or nothing. A [Symbol] key names a
+  /// typed action sent by a bodiless method on a [PageStateActions] subclass;
+  /// its handler takes the method's own parameters, so it is usually the
+  /// method itself, as a tear-off:
+  ///
+  /// ```dart
+  /// @override
+  /// Map<Object, Function> get stateActions => {
+  ///   "shake_the_logo": () { ... },
+  ///   "set_stars": (int stars) { ... },
+  ///   #shakeTheLogo: shakeTheLogo,
+  /// };
+  /// ```
+  ///
+  /// Use symbol literals (`#shakeTheLogo`) for typed actions: they survive
+  /// `flutter build --obfuscate`, a `Symbol("...")` built from a string does
+  /// not.
+  Map<Object, Function> get stateActions => _stateActions;
 
   /// state actions variable
-  Map<String, Function> _stateActions = {};
+  Map<Object, Function> _stateActions = {};
 
   /// Handle what happens when an action is called
   /// [actions] is a map of actions
@@ -915,7 +1034,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   ///     routeToInitial();
   ///  }
   ///  });
-  void whenStateAction(Map<String, Function> actions) {
+  void whenStateAction(Map<Object, Function> actions) {
     _stateActions = actions;
   }
 

@@ -439,7 +439,7 @@ class InputField extends StatefulWidget {
   InputField.password({
     Key? key,
     required TextEditingController controller,
-    String labelText = "Password",
+    String labelText = "nylo.input_field.password",
     bool passwordVisible = true,
     bool obscureText = true,
     bool autoFocus = false,
@@ -596,7 +596,7 @@ class InputField extends StatefulWidget {
   InputField.emailAddress({
     Key? key,
     required TextEditingController controller,
-    String labelText = "Email Address",
+    String labelText = "nylo.input_field.email_address",
     bool obscureText = false,
     bool autoFocus = true,
     TextInputType keyboardType = TextInputType.emailAddress,
@@ -1335,7 +1335,7 @@ class _InputFieldState extends NyState<InputField> {
     }
 
     if (widget.labelText != null) {
-      decoration = decoration.copyWith(labelText: widget.labelText);
+      decoration = decoration.copyWith(labelText: widget.labelText!.tr());
     }
 
     if (widget.clearable == true) {

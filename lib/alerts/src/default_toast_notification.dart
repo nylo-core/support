@@ -21,7 +21,9 @@ class DefaultToastNotification extends StatelessWidget {
         _toastMeta.icon ??
         const Icon(Icons.check, color: Colors.green, size: 20);
     final iconBackgroundColor = _toastMeta.color ?? Colors.green.shade50;
-    final title = _toastMeta.title.isEmpty ? 'Success' : _toastMeta.title;
+    final title =
+        (_toastMeta.title.isEmpty ? 'nylo.toast.success' : _toastMeta.title)
+            .tr();
 
     // Theme-derived colors
     final backgroundColor = isDark ? colorScheme.surface : Colors.white;
@@ -94,7 +96,7 @@ class DefaultToastNotification extends StatelessWidget {
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            title.tr(),
+                            title,
                             style: theme.textTheme.bodyLarge?.copyWith(
                               color: titleColor,
                               fontWeight: FontWeight.bold,
@@ -128,7 +130,7 @@ class DefaultToastNotification extends StatelessWidget {
                         ),
                         child: IconButton(
                           padding: EdgeInsets.zero,
-                          tooltip: 'Dismiss notification',
+                          tooltip: 'nylo.toast.dismiss'.tr(),
                           onPressed: _toastMeta.dismiss,
                           icon: Icon(
                             Icons.close,

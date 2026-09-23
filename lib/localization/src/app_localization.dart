@@ -6,6 +6,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import '/nylo.dart';
 import '/helpers/ny_helpers.dart';
 import '/widgets/ny_widgets.dart';
+import 'default_translations.dart';
 
 /// Defines how the locale should be determined
 enum LocaleType {
@@ -140,13 +141,17 @@ class NyLocalization {
   /// Translates a key to its localized string value.
   /// Supports nested keys using dot notation (e.g., "section.greeting").
   /// Supports argument interpolation using {{argName}} syntax.
+  /// Nylo's own `nylo.*` keys fall back to their English defaults when the
+  /// language files do not define them.
   String translate(String key, [Map<String, String>? arguments]) {
-    // Return key if values not initialized
+    // Without loaded values, only the built-in defaults can answer
     if (_values == null) {
       if (_debugMissingKeys) {
         NyLogger.debug("Missing translation key (not initialized): $key");
       }
-      return key;
+      final String? defaultValue = _getDefault(key);
+      if (defaultValue == null) return key;
+      return _replaceArguments(defaultValue, arguments);
     }
 
     String? translatedValue;
@@ -175,21 +180,26 @@ class NyLocalization {
       NyLogger.debug("Missing translation key: $key");
     }
 
+    // Nylo's own keys fall back to their built-in English defaults
+    translatedValue ??= _getDefault(key);
+
     if (translatedValue == null) {
       return key;
     }
 
-    if (arguments == null) return translatedValue;
+    return _replaceArguments(translatedValue, arguments);
+  }
 
-    // Replace argument placeholders
+  /// Look up [key] in the built-in English defaults for `nylo.*` keys.
+  String? _getDefault(String key) => _getNestedFrom(key, defaultTranslations);
+
+  /// Replace each `{{name}}` placeholder in [value] with its [arguments] entry.
+  String _replaceArguments(String value, Map<String, String>? arguments) {
+    if (arguments == null) return value;
     for (final entry in arguments.entries) {
-      translatedValue = translatedValue?.replaceAll(
-        "{{${entry.key}}}",
-        entry.value,
-      );
+      value = value.replaceAll("{{${entry.key}}}", entry.value);
     }
-
-    return translatedValue ?? key;
+    return value;
   }
 
   /// Check if a translation key exists
@@ -230,7 +240,10 @@ class NyLocalization {
     final keys = key.split('.');
     var value = source[keys.first];
     for (var i = 1; i < keys.length; i++) {
-      if (value is Map<String, dynamic>) value = value[keys[i]];
+      // A path that runs past a string, e.g. "hello.world" when "hello" is
+      // a string, names no translation
+      if (value is! Map<String, dynamic>) return null;
+      value = value[keys[i]];
     }
     return value is String ? value : null;
   }

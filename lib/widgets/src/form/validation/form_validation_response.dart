@@ -7,8 +7,14 @@ class FormValidationResponse {
   dynamic data;
   FormRule rule;
 
+  /// The name of the field that was validated, e.g. "Email".
+  String? attribute;
+
   /// Create a new FormValidationResponse
-  FormValidationResponse(this.rule, {this.data});
+  FormValidationResponse(this.rule, {this.data, this.attribute});
+
+  /// The rule's message, with `{{attribute}}` replaced by the field name.
+  String? get message => rule.getMessage(attribute);
 
   @override
   String toString() {
@@ -18,7 +24,7 @@ class FormValidationResponse {
 
 /// Represents a validation failure response.
 class FormValidationError extends FormValidationResponse {
-  FormValidationError(super.rule);
+  FormValidationError(super.rule, {super.attribute});
 
   @override
   String toString() {
@@ -28,7 +34,7 @@ class FormValidationError extends FormValidationResponse {
 
 /// Represents a successful validation response
 class FormValidationSuccess extends FormValidationResponse {
-  FormValidationSuccess(super.rule);
+  FormValidationSuccess(super.rule, {super.attribute});
 
   @override
   String toString() {

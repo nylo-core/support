@@ -1,14 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/alerts/ny_alerts.dart';
+import 'package:nylo_support/localization/ny_localization.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 
 /// Tests for DefaultToastNotification widget.
 ///
-/// Note: Full widget rendering tests require NyLocalization to be initialized
-/// with language files, which is only available in an app context.
-/// These tests focus on the widget's instantiation and ToastMeta integration.
-/// For full widget tests, use integration tests in your Nylo app.
+/// Its built-in text uses `nylo.*` translation keys, which fall back to English
+/// when no language files are loaded, so the widget renders in plain tests.
 void main() {
   NyTest.init();
 
@@ -222,6 +221,47 @@ void main() {
         expect(meta.metaData, testData);
         expect(meta.metaData!['key1'], 'value1');
         expect(meta.metaData!['key2'], 123);
+      });
+    });
+
+    nyGroup('built-in text', () {
+      Widget toast(ToastMeta meta) =>
+          MaterialApp(home: Scaffold(body: DefaultToastNotification(meta)));
+
+      nyWidgetTest('titles an untitled toast "Success"', (tester) async {
+        final semantics = tester.ensureSemantics();
+        await tester.pumpWidget(toast(ToastMeta(description: 'Saved')));
+
+        expect(find.text('Success'), findsOneWidget);
+        expect(find.byTooltip('Dismiss notification'), findsOneWidget);
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Success: Saved')),
+          findsOneWidget,
+        );
+        semantics.dispose();
+      });
+
+      nyWidgetTest('follows the active language', (tester) async {
+        NyLocalization.instance.setValuesForTesting(
+          values: {
+            'nylo': {
+              'toast': {'success': 'Éxito', 'dismiss': 'Cerrar notificación'},
+            },
+          },
+        );
+        addTearDown(
+          () => NyLocalization.instance.setValuesForTesting(values: {}),
+        );
+        final semantics = tester.ensureSemantics();
+        await tester.pumpWidget(toast(ToastMeta(description: 'Guardado')));
+
+        expect(find.text('Éxito'), findsOneWidget);
+        expect(find.byTooltip('Cerrar notificación'), findsOneWidget);
+        expect(
+          find.bySemanticsLabel(RegExp(r'^Éxito: Guardado')),
+          findsOneWidget,
+        );
+        semantics.dispose();
       });
     });
   });

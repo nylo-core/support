@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'helper.dart';
+import '/live/src/seed_zone.dart';
 import '/nylo.dart';
 
 /// Backpack class for storing data
@@ -38,6 +39,7 @@ class Backpack {
 
   /// Update the session with a [key] and [value].
   void sessionUpdate(String name, String key, dynamic value) {
+    currentSeedRecording?.backpackWillChange(name, _values);
     if (!_values.containsKey(name)) {
       _values[name] = {};
     }
@@ -55,6 +57,7 @@ class Backpack {
   /// Remove a session value using a [key].
   void sessionRemove(String name, String key) {
     if (_values.containsKey(name)) {
+      currentSeedRecording?.backpackWillChange(name, _values);
       _values[name].remove(key);
     }
   }
@@ -62,6 +65,7 @@ class Backpack {
   /// Flush a session using a [name].
   void sessionFlush(String name) {
     if (_values.containsKey(name)) {
+      currentSeedRecording?.backpackWillChange(name, _values);
       _values.remove(name);
     }
   }
@@ -79,11 +83,19 @@ class Backpack {
     return _values.containsKey(key);
   }
 
+  /// The keys currently stored in Backpack, including internal ones such as
+  /// `nylo` and `event_bus`.
+  List<String> get keys => List.unmodifiable(_values.keys);
+
   /// Set a value using a [key] and [value].
-  void save(String key, dynamic value) => _values[key] = value;
+  void save(String key, dynamic value) {
+    currentSeedRecording?.backpackWillChange(key, _values);
+    _values[key] = value;
+  }
 
   /// Append a value to an existing key.
   void append(String key, dynamic value, {bool append = false, int? limit}) {
+    currentSeedRecording?.backpackWillChange(key, _values);
     if (!_values.containsKey(key)) {
       _values[key] = [];
     }
@@ -102,12 +114,21 @@ class Backpack {
   /// Delete a value using a [key].
   void delete(String key) {
     if (_values.containsKey(key)) {
+      currentSeedRecording?.backpackWillChange(key, _values);
       _values.remove(key);
     }
   }
 
   /// Delete all values from [Backpack].
   void deleteAll() {
+    final SeedRecording? recording = currentSeedRecording;
+    if (recording != null) {
+      for (final String key in _values.keys.toList()) {
+        if (!['nylo', 'event_bus'].contains(key)) {
+          recording.backpackWillChange(key, _values);
+        }
+      }
+    }
     _values.removeWhere((key, value) {
       if (['nylo', 'event_bus'].contains(key)) {
         return false;

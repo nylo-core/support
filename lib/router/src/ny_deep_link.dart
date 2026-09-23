@@ -8,6 +8,42 @@ import '/nylo.dart';
 import 'ny_navigator.dart';
 import 'router_functions.dart';
 
+/// Where an incoming URI resolves to, before anything navigates.
+class DeepLinkTarget {
+  /// Creates a [DeepLinkTarget].
+  const DeepLinkTarget({
+    required this.path,
+    required this.registered,
+    required this.target,
+    required this.queryParameters,
+  });
+
+  /// The path read out of the URI, e.g. `/product/42`.
+  final String path;
+
+  /// Whether [path] is a registered route.
+  final bool registered;
+
+  /// Where the app actually goes: [path], or the handler's `fallbackRoute`
+  /// when [path] isn't registered.
+  final String target;
+
+  /// The URI's query parameters, passed on to the page.
+  final Map<String, dynamic> queryParameters;
+
+  /// Whether the fallback route was used instead of [path].
+  bool get usedFallback => !registered && target != path;
+
+  /// The JSON Metro reads.
+  Map<String, Object?> toJson() => {
+    'path': path,
+    'registered': registered,
+    'target': target,
+    'queryParameters': queryParameters,
+    'usedFallback': usedFallback,
+  };
+}
+
 /// Signature for the function that actually routes an incoming deep link.
 /// Defaults to [routeTo]. Overridable in tests.
 typedef DeepLinkDispatcher =
@@ -78,18 +114,25 @@ class NyDeepLinkHandler {
     }
   }
 
-  void _navigate(Uri uri) {
-    final Map<String, dynamic> queryParameters = Map<String, dynamic>.from(
-      uri.queryParameters,
-    );
+  /// Where [uri] would take the app, without going there.
+  ///
+  /// Used by [handle] to route, and by `metro live:run deeplink` to report
+  /// what a link resolves to, so both read one implementation.
+  DeepLinkTarget resolve(Uri uri) {
     final String path = _routePath(uri);
-    final router = NyNavigator.instance.router;
+    final bool registered = NyNavigator.instance.router
+        .routeNameMappingsContains(path);
+    return DeepLinkTarget(
+      path: path,
+      registered: registered,
+      target: registered ? path : (fallbackRoute ?? path),
+      queryParameters: Map<String, dynamic>.from(uri.queryParameters),
+    );
+  }
 
-    final String target = router.routeNameMappingsContains(path)
-        ? path
-        : (fallbackRoute ?? path);
-
-    _dispatch(target, queryParameters);
+  void _navigate(Uri uri) {
+    final DeepLinkTarget resolved = resolve(uri);
+    _dispatch(resolved.target, resolved.queryParameters);
   }
 
   /// Resolves the route path from an incoming [uri].

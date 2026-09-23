@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
 import '/helpers/ny_helpers.dart';
+import '/localization/ny_localization.dart';
 import 'package:recase/recase.dart';
 
 import '/widgets/ny_widgets.dart';
@@ -515,17 +516,22 @@ class NyFormData {
 
   /// Submit the form
   /// If the form is valid, it will call the [onSuccess] function
-  void submit({
+  ///
+  /// The returned [Future] completes once [onSuccess] or [onFailure] has
+  /// finished, including any [Future] it returns.
+  Future<void> submit({
     required Function(dynamic value) onSuccess,
     Function(List<FormValidationError> errors)? onFailure,
     bool showToastError = true,
-  }) {
+  }) async {
+    dynamic result;
     validate(
       onSuccess: (data) {
-        onSuccess(data);
+        result = onSuccess(data);
       },
       onError: (List<FormValidationError> errors) {
-        String firstError = errors.first.rule.getMessage() ?? "Invalid data";
+        String firstError =
+            errors.first.message ?? "nylo.validation.invalid_data".tr();
         if (showToastError) {
           stateAction(
             'showToast',
@@ -534,10 +540,11 @@ class NyFormData {
           );
         }
         if (onFailure != null) {
-          onFailure(errors);
+          result = onFailure(errors);
         }
       },
     );
+    if (result is Future) await result;
   }
 
   /// Initialize the form fields and apply any pending initial data.

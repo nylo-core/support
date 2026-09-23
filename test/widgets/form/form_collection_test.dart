@@ -339,6 +339,13 @@ void main() {
           'Custom error',
         );
       });
+
+      nyTest('describes the problem in English by default', () async {
+        final collection = FormCollection.from(['A']);
+
+        expect(collection.validateValue(null), 'Please select an option');
+        expect(collection.validateValue('B'), 'Invalid selection');
+      });
     });
 
     nyGroup('conversion methods', () {

@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:error_stack/error_stack.dart';
 import 'package:service_runner/service_runner.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show kIsWeb, kReleaseMode;
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import '/controllers/ny_controllers.dart';
@@ -23,6 +23,7 @@ import '/widgets/ny_widgets.dart';
 import 'local_storage/ny_local_storage.dart';
 import 'localization/ny_localization.dart';
 import '/events/ny_events.dart' show NyEvent;
+import '/live/ny_live.dart' show NyLive, LiveCommand, Seeder;
 
 class Nylo {
   /// Flag to indicate if the app is running in test mode.
@@ -69,6 +70,9 @@ class Nylo {
   bool isFlutterLocalNotificationsInitialized = false;
   bool? _broadcastEvents;
   Map<AppLifecycleState, Function()>? _appLifecycle;
+  final Map<String, LiveCommand Function()> _liveCommands = {};
+  final Map<String, Seeder Function()> _seeders = {};
+  bool _useLive = true;
 
   /// Get the cache instance
   NyCache? get getCache => _cache;
@@ -344,6 +348,63 @@ class Nylo {
     _deepLinkFallbackRoute = fallbackRoute;
   }
 
+  /// How deep links are set up in this build, for `metro live:run deeplink`.
+  Map<String, Object?> get deepLinkStatus => {
+    'enabled': _useDeepLinks == true,
+    'fallbackRoute': _deepLinkFallbackRoute,
+    'hasCallback': onIncomingLinkAction != null,
+    'listening': _deepLinkHandler != null,
+  };
+
+  /// Sends [uri] through the deep link chain, as if the platform had
+  /// delivered it, and reports what each step did.
+  ///
+  /// Runs [onIncomingLinkAction] unless [runCallback] is false, then routes
+  /// unless [dry], which resolves the URI and changes nothing. Returns the
+  /// same shape either way, so a dry run and a real one read alike.
+  ///
+  /// Deep links don't have to be switched on: a link resolves against the
+  /// registered routes regardless, which is what makes it worth testing
+  /// before wiring the platform up.
+  Future<Map<String, Object?>> handleDeepLink(
+    Uri uri, {
+    bool dry = false,
+    bool runCallback = true,
+  }) async {
+    final NyDeepLinkHandler handler =
+        _deepLinkHandler ??
+        NyDeepLinkHandler(fallbackRoute: _deepLinkFallbackRoute);
+    final DeepLinkTarget resolved = handler.resolve(uri);
+    final Map<String, Object?> result = {
+      'uri': uri.toString(),
+      ...resolved.toJson(),
+      'dry': dry,
+    };
+
+    if (!runCallback) {
+      result['callback'] = 'skipped';
+    } else if (onIncomingLinkAction == null) {
+      result['callback'] = 'none';
+    } else {
+      final bool shouldRoute = await onIncomingLinkAction!(uri);
+      result['callback'] = shouldRoute ? 'continued' : 'stopped';
+      if (!shouldRoute) {
+        return result..['routed'] = false;
+      }
+    }
+
+    if (dry) return result..['routed'] = false;
+
+    // routeTo only completes when the pushed route pops, so it is started
+    // and not awaited - the same as NyDeepLinkHandler's own dispatch. The
+    // caller decides how long to wait for the navigator to settle.
+    result['from'] = Nylo.getCurrentRouteName();
+    unawaited(
+      routeTo(resolved.target, queryParameters: resolved.queryParameters),
+    );
+    return result..['routed'] = true;
+  }
+
   /// Check if the app should monitor app usage
   bool shouldMonitorAppUsage() => _monitorAppUsage ?? false;
 
@@ -362,6 +423,50 @@ class Nylo {
 
   /// Check if the app should broadcast events
   bool shouldBroadcastEvents() => _broadcastEvents ?? false;
+
+  /// Register commands that run inside the app when called from Metro.
+  ///
+  /// Keys are the `category:name` from `lib/app/commands/commands.json`.
+  ///
+  /// ```dart
+  /// nylo.addLiveCommands({
+  ///   'cart:seed': () => SeedCartCommand(),
+  /// });
+  /// ```
+  void addLiveCommands(Map<String, LiveCommand Function()> commands) {
+    _liveCommands.addAll(commands);
+  }
+
+  /// The commands registered with [addLiveCommands].
+  Map<String, LiveCommand Function()> getLiveCommands() =>
+      Map.unmodifiable(_liveCommands);
+
+  /// Register seeders that `metro live:seed <name>` runs inside the app.
+  ///
+  /// Keys are the names you run them by.
+  ///
+  /// ```dart
+  /// nylo.addSeeders({
+  ///   'demo_user': DemoUserSeeder.new,
+  /// });
+  /// ```
+  void addSeeders(Map<String, Seeder Function()> seeders) {
+    _seeders.addAll(seeders);
+  }
+
+  /// The seeders registered with [addSeeders].
+  Map<String, Seeder Function()> getSeeders() => Map.unmodifiable(_seeders);
+
+  /// Enable or disable Nylo Live (`metro live:*` and live commands).
+  ///
+  /// Enabled by default in debug and profile builds. Release builds never
+  /// register anything.
+  void useLive([bool enabled = true]) {
+    _useLive = enabled;
+  }
+
+  /// Whether Nylo Live should be installed when the app boots.
+  bool shouldUseLive() => _useLive;
 
   /// Add toast notification styles to the registry.
   /// Pass a map of style IDs to widget factory functions.
@@ -683,6 +788,11 @@ class Nylo {
       for (final service in resolvedServices) {
         await service.onAppReady();
       }
+    }
+
+    // Expose live commands to Metro (debug and profile builds only)
+    if (!kReleaseMode && nyloApp.shouldUseLive()) {
+      NyLive.install(nyloApp);
     }
 
     Backpack.instance.save("nylo", nyloApp);
@@ -1068,6 +1178,11 @@ class Nylo {
     bool broadcastEvents = false,
     NyLogCallback? onLog,
 
+    // Live commands (metro live:*)
+    Map<String, LiveCommand Function()>? liveCommands,
+    Map<String, Seeder Function()>? seeders,
+    bool? useLive,
+
     // Localization
     NyLocalizationConfig? localization,
   }) async {
@@ -1145,6 +1260,11 @@ class Nylo {
     if (monitorAppUsage) this.monitorAppUsage();
     if (showDateTimeInLogs) this.showDateTimeInLogs();
     if (broadcastEvents) this.broadcastEvents(true);
+
+    // Live commands
+    if (liveCommands != null) addLiveCommands(liveCommands);
+    if (seeders != null) addSeeders(seeders);
+    if (useLive != null) this.useLive(useLive);
   }
 
   /// Sync a model to the backpack instance.
