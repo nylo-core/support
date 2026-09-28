@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import '/file_storage/src/file_storage.dart';
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';
 import '/nylo.dart';
@@ -45,6 +46,7 @@ class NyTest {
   /// - Flutter test bindings
   /// - Auto-mocked platform channels
   /// - In-memory cache
+  /// - In-memory disks for FileStorage (read-only disks stay real)
   /// - Google Fonts configuration (disables HTTP requests)
   ///
   /// Example:
@@ -67,6 +69,7 @@ class NyTest {
     TestWidgetsFlutterBinding.ensureInitialized();
     Nylo.isTestMode = true;
     NyMockChannels.setup();
+    FileStorage.useFakes();
 
     // Configure widget testing (disables Google Fonts HTTP requests)
     if (disableGoogleFonts) {
@@ -94,6 +97,7 @@ class NyTest {
   /// - Time mocks
   /// - API mocks
   /// - In-memory cache
+  /// - Faked disks
   /// - Backpack state
   /// - Locale changes
   static void reset() {
@@ -101,6 +105,7 @@ class NyTest {
     NyTime.reset();
     NyMockApi.clear();
     NyTestCache.resetInstance();
+    FileStorage.clearFakes();
     NyMockChannels.reset();
     Backpack.instance.deleteAll();
     _testState.clear();
@@ -257,6 +262,7 @@ class NyTest {
   /// - Mocked APIs
   /// - Time state
   /// - Cache contents
+  /// - Files on faked disks
   static void dump() {
     print('╔════════════════════════════════════════════════════════════════╗');
     print('║                    NyTest State Dump                           ║');
@@ -322,6 +328,19 @@ class NyTest {
       for (final key in cache.entries.keys) {
         print('║   - $key');
       }
+    }
+
+    // Disks
+    final fakes = FileStorage.fakes;
+    print('╠════════════════════════════════════════════════════════════════╣');
+    print('║ Faked Disks: ${fakes.length}');
+    for (final entry in fakes.entries) {
+      final files = entry.value.memory.filesSync('', recursive: true);
+      print('║   - ${entry.key}: ${files.length} files');
+      for (final file in files.take(20)) {
+        print('║       $file');
+      }
+      if (files.length > 20) print('║       …and ${files.length - 20} more');
     }
 
     print('╚════════════════════════════════════════════════════════════════╝');

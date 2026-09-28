@@ -61,36 +61,61 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
   @override
   void initState() {
     super.initState();
-    dynamic fieldValue = widget.field.value;
+    // An empty field stays empty: it used to show today (or `firstDate`)
+    // while its value stayed null, so the form submitted nothing for the
+    // date on screen. The picker still opens on today when there's no value.
+    currentValue = _toDate(widget.field.value);
+  }
 
-    if (fieldValue is String && fieldValue.isNotEmpty) {
-      try {
-        currentValue = DateTime.parse(fieldValue);
-      } on Exception catch (e) {
-        dump(e);
-      }
+  /// A [DateTime], or a date string such as "2026-09-27"; anything else is
+  /// no date.
+  DateTime? _toDate(dynamic value) {
+    if (value is DateTime) return value;
+    if (value is String && value.isNotEmpty) {
+      final DateTime? parsed = DateTime.tryParse(value);
+      if (parsed == null)
+        dump("Field ${widget.field.key}: '$value' is not a date");
+      return parsed;
     }
-
-    if (fieldValue is DateTime) {
-      currentValue = fieldValue;
-    }
-
-    currentValue ??= style.firstDate ?? DateTime.now();
+    return null;
   }
 
   @override
   Map<String, Function> get stateActions => {
     "clear": () {
       currentValue = null;
+      widget.field.restoreValue(null);
+      setState(() {});
+    },
+    // Field.setValue / NyFormWidget's setValue: show the new date. The form
+    // field below re-reads `initialValue` when it changes.
+    "setValue": (data) {
+      currentValue = _toDate(data["value"]);
+      widget.field.restoreValue(currentValue);
       setState(() {});
     },
   };
+
+  /// The style's own decoration keeps the field's label when it gives none
+  /// (no label, no hint), as a text field's does.
+  InputDecoration? _customDecoration() {
+    final InputDecoration? decoration = style.decoration;
+    if (decoration == null) return null;
+    final bool hasLabelOrHint =
+        decoration.labelText != null ||
+        decoration.label != null ||
+        decoration.hintText != null ||
+        decoration.hint != null;
+    return hasLabelOrHint
+        ? decoration
+        : decoration.copyWith(labelText: widget.field.name);
+  }
 
   @override
   Widget view(BuildContext context) {
     return DateTimeFormField(
       decoration:
-          style.decoration ??
+          _customDecoration() ??
           InputDecoration(
             fillColor: color(
               light: Colors.grey.shade100,
@@ -144,7 +169,11 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
             fontSize: 16,
             color: color(light: Colors.black, dark: Colors.white),
           ),
-      onChanged: widget.onChanged,
+      onChanged: (DateTime? value) {
+        // Track what's on screen, so a later setValue compares against it.
+        currentValue = value;
+        widget.onChanged?.call(value);
+      },
     );
   }
 }

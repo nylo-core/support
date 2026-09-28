@@ -38,7 +38,12 @@ const Map<String, dynamic> defaultTranslations = {
       "sorry": "Sorry",
       "dismiss": "Dismiss notification",
     },
-    "input_field": {"password": "Password", "email_address": "Email Address"},
+    "input_field": {
+      "password": "Password",
+      "email_address": "Email Address",
+      "show_password": "Show password",
+      "hide_password": "Hide password",
+    },
     "form_collection": {
       "select_option": "Please select an option",
       "invalid_selection": "Invalid selection",

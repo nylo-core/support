@@ -8,6 +8,7 @@ export '/widgets/src/text_tr.dart';
 export '/controllers/ny_controllers.dart';
 export '/localization/ny_localization.dart';
 export '/local_storage/ny_local_storage.dart';
+export '/file_storage/ny_file_storage.dart';
 export '/themes/ny_themes.dart';
 export '/providers/ny_providers.dart';
 export '/local_notifications/ny_local_notifications.dart';

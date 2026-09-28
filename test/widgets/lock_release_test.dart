@@ -86,5 +86,99 @@ void main() {
       );
       expect(state.isLocked('save'), isFalse);
     });
+
+    nyWidgetTest('logs an Exception with its stack trace', (tester) async {
+      /// Only `e.toString()` was logged, so where it failed was lost.
+      final state = await pumpProbe(tester);
+      final List<NyLogEntry> entries = [];
+      void listener(NyLogEntry entry) => entries.add(entry);
+      NyLogger.addListener(listener);
+      addTearDown(() => NyLogger.removeListener(listener));
+
+      await state.lockRelease(
+        'save',
+        perform: () async => throw Exception('save failed'),
+      );
+
+      final NyLogEntry entry = entries.lastWhere((e) => e.type == 'error');
+      expect(entry.message, contains('save failed'));
+      expect(entry.stackTrace, isNotNull);
+    });
+
+    nyWidgetTest('passes an Exception to onError once the lock is released', (
+      tester,
+    ) async {
+      /// An Exception was only ever logged, so a caller had no way to tell
+      /// the user it failed or undo an optimistic change.
+      final state = await pumpProbe(tester);
+      final Exception failure = Exception('save failed');
+      Object? received;
+      StackTrace? receivedStack;
+      bool? lockedDuringOnError;
+
+      await state.lockRelease(
+        'save',
+        perform: () async => throw failure,
+        onError: (error, stackTrace) {
+          received = error;
+          receivedStack = stackTrace;
+          lockedDuringOnError = state.isLocked('save');
+        },
+      );
+
+      expect(received, same(failure));
+      expect(receivedStack, isNotNull);
+      // Released first, so onError can offer to try again.
+      expect(lockedDuringOnError, isFalse);
+    });
+
+    nyWidgetTest('lets onError run the same lock again', (tester) async {
+      final state = await pumpProbe(tester);
+      int attempts = 0;
+
+      Future<void> save() => state.lockRelease(
+        'save',
+        perform: () async {
+          attempts++;
+          if (attempts == 1) throw Exception('offline');
+        },
+        onError: (error, stackTrace) => save(),
+      );
+
+      await save();
+      await tester.pump();
+      expect(attempts, 2);
+      expect(state.isLocked('save'), isFalse);
+    });
+
+    nyWidgetTest('still rethrows an Error, without calling onError', (
+      tester,
+    ) async {
+      final state = await pumpProbe(tester);
+      bool onErrorCalled = false;
+
+      await expectLater(
+        state.lockRelease(
+          'save',
+          perform: () async => throw StateError('bug'),
+          onError: (error, stackTrace) => onErrorCalled = true,
+        ),
+        throwsStateError,
+      );
+      expect(onErrorCalled, isFalse);
+      expect(state.isLocked('save'), isFalse);
+    });
+
+    nyWidgetTest('does not call onError when perform succeeds', (tester) async {
+      final state = await pumpProbe(tester);
+      bool onErrorCalled = false;
+
+      await state.lockRelease(
+        'save',
+        perform: () async {},
+        onError: (error, stackTrace) => onErrorCalled = true,
+      );
+      expect(onErrorCalled, isFalse);
+    });
   });
 }

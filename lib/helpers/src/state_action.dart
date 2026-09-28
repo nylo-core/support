@@ -158,16 +158,20 @@ class StateAction {
   /// Perform a lock release
   /// The [lockRelease] method will call the function provided in [perform]
   /// and then block the function from being called again until it has finished.
+  /// An [Exception] from [perform] goes to [onError] (see
+  /// [NyBaseState.lockRelease]).
   static void lockRelease(
     dynamic state,
     String name, {
     required Function perform,
     bool shouldSetState = true,
+    void Function(Object error, StackTrace stackTrace)? onError,
   }) {
     _updateState(_findStateName(state), "lock-release", {
       "name": name,
       "perform": perform,
       "shouldSetState": shouldSetState,
+      "onError": onError,
     });
   }
 

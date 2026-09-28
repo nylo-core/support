@@ -230,6 +230,9 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
             stateData['name'],
             perform: stateData['perform'],
             shouldSetState: stateData['shouldSetState'],
+            onError:
+                stateData['onError']
+                    as void Function(Object error, StackTrace stackTrace)?,
           );
           break;
         }
@@ -788,22 +791,36 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// E.g.
   /// isLocked('update') // true/false
   ///
-  /// The lock is released however [perform] ends. An [Exception] it throws is
-  /// logged; anything else is rethrown once the lock is released.
+  /// The lock is released however [perform] ends. An [Exception] it throws
+  /// goes to [onError] once the lock is released, so the caller can react
+  /// (show what went wrong, undo an optimistic change, try again); without
+  /// [onError] it is logged with its stack trace. Anything else (an [Error],
+  /// i.e. a bug) is rethrown once the lock is released.
+  ///
+  /// E.g.
+  /// lockRelease('save', perform: () async {
+  ///   await api<ApiService>((request) => request.save(data));
+  /// }, onError: (error, stackTrace) {
+  ///   showToastDanger(description: "Couldn't save your changes");
+  /// });
   Future<void> lockRelease(
     String name, {
     required Function perform,
     bool shouldSetState = true,
+    void Function(Object error, StackTrace stackTrace)? onError,
   }) async {
     if (isLocked(name) == true) {
       return;
     }
     _updateLockState(shouldSetState: shouldSetState, name: name, value: true);
 
+    Exception? failure;
+    StackTrace? failureStackTrace;
     try {
       await perform();
-    } on Exception catch (e) {
-      NyLogger.error(e.toString());
+    } on Exception catch (e, stackTrace) {
+      failure = e;
+      failureStackTrace = stackTrace;
     } finally {
       _updateLockState(
         shouldSetState: shouldSetState,
@@ -811,6 +828,13 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
         value: false,
       );
     }
+
+    if (failure == null) return;
+    if (onError != null) {
+      onError(failure, failureStackTrace ?? StackTrace.current);
+      return;
+    }
+    NyLogger.error(failure, stackTrace: failureStackTrace);
   }
 
   /// Update the lock state.

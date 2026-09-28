@@ -137,11 +137,13 @@ class NyController extends BaseController {
     );
   }
 
-  /// Perform a lock release
+  /// Perform a lock release. An [Exception] from [perform] goes to [onError]
+  /// (see [NyBaseState.lockRelease]).
   void lockRelease(
     String name, {
     required Function perform,
     bool shouldSetState = true,
+    void Function(Object error, StackTrace stackTrace)? onError,
   }) {
     if (state == null) return;
     StateAction.lockRelease(
@@ -149,6 +151,7 @@ class NyController extends BaseController {
       name,
       perform: perform,
       shouldSetState: shouldSetState,
+      onError: onError,
     );
   }
 

@@ -200,7 +200,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
       builder: (layoutContext, constraints) {
         double width = constraints.maxWidth;
         Widget container = Container(
-          height: style.containerHeight,
+          constraints: BoxConstraints(minHeight: style.containerHeight),
           alignment: Alignment.center,
           padding: style.containerPadding,
           decoration: BoxDecoration(
@@ -220,11 +220,18 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                         : CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(widget.field.name, style: fieldNameStyle),
+                      Text(
+                        widget.field.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: fieldNameStyle,
+                      ),
                       SizedBox(height: 2),
                       Text(
                         getOptions().getLabelByValue(currentValue.toString()) ??
                             currentValue.toString(),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                         style: selectedValueStyle,
                       ),
                     ],

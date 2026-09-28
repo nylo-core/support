@@ -1305,16 +1305,16 @@ class _InputFieldState extends NyState<InputField> {
 
     if (widget.passwordVisible == true || widget.passwordViewable == true) {
       decoration = decoration.copyWith(
-        suffixIcon: Padding(
-          padding: const EdgeInsets.fromLTRB(0, 0, 4, 0),
-          child: GestureDetector(
-            onTap: _toggleObscured,
-            child: Icon(
-              _obscured
-                  ? Icons.visibility_rounded
-                  : Icons.visibility_off_rounded,
-              size: 24,
-            ),
+        suffixIcon: IconButton(
+          onPressed: _toggleObscured,
+          tooltip:
+              (_obscured
+                      ? "nylo.input_field.show_password"
+                      : "nylo.input_field.hide_password")
+                  .tr(),
+          icon: Icon(
+            _obscured ? Icons.visibility_rounded : Icons.visibility_off_rounded,
+            size: 24,
           ),
         ),
       );

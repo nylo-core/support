@@ -218,16 +218,20 @@ class PageStateActions extends StateActions {
   }
 
   /// Run [perform] and block it from running again until it has finished.
+  /// An [Exception] from [perform] goes to [onError] (see
+  /// [NyBaseState.lockRelease]).
   void lockRelease(
     String name, {
     required Function perform,
     bool shouldSetState = true,
+    void Function(Object error, StackTrace stackTrace)? onError,
   }) {
     StateAction.lockRelease(
       state,
       name,
       perform: perform,
       shouldSetState: shouldSetState,
+      onError: onError,
     );
   }
 

@@ -23,6 +23,7 @@ import '/widgets/ny_widgets.dart';
 import 'local_storage/ny_local_storage.dart';
 import 'localization/ny_localization.dart';
 import '/events/ny_events.dart' show NyEvent;
+import '/file_storage/ny_file_storage.dart' show DiskConfig, FileStorage;
 import '/live/ny_live.dart' show NyLive, LiveCommand, Seeder;
 
 class Nylo {
@@ -456,6 +457,14 @@ class Nylo {
 
   /// The seeders registered with [addSeeders].
   Map<String, Seeder Function()> getSeeders() => Map.unmodifiable(_seeders);
+
+  /// Add [disks] for [FileStorage] and `disk()`, on top of the defaults
+  /// (`local`, `documents`, `cache`, `temp` and `assets`); a disk with the
+  /// same name as a default replaces it. [defaultDisk] names the disk used
+  /// when none is given.
+  void addDisks(Map<String, DiskConfig> disks, {String? defaultDisk}) {
+    FileStorage.configure(disks: disks, defaultDisk: defaultDisk);
+  }
 
   /// Enable or disable Nylo Live (`metro live:*` and live commands).
   ///
@@ -1137,6 +1146,8 @@ class Nylo {
   ///   apiDecoders: apiDecoders,
   ///   authKey: StorageKeysConfig.auth,
   ///   syncKeys: StorageKeysConfig.syncedOnBoot,
+  ///   disks: FileStorageConfig.disks,
+  ///   defaultDisk: FileStorageConfig.defaultDisk,
   ///   useErrorStack: true,
   ///   monitorAppUsage: true,
   ///   localization: LocalizationConfig(
@@ -1168,6 +1179,10 @@ class Nylo {
     // Auth & Storage
     String? authKey,
     dynamic syncKeys,
+
+    // File storage
+    Map<String, DiskConfig>? disks,
+    String? defaultDisk,
 
     // Features
     bool useErrorStack = false,
@@ -1223,6 +1238,11 @@ class Nylo {
     // Auth & Storage
     if (authKey != null) addAuthKey(authKey);
     if (syncKeys != null) await this.syncKeys(syncKeys);
+
+    // File storage
+    if (disks != null || defaultDisk != null) {
+      FileStorage.configure(disks: disks, defaultDisk: defaultDisk);
+    }
 
     // Features
     if (useErrorStack) {

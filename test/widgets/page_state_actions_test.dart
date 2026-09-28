@@ -255,6 +255,23 @@ void main() {
       expect(state.toastDuration, const Duration(seconds: 2));
     });
 
+    nyWidgetTest('lockRelease passes onError through to the page', (
+      tester,
+    ) async {
+      await tester.pumpNyWidget(CounterPage());
+      Object? received;
+
+      CounterPage.actions.lockRelease(
+        'save',
+        perform: () async => throw Exception('save failed'),
+        onError: (error, stackTrace) => received = error,
+      );
+      await tester.pumpAndSettle();
+
+      expect(received, isA<Exception>());
+      expect(received.toString(), contains('save failed'));
+    });
+
     nyWidgetTest('refreshPage re-runs init', (tester) async {
       await tester.pumpNyWidget(CounterPage());
       final state = tester.state<_CounterPageState>(find.byType(CounterPage));

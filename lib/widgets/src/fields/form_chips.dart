@@ -165,15 +165,29 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
           spacing: getSpacing(),
           children: options.map((FormOption option) {
             bool isSelected = currentValues.contains(option.value);
+            final Color chipColor = whenTheme(
+              light: () => isSelected
+                  ? (getSelectedColor() ?? Colors.black)
+                  : getBackgroundColor(),
+              dark: () => isSelected
+                  ? (getSelectedColor() ?? Colors.white)
+                  : surfaceColorDark,
+            );
+            final TextStyle textStyle = isSelected
+                ? getSelectedTextStyle()
+                : getUnselectedTextStyle();
             return ChoiceChip(
               materialTapTargetSize: style.materialTapTargetSize,
               side: isSelected ? getSelectedSide() : getUnselectedSide(),
               shape: getShape(),
               label: Text(
                 option.label.tr(),
-                style: isSelected
-                    ? getSelectedTextStyle()
-                    : getUnselectedTextStyle(),
+                style: whenTheme(
+                  light: () => textStyle,
+                  dark: () => textStyle.copyWith(
+                    color: _readableOn(chipColor, textStyle.color),
+                  ),
+                ),
               ),
               labelStyle: getLabelStyle(),
               selected: isSelected,
@@ -182,14 +196,12 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
               backgroundColor: Colors.transparent,
               shadowColor: style.shadowColor,
               surfaceTintColor: style.surfaceTintColor,
-              checkmarkColor: getCheckmarkColor(),
+              checkmarkColor: whenTheme(
+                light: () => getCheckmarkColor(),
+                dark: () => _readableOn(chipColor, getCheckmarkColor()),
+              ),
               selectedShadowColor: Colors.transparent,
-              color: WidgetStateColor.resolveWith((_) {
-                return color(
-                  light: isSelected ? getSelectedColor() : getBackgroundColor(),
-                  dark: surfaceColorDark,
-                );
-              }),
+              color: WidgetStateColor.resolveWith((_) => chipColor),
               onSelected: (bool selected) {
                 setState(() {
                   if (widget.onChanged == null) return;
@@ -249,4 +261,21 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
 
   /// Get the checkmarkColor from the field
   Color getCheckmarkColor() => style.checkmarkColor;
+
+  /// [foreground] when it reads on [background] (at least 4.5:1, WCAG AA for
+  /// text), otherwise black or white, whichever reads.
+  Color _readableOn(Color background, Color? foreground) {
+    if (foreground != null && _contrast(foreground, background) >= 4.5) {
+      return foreground;
+    }
+    return ThemeData.estimateBrightnessForColor(background) == Brightness.dark
+        ? Colors.white
+        : Colors.black;
+  }
+
+  double _contrast(Color a, Color b) {
+    final double la = a.computeLuminance();
+    final double lb = b.computeLuminance();
+    return la > lb ? (la + 0.05) / (lb + 0.05) : (lb + 0.05) / (la + 0.05);
+  }
 }
