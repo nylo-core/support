@@ -1,7 +1,9 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '/nylo.dart';
 import '/local_storage/ny_local_storage.dart';
+import 'ny_logger.dart';
 
 /// Nylo's NyAppUsage class
 /// This class is used to monitor app usage.
@@ -65,15 +67,19 @@ class NyAppUsage {
   /// This method will increment the app launch count.
   static Future<void> appLaunched() async {
     await useMonitoringMethod(() async {
-      await writeValue("last_launch", DateTime.now().toString());
-      int? count = await appLaunchCount();
-      if (count == null) {
-        await writeValue("first_launch", DateTime.now().toString());
-        await writeValue("launch_count", "1");
-        return;
+      try {
+        await writeValue("last_launch", DateTime.now().toString());
+        int? count = await appLaunchCount();
+        if (count == null) {
+          await writeValue("first_launch", DateTime.now().toString());
+          await writeValue("launch_count", "1");
+          return;
+        }
+        count++;
+        await writeValue("launch_count", count.toString());
+      } on PlatformException catch (e) {
+        NyLogger.error('App launch not recorded: ${e.message}');
       }
-      count++;
-      await writeValue("launch_count", count.toString());
     });
   }
 

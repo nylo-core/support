@@ -893,12 +893,15 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   }
 
   /// Set the value of a loading key by padding a true or false
+  ///
+  /// Once the state is disposed only the value is stored, so async work that
+  /// finishes after its page has closed can still call this.
   void setLoading(
     bool value, {
     String name = 'default',
     bool resetState = true,
   }) {
-    if (resetState) {
+    if (resetState && mounted) {
       setState(() {
         _loadingMap[name] = value;
       });

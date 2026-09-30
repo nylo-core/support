@@ -1,3 +1,10 @@
+## [7.31.2] - 2026-09-30
+
+### Fixed
+
+* **Boot completes while the keychain is locked** - With `monitorAppUsage()` on, every boot records the launch in secure storage through `NyAppUsage.appLaunched`. iOS refuses keychain access while the device is locked (`errSecInteractionNotAllowed`), which happens when a push notification launches the app in the background, and the `PlatformException` from that write was thrown out of the boot. The launch now goes unrecorded and the error is logged instead. `appLaunchCount` still throws while the keychain is locked
+* **`setLoading` works after its page has closed** - Async work that finished after its state was disposed, such as `CollectionView`'s `refreshData` still fetching when the page closed, called `setState` on the disposed state and threw. Once the state is disposed, `setLoading` stores the value without rebuilding
+
 ## [7.31.1] - 2026-09-30
 
 ### Fixed

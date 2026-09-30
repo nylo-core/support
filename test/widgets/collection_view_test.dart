@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/event_bus/ny_event_bus.dart';
@@ -1096,6 +1098,37 @@ void main() {
         expect(call, 2);
         expect(find.text('Call2'), findsOneWidget);
         expect(find.text('Call1'), findsNothing);
+      });
+
+      testWidgets('refreshData finishing after the list is gone is a no-op', (
+        tester,
+      ) async {
+        // A pull-to-refresh can still be fetching when its page closes
+        final Completer<List<String>> refresh = Completer<List<String>>();
+        int call = 0;
+        await tester.pumpWidget(
+          _app(
+            CollectionView<String>(
+              stateName: 'list_refresh_disposed',
+              data: () async {
+                call++;
+                return call == 1 ? ['A'] : refresh.future;
+              },
+              builder: (context, item) => Text(item.data),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        CollectionView.stateActions('list_refresh_disposed').refreshData();
+        await tester.pump();
+        expect(call, 2);
+
+        await tester.pumpWidget(_app(const SizedBox()));
+        refresh.complete(['B']);
+        await tester.pumpAndSettle();
+
+        expect(tester.takeException(), isNull);
       });
 
       testWidgets('reset clears data and re-fetches', (tester) async {
