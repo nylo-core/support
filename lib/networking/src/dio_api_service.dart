@@ -539,7 +539,9 @@ class DioApiService {
 
       if (handleFailure != null) {
         NyResponse<T> errorResponse = _createErrorResponse<T>(dioException);
-        return handleFailure(errorResponse);
+        dynamic result = handleFailure(errorResponse);
+        if (result is Future) result = await result;
+        return _responseFromCallback<T>(result, errorResponse);
       }
 
       if (_onErrorEvent != null) {
@@ -627,29 +629,31 @@ class DioApiService {
 
     // Handle success callback
     if (nyResponse.isSuccessful && handleSuccess != null) {
-      dynamic result = handleSuccess(nyResponse);
-      if (result == null) return nyResponse;
-      if (result is NyResponse<T>) return result;
-      return NyResponse<T>(
-        response: nyResponse.response,
-        data: result as T,
-        rawData: nyResponse.rawData,
-      );
+      return _responseFromCallback<T>(handleSuccess(nyResponse), nyResponse);
     }
 
     // Handle failure callback
     if (!nyResponse.isSuccessful && handleFailure != null) {
-      dynamic result = handleFailure(nyResponse);
-      if (result == null) return nyResponse;
-      if (result is NyResponse<T>) return result;
-      return NyResponse<T>(
-        response: nyResponse.response,
-        data: result as T,
-        rawData: nyResponse.rawData,
-      );
+      return _responseFromCallback<T>(handleFailure(nyResponse), nyResponse);
     }
 
     return nyResponse;
+  }
+
+  /// Builds the [NyResponse] for what a [handleSuccess] or [handleFailure]
+  /// callback returned: nothing keeps [response], a [NyResponse] replaces it,
+  /// and any other value becomes its data.
+  NyResponse<T> _responseFromCallback<T>(
+    dynamic result,
+    NyResponse<T> response,
+  ) {
+    if (result == null) return response;
+    if (result is NyResponse<T>) return result;
+    return NyResponse<T>(
+      response: response.response,
+      data: result as T,
+      rawData: response.rawData,
+    );
   }
 
   /// Creates an error response from a DioException

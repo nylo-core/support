@@ -1,3 +1,9 @@
+## [7.31.1] - 2026-09-30
+
+### Fixed
+
+* **`handleFailure` works when the request throws** - Dio throws for a status outside 2xx, so most failed requests reach `handleFailure` through a `DioException`. On that path `network` and `networkResponse` returned the callback's result as the response itself, so a callback that returned nothing (one that only shows a toast, say), plain or `async`, or one that returned a fallback value ended in a `TypeError`. The callback is now awaited when it's `async`, and what it returns is used the same way as for `handleSuccess`: nothing keeps the error response, a `NyResponse` replaces it, and any other value becomes its `data`, which is what `network` returns
+
 ## [7.31.0] - 2026-09-28
 
 ### Added

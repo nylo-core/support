@@ -1,6 +1,11 @@
+import 'dart:convert';
+import 'dart:typed_data';
+
 import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/networking/src/dio_api_service.dart';
+import 'package:nylo_support/networking/src/models/ny_response.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 
 /// Test API service for testing DioApiService functionality
@@ -60,6 +65,33 @@ class TestUser {
   }
 
   Map<String, dynamic> toJson() => {'id': id, 'name': name, 'email': email};
+}
+
+/// Answers every request with [statusCode] and a JSON [body], so a request
+/// goes through Dio's own status check without touching the network.
+class FakeStatusAdapter implements HttpClientAdapter {
+  FakeStatusAdapter(this.statusCode, this.body);
+
+  final int statusCode;
+  final Map<String, dynamic> body;
+
+  @override
+  Future<ResponseBody> fetch(
+    RequestOptions options,
+    Stream<Uint8List>? requestStream,
+    Future<void>? cancelFuture,
+  ) async {
+    return ResponseBody.fromString(
+      jsonEncode(body),
+      statusCode,
+      headers: {
+        Headers.contentTypeHeader: [Headers.jsonContentType],
+      },
+    );
+  }
+
+  @override
+  void close({bool force = false}) {}
 }
 
 void main() {
@@ -424,6 +456,85 @@ void main() {
 
         expect(result, isEmpty);
       });
+    });
+
+    nyGroup('handleFailure when the request fails', () {
+      nySetUp(() {
+        // NyLogger reads APP_DEBUG when the failed request is logged
+        NyEnvRegistry.register(
+          getter: (String key, {dynamic defaultValue}) =>
+              {'APP_DEBUG': false}[key] ?? defaultValue,
+        );
+      });
+
+      // Dio throws on the 400, so these take the DioException path
+      Future<Response> deletePhoto(Dio dio) {
+        dio.httpClientAdapter = FakeStatusAdapter(400, {
+          'message': 'You must have at least 2 images',
+        });
+        return dio.delete('/photos/1');
+      }
+
+      nyTest(
+        'a callback that returns nothing gets the error response',
+        () async {
+          NyResponse? received;
+
+          final response = await apiService.networkResponse(
+            request: deletePhoto,
+            handleFailure: (response) {
+              received = response;
+            },
+          );
+
+          expect(response, same(received));
+          expect(response.statusCode, 400);
+          expect(response.data, isNull);
+          expect(
+            response.rawData['message'],
+            'You must have at least 2 images',
+          );
+        },
+      );
+
+      nyTest(
+        'an async callback that returns nothing gets the error response',
+        () async {
+          final response = await apiService.networkResponse(
+            request: deletePhoto,
+            handleFailure: (response) async {},
+          );
+
+          expect(response.statusCode, 400);
+        },
+      );
+
+      nyTest('network() returns the value the callback returns', () async {
+        final images = await apiService.network<List<String>>(
+          request: deletePhoto,
+          handleFailure: (response) => <String>['fallback.jpg'],
+        );
+
+        expect(images, ['fallback.jpg']);
+      });
+
+      nyTest(
+        'a NyResponse from an async callback is returned as it is',
+        () async {
+          final replacement = NyResponse<dynamic>(
+            response: null,
+            data: 'handled',
+            rawData: null,
+          );
+
+          final response = await apiService.networkResponse(
+            request: deletePhoto,
+            handleFailure: (response) async => replacement,
+          );
+
+          expect(response, same(replacement));
+        },
+      );
     });
   });
 
