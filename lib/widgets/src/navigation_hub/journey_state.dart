@@ -22,13 +22,17 @@ abstract class JourneyState<T extends StatefulWidget> extends NyState<T> {
 
   /// The current step index (0-based)
   int get currentStep {
-    final data = Backpack.instance.read('${navigationHubState}_current_tab');
+    final dynamic data = Backpack.instance.read(
+      '${navigationHubState}_current_tab',
+    );
     return (data is int) ? data : 0;
   }
 
   /// The total number of steps
   int get totalSteps {
-    final data = Backpack.instance.read('${navigationHubState}_total_pages');
+    final dynamic data = Backpack.instance.read(
+      '${navigationHubState}_total_pages',
+    );
     return (data is int) ? data : 0;
   }
 
@@ -221,13 +225,13 @@ class JourneyContent extends StatelessWidget {
         crossAxisAlignment: crossAxisAlignment,
         children: [
           // Header if provided
-          if (header != null) header!,
+          ?header,
 
           // Main content
           Expanded(child: content),
 
           // Footer if provided
-          if (footer != null) footer!,
+          ?footer,
 
           // Navigation buttons
           if (nextButton != null || backButton != null)

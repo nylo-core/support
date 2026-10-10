@@ -52,7 +52,7 @@ void main() {
       final provider = MockProvider();
       final nylo = Nylo();
 
-      final result = await provider.setup(nylo);
+      final Nylo? result = await provider.setup(nylo);
 
       expect(result, same(nylo));
     });
@@ -61,7 +61,7 @@ void main() {
       final provider = NullReturningProvider();
       final nylo = Nylo();
 
-      final result = await provider.setup(nylo);
+      final Nylo? result = await provider.setup(nylo);
 
       expect(result, isNull);
     });
@@ -95,7 +95,7 @@ void main() {
         final provider = MockProvider();
         final providers = {MockProvider: provider};
 
-        final nylo = await setupApplication(providers);
+        final Nylo nylo = await setupApplication(providers);
 
         expect(nylo, isA<Nylo>());
         expect(provider.setupCalled, isTrue);
@@ -119,7 +119,7 @@ void main() {
         final provider = MockProvider();
         final providers = {MockProvider: provider};
 
-        final nylo = await setupApplication(providers);
+        final Nylo nylo = await setupApplication(providers);
 
         expect(nylo, isA<Nylo>());
       });
@@ -128,7 +128,7 @@ void main() {
         final nullProvider = NullReturningProvider();
         final providers = {NullReturningProvider: nullProvider};
 
-        final nylo = await setupApplication(providers);
+        final Nylo nylo = await setupApplication(providers);
 
         expect(nylo, isA<Nylo>());
         expect(nullProvider.setupCalled, isTrue);
@@ -137,7 +137,7 @@ void main() {
       nyTest('handles empty provider map', () async {
         final providers = <Type, NyProvider>{};
 
-        final nylo = await setupApplication(providers);
+        final Nylo nylo = await setupApplication(providers);
 
         expect(nylo, isA<Nylo>());
       });
@@ -146,7 +146,7 @@ void main() {
         final modifyingProvider = ModifyingProvider();
         final providers = {ModifyingProvider: modifyingProvider};
 
-        final nylo = await setupApplication(providers);
+        final Nylo nylo = await setupApplication(providers);
 
         expect(nylo, isA<Nylo>());
         expect(modifyingProvider.setupCalled, isTrue);
@@ -183,7 +183,7 @@ void main() {
         final provider = MockProvider();
         final providers = {MockProvider: provider};
 
-        final nylo = await setupApplication(
+        final Nylo nylo = await setupApplication(
           providers,
           enableDebugLogging: true,
         );
@@ -196,7 +196,7 @@ void main() {
         final provider = MockProvider();
         final providers = {MockProvider: provider};
 
-        final nylo = await setupApplication(
+        final Nylo nylo = await setupApplication(
           providers,
           enableDebugLogging: false,
         );
@@ -213,7 +213,7 @@ void main() {
           final provider = MockProvider();
           final providers = {MockProvider: provider};
 
-          final nylo = await setupApplication(providers);
+          final Nylo nylo = await setupApplication(providers);
 
           expect(nylo, isA<Nylo>());
           expect(provider.setupCalled, isTrue);
@@ -278,7 +278,7 @@ void main() {
         final providers = {MockProvider: provider};
         final nylo = Nylo();
 
-        final result = await bootFinished(nylo, providers);
+        final Nylo result = await bootFinished(nylo, providers);
 
         expect(result, same(nylo));
       });
@@ -287,7 +287,7 @@ void main() {
         final providers = <Type, NyProvider>{};
         final nylo = Nylo();
 
-        final result = await bootFinished(nylo, providers);
+        final Nylo result = await bootFinished(nylo, providers);
 
         expect(result, same(nylo));
         expectBackpackContains('nylo');
@@ -301,7 +301,7 @@ void main() {
         final nylo = Nylo();
 
         // Should not throw
-        final result = await bootFinished(nylo, providers);
+        final Nylo result = await bootFinished(nylo, providers);
 
         expect(result, same(nylo));
       });
@@ -369,7 +369,7 @@ void main() {
       final providers = {MockProvider: provider};
 
       // Setup application
-      final nylo = await setupApplication(providers);
+      final Nylo nylo = await setupApplication(providers);
       expect(provider.setupCalled, isTrue);
       expect(provider.bootCalled, isFalse);
 
@@ -388,7 +388,7 @@ void main() {
         ModifyingProvider: provider3,
       };
 
-      final nylo = await setupApplication(providers);
+      final Nylo nylo = await setupApplication(providers);
       await bootFinished(nylo, providers);
 
       expect(provider1.setupCalled, isTrue);
@@ -403,11 +403,11 @@ void main() {
       final provider = MockProvider();
       final providers = {MockProvider: provider};
 
-      final nylo = await setupApplication(providers);
+      final Nylo nylo = await setupApplication(providers);
       await bootFinished(nylo, providers);
 
       expectBackpackContains('nylo');
-      final storedNylo = Backpack.instance.read('nylo');
+      final dynamic storedNylo = Backpack.instance.read('nylo');
       expect(storedNylo, same(nylo));
     });
 

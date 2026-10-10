@@ -6,7 +6,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 /// Helper to extract all [TextSpan] children from a [RichText] widget.
 List<TextSpan> _extractSpans(WidgetTester tester) {
-  final richText = tester.widget<RichText>(find.byType(RichText));
+  final RichText richText = tester.widget<RichText>(find.byType(RichText));
   final root = richText.text as TextSpan;
   return root.children!.cast<TextSpan>();
 }
@@ -26,7 +26,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'Hello ');
         expect(spans[1].text, 'name');
         expect(spans[1].style!.fontWeight, FontWeight.bold);
@@ -45,7 +45,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'Hello ');
         expect(spans[1].text, 'World');
         expect(spans[1].style!.fontWeight, FontWeight.bold);
@@ -65,7 +65,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'Hola');
         expect(spans[0].style!.color, Colors.blue);
       });
@@ -80,7 +80,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'Terms of Service');
       });
 
@@ -94,7 +94,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, '12:30 PM');
       });
     });
@@ -114,7 +114,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         // "Learn "
         expect(spans[0].text, 'Learn ');
         // "Languages" styled
@@ -146,7 +146,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[1].text, 'here');
         expect(spans[1].recognizer, isA<TapGestureRecognizer>());
 
@@ -170,7 +170,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'Hello ');
         expect(spans[1].text, 'name');
         expect(spans[1].style!.color, Colors.blue);
@@ -194,7 +194,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[1].text, 'name');
         expect(spans[1].style!.color, Colors.red);
         expect(spans[3].text, 'app');
@@ -213,7 +213,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].text, 'a');
         expect(spans[0].style!.color, Colors.green);
         expect(spans[2].text, 'b');
@@ -233,7 +233,7 @@ void main() {
           ),
         );
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         expect(spans[0].recognizer, isA<TapGestureRecognizer>());
         expect(spans[2].recognizer, isA<TapGestureRecognizer>());
 
@@ -265,7 +265,7 @@ void main() {
           ),
         );
 
-        var spans = _extractSpans(tester);
+        List<TextSpan> spans = _extractSpans(tester);
         expect(spans[1].text, 'Languages');
         expect(spans[3].text, 'Reading');
         expect(spans[5].text, 'AppName');
@@ -298,9 +298,10 @@ void main() {
           const MaterialApp(home: _RebuildingStyledTextHost()),
         );
 
-        final host = tester.state<_RebuildingStyledTextHostState>(
-          find.byType(_RebuildingStyledTextHost),
-        );
+        final _RebuildingStyledTextHostState host = tester
+            .state<_RebuildingStyledTextHostState>(
+              find.byType(_RebuildingStyledTextHost),
+            );
         expect(_recognizerCount(tester), 2);
 
         for (int i = 0; i < 20; i++) {
@@ -319,15 +320,16 @@ void main() {
           const MaterialApp(home: _RebuildingStyledTextHost()),
         );
 
-        final host = tester.state<_RebuildingStyledTextHostState>(
-          find.byType(_RebuildingStyledTextHost),
-        );
+        final _RebuildingStyledTextHostState host = tester
+            .state<_RebuildingStyledTextHostState>(
+              find.byType(_RebuildingStyledTextHost),
+            );
         for (int i = 0; i < 20; i++) {
           host.rebuild();
           await tester.pump();
         }
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         (spans[1].recognizer as TapGestureRecognizer).onTap!();
         (spans[3].recognizer as TapGestureRecognizer).onTap!();
         expect(host.termsTaps, 1);
@@ -359,7 +361,7 @@ void main() {
         );
         expect(_recognizerCount(tester), 1);
 
-        final spans = _extractSpans(tester);
+        final List<TextSpan> spans = _extractSpans(tester);
         (spans[1].recognizer as TapGestureRecognizer).onTap!();
         expect(firstTaps, 0);
         expect(secondTaps, 1);

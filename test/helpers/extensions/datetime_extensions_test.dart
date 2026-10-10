@@ -108,7 +108,7 @@ void main() {
       nyTest('should add years to date', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.addYears(2);
+        final DateTime result = date.addYears(2);
 
         expect(result.year, 2026);
         expect(result.month, 3);
@@ -118,7 +118,7 @@ void main() {
       nyTest('should handle leap year', () async {
         final date = DateTime(2024, 2, 29);
 
-        final result = date.addYears(1);
+        final DateTime result = date.addYears(1);
 
         // Feb 29 2024 + 1 year = Feb 29 2025, but 2025 has no Feb 29
         // DateTime normalizes to Mar 1 2025
@@ -137,7 +137,7 @@ void main() {
       nyTest('should subtract years from date', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.subtractYears(2);
+        final DateTime result = date.subtractYears(2);
 
         expect(result.year, 2022);
         expect(result.month, 3);
@@ -149,7 +149,7 @@ void main() {
       nyTest('should add months to date', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.addMonths(4);
+        final DateTime result = date.addMonths(4);
 
         expect(result.year, 2024);
         expect(result.month, 7);
@@ -159,7 +159,7 @@ void main() {
       nyTest('should wrap to next year', () async {
         final date = DateTime(2024, 10, 15);
 
-        final result = date.addMonths(4);
+        final DateTime result = date.addMonths(4);
 
         expect(result.year, 2025);
         expect(result.month, 2);
@@ -170,7 +170,7 @@ void main() {
       nyTest('should subtract months from date', () async {
         final date = DateTime(2024, 6, 15);
 
-        final result = date.subtractMonths(3);
+        final DateTime result = date.subtractMonths(3);
 
         expect(result.year, 2024);
         expect(result.month, 3);
@@ -180,7 +180,7 @@ void main() {
       nyTest('should wrap to previous year', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.subtractMonths(5);
+        final DateTime result = date.subtractMonths(5);
 
         expect(result.year, 2023);
         expect(result.month, 10);
@@ -191,7 +191,7 @@ void main() {
       nyTest('should add days to date', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.addDays(10);
+        final DateTime result = date.addDays(10);
 
         expect(result.day, 25);
         expect(result.month, 3);
@@ -200,7 +200,7 @@ void main() {
       nyTest('should wrap to next month', () async {
         final date = DateTime(2024, 3, 28);
 
-        final result = date.addDays(5);
+        final DateTime result = date.addDays(5);
 
         expect(result.month, 4);
         expect(result.day, 2);
@@ -211,7 +211,7 @@ void main() {
       nyTest('should subtract days from date', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.subtractDays(5);
+        final DateTime result = date.subtractDays(5);
 
         expect(result.day, 10);
         expect(result.month, 3);
@@ -222,7 +222,7 @@ void main() {
       nyTest('should add hours to datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30);
 
-        final result = date.addHours(5);
+        final DateTime result = date.addHours(5);
 
         expect(result.hour, 15);
         expect(result.minute, 30);
@@ -231,7 +231,7 @@ void main() {
       nyTest('should wrap to next day', () async {
         final date = DateTime(2024, 3, 15, 22, 0);
 
-        final result = date.addHours(5);
+        final DateTime result = date.addHours(5);
 
         expect(result.day, 16);
         expect(result.hour, 3);
@@ -242,7 +242,7 @@ void main() {
       nyTest('should subtract hours from datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30);
 
-        final result = date.subtractHours(5);
+        final DateTime result = date.subtractHours(5);
 
         expect(result.hour, 5);
       });
@@ -252,7 +252,7 @@ void main() {
       nyTest('should add minutes to datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30);
 
-        final result = date.addMinutes(45);
+        final DateTime result = date.addMinutes(45);
 
         expect(result.hour, 11);
         expect(result.minute, 15);
@@ -263,7 +263,7 @@ void main() {
       nyTest('should subtract minutes from datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30);
 
-        final result = date.subtractMinutes(15);
+        final DateTime result = date.subtractMinutes(15);
 
         expect(result.hour, 10);
         expect(result.minute, 15);
@@ -274,7 +274,7 @@ void main() {
       nyTest('should add seconds to datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30, 30);
 
-        final result = date.addSeconds(45);
+        final DateTime result = date.addSeconds(45);
 
         expect(result.minute, 31);
         expect(result.second, 15);
@@ -285,7 +285,7 @@ void main() {
       nyTest('should subtract seconds from datetime', () async {
         final date = DateTime(2024, 3, 15, 10, 30, 30);
 
-        final result = date.subtractSeconds(15);
+        final DateTime result = date.subtractSeconds(15);
 
         expect(result.second, 15);
       });
@@ -301,7 +301,7 @@ void main() {
       nyTest('should format datetime to standard string', () async {
         final date = DateTime(2024, 3, 15, 10, 30, 45);
 
-        final result = date.toDateTimeString();
+        final String? result = date.toDateTimeString();
 
         expect(result, '2024-03-15 10:30:45');
       });
@@ -316,7 +316,7 @@ void main() {
       nyTest('should format date to standard string', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.toDateString();
+        final String? result = date.toDateString();
 
         expect(result, '2024-03-15');
       });
@@ -324,7 +324,7 @@ void main() {
       nyTest('should support custom format', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.toDateString(format: 'dd-MM-yyyy');
+        final String? result = date.toDateString(format: 'dd-MM-yyyy');
 
         expect(result, '15-03-2024');
       });
@@ -339,7 +339,7 @@ void main() {
       nyTest('should format date in UK format', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.toDateStringUK();
+        final String? result = date.toDateStringUK();
 
         expect(result, '15/03/2024');
       });
@@ -349,7 +349,7 @@ void main() {
       nyTest('should format date in US format', () async {
         final date = DateTime(2024, 3, 15);
 
-        final result = date.toDateStringUS();
+        final String? result = date.toDateStringUS();
 
         expect(result, '03/15/2024');
       });
@@ -359,7 +359,7 @@ void main() {
       nyTest('should convert to Unix timestamp string', () async {
         final date = DateTime(2024, 3, 15, 12, 0, 0);
 
-        final result = date.toTimestamp();
+        final String? result = date.toTimestamp();
 
         expect(result, isA<String>());
         expect(int.tryParse(result!), isNotNull);
@@ -375,7 +375,7 @@ void main() {
       nyTest('should format time without seconds', () async {
         final date = DateTime(2024, 3, 15, 14, 30, 45);
 
-        final result = date.toTimeString();
+        final String? result = date.toTimeString();
 
         expect(result, '14:30');
       });
@@ -383,7 +383,7 @@ void main() {
       nyTest('should format time with seconds', () async {
         final date = DateTime(2024, 3, 15, 14, 30, 45);
 
-        final result = date.toTimeString(withSeconds: true);
+        final String? result = date.toTimeString(withSeconds: true);
 
         expect(result, '14:30:45');
       });
@@ -398,7 +398,7 @@ void main() {
       nyTest('should format with custom pattern', () async {
         final date = DateTime(2024, 3, 15, 14, 30);
 
-        final result = date.toFormat('EEEE, MMMM d, yyyy');
+        final String? result = date.toFormat('EEEE, MMMM d, yyyy');
 
         expect(result, contains('March'));
         expect(result, contains('2024'));
@@ -414,7 +414,7 @@ void main() {
       nyTest('should format to short date with ordinal', () async {
         final date = DateTime(2024, 3, 1);
 
-        final result = date.toShortDate();
+        final String result = date.toShortDate();
 
         expect(result, contains('1st'));
         expect(result, contains('Mar'));
@@ -442,9 +442,11 @@ void main() {
   nyGroup('NyDateTimeExt Age Calculations', () {
     nyGroup('toAge', () {
       nyTest('should calculate age from birthdate', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 25 + 6));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 25 + 6),
+        );
 
-        final result = birthDate.toAge();
+        final int? result = birthDate.toAge();
 
         expect(result, 25);
       });
@@ -457,17 +459,21 @@ void main() {
 
     nyGroup('isAgeYounger', () {
       nyTest('should return true when age is younger', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 20));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 20),
+        );
 
-        final result = birthDate.isAgeYounger(25);
+        final bool? result = birthDate.isAgeYounger(25);
 
         expect(result, isTrue);
       });
 
       nyTest('should return false when age is older', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 30));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 30),
+        );
 
-        final result = birthDate.isAgeYounger(25);
+        final bool? result = birthDate.isAgeYounger(25);
 
         expect(result, isFalse);
       });
@@ -475,17 +481,21 @@ void main() {
 
     nyGroup('isAgeOlder', () {
       nyTest('should return true when age is older', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 30));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 30),
+        );
 
-        final result = birthDate.isAgeOlder(25);
+        final bool? result = birthDate.isAgeOlder(25);
 
         expect(result, isTrue);
       });
 
       nyTest('should return false when age is younger', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 20));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 20),
+        );
 
-        final result = birthDate.isAgeOlder(25);
+        final bool? result = birthDate.isAgeOlder(25);
 
         expect(result, isFalse);
       });
@@ -493,24 +503,32 @@ void main() {
 
     nyGroup('isAgeBetween', () {
       nyTest('should return true when age is between min and max', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 25));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 25),
+        );
 
-        final result = birthDate.isAgeBetween(20, 30);
+        final bool? result = birthDate.isAgeBetween(20, 30);
 
         expect(result, isTrue);
       });
 
       nyTest('should return false when age is outside range', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 35));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 35),
+        );
 
-        final result = birthDate.isAgeBetween(20, 30);
+        final bool? result = birthDate.isAgeBetween(20, 30);
 
         expect(result, isFalse);
       });
 
       nyTest('should include boundary values', () async {
-        final birthDate20 = DateTime.now().subtract(Duration(days: 365 * 20));
-        final birthDate30 = DateTime.now().subtract(Duration(days: 365 * 30));
+        final DateTime birthDate20 = DateTime.now().subtract(
+          Duration(days: 365 * 20),
+        );
+        final DateTime birthDate30 = DateTime.now().subtract(
+          Duration(days: 365 * 30),
+        );
 
         expect(birthDate20.isAgeBetween(20, 30), isTrue);
         expect(birthDate30.isAgeBetween(20, 30), isTrue);
@@ -519,9 +537,11 @@ void main() {
 
     nyGroup('isAgeEqualTo', () {
       nyTest('should return true when age equals specified value', () async {
-        final birthDate = DateTime.now().subtract(Duration(days: 365 * 25 + 6));
+        final DateTime birthDate = DateTime.now().subtract(
+          Duration(days: 365 * 25 + 6),
+        );
 
-        final result = birthDate.isAgeEqualTo(25);
+        final bool? result = birthDate.isAgeEqualTo(25);
 
         expect(result, isTrue);
       });
@@ -529,9 +549,11 @@ void main() {
       nyTest(
         'should return false when age does not equal specified value',
         () async {
-          final birthDate = DateTime.now().subtract(Duration(days: 365 * 25));
+          final DateTime birthDate = DateTime.now().subtract(
+            Duration(days: 365 * 25),
+          );
 
-          final result = birthDate.isAgeEqualTo(30);
+          final bool? result = birthDate.isAgeEqualTo(30);
 
           expect(result, isFalse);
         },
@@ -546,13 +568,13 @@ void main() {
   nyGroup('NyDateTimeExt Date Comparisons', () {
     nyGroup('isInPast', () {
       nyTest('should return true for past date', () async {
-        final pastDate = DateTime.now().subtract(Duration(days: 1));
+        final DateTime pastDate = DateTime.now().subtract(Duration(days: 1));
 
         expect(pastDate.isInPast(), isTrue);
       });
 
       nyTest('should return false for future date', () async {
-        final futureDate = DateTime.now().add(Duration(days: 1));
+        final DateTime futureDate = DateTime.now().add(Duration(days: 1));
 
         expect(futureDate.isInPast(), isFalse);
       });
@@ -565,13 +587,13 @@ void main() {
 
     nyGroup('isInFuture', () {
       nyTest('should return true for future date', () async {
-        final futureDate = DateTime.now().add(Duration(days: 1));
+        final DateTime futureDate = DateTime.now().add(Duration(days: 1));
 
         expect(futureDate.isInFuture(), isTrue);
       });
 
       nyTest('should return false for past date', () async {
-        final pastDate = DateTime.now().subtract(Duration(days: 1));
+        final DateTime pastDate = DateTime.now().subtract(Duration(days: 1));
 
         expect(pastDate.isInFuture(), isFalse);
       });
@@ -584,13 +606,13 @@ void main() {
 
     nyGroup('hasExpired', () {
       nyTest('should return true for past date', () async {
-        final pastDate = DateTime.now().subtract(Duration(days: 1));
+        final DateTime pastDate = DateTime.now().subtract(Duration(days: 1));
 
         expect(pastDate.hasExpired(), isTrue);
       });
 
       nyTest('should return false for future date', () async {
-        final futureDate = DateTime.now().add(Duration(days: 1));
+        final DateTime futureDate = DateTime.now().add(Duration(days: 1));
 
         expect(futureDate.hasExpired(), isFalse);
       });
@@ -609,13 +631,13 @@ void main() {
       });
 
       nyTest('should return false for yesterday', () async {
-        final yesterday = DateTime.now().subtract(Duration(days: 1));
+        final DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
 
         expect(yesterday.isToday(), isFalse);
       });
 
       nyTest('should return false for tomorrow', () async {
-        final tomorrow = DateTime.now().add(Duration(days: 1));
+        final DateTime tomorrow = DateTime.now().add(Duration(days: 1));
 
         expect(tomorrow.isToday(), isFalse);
       });
@@ -628,7 +650,7 @@ void main() {
 
     nyGroup('isTomorrow', () {
       nyTest('should return true for tomorrow', () async {
-        final tomorrow = DateTime.now().add(Duration(days: 1));
+        final DateTime tomorrow = DateTime.now().add(Duration(days: 1));
 
         expect(tomorrow.isTomorrow(), isTrue);
       });
@@ -647,7 +669,7 @@ void main() {
 
     nyGroup('isYesterday', () {
       nyTest('should return true for yesterday', () async {
-        final yesterday = DateTime.now().subtract(Duration(days: 1));
+        final DateTime yesterday = DateTime.now().subtract(Duration(days: 1));
 
         expect(yesterday.isYesterday(), isTrue);
       });

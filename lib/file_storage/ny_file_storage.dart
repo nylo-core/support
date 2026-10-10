@@ -7,7 +7,7 @@
 /// final String avatar = await disk().putFile('avatars', photo);
 /// Image(image: DiskImage(avatar));
 /// ```
-library ny_file_storage;
+library;
 
 export 'package:cross_file/cross_file.dart' show XFile;
 

@@ -566,8 +566,8 @@ class ToastNotificationRegistry {
   /// Register multiple toast styles at once.
   /// Accepts both [ToastStyleFactory] and [ToastStyleDataFactory] values.
   void registerAll(Map<String, dynamic> styles) {
-    for (final entry in styles.entries) {
-      final value = entry.value;
+    for (final MapEntry<String, dynamic> entry in styles.entries) {
+      final dynamic value = entry.value;
       if (value is ToastStyleDataFactory) {
         _styles[entry.key] = value;
       } else if (value is ToastStyleFactory) {
@@ -580,7 +580,7 @@ class ToastNotificationRegistry {
   /// Returns the [ToastStyleFactory] ready to build the widget,
   /// or the "success" factory with a debug warning if [id] is not found.
   ToastStyleFactory? resolve(String id, Map<String, dynamic> data) {
-    final dataFactory = _get(id);
+    final ToastStyleDataFactory? dataFactory = _get(id);
     if (dataFactory == null) return null;
     return dataFactory(data);
   }

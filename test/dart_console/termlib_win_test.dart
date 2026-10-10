@@ -4,7 +4,7 @@ import 'package:win32/win32.dart';
 
 void main() {
   group('TermLibWindows.disabledRawModeMask', () {
-    final mask = TermLibWindows.disabledRawModeMask;
+    final CONSOLE_MODE mask = TermLibWindows.disabledRawModeMask;
 
     test('is non-zero (regression: a bitwise-AND chain reduced it to 0)', () {
       expect(mask, isNonZero);

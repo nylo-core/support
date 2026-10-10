@@ -1,17 +1,8 @@
 import 'form_rule.dart';
 
 class FormRuleEmail extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.email";
-
-  FormRuleEmail({this.rule = "email", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleEmail({super.rule = "email", String? message})
+    : super(message: message ?? "nylo.validation.email");
 
   /// Email validation regex
   static final RegExp _emailRegex = RegExp(
@@ -29,12 +20,12 @@ class FormRuleEmail extends FormRule {
     if (input.length > 254) {
       return false;
     }
-    var valid = _emailRegex.hasMatch(input);
+    bool valid = _emailRegex.hasMatch(input);
     if (!valid) {
       return false;
     }
 
-    var parts = input.split('@');
+    List<String> parts = input.split('@');
     if (parts.length != 2) {
       return false;
     }
@@ -42,7 +33,7 @@ class FormRuleEmail extends FormRule {
       return false;
     }
 
-    var domainParts = parts[1].split(".");
+    List<String> domainParts = parts[1].split(".");
     if (domainParts.any((part) => part.isEmpty || part.length > 63)) {
       return false;
     }
@@ -52,16 +43,10 @@ class FormRuleEmail extends FormRule {
 }
 
 class FormRulePassword extends FormRule {
-  @override
-  String? rule;
-
   final int strength;
 
-  @override
-  String? message;
-
   FormRulePassword({
-    this.rule = "password",
+    super.rule = "password",
     String? message,
     required this.strength,
   }) {
@@ -101,23 +86,13 @@ class FormRulePassword extends FormRule {
 /// FormRuleEquals
 /// This rule checks if the input data is equal to a specified data source.
 class FormRuleEquals extends FormRule {
-  @override
-  String? rule;
-
   final dynamic dataSource;
 
-  @override
-  String? message = "nylo.validation.equals";
-
   FormRuleEquals({
-    this.rule = "equals",
+    super.rule = "equals",
     String? message,
     required this.dataSource,
-  }) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  }) : super(message: message ?? "nylo.validation.equals");
 
   @override
   bool validate(data) {
@@ -126,23 +101,13 @@ class FormRuleEquals extends FormRule {
 }
 
 class FormRuleCustom extends FormRule {
-  @override
-  String? rule;
-
   final bool Function(dynamic data) customValidation;
 
-  @override
-  String? message = "nylo.validation.custom";
-
   FormRuleCustom({
-    this.rule = "custom",
+    super.rule = "custom",
     String? message,
     required this.customValidation,
-  }) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  }) : super(message: message ?? "nylo.validation.custom");
 
   @override
   bool validate(data) {
@@ -151,21 +116,14 @@ class FormRuleCustom extends FormRule {
 }
 
 class FormRuleMinLength extends FormRule {
-  @override
-  String? rule;
-
   final int minLength;
 
-  @override
-  String? message;
-
-  FormRuleMinLength(this.minLength, [this.message]) {
-    this.rule = "min_length";
+  FormRuleMinLength(this.minLength, [String? message]) {
+    rule = "min_length";
     if (message == null) {
-      message = "nylo.validation.min_length";
-      return;
+      this.message = "nylo.validation.min_length";
     } else {
-      this.message = message?.replaceAll("{{minLength}}", minLength.toString());
+      this.message = message.replaceAll("{{minLength}}", minLength.toString());
     }
   }
 
@@ -182,16 +140,10 @@ class FormRuleMinLength extends FormRule {
 }
 
 class FormRuleMinSize extends FormRule {
-  @override
-  String? rule;
-
   final int minSize;
 
-  @override
-  String? message;
-
   FormRuleMinSize(this.minSize, [String? message]) {
-    this.rule = "min_size";
+    rule = "min_size";
     if (message == null) {
       this.message = "nylo.validation.min_size";
     } else {
@@ -212,16 +164,10 @@ class FormRuleMinSize extends FormRule {
 }
 
 class FormRuleMinValue extends FormRule {
-  @override
-  String? rule;
-
   final int minValue;
 
-  @override
-  String? message;
-
   FormRuleMinValue(this.minValue, [String? message]) {
-    this.rule = "min_value";
+    rule = "min_value";
     if (message != null) {
       this.message = message.replaceAll("{{minValue}}", minValue.toString());
     } else {
@@ -251,16 +197,10 @@ class FormRuleMinValue extends FormRule {
 }
 
 class FormRuleMaxLength extends FormRule {
-  @override
-  String? rule;
-
   final int maxLength;
 
-  @override
-  String? message;
-
   FormRuleMaxLength(this.maxLength, [String? message]) {
-    this.rule = "max_length";
+    rule = "max_length";
     if (message == null) {
       this.message = "nylo.validation.max_length";
     } else {
@@ -281,16 +221,10 @@ class FormRuleMaxLength extends FormRule {
 }
 
 class FormRuleMaxSize extends FormRule {
-  @override
-  String? rule;
-
   final int maxSize;
 
-  @override
-  String? message;
-
   FormRuleMaxSize(this.maxSize, [String? message]) {
-    this.rule = "max_size";
+    rule = "max_size";
     if (message == null) {
       this.message = "nylo.validation.max_size";
     } else {
@@ -311,13 +245,7 @@ class FormRuleMaxSize extends FormRule {
 }
 
 class FormRuleMaxValue extends FormRule {
-  @override
-  String? rule;
-
   final int maxValue;
-
-  @override
-  String? message;
 
   FormRuleMaxValue(this.maxValue, [String? message]) {
     rule = "max_value";
@@ -341,16 +269,10 @@ class FormRuleMaxValue extends FormRule {
 }
 
 class FormRuleRegex extends FormRule {
-  @override
-  String? rule;
-
   final RegExp regex;
 
-  @override
-  String? message;
-
   FormRuleRegex(this.regex, [String? message]) {
-    this.rule = "regex";
+    rule = "regex";
     if (message == null) {
       this.message = "nylo.validation.regex";
     } else {
@@ -368,16 +290,10 @@ class FormRuleRegex extends FormRule {
 }
 
 class FormRuleDateAgeIsYounger extends FormRule {
-  @override
-  String? rule;
-
   final int age;
 
-  @override
-  String? message;
-
   FormRuleDateAgeIsYounger(this.age, [String? message]) {
-    this.rule = "date_age_is_younger";
+    rule = "date_age_is_younger";
     if (message == null) {
       this.message = "nylo.validation.date_age_is_younger";
     } else {
@@ -405,16 +321,10 @@ class FormRuleDateAgeIsYounger extends FormRule {
 }
 
 class FormRuleDateAgeIsOlder extends FormRule {
-  @override
-  String? rule;
-
   final int age;
 
-  @override
-  String? message;
-
   FormRuleDateAgeIsOlder(this.age, [String? message]) {
-    this.rule = "date_age_is_older";
+    rule = "date_age_is_older";
     if (message == null) {
       this.message = "nylo.validation.date_age_is_older";
     } else {
@@ -442,14 +352,8 @@ class FormRuleDateAgeIsOlder extends FormRule {
 }
 
 class FormRuleDateInPast extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message;
-
   FormRuleDateInPast([String? message]) {
-    this.rule = "date_in_past";
+    rule = "date_in_past";
     if (message == null) {
       this.message = "nylo.validation.date_in_past";
     } else {
@@ -467,14 +371,8 @@ class FormRuleDateInPast extends FormRule {
 }
 
 class FormRuleDateInFuture extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message;
-
   FormRuleDateInFuture([String? message]) {
-    this.rule = "date_in_future";
+    rule = "date_in_future";
     if (message == null) {
       this.message = "nylo.validation.date_in_future";
     } else {
@@ -492,17 +390,8 @@ class FormRuleDateInFuture extends FormRule {
 }
 
 class FormRulePhoneNumberUs extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.phone_number_us";
-
-  FormRulePhoneNumberUs({this.rule = "phone_number_us", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRulePhoneNumberUs({super.rule = "phone_number_us", String? message})
+    : super(message: message ?? "nylo.validation.phone_number_us");
 
   static final RegExp _regExp = RegExp(
     r'^\(?(\d{3})\)?[-\. ]?(\d{3})[-\. ]?(\d{4})( x\d{4})?$',
@@ -513,17 +402,8 @@ class FormRulePhoneNumberUs extends FormRule {
 }
 
 class FormRulePhoneNumberUk extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.phone_number_uk";
-
-  FormRulePhoneNumberUk({this.rule = "phone_number_uk", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRulePhoneNumberUk({super.rule = "phone_number_uk", String? message})
+    : super(message: message ?? "nylo.validation.phone_number_uk");
 
   static final RegExp _regExp = RegExp(
     r'^(((\+44\s?\d{4}|\(?0\d{4}\)?)\s?\d{3}\s?\d{3})|((\+44\s?\d{3}|\(?0\d{3}\)?)\s?\d{3}\s?\d{4})|((\+44\s?\d{2}|\(?0\d{2}\)?)\s?\d{4}\s?\d{4}))(\s?\#(\d{4}|\d{3}))?$',
@@ -534,17 +414,8 @@ class FormRulePhoneNumberUk extends FormRule {
 }
 
 class FormRuleUrl extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.url";
-
-  FormRuleUrl({this.rule = "url", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleUrl({super.rule = "url", String? message})
+    : super(message: message ?? "nylo.validation.url");
 
   /// Basic URL validation regex.
   static final RegExp _regExp = RegExp(r'^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$');
@@ -559,16 +430,10 @@ class FormRuleUrl extends FormRule {
 }
 
 class FormRuleContains extends FormRule {
-  @override
-  String? rule;
-
   final List<String> values;
 
-  @override
-  String? message;
-
   FormRuleContains(this.values, [String? message]) {
-    this.rule = "contains";
+    rule = "contains";
     if (message == null) {
       this.message = "nylo.validation.contains";
     } else {
@@ -592,16 +457,10 @@ class FormRuleContains extends FormRule {
 }
 
 class FormRuleBeginsWith extends FormRule {
-  @override
-  String? rule;
-
   final String prefix;
 
-  @override
-  String? message;
-
   FormRuleBeginsWith(this.prefix, [String? message]) {
-    this.rule = "begins_with";
+    rule = "begins_with";
     if (message != null) {
       this.message = message.replaceAll("{{prefix}}", prefix);
     } else {
@@ -622,16 +481,10 @@ class FormRuleBeginsWith extends FormRule {
 }
 
 class FormRuleEndsWith extends FormRule {
-  @override
-  String? rule;
-
   final String suffix;
 
-  @override
-  String? message;
-
   FormRuleEndsWith(this.suffix, [String? message]) {
-    this.rule = "ends_with";
+    rule = "ends_with";
     if (message != null) {
       this.message = message.replaceAll("{{suffix}}", suffix);
     } else {
@@ -652,17 +505,8 @@ class FormRuleEndsWith extends FormRule {
 }
 
 class FormRuleBooleanTrue extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.boolean_true";
-
-  FormRuleBooleanTrue({this.rule = "boolean_true", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleBooleanTrue({super.rule = "boolean_true", String? message})
+    : super(message: message ?? "nylo.validation.boolean_true");
 
   @override
   bool validate(data) {
@@ -671,17 +515,8 @@ class FormRuleBooleanTrue extends FormRule {
 }
 
 class FormRuleBooleanFalse extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.boolean_false";
-
-  FormRuleBooleanFalse({this.rule = "boolean_false", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleBooleanFalse({super.rule = "boolean_false", String? message})
+    : super(message: message ?? "nylo.validation.boolean_false");
 
   @override
   bool validate(data) {
@@ -690,18 +525,8 @@ class FormRuleBooleanFalse extends FormRule {
 }
 
 class FormRuleNotEmpty extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.not_empty";
-
-  FormRuleNotEmpty([String? message]) {
-    this.rule = "not_empty";
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleNotEmpty([String? message])
+    : super(rule: "not_empty", message: message ?? "nylo.validation.not_empty");
 
   @override
   bool validate(data) {
@@ -714,17 +539,8 @@ class FormRuleNotEmpty extends FormRule {
 }
 
 class FormRuleNumeric extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.numeric";
-
-  FormRuleNumeric({this.rule = "numeric", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleNumeric({super.rule = "numeric", String? message})
+    : super(message: message ?? "nylo.validation.numeric");
 
   @override
   bool validate(data) {
@@ -733,17 +549,8 @@ class FormRuleNumeric extends FormRule {
 }
 
 class FormRuleDate extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.date";
-
-  FormRuleDate({this.rule = "date", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleDate({super.rule = "date", String? message})
+    : super(message: message ?? "nylo.validation.date");
 
   @override
   bool validate(data) {
@@ -758,17 +565,8 @@ class FormRuleDate extends FormRule {
 }
 
 class FormRuleCapitalized extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.capitalized";
-
-  FormRuleCapitalized({this.rule = "capitalized", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleCapitalized({super.rule = "capitalized", String? message})
+    : super(message: message ?? "nylo.validation.capitalized");
 
   @override
   bool validate(data) {
@@ -780,24 +578,15 @@ class FormRuleCapitalized extends FormRule {
 
   /// Check if string [input] is capitalized
   bool _isCapitalized(String input) {
-    final capitalizedFirst = input[0].toUpperCase();
+    final String capitalizedFirst = input[0].toUpperCase();
     final capitalized = "$capitalizedFirst${input.substring(1)}";
     return input == capitalized;
   }
 }
 
 class FormRuleLowercase extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.lowercase";
-
-  FormRuleLowercase({this.rule = "lowercase", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleLowercase({super.rule = "lowercase", String? message})
+    : super(message: message ?? "nylo.validation.lowercase");
 
   @override
   bool validate(data) {
@@ -809,17 +598,8 @@ class FormRuleLowercase extends FormRule {
 }
 
 class FormRuleUppercase extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.uppercase";
-
-  FormRuleUppercase({this.rule = "uppercase", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleUppercase({super.rule = "uppercase", String? message})
+    : super(message: message ?? "nylo.validation.uppercase");
 
   @override
   bool validate(data) {
@@ -831,17 +611,8 @@ class FormRuleUppercase extends FormRule {
 }
 
 class FormRuleZipcodeUs extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.zipcode_us";
-
-  FormRuleZipcodeUs({this.rule = "zipcode_us", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRuleZipcodeUs({super.rule = "zipcode_us", String? message})
+    : super(message: message ?? "nylo.validation.zipcode_us");
 
   static final RegExp _regExp = RegExp(
     r'(^[0-9]{4}?[0-9]$|^[0-9]{4}?[0-9]-[0-9]{4}$)',
@@ -852,17 +623,8 @@ class FormRuleZipcodeUs extends FormRule {
 }
 
 class FormRulePostcodeUk extends FormRule {
-  @override
-  String? rule;
-
-  @override
-  String? message = "nylo.validation.postcode_uk";
-
-  FormRulePostcodeUk({this.rule = "postcode_uk", String? message}) {
-    if (message != null) {
-      this.message = message;
-    }
-  }
+  FormRulePostcodeUk({super.rule = "postcode_uk", String? message})
+    : super(message: message ?? "nylo.validation.postcode_uk");
 
   /// Covers all UK postcode formats: A9 9AA, A9A 9AA, A99 9AA, AA9 9AA,
   /// AA9A 9AA, AA99 9AA.

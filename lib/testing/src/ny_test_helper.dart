@@ -26,7 +26,7 @@ import 'mocks/ny_mock_api.dart';
 
 /// Assert that the current route matches the expected route.
 void expectRoute(String route) {
-  final currentRoute = Nylo.getCurrentRouteName();
+  final String? currentRoute = Nylo.getCurrentRouteName();
   expect(
     currentRoute,
     route,
@@ -36,7 +36,7 @@ void expectRoute(String route) {
 
 /// Assert that the current route is not the specified route.
 void expectNotRoute(String route) {
-  final currentRoute = Nylo.getCurrentRouteName();
+  final String? currentRoute = Nylo.getCurrentRouteName();
   expect(
     currentRoute,
     isNot(route),
@@ -46,8 +46,8 @@ void expectNotRoute(String route) {
 
 /// Assert that the route history contains a specific route.
 void expectRouteInHistory(String route) {
-  final history = Nylo.getRouteHistory();
-  final routeNames = history.map((r) => r['name']).toList();
+  final List<dynamic> history = Nylo.getRouteHistory();
+  final List<dynamic> routeNames = history.map((r) => r['name']).toList();
   expect(
     routeNames,
     contains(route),
@@ -83,7 +83,7 @@ void expectBackpackNotContains(String key) {
 
 /// Assert that an environment variable has a specific value.
 void expectEnv(String key, dynamic expectedValue) {
-  final actualValue = getEnv(key);
+  final dynamic actualValue = getEnv(key);
   expect(
     actualValue,
     expectedValue,
@@ -93,7 +93,7 @@ void expectEnv(String key, dynamic expectedValue) {
 
 /// Assert that an environment variable is set (not null).
 void expectEnvSet(String key) {
-  final value = getEnv(key);
+  final dynamic value = getEnv(key);
   expect(value, isNotNull, reason: 'Expected env "$key" to be set');
 }
 
@@ -108,7 +108,7 @@ void expectNyloInitialized() {
 
 /// Assert that a user is authenticated.
 void expectAuthenticated<T>() {
-  final user = Nylo.user<T>();
+  final T? user = Nylo.user<T>();
   expect(
     user,
     isNotNull,
@@ -119,7 +119,7 @@ void expectAuthenticated<T>() {
 /// Assert that no user is authenticated (guest).
 void expectGuest() {
   try {
-    final user = Nylo.user();
+    final dynamic user = Nylo.user();
     expect(user, isNull, reason: 'Expected no authenticated user (guest)');
   } catch (_) {
     // Auth key not set, which also means guest
@@ -128,7 +128,11 @@ void expectGuest() {
 
 /// Assert that an API endpoint was called.
 void expectApiCalled(String endpoint, {String? method, int? times}) {
-  final wasCalled = NyMockApi.wasCalled(endpoint, method: method, times: times);
+  final bool wasCalled = NyMockApi.wasCalled(
+    endpoint,
+    method: method,
+    times: times,
+  );
   if (times != null) {
     expect(
       wasCalled,
@@ -146,7 +150,7 @@ void expectApiCalled(String endpoint, {String? method, int? times}) {
 
 /// Assert that an API endpoint was not called.
 void expectApiNotCalled(String endpoint, {String? method}) {
-  final wasCalled = NyMockApi.wasCalled(endpoint, method: method);
+  final bool wasCalled = NyMockApi.wasCalled(endpoint, method: method);
   expect(
     wasCalled,
     isFalse,
@@ -164,7 +168,7 @@ void expectApiNotCalled(String endpoint, {String? method}) {
 /// expectApiCalledWith('/users', method: 'POST', data: {'name': 'John'});
 /// ```
 void expectApiCalledWith(String endpoint, {String? method, dynamic data}) {
-  final calls = NyMockApi.getCallsFor(endpoint).where((c) {
+  final List<ApiCallInfo> calls = NyMockApi.getCallsFor(endpoint).where((c) {
     if (method != null && c.method != method.toUpperCase()) return false;
     return true;
   }).toList();
@@ -172,7 +176,7 @@ void expectApiCalledWith(String endpoint, {String? method, dynamic data}) {
   expect(calls, isNotEmpty, reason: 'Expected "$endpoint" to have been called');
 
   if (data != null) {
-    final hasMatchingData = calls.any((c) {
+    final bool hasMatchingData = calls.any((c) {
       try {
         expect(c.data, equals(data));
         return true;
@@ -274,7 +278,7 @@ void expectNotVisible(Finder finder) {
 
 /// Assert that the current locale matches.
 void expectLocale(String locale) {
-  final currentLocale = NyLocalization.instance.languageCode;
+  final String currentLocale = NyLocalization.instance.languageCode;
   expect(
     currentLocale,
     locale,
@@ -489,7 +493,10 @@ class ToastRecord {
 /// expectToastShown(id: 'danger', description: 'Something went wrong');
 /// ```
 void expectToastShown({String? id, String? description}) {
-  final wasShown = NyToastRecorder.wasShown(id: id, description: description);
+  final bool wasShown = NyToastRecorder.wasShown(
+    id: id,
+    description: description,
+  );
   expect(
     wasShown,
     isTrue,
@@ -503,7 +510,10 @@ void expectToastShown({String? id, String? description}) {
 
 /// Assert that no toast notification was shown matching the criteria.
 void expectNoToastShown({String? id, String? description}) {
-  final wasShown = NyToastRecorder.wasShown(id: id, description: description);
+  final bool wasShown = NyToastRecorder.wasShown(
+    id: id,
+    description: description,
+  );
   expect(
     wasShown,
     isFalse,
@@ -527,7 +537,7 @@ void expectNoToastShown({String? id, String? description}) {
 /// expectLocked(tester, find.byType(MyPage), 'submit');
 /// ```
 void expectLocked(WidgetTester tester, Finder finder, String name) {
-  final state = _findNyBaseState(finder);
+  final NyBaseState<StatefulWidget> state = _findNyBaseState(finder);
   expect(
     state.isLocked(name),
     isTrue,
@@ -542,7 +552,7 @@ void expectLocked(WidgetTester tester, Finder finder, String name) {
 /// expectNotLocked(tester, find.byType(MyPage), 'submit');
 /// ```
 void expectNotLocked(WidgetTester tester, Finder finder, String name) {
-  final state = _findNyBaseState(finder);
+  final NyBaseState<StatefulWidget> state = _findNyBaseState(finder);
   expect(
     state.isLocked(name),
     isFalse,
@@ -557,7 +567,7 @@ void expectNotLocked(WidgetTester tester, Finder finder, String name) {
 /// expectLoadingNamed(tester, find.byType(MyPage), 'fetchUsers');
 /// ```
 void expectLoadingNamed(WidgetTester tester, Finder finder, String name) {
-  final state = _findNyBaseState(finder);
+  final NyBaseState<StatefulWidget> state = _findNyBaseState(finder);
   expect(
     state.isLoading(name: name),
     isTrue,
@@ -572,7 +582,7 @@ void expectLoadingNamed(WidgetTester tester, Finder finder, String name) {
 /// expectNotLoadingNamed(tester, find.byType(MyPage), 'fetchUsers');
 /// ```
 void expectNotLoadingNamed(WidgetTester tester, Finder finder, String name) {
-  final state = _findNyBaseState(finder);
+  final NyBaseState<StatefulWidget> state = _findNyBaseState(finder);
   expect(
     state.isLoading(name: name),
     isFalse,
@@ -582,11 +592,11 @@ void expectNotLoadingNamed(WidgetTester tester, Finder finder, String name) {
 
 /// Find a [NyBaseState] from a widget [Finder], or fail with a descriptive message.
 NyBaseState _findNyBaseState(Finder finder) {
-  final elements = finder.evaluate();
+  final FinderResult<Element> elements = finder.evaluate();
   if (elements.isEmpty) {
     fail('No widget found for finder: $finder');
   }
-  final element = elements.first;
+  final Element element = elements.first;
   if (element is StatefulElement && element.state is NyBaseState) {
     return element.state as NyBaseState;
   }

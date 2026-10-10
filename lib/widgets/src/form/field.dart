@@ -103,7 +103,7 @@ class Field {
 
   /// Returns the state actions for the field widget type.
   FormStateActions? _getFieldStateActions() {
-    final fieldWidget = _getUnwrappedWidget();
+    final Widget? fieldWidget = _getUnwrappedWidget();
     if (fieldWidget == null) return null;
 
     if (fieldWidget is NyFormTextField) {
@@ -283,7 +283,7 @@ class Field {
       return null;
     }
 
-    final currentReadOnly = readOnly ?? false;
+    final bool currentReadOnly = readOnly ?? false;
     if (_cachedField != null &&
         _cachedReadOnly == currentReadOnly &&
         _cachedHidden == hidden) {
@@ -306,7 +306,7 @@ class Field {
   Field.text(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -317,8 +317,7 @@ class Field {
     this.readOnly,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     setOnChanged(onChanged);
     widget = NyFormTextField.fromField(this);
   }
@@ -340,9 +339,9 @@ class Field {
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
   }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+       style = style ?? FieldStyleTextField() {
     CurrencyMeta currencyMeta = CurrencyInputMatcher.getCurrencyMeta(
-      "currency:" + currency,
+      "currency:$currency",
       value: value ?? dummyData ?? "0",
       onChanged: onChanged,
     );
@@ -364,7 +363,7 @@ class Field {
   Field.password(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -376,8 +375,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
-  }) : _value = value,
-       this.style =
+  }) : style =
            style ?? FieldStyleTextField.password(passwordViewable: viewable) {
     this.style = (this.style as FieldStyleTextField).copyWith(
       passwordViewable: viewable,
@@ -396,7 +394,7 @@ class Field {
   Field.email(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -407,8 +405,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField.emailAddress() {
+  }) : style = style ?? FieldStyleTextField.emailAddress() {
     this.style = (this.style as FieldStyleTextField).copyWith(
       keyboardType: TextInputType.emailAddress,
       inputFormatters: [
@@ -426,7 +423,7 @@ class Field {
     this.key, {
     required NyFieldStatefulWidget child,
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -435,10 +432,9 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
-    FieldStyle? style,
+    this.style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style {
+  }) {
     setOnChanged(onChanged);
     widget = child;
   }
@@ -447,7 +443,7 @@ class Field {
   Field.capitalizeWords(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -458,8 +454,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     this.style = (this.style as FieldStyleTextField).copyWith(
       type: "capitalizeWords",
       inputFormatters: [
@@ -475,7 +470,7 @@ class Field {
   Field.capitalizeSentences(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -486,8 +481,7 @@ class Field {
     this.readOnly,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     this.style = (this.style as FieldStyleTextField).copyWith(
       type: "capitalizeSentences",
       inputFormatters: [
@@ -504,7 +498,7 @@ class Field {
   Field.picker(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -516,8 +510,7 @@ class Field {
     FormCollection options = const FormCollection.empty(),
     FieldStylePicker? style,
     Function(dynamic value)? onChanged,
-  }) : this.style = style ?? FieldStylePicker(),
-       _value = value {
+  }) : style = style ?? FieldStylePicker() {
     setOnChanged(onChanged);
     widget = NyFormPicker.fromField(this, options: options);
   }
@@ -532,7 +525,7 @@ class Field {
   Field.radio(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -541,10 +534,9 @@ class Field {
     this.hidden = false,
     this.readOnly,
     FormCollection options = const FormCollection.empty(),
-    FieldStyleRadio? style,
+    FieldStyleRadio? this.style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style {
+  }) {
     setOnChanged(onChanged);
     widget = NyFormRadio.fromField(this, options: options);
   }
@@ -553,7 +545,7 @@ class Field {
   Field.number(
     this.key, {
     this.label,
-    int? value,
+    int? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -565,8 +557,7 @@ class Field {
     bool decimal = false,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     this.style = (this.style as FieldStyleTextField).copyWith(
       type: "number",
       keyboardType: TextInputType.numberWithOptions(decimal: decimal),
@@ -583,7 +574,7 @@ class Field {
   Field.mask(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -600,8 +591,7 @@ class Field {
     bool? maskReturnValue = false,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     setOnChanged(onChanged);
 
     this.style = (this.style as FieldStyleTextField).copyWith(
@@ -622,7 +612,7 @@ class Field {
   Field.url(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -633,8 +623,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     this.style = (this.style as FieldStyleTextField).copyWith(
       type: "url",
       keyboardType: TextInputType.url,
@@ -655,7 +644,7 @@ class Field {
   Field.textArea(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -666,8 +655,7 @@ class Field {
     this.readOnly,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField() {
     setOnChanged(onChanged);
     widget = NyFormTextField.fromField(this);
   }
@@ -676,7 +664,7 @@ class Field {
   Field.phoneNumber(
     this.key, {
     this.label,
-    String? value,
+    String? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -687,8 +675,7 @@ class Field {
     this.readOnly,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = (style ?? FieldStyleTextField()) {
+  }) : style = (style ?? FieldStyleTextField()) {
     this.style = (this.style as FieldStyleTextField).copyWith(
       keyboardType: TextInputType.phone,
       inputFormatters: [PhoneInputFormatter()],
@@ -703,7 +690,7 @@ class Field {
   Field.checkbox(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -714,8 +701,7 @@ class Field {
     this.readOnly,
     FieldStyleCheckbox? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleCheckbox() {
+  }) : style = style ?? FieldStyleCheckbox() {
     setOnChanged(onChanged);
     widget = NyFormCheckbox.fromField(this);
   }
@@ -724,7 +710,7 @@ class Field {
   Field.switchBox(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -735,8 +721,7 @@ class Field {
     this.readOnly,
     FieldStyleSwitchBox? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style = style ?? FieldStyleSwitchBox() {
+  }) : style = style ?? FieldStyleSwitchBox() {
     setOnChanged(onChanged);
     widget = NyFormSwitchBox.fromField(this);
   }
@@ -745,7 +730,7 @@ class Field {
   Field.datetime(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -760,8 +745,7 @@ class Field {
     DateTime? initialPickerDateTime,
     FieldStyleDateTimePicker? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style =
+  }) : style =
            style ??
            FieldStyleDateTimePicker(mode: DateTimeFieldPickerMode.dateAndTime) {
     this.style = (this.style as FieldStyleDateTimePicker).copyWith(
@@ -779,7 +763,7 @@ class Field {
   Field.date(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -794,8 +778,7 @@ class Field {
     DateTime? initialPickerDateTime,
     FieldStyleDateTimePicker? style,
     Function(dynamic value)? onChanged,
-  }) : _value = value,
-       this.style =
+  }) : style =
            style ??
            FieldStyleDateTimePicker(mode: DateTimeFieldPickerMode.date) {
     this.style = (this.style as FieldStyleDateTimePicker).copyWith(
@@ -813,7 +796,7 @@ class Field {
   Field.chips(
     this.key, {
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -825,8 +808,7 @@ class Field {
     FormCollection options = const FormCollection.empty(),
     Function(dynamic value)? onChanged,
     FieldStyleChip? style,
-  }) : style = style ?? FieldStyleChip(),
-       _value = value {
+  }) : style = style ?? FieldStyleChip() {
     setOnChanged(onChanged);
     widget = NyFormChip.fromField(this, options: options);
   }
@@ -835,7 +817,7 @@ class Field {
   Field.slider(
     this.key, {
     this.label,
-    double? value,
+    double? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -846,8 +828,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleSlider? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleSlider() {
+  }) : style = style ?? FieldStyleSlider() {
     setOnChanged(onChanged);
     widget = NyFormSlider.fromField(this);
   }
@@ -856,7 +837,7 @@ class Field {
   Field.rangeSlider(
     this.key, {
     this.label,
-    RangeValues? value,
+    RangeValues? this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -867,8 +848,7 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleRangeSlider? style,
-  }) : _value = value,
-       this.style = style ?? FieldStyleRangeSlider() {
+  }) : style = style ?? FieldStyleRangeSlider() {
     setOnChanged(onChanged);
     widget = NyFormRangeSlider.fromField(this);
   }
@@ -897,7 +877,7 @@ class Field {
     this.key, {
     required Function builder,
     this.label,
-    dynamic value,
+    this._value,
     this.validator,
     this.autofocus = false,
     this.dummyData,
@@ -906,14 +886,12 @@ class Field {
     this.titleStyle,
     this.hidden = false,
     this.readOnly,
-    FieldStyle? style,
+    this.style,
     Function(dynamic value)? onChanged,
   }) : assert(
          builder is NyFieldBuilder || builder is NyFieldBuilderLegacy,
          'builder must match NyFieldBuilder or NyFieldBuilderLegacy signature',
-       ),
-       _value = value,
-       this.style = style {
+       ) {
     setOnChanged(onChanged);
     widget = NyFormBuilder.fromField(this, builder: builder);
   }

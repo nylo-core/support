@@ -49,7 +49,7 @@ class Subscription {
     if (subscriptions.isEmpty) {
       return;
     }
-    for (final s in subscriptions) {
+    for (final StreamSubscription<dynamic> s in subscriptions) {
       s.cancel();
     }
     subscriptions.clear();

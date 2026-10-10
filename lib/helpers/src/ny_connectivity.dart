@@ -42,7 +42,7 @@ class NyConnectivity {
 
   /// Check if the device has any network connection.
   static Future<bool> isOnline() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return !results.contains(ConnectivityResult.none);
   }
 
@@ -53,31 +53,31 @@ class NyConnectivity {
 
   /// Check if connected via WiFi.
   static Future<bool> isWifi() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.wifi);
   }
 
   /// Check if connected via mobile data.
   static Future<bool> isMobile() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.mobile);
   }
 
   /// Check if connected via Ethernet.
   static Future<bool> isEthernet() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.ethernet);
   }
 
   /// Check if connected via VPN.
   static Future<bool> isVpn() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.vpn);
   }
 
   /// Check if connected via Bluetooth.
   static Future<bool> isBluetooth() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.bluetooth);
   }
 
@@ -86,7 +86,7 @@ class NyConnectivity {
   /// Unlike [isOnline], this does not consider VPN, bluetooth, or satellite
   /// as internet connections.
   static Future<bool> hasInternet() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     return results.contains(ConnectivityResult.wifi) ||
         results.contains(ConnectivityResult.mobile) ||
         results.contains(ConnectivityResult.ethernet);
@@ -144,7 +144,7 @@ class NyConnectivity {
 
   /// Get a human-readable connection type string.
   static Future<String> connectionTypeString() async {
-    final results = await status();
+    final List<ConnectivityResult> results = await status();
     if (results.contains(ConnectivityResult.wifi)) return 'WiFi';
     if (results.contains(ConnectivityResult.mobile)) return 'Mobile';
     if (results.contains(ConnectivityResult.ethernet)) return 'Ethernet';

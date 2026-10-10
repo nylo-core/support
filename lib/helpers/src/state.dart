@@ -53,7 +53,7 @@ void updateState<T>(
   dynamic dataUpdate = data;
   if (setValue != null) {
     List<EventBusHistoryEntry> eventHistory = eventBus.history.where((element) {
-      final event = element.event;
+      final AppEvent event = element.event;
       if (event is! UpdateState) {
         return false;
       }

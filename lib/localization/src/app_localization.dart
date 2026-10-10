@@ -87,14 +87,15 @@ class NyLocalization {
     _locale = Locale(languageCode);
 
     if (_localeType == LocaleType.device) {
-      final deviceLocale = PlatformDispatcher.instance.locale;
+      final Locale deviceLocale = PlatformDispatcher.instance.locale;
       _locale = Locale(deviceLocale.languageCode);
     }
 
     // Get the current language from the language switcher if available.
     // Skip in test mode to avoid storage hangs.
     if (!Nylo.isTestMode) {
-      final savedLanguage = await LanguageSwitcher.currentLanguage();
+      final Map<String, dynamic>? savedLanguage =
+          await LanguageSwitcher.currentLanguage();
       if (savedLanguage != null) {
         _locale = Locale(savedLanguage.entries.first.key);
       }
@@ -104,7 +105,7 @@ class NyLocalization {
 
     // The active and fallback files are independent; load them concurrently.
     final bool needsFallback = _locale!.languageCode != languageCode;
-    final results = await Future.wait([
+    final List<Map<String, dynamic>> results = await Future.wait([
       _loadLanguageFile(
         _locale!.languageCode,
         fallbackLanguageCode: languageCode,
@@ -123,7 +124,7 @@ class NyLocalization {
   }) async {
     final filePath = "$_assetsDir$languageCode.json";
     try {
-      final content = await rootBundle.loadString(filePath);
+      final String content = await rootBundle.loadString(filePath);
       return json.decode(content) as Map<String, dynamic>;
     } catch (e) {
       if (fallbackLanguageCode != null &&
@@ -136,7 +137,7 @@ class NyLocalization {
           },
         );
         final fallbackPath = "$_assetsDir$fallbackLanguageCode.json";
-        final content = await rootBundle.loadString(fallbackPath);
+        final String content = await rootBundle.loadString(fallbackPath);
         return json.decode(content) as Map<String, dynamic>;
       }
       throw Exception('Language file not found: $filePath');
@@ -201,7 +202,7 @@ class NyLocalization {
   /// Replace each `{{name}}` placeholder in [value] with its [arguments] entry.
   String _replaceArguments(String value, Map<String, String>? arguments) {
     if (arguments == null) return value;
-    for (final entry in arguments.entries) {
+    for (final MapEntry<String, String> entry in arguments.entries) {
       value = value.replaceAll("{{${entry.key}}}", entry.value);
     }
     return value;
@@ -229,7 +230,7 @@ class NyLocalization {
   String? _getNested(String key) {
     if (_isNestedCached(key)) return _values![key];
 
-    final result = _getNestedFrom(key, _values!);
+    final String? result = _getNestedFrom(key, _values!);
 
     /// If we found the value, cache it. If the value is null then
     /// we're not going to cache it, and returning null instead.
@@ -242,8 +243,8 @@ class NyLocalization {
 
   /// Look up a dot-notated [key] in an arbitrary [source] map.
   String? _getNestedFrom(String key, Map<String, dynamic> source) {
-    final keys = key.split('.');
-    var value = source[keys.first];
+    final List<String> keys = key.split('.');
+    dynamic value = source[keys.first];
     for (var i = 1; i < keys.length; i++) {
       // A path that runs past a string, e.g. "hello.world" when "hello" is
       // a string, names no translation

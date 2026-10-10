@@ -1,18 +1,21 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/metro/src/metro_service.dart';
+import 'package:nylo_support/metro/src/models/metro_project_file.dart';
 
 void main() {
   group('MetroService', () {
     group('createMetroProjectFile()', () {
       test('creates MetroProjectFile from simple class name', () {
-        final result = MetroService.createMetroProjectFile('UserController');
+        final MetroProjectFile result = MetroService.createMetroProjectFile(
+          'UserController',
+        );
 
         expect(result.name, equals('UserController'));
         expect(result.creationPath, isNull);
       });
 
       test('removes prefix from class name', () {
-        final result = MetroService.createMetroProjectFile(
+        final MetroProjectFile result = MetroService.createMetroProjectFile(
           'UserController',
           prefix: 'Controller',
         );
@@ -21,7 +24,7 @@ void main() {
       });
 
       test('extracts creation path from name with slashes', () {
-        final result = MetroService.createMetroProjectFile(
+        final MetroProjectFile result = MetroService.createMetroProjectFile(
           'admin/users/UserController',
         );
 
@@ -30,7 +33,7 @@ void main() {
       });
 
       test('handles single level path', () {
-        final result = MetroService.createMetroProjectFile(
+        final MetroProjectFile result = MetroService.createMetroProjectFile(
           'auth/LoginController',
         );
 
@@ -39,7 +42,7 @@ void main() {
       });
 
       test('handles prefix with path', () {
-        final result = MetroService.createMetroProjectFile(
+        final MetroProjectFile result = MetroService.createMetroProjectFile(
           'admin/UserController',
           prefix: 'Controller',
         );
@@ -51,7 +54,7 @@ void main() {
 
     group('createPathForDartFile()', () {
       test('creates basic file path', () {
-        final path = MetroService.createPathForDartFile(
+        final String path = MetroService.createPathForDartFile(
           folderPath: 'lib/app/controllers',
           className: 'user',
         );
@@ -60,7 +63,7 @@ void main() {
       });
 
       test('adds prefix when provided', () {
-        final path = MetroService.createPathForDartFile(
+        final String path = MetroService.createPathForDartFile(
           folderPath: 'lib/app/controllers',
           className: 'user',
           prefix: 'controller',
@@ -70,7 +73,7 @@ void main() {
       });
 
       test('includes creation path when provided', () {
-        final path = MetroService.createPathForDartFile(
+        final String path = MetroService.createPathForDartFile(
           folderPath: 'lib/app/controllers',
           className: 'user',
           creationPath: 'admin',
@@ -80,7 +83,7 @@ void main() {
       });
 
       test('includes both prefix and creation path', () {
-        final path = MetroService.createPathForDartFile(
+        final String path = MetroService.createPathForDartFile(
           folderPath: 'lib/app/controllers',
           className: 'user',
           prefix: 'controller',
@@ -91,7 +94,7 @@ void main() {
       });
 
       test('converts class name to snake_case', () {
-        final path = MetroService.createPathForDartFile(
+        final String path = MetroService.createPathForDartFile(
           folderPath: 'lib/app/models',
           className: 'UserProfile',
         );
@@ -105,35 +108,35 @@ void main() {
     group('firstWhereOrNull()', () {
       test('returns first matching element', () {
         final list = [1, 2, 3, 4, 5];
-        final result = list.firstWhereOrNull((e) => e > 3);
+        final int? result = list.firstWhereOrNull((e) => e > 3);
 
         expect(result, equals(4));
       });
 
       test('returns null when no element matches', () {
         final list = [1, 2, 3];
-        final result = list.firstWhereOrNull((e) => e > 10);
+        final int? result = list.firstWhereOrNull((e) => e > 10);
 
         expect(result, isNull);
       });
 
       test('returns null for empty list', () {
         final list = <int>[];
-        final result = list.firstWhereOrNull((e) => e > 0);
+        final int? result = list.firstWhereOrNull((e) => e > 0);
 
         expect(result, isNull);
       });
 
       test('returns first element when all match', () {
         final list = [5, 6, 7, 8];
-        final result = list.firstWhereOrNull((e) => e > 4);
+        final int? result = list.firstWhereOrNull((e) => e > 4);
 
         expect(result, equals(5));
       });
 
       test('works with nullable types', () {
-        final list = ['a', null, 'b'];
-        final result = list.firstWhereOrNull((e) => e == null);
+        final List<String?> list = ['a', null, 'b'];
+        final String? result = list.firstWhereOrNull((e) => e == null);
 
         expect(result, isNull);
       });

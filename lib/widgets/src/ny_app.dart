@@ -162,7 +162,7 @@ class _NyAppState extends State<NyApp> {
       child: ValueListenableBuilder<String>(
         valueListenable: NyThemeManager.instance.themeNotifier,
         builder: (context, themeId, _) {
-          final themeData = NyThemeManager.instance.themeData;
+          final ThemeData? themeData = NyThemeManager.instance.themeData;
 
           return ValueListenableBuilder<Locale>(
             valueListenable: _localeNotifier,

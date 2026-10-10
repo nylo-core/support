@@ -39,7 +39,7 @@ void main() {
         nyTest('should match exact static route', () async {
           final matcher = RouteMatcher('/home');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/home');
@@ -49,7 +49,7 @@ void main() {
         nyTest('should match static route with leading slash', () async {
           final matcher = RouteMatcher('/users');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/users');
@@ -58,7 +58,7 @@ void main() {
         nyTest('should return null for non-existent route', () async {
           final matcher = RouteMatcher('/nonexistent');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNull);
         });
@@ -68,7 +68,7 @@ void main() {
         nyTest('should match single parameter route', () async {
           final matcher = RouteMatcher('/users/123');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/users/{id}');
@@ -78,7 +78,7 @@ void main() {
         nyTest('should match route with multiple parameters', () async {
           final matcher = RouteMatcher('/posts/42/comments/99');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/posts/{postId}/comments/{commentId}');
@@ -89,7 +89,7 @@ void main() {
         nyTest('should extract string parameters', () async {
           final matcher = RouteMatcher('/products/electronics/laptop-001');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.parameters['category'], 'electronics');
@@ -99,7 +99,7 @@ void main() {
         nyTest('should not match if segment count differs', () async {
           final matcher = RouteMatcher('/users/123/extra');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNull);
         });
@@ -109,7 +109,7 @@ void main() {
         nyTest('should handle path with trailing slash', () async {
           final matcher = RouteMatcher('/home/');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/home');
@@ -118,7 +118,7 @@ void main() {
         nyTest('should handle path with multiple leading slashes', () async {
           final matcher = RouteMatcher('//home');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/home');
@@ -127,7 +127,7 @@ void main() {
         nyTest('should handle path without leading slash', () async {
           final matcher = RouteMatcher('home');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/home');
@@ -136,7 +136,7 @@ void main() {
         nyTest('should handle whitespace in path', () async {
           final matcher = RouteMatcher('  /home  ');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/home');
@@ -147,7 +147,7 @@ void main() {
         nyTest('should return null for empty route mappings', () async {
           final matcher = RouteMatcher('/home');
 
-          final match = matcher.findMatch({});
+          final RouteMatch? match = matcher.findMatch({});
 
           expect(match, isNull);
         });
@@ -161,7 +161,7 @@ void main() {
 
           final matcher = RouteMatcher('/users');
 
-          final match = matcher.findMatch(routeMappings);
+          final RouteMatch? match = matcher.findMatch(routeMappings);
 
           expect(match, isNotNull);
           expect(match!.pattern, '/users');

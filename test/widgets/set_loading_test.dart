@@ -44,7 +44,7 @@ void main() {
 
   nyGroup('setLoading', () {
     nyWidgetTest('tracks the loading state', (tester) async {
-      final state = await pumpProbe(tester);
+      final _LoadingProbeState state = await pumpProbe(tester);
 
       state.setLoading(true, name: 'save');
       expect(state.isLoading(name: 'save'), isTrue);
@@ -56,7 +56,7 @@ void main() {
     nyWidgetTest('is a no-op once the state is disposed', (tester) async {
       /// Async work that finished after its page had closed, such as a
       /// list's pull-to-refresh, called setState on a disposed state.
-      final state = await pumpProbe(tester);
+      final _LoadingProbeState state = await pumpProbe(tester);
       await tester.pumpWidget(const SizedBox());
 
       expect(() => state.setLoading(false), returnsNormally);

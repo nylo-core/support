@@ -17,13 +17,13 @@ void main() {
       nyTest('saves and reads theme ID', () async {
         await storage.saveThemeId('dark_theme');
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, 'dark_theme');
       });
 
       nyTest('returns null when no theme ID saved', () async {
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, isNull);
       });
@@ -32,7 +32,7 @@ void main() {
         await storage.saveThemeId('light_theme');
         await storage.saveThemeId('dark_theme');
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, 'dark_theme');
       });
@@ -40,7 +40,7 @@ void main() {
       nyTest('handles empty string', () async {
         await storage.saveThemeId('');
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, '');
       });
@@ -50,7 +50,7 @@ void main() {
       nyTest('saves and reads true value', () async {
         await storage.saveFollowSystem(true);
 
-        final result = await storage.readFollowSystem();
+        final bool? result = await storage.readFollowSystem();
 
         expect(result, isTrue);
       });
@@ -58,13 +58,13 @@ void main() {
       nyTest('saves and reads false value', () async {
         await storage.saveFollowSystem(false);
 
-        final result = await storage.readFollowSystem();
+        final bool? result = await storage.readFollowSystem();
 
         expect(result, isFalse);
       });
 
       nyTest('returns null when not set', () async {
-        final result = await storage.readFollowSystem();
+        final bool? result = await storage.readFollowSystem();
 
         expect(result, isNull);
       });
@@ -73,7 +73,7 @@ void main() {
         await storage.saveFollowSystem(true);
         await storage.saveFollowSystem(false);
 
-        final result = await storage.readFollowSystem();
+        final bool? result = await storage.readFollowSystem();
 
         expect(result, isFalse);
       });
@@ -83,13 +83,13 @@ void main() {
       nyTest('saves and reads preferred light theme ID', () async {
         await storage.savePreferredLightThemeId('light_cream');
 
-        final result = await storage.readPreferredLightThemeId();
+        final String? result = await storage.readPreferredLightThemeId();
 
         expect(result, 'light_cream');
       });
 
       nyTest('returns null when not set', () async {
-        final result = await storage.readPreferredLightThemeId();
+        final String? result = await storage.readPreferredLightThemeId();
 
         expect(result, isNull);
       });
@@ -98,7 +98,7 @@ void main() {
         await storage.savePreferredLightThemeId('light1');
         await storage.savePreferredLightThemeId('light2');
 
-        final result = await storage.readPreferredLightThemeId();
+        final String? result = await storage.readPreferredLightThemeId();
 
         expect(result, 'light2');
       });
@@ -108,13 +108,13 @@ void main() {
       nyTest('saves and reads preferred dark theme ID', () async {
         await storage.savePreferredDarkThemeId('dark_amoled');
 
-        final result = await storage.readPreferredDarkThemeId();
+        final String? result = await storage.readPreferredDarkThemeId();
 
         expect(result, 'dark_amoled');
       });
 
       nyTest('returns null when not set', () async {
-        final result = await storage.readPreferredDarkThemeId();
+        final String? result = await storage.readPreferredDarkThemeId();
 
         expect(result, isNull);
       });
@@ -123,7 +123,7 @@ void main() {
         await storage.savePreferredDarkThemeId('dark1');
         await storage.savePreferredDarkThemeId('dark2');
 
-        final result = await storage.readPreferredDarkThemeId();
+        final String? result = await storage.readPreferredDarkThemeId();
 
         expect(result, 'dark2');
       });
@@ -135,7 +135,7 @@ void main() {
 
         await storage.clear();
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
         expect(result, isNull);
       });
 
@@ -144,7 +144,7 @@ void main() {
 
         await storage.clear();
 
-        final result = await storage.readFollowSystem();
+        final bool? result = await storage.readFollowSystem();
         expect(result, isNull);
       });
 
@@ -153,7 +153,7 @@ void main() {
 
         await storage.clear();
 
-        final result = await storage.readPreferredLightThemeId();
+        final String? result = await storage.readPreferredLightThemeId();
         expect(result, isNull);
       });
 
@@ -162,7 +162,7 @@ void main() {
 
         await storage.clear();
 
-        final result = await storage.readPreferredDarkThemeId();
+        final String? result = await storage.readPreferredDarkThemeId();
         expect(result, isNull);
       });
 
@@ -198,8 +198,8 @@ void main() {
         await storage.saveThemeId('my_theme');
         await storage.saveFollowSystem(true);
 
-        final themeId = await storage.readThemeId();
-        final followSystem = await storage.readFollowSystem();
+        final String? themeId = await storage.readThemeId();
+        final bool? followSystem = await storage.readFollowSystem();
 
         expect(themeId, 'my_theme');
         expect(followSystem, isTrue);
@@ -209,8 +209,8 @@ void main() {
         await storage.savePreferredLightThemeId('light_custom');
         await storage.savePreferredDarkThemeId('dark_custom');
 
-        final lightId = await storage.readPreferredLightThemeId();
-        final darkId = await storage.readPreferredDarkThemeId();
+        final String? lightId = await storage.readPreferredLightThemeId();
+        final String? darkId = await storage.readPreferredDarkThemeId();
 
         expect(lightId, 'light_custom');
         expect(darkId, 'dark_custom');
@@ -222,7 +222,7 @@ void main() {
 
         await storage1.saveThemeId('shared_theme');
 
-        final result = await storage2.readThemeId();
+        final String? result = await storage2.readThemeId();
 
         expect(result, 'shared_theme');
       });
@@ -232,7 +232,7 @@ void main() {
       nyTest('handles special characters in theme ID', () async {
         await storage.saveThemeId('theme-with_special.chars123');
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, 'theme-with_special.chars123');
       });
@@ -240,16 +240,16 @@ void main() {
       nyTest('handles unicode in theme ID', () async {
         await storage.saveThemeId('theme_emoji_test');
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, 'theme_emoji_test');
       });
 
       nyTest('handles very long theme ID', () async {
-        final longId = 'a' * 1000;
+        final String longId = 'a' * 1000;
         await storage.saveThemeId(longId);
 
-        final result = await storage.readThemeId();
+        final String? result = await storage.readThemeId();
 
         expect(result, longId);
       });

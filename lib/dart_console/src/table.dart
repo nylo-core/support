@@ -165,7 +165,7 @@ class Table {
     int width = 0,
     int? index,
   }) {
-    final insertIndex = index ?? columns;
+    final int insertIndex = index ?? columns;
     _table[0].insert(insertIndex, header);
     _columnAlignments.insert(insertIndex, alignment);
     _columnWidths.insert(insertIndex, width);
@@ -200,7 +200,7 @@ class Table {
       throw ArgumentError('index must be a valid column index');
     }
 
-    for (var row in _table) {
+    for (List<Object> row in _table) {
       row.removeAt(index);
     }
 
@@ -230,7 +230,10 @@ class Table {
     // Take as many elements as there are columns, padding as necessary. Extra
     // elements are discarded. This enables a sparse row to be added while
     // ensuring that the table remains non-ragged.
-    final fullRow = [...row, for (var i = row.length; i < columns; i++) ''];
+    final List<Object> fullRow = [
+      ...row,
+      for (var i = row.length; i < columns; i++) '',
+    ];
     _table.insert(index ?? rows + 1, fullRow.take(columns).toList());
 
     assert(_tableIntegrity);
@@ -273,7 +276,7 @@ class Table {
   int _calculateTableWidth() {
     if (_table[0].isEmpty) return 0;
 
-    final columnWidths = _calculateColumnWidths().reduce(
+    final int columnWidths = _calculateColumnWidths().reduce(
       (value, element) => value + element,
     );
 
@@ -294,7 +297,7 @@ class Table {
     return List<int>.generate(columns, (column) {
       int maxLength = 0;
       if (_columnWidths[column] != 0) {
-        for (final row in _table) {
+        for (final List<Object> row in _table) {
           maxLength = max(
             maxLength,
             min(
@@ -304,7 +307,7 @@ class Table {
           );
         }
       } else {
-        for (final row in _table) {
+        for (final List<Object> row in _table) {
           maxLength = max(
             maxLength,
             row[column].toString().stripEscapeCharacters().length,
@@ -367,7 +370,7 @@ class Table {
       ].join();
     }
 
-    final delimiter = [
+    final String delimiter = [
       borderType == BorderType.vertical ? ' ' : _borderGlyphs.horizontalLine,
       if (borderType == BorderType.horizontal)
         _borderGlyphs.horizontalLine
@@ -378,7 +381,7 @@ class Table {
       borderType == BorderType.vertical ? ' ' : _borderGlyphs.horizontalLine,
     ].join();
 
-    final horizontalLine = borderType == BorderType.vertical
+    final String horizontalLine = borderType == BorderType.vertical
         ? ' '
         : _borderGlyphs.horizontalLine;
 
@@ -484,8 +487,8 @@ class Table {
 
     final buffer = StringBuffer();
 
-    final tableWidth = _calculateTableWidth();
-    final columnWidths = _calculateColumnWidths();
+    final int tableWidth = _calculateTableWidth();
+    final List<int> columnWidths = _calculateColumnWidths();
 
     // Title
     if (title != '') {
@@ -516,15 +519,16 @@ class Table {
         }
       }
       // Count number of lines in each row
-      final rowHeight = _calculateRowHeight(wrappedRow);
+      final int rowHeight = _calculateRowHeight(wrappedRow);
 
       for (int line = 0; line < rowHeight; line++) {
         buffer.write(_rowStart());
 
         for (int column = 0; column < columns; column++) {
-          final lines = wrappedRow[column].toString().split('\n');
-          final cell = line < lines.length ? lines[line] : '';
-          final columnAlignment = column < _columnAlignments.length
+          final List<String> lines = wrappedRow[column].toString().split('\n');
+          final String cell = line < lines.length ? lines[line] : '';
+          final TextAlignment columnAlignment =
+              column < _columnAlignments.length
               ? _columnAlignments[column]
               : TextAlignment.left;
 

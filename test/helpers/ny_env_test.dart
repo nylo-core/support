@@ -22,7 +22,10 @@ void main() {
       });
 
       nyTest('should register getter and containsKey functions', () async {
-        final envValues = {'APP_NAME': 'TestApp', 'DEBUG': true};
+        final Map<String, Object> envValues = {
+          'APP_NAME': 'TestApp',
+          'DEBUG': true,
+        };
 
         NyEnvRegistry.register(
           getter: mockEnv(envValues),
@@ -39,7 +42,7 @@ void main() {
           getter: mockEnv({'APP_NAME': 'MyApp', 'APP_VERSION': '1.0.0'}),
         );
 
-        final result = NyEnvRegistry.get('APP_NAME');
+        final dynamic result = NyEnvRegistry.get('APP_NAME');
 
         expect(result, 'MyApp');
       });
@@ -47,7 +50,7 @@ void main() {
       nyTest('should return string value', () async {
         NyEnvRegistry.register(getter: mockEnv({'STRING_KEY': 'string_value'}));
 
-        final result = NyEnvRegistry.get('STRING_KEY');
+        final dynamic result = NyEnvRegistry.get('STRING_KEY');
 
         expect(result, 'string_value');
         expect(result, isA<String>());
@@ -56,7 +59,7 @@ void main() {
       nyTest('should return bool value', () async {
         NyEnvRegistry.register(getter: mockEnv({'BOOL_KEY': true}));
 
-        final result = NyEnvRegistry.get('BOOL_KEY');
+        final dynamic result = NyEnvRegistry.get('BOOL_KEY');
 
         expect(result, isTrue);
         expect(result, isA<bool>());
@@ -65,7 +68,7 @@ void main() {
       nyTest('should return int value', () async {
         NyEnvRegistry.register(getter: mockEnv({'INT_KEY': 42}));
 
-        final result = NyEnvRegistry.get('INT_KEY');
+        final dynamic result = NyEnvRegistry.get('INT_KEY');
 
         expect(result, 42);
         expect(result, isA<int>());
@@ -74,7 +77,7 @@ void main() {
       nyTest('should return defaultValue for nonexistent key', () async {
         NyEnvRegistry.register(getter: mockEnv({'EXISTING': 'value'}));
 
-        final result = NyEnvRegistry.get(
+        final dynamic result = NyEnvRegistry.get(
           'NONEXISTENT',
           defaultValue: 'fallback',
         );
@@ -87,7 +90,7 @@ void main() {
         () async {
           NyEnvRegistry.register(getter: mockEnv({'EXISTING': 'value'}));
 
-          final result = NyEnvRegistry.get('NONEXISTENT');
+          final dynamic result = NyEnvRegistry.get('NONEXISTENT');
 
           expect(result, isNull);
         },
@@ -103,7 +106,7 @@ void main() {
           containsKey: mockContainsKey(envValues),
         );
 
-        final result = NyEnvRegistry.containsKey('APP_NAME');
+        final bool result = NyEnvRegistry.containsKey('APP_NAME');
 
         expect(result, isTrue);
       });
@@ -116,7 +119,7 @@ void main() {
           containsKey: mockContainsKey(envValues),
         );
 
-        final result = NyEnvRegistry.containsKey('NONEXISTENT');
+        final bool result = NyEnvRegistry.containsKey('NONEXISTENT');
 
         expect(result, isFalse);
       });
@@ -127,7 +130,7 @@ void main() {
           // containsKey not provided
         );
 
-        final result = NyEnvRegistry.containsKey('APP_NAME');
+        final bool result = NyEnvRegistry.containsKey('APP_NAME');
 
         expect(result, isFalse);
       });
@@ -152,7 +155,7 @@ void main() {
         getter: mockEnv({'APP_NAME': 'GetEnvTestApp', 'APP_DEBUG': true}),
       );
 
-      final result = getEnv('APP_NAME');
+      final dynamic result = getEnv('APP_NAME');
 
       expect(result, 'GetEnvTestApp');
     });
@@ -160,7 +163,7 @@ void main() {
     nyTest('should return bool value', () async {
       NyEnvRegistry.register(getter: mockEnv({'APP_DEBUG': true}));
 
-      final result = getEnv('APP_DEBUG');
+      final dynamic result = getEnv('APP_DEBUG');
 
       expect(result, isTrue);
     });
@@ -168,7 +171,7 @@ void main() {
     nyTest('should return defaultValue when key not found', () async {
       NyEnvRegistry.register(getter: mockEnv({'EXISTING': 'value'}));
 
-      final result = getEnv('MISSING_KEY', defaultValue: 'default');
+      final dynamic result = getEnv('MISSING_KEY', defaultValue: 'default');
 
       expect(result, 'default');
     });
@@ -240,7 +243,7 @@ void main() {
       NyEnvRegistry.register(getter: mockEnv({'A': '\${B}', 'B': '\${A}'}));
 
       // Should not throw or hang — circular ref left unresolved
-      final result = NyEnvRegistry.get('A');
+      final dynamic result = NyEnvRegistry.get('A');
       expect(result, isA<String>());
     });
 
@@ -300,7 +303,7 @@ void main() {
     nyTest('should handle empty string values', () async {
       NyEnvRegistry.register(getter: mockEnv({'EMPTY_STRING': ''}));
 
-      final result = getEnv('EMPTY_STRING');
+      final dynamic result = getEnv('EMPTY_STRING');
 
       expect(result, '');
     });
@@ -308,7 +311,7 @@ void main() {
     nyTest('should handle null values in env', () async {
       NyEnvRegistry.register(getter: mockEnv({'NULL_VALUE': null}));
 
-      final result = getEnv('NULL_VALUE', defaultValue: 'default');
+      final dynamic result = getEnv('NULL_VALUE', defaultValue: 'default');
 
       expect(result, 'default');
     });

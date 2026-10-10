@@ -215,7 +215,7 @@ class StorageSnapshot {
         return {'type': 'raw', 'value': raw};
     }
     if (plain && ttl == null) return value;
-    return {'type': type, 'value': value, if (ttl != null) 'ttl': ttl};
+    return {'type': type, 'value': value, 'ttl': ?ttl};
   }
 
   /// A Backpack [value] as JSON, with objects tagged by class name, or
@@ -232,7 +232,7 @@ class StorageSnapshot {
       if (itemName != null &&
           value.every((dynamic item) => _taggableName(item) == itemName)) {
         final List<Object?> items = [];
-        for (final dynamic item in value) {
+        for (final Object? item in value) {
           final Object? json = _jsonSafe(_toJsonOrNull(item));
           if (identical(json, _notJson) || json is! Map) return _notJson;
           items.add(json);
@@ -288,7 +288,7 @@ class StorageSnapshot {
     }
     if (value is Iterable) {
       final List<Object?> out = [];
-      for (final dynamic element in value) {
+      for (final Object? element in value) {
         final Object? item = _jsonSafe(element, depth + 1);
         if (identical(item, _notJson)) return _notJson;
         out.add(item);
@@ -346,8 +346,9 @@ class StorageSnapshot {
           '${entry.key}': _mutableCopy(entry.value),
       };
     }
-    if (value is List)
+    if (value is List) {
       return <dynamic>[for (final Object? item in value) _mutableCopy(item)];
+    }
     return value;
   }
 
@@ -537,13 +538,12 @@ class StorageSnapshot {
 /// The seeder `seed <file>` runs in `metro live`: puts a snapshot Metro sent
 /// into the app, recorded like any other seeder so `seed:rollback` undoes it.
 class SnapshotSeeder extends Seeder {
-  /// Creates a seeder that applies [snapshot] under [name].
+  /// Creates a seeder that applies [snapshot] under [_name].
   ///
   /// [source] is where the snapshot came from, such as the file it was read
   /// from. It is kept in the seeder record, so `seed` lists the seeder as
   /// imported from there.
-  SnapshotSeeder(this.snapshot, {required String name, this.source})
-    : _name = name;
+  SnapshotSeeder(this.snapshot, {required this._name, this.source});
 
   /// The snapshot to apply.
   final StorageSnapshot snapshot;

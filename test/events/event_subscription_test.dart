@@ -121,7 +121,9 @@ void main() {
 
   group('listenOn()', () {
     test('returns NyEventSubscription', () {
-      final subscription = listenOn<TestEvent>((data) => true);
+      final NyEventSubscription<NyEvent> subscription = listenOn<TestEvent>(
+        (data) => true,
+      );
 
       expect(subscription, isA<NyEventSubscription<TestEvent>>());
       expect(subscription.isActive, isTrue);
@@ -133,7 +135,9 @@ void main() {
       var callCount = 0;
       Map? receivedData;
 
-      final subscription = listenOn<TestEvent>((data) {
+      final NyEventSubscription<NyEvent> subscription = listenOn<TestEvent>((
+        data,
+      ) {
         callCount++;
         receivedData = data;
         return true;
@@ -151,15 +155,18 @@ void main() {
       var testEventCount = 0;
       var anotherEventCount = 0;
 
-      final subscription1 = listenOn<TestEvent>((data) {
+      final NyEventSubscription<NyEvent> subscription1 = listenOn<TestEvent>((
+        data,
+      ) {
         testEventCount++;
         return true;
       });
 
-      final subscription2 = listenOn<AnotherTestEvent>((data) {
-        anotherEventCount++;
-        return true;
-      });
+      final NyEventSubscription<NyEvent> subscription2 =
+          listenOn<AnotherTestEvent>((data) {
+            anotherEventCount++;
+            return true;
+          });
 
       await NyEventBus().broadcast(TestEvent(), null);
 

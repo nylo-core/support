@@ -293,7 +293,7 @@ void main() {
       });
     });
     nyTest('round-trips with dot', () async {
-      final original = {
+      final Map<String, Map<String, Object>> original = {
         'user': {
           'name': 'Anna',
           'address': {'city': 'NYC'},

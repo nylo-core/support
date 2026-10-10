@@ -31,7 +31,7 @@ void main() {
     test('timestamp returns current time', () {
       const event = TestEvent('test');
       final before = DateTime.now();
-      final timestamp = event.timestamp;
+      final DateTime timestamp = event.timestamp;
       final after = DateTime.now();
 
       expect(

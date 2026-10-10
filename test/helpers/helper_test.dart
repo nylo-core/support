@@ -12,33 +12,33 @@ void main() {
 
   nyGroup('nyHexColor', () {
     nyTest('should convert 6-digit hex to Color', () async {
-      final color = nyHexColor('#FF0000');
+      final Color color = nyHexColor('#FF0000');
       expect(color, isA<Color>());
       expect(color.toARGB32(), 0xFFFF0000);
     });
 
     nyTest('should handle hex without hash', () async {
-      final color = nyHexColor('00FF00');
+      final Color color = nyHexColor('00FF00');
       expect(color.toARGB32(), 0xFF00FF00);
     });
 
     nyTest('should handle lowercase hex', () async {
-      final color = nyHexColor('#ff0000');
+      final Color color = nyHexColor('#ff0000');
       expect(color.toARGB32(), 0xFFFF0000);
     });
 
     nyTest('should handle 8-digit hex with alpha', () async {
-      final color = nyHexColor('80FF0000');
+      final Color color = nyHexColor('80FF0000');
       expect(color.toARGB32(), 0x80FF0000);
     });
 
     nyTest('should handle white', () async {
-      final color = nyHexColor('#FFFFFF');
+      final Color color = nyHexColor('#FFFFFF');
       expect(color.toARGB32(), 0xFFFFFFFF);
     });
 
     nyTest('should handle black', () async {
-      final color = nyHexColor('#000000');
+      final Color color = nyHexColor('#000000');
       expect(color.toARGB32(), 0xFF000000);
     });
   });
@@ -49,12 +49,15 @@ void main() {
 
   nyGroup('match', () {
     nyTest('should return matched value from map', () async {
-      final result = match<String>('a', () => {'a': 'Apple', 'b': 'Banana'});
+      final String result = match<String>(
+        'a',
+        () => {'a': 'Apple', 'b': 'Banana'},
+      );
       expect(result, 'Apple');
     });
 
     nyTest('should return default when value is null', () async {
-      final result = match<String>(
+      final String result = match<String>(
         null,
         () => {'a': 'Apple'},
         defaultValue: 'Default',
@@ -63,7 +66,7 @@ void main() {
     });
 
     nyTest('should match integer keys', () async {
-      final result = match<String>(1, () => {1: 'One', 2: 'Two'});
+      final String result = match<String>(1, () => {1: 'One', 2: 'Two'});
       expect(result, 'One');
     });
   });
@@ -75,7 +78,7 @@ void main() {
   nyGroup('now', () {
     nyTest('should return current DateTime', () async {
       final before = DateTime.now();
-      final result = now();
+      final DateTime result = now();
       final after = DateTime.now();
       expect(result.isAfter(before) || result.isAtSameMomentAs(before), isTrue);
       expect(result.isBefore(after) || result.isAtSameMomentAs(after), isTrue);
@@ -95,7 +98,7 @@ void main() {
       final before = DateTime.now();
       await sleep(0, 100000); // 100ms
       final after = DateTime.now();
-      final diff = after.difference(before).inMilliseconds;
+      final int diff = after.difference(before).inMilliseconds;
       expect(diff, greaterThanOrEqualTo(50)); // Allow some tolerance
     });
 

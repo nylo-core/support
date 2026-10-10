@@ -37,24 +37,24 @@ void main() {
     nyTest('should return base auth key when session is null', () async {
       // Note: This test requires Nylo to be initialized with an auth key
       // In test environment, we test the behavior with mock setup
-      final key = Auth.key(null);
+      final String key = Auth.key(null);
       expect(key, isA<String>());
     });
 
     nyTest('should return base auth key when session is default', () async {
-      final key = Auth.key(Auth.defaultSession);
+      final String key = Auth.key(Auth.defaultSession);
       expect(key, isA<String>());
     });
 
     nyTest('should return namespaced key for named session', () async {
-      final key = Auth.key('device');
+      final String key = Auth.key('device');
       expect(key, contains('_device'));
     });
 
     nyTest('should return different keys for different sessions', () async {
-      final defaultKey = Auth.key();
-      final deviceKey = Auth.key('device');
-      final adminKey = Auth.key('admin');
+      final String defaultKey = Auth.key();
+      final String deviceKey = Auth.key('device');
+      final String adminKey = Auth.key('admin');
 
       expect(defaultKey, isNot(deviceKey));
       expect(defaultKey, isNot(adminKey));
@@ -72,8 +72,8 @@ void main() {
     });
 
     nyTest('should be a constant value', () async {
-      final first = Auth.defaultSession;
-      final second = Auth.defaultSession;
+      final String first = Auth.defaultSession;
+      final String second = Auth.defaultSession;
       expect(first, second);
     });
   });
@@ -84,20 +84,20 @@ void main() {
 
   nyGroup('Auth.data', () {
     nyTest('should return null when no auth data exists', () async {
-      final data = Auth.data();
+      final dynamic data = Auth.data();
       expect(data, isNull);
     });
 
     nyTest(
       'should return null when field is requested but no data exists',
       () async {
-        final data = Auth.data(field: 'token');
+        final dynamic data = Auth.data(field: 'token');
         expect(data, isNull);
       },
     );
 
     nyTest('should return null for non-existent session', () async {
-      final data = Auth.data(session: 'nonexistent');
+      final dynamic data = Auth.data(session: 'nonexistent');
       expect(data, isNull);
     });
   });
@@ -108,14 +108,14 @@ void main() {
 
   nyGroup('authKey helper function', () {
     nyTest('should return same result as Auth.key', () async {
-      final fromClass = Auth.key();
-      final fromHelper = authKey();
+      final String fromClass = Auth.key();
+      final String fromHelper = authKey();
       expect(fromClass, fromHelper);
     });
 
     nyTest('should handle session parameter', () async {
-      final fromClass = Auth.key('device');
-      final fromHelper = authKey('device');
+      final String fromClass = Auth.key('device');
+      final String fromHelper = authKey('device');
       expect(fromClass, fromHelper);
     });
   });
@@ -126,26 +126,26 @@ void main() {
 
   nyGroup('authData helper function', () {
     nyTest('should return same result as Auth.data', () async {
-      final fromClass = Auth.data();
-      final fromHelper = authData();
+      final dynamic fromClass = Auth.data();
+      final dynamic fromHelper = authData();
       expect(fromClass, fromHelper);
     });
 
     nyTest('should handle field parameter', () async {
-      final fromClass = Auth.data(field: 'token');
-      final fromHelper = authData(field: 'token');
+      final dynamic fromClass = Auth.data(field: 'token');
+      final dynamic fromHelper = authData(field: 'token');
       expect(fromClass, fromHelper);
     });
 
     nyTest('should handle session parameter', () async {
-      final fromClass = Auth.data(session: 'device');
-      final fromHelper = authData(session: 'device');
+      final dynamic fromClass = Auth.data(session: 'device');
+      final dynamic fromHelper = authData(session: 'device');
       expect(fromClass, fromHelper);
     });
 
     nyTest('should handle both field and session parameters', () async {
-      final fromClass = Auth.data(field: 'token', session: 'device');
-      final fromHelper = authData(field: 'token', session: 'device');
+      final dynamic fromClass = Auth.data(field: 'token', session: 'device');
+      final dynamic fromHelper = authData(field: 'token', session: 'device');
       expect(fromClass, fromHelper);
     });
   });
@@ -156,9 +156,9 @@ void main() {
 
   nyGroup('Auth Integration', () {
     nyTest('should support multiple session keys simultaneously', () async {
-      final defaultKey = Auth.key();
-      final deviceKey = Auth.key('device');
-      final apiKey = Auth.key('api');
+      final String defaultKey = Auth.key();
+      final String deviceKey = Auth.key('device');
+      final String apiKey = Auth.key('api');
 
       // All keys should be unique
       final keys = {defaultKey, deviceKey, apiKey};
@@ -166,13 +166,13 @@ void main() {
     });
 
     nyTest('should generate consistent keys for same session', () async {
-      final key1 = Auth.key('mysession');
-      final key2 = Auth.key('mysession');
+      final String key1 = Auth.key('mysession');
+      final String key2 = Auth.key('mysession');
       expect(key1, key2);
     });
 
     nyTest('should handle empty string session as named session', () async {
-      final emptyKey = Auth.key('');
+      final String emptyKey = Auth.key('');
 
       // Empty string is treated as a named session, not default
       expect(emptyKey, contains('_'));
@@ -185,20 +185,20 @@ void main() {
 
   nyGroup('Auth Edge Cases', () {
     nyTest('should handle special characters in session names', () async {
-      final key = Auth.key('user-device_123');
+      final String key = Auth.key('user-device_123');
       expect(key, isA<String>());
       expect(key, contains('user-device_123'));
     });
 
     nyTest('should handle very long session names', () async {
-      final longSessionName = 'a' * 100;
-      final key = Auth.key(longSessionName);
+      final String longSessionName = 'a' * 100;
+      final String key = Auth.key(longSessionName);
       expect(key, isA<String>());
       expect(key, contains(longSessionName));
     });
 
     nyTest('should handle unicode session names', () async {
-      final key = Auth.key('session_unicode');
+      final String key = Auth.key('session_unicode');
       expect(key, isA<String>());
     });
   });
@@ -221,7 +221,9 @@ class _StorageCallCounter {
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(_channel, (MethodCall call) async {
           calls[call.method] = (calls[call.method] ?? 0) + 1;
-          final key = call.arguments is Map ? call.arguments['key'] : null;
+          final dynamic key = call.arguments is Map
+              ? call.arguments['key']
+              : null;
           switch (call.method) {
             case 'read':
               return store[key];

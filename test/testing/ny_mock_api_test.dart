@@ -1,3 +1,4 @@
+import 'package:dio/src/response.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/testing/src/mocks/ny_mock_api.dart';
 
@@ -37,7 +38,7 @@ void main() {
       test('matches exact URL', () {
         NyMockApi.respond('/users', {'data': 'users'});
 
-        final result = NyMockApi.matchUrl('/users');
+        final MockResponse? result = NyMockApi.matchUrl('/users');
 
         expect(result, isNotNull);
         expect(result!.data, equals({'data': 'users'}));
@@ -63,8 +64,14 @@ void main() {
         NyMockApi.respond('/users', {'data': 'get'}, method: 'GET');
         NyMockApi.respond('/users', {'data': 'post'}, method: 'POST');
 
-        final getResult = NyMockApi.matchUrl('/users', method: 'GET');
-        final postResult = NyMockApi.matchUrl('/users', method: 'POST');
+        final MockResponse? getResult = NyMockApi.matchUrl(
+          '/users',
+          method: 'GET',
+        );
+        final MockResponse? postResult = NyMockApi.matchUrl(
+          '/users',
+          method: 'POST',
+        );
 
         expect(getResult!.data, equals({'data': 'get'}));
         expect(postResult!.data, equals({'data': 'post'}));
@@ -73,7 +80,7 @@ void main() {
       test('returns statusCode', () {
         NyMockApi.respond('/users', {'error': 'Not found'}, statusCode: 404);
 
-        final result = NyMockApi.matchUrl('/users');
+        final MockResponse? result = NyMockApi.matchUrl('/users');
 
         expect(result!.statusCode, equals(404));
       });
@@ -85,7 +92,7 @@ void main() {
           headers: {'X-Custom': 'value'},
         );
 
-        final result = NyMockApi.matchUrl('/users');
+        final MockResponse? result = NyMockApi.matchUrl('/users');
 
         expect(result!.headers, equals({'X-Custom': 'value'}));
       });
@@ -95,7 +102,7 @@ void main() {
           'data': 'users',
         }, delay: const Duration(milliseconds: 100));
 
-        final result = NyMockApi.matchUrl('/users');
+        final MockResponse? result = NyMockApi.matchUrl('/users');
 
         expect(result!.delay, equals(const Duration(milliseconds: 100)));
       });
@@ -104,7 +111,7 @@ void main() {
         NyMockApi.respond('/users', {'version': 1});
         NyMockApi.respond('/users', {'version': 2});
 
-        final result = NyMockApi.matchUrl('/users');
+        final MockResponse? result = NyMockApi.matchUrl('/users');
 
         expect(result!.data, equals({'version': 2}));
       });
@@ -112,7 +119,9 @@ void main() {
       test('matches path from full URL', () {
         NyMockApi.respond('/users', {'data': 'users'});
 
-        final result = NyMockApi.matchUrl('https://api.example.com/users');
+        final MockResponse? result = NyMockApi.matchUrl(
+          'https://api.example.com/users',
+        );
 
         expect(result, isNotNull);
       });
@@ -146,7 +155,9 @@ void main() {
       test('ignores query parameters in matching', () {
         NyMockApi.respond('/users', {'data': 'users'});
 
-        final result = NyMockApi.matchUrl('/users?page=1&limit=10');
+        final MockResponse? result = NyMockApi.matchUrl(
+          '/users?page=1&limit=10',
+        );
 
         expect(result, isNotNull);
       });
@@ -157,7 +168,7 @@ void main() {
         NyMockApi.recordCall('/users', method: 'GET');
         NyMockApi.recordCall('/users/1', method: 'GET', data: {'id': 1});
 
-        final calls = NyMockApi.getCalls();
+        final List<ApiCallInfo> calls = NyMockApi.getCalls();
 
         expect(calls.length, equals(2));
         expect(calls[0].endpoint, equals('/users'));
@@ -170,7 +181,7 @@ void main() {
           headers: {'Authorization': 'Bearer token'},
         );
 
-        final calls = NyMockApi.getCalls();
+        final List<ApiCallInfo> calls = NyMockApi.getCalls();
 
         expect(calls[0].headers, equals({'Authorization': 'Bearer token'}));
       });
@@ -191,7 +202,7 @@ void main() {
         NyMockApi.recordCall('/posts');
         NyMockApi.recordCall('/users/1');
 
-        final userCalls = NyMockApi.getCallsFor('/users');
+        final List<ApiCallInfo> userCalls = NyMockApi.getCallsFor('/users');
 
         expect(userCalls.length, equals(2));
       });
@@ -306,16 +317,17 @@ void main() {
 
     group('createResponse()', () {
       test('creates Dio Response with data', () {
-        final response = NyMockApi.createResponse<Map<String, dynamic>>(
-          data: {'id': 1, 'name': 'Test'},
-        );
+        final Response<Map<String, dynamic>> response =
+            NyMockApi.createResponse<Map<String, dynamic>>(
+              data: {'id': 1, 'name': 'Test'},
+            );
 
         expect(response.data, equals({'id': 1, 'name': 'Test'}));
         expect(response.statusCode, equals(200));
       });
 
       test('creates Response with custom status code', () {
-        final response = NyMockApi.createResponse<String>(
+        final Response<String> response = NyMockApi.createResponse<String>(
           data: 'Created',
           statusCode: 201,
           statusMessage: 'Created',
@@ -326,7 +338,7 @@ void main() {
       });
 
       test('creates Response with headers', () {
-        final response = NyMockApi.createResponse<String>(
+        final Response<String> response = NyMockApi.createResponse<String>(
           data: 'test',
           headers: {
             'Content-Type': ['application/json'],

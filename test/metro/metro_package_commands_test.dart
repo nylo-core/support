@@ -15,9 +15,13 @@ class _FakeProject {
   _FakeProject._(this.base, this.root, this.packages);
 
   static Future<_FakeProject> create() async {
-    final base = await Directory.systemTemp.createTemp('metro_pkg_test_');
-    final root = await Directory('${base.path}/my app').create();
-    final packages = await Directory('${base.path}/my packages').create();
+    final Directory base = await Directory.systemTemp.createTemp(
+      'metro_pkg_test_',
+    );
+    final Directory root = await Directory('${base.path}/my app').create();
+    final Directory packages = await Directory(
+      '${base.path}/my packages',
+    ).create();
     await File('${root.path}/pubspec.yaml').writeAsString(_pubspec());
     // Only resolvable through the project's package config, never through
     // the fake packages' own pubspecs.
@@ -40,7 +44,7 @@ class _FakeProject {
     await File(
       '${root.path}/pubspec.yaml',
     ).writeAsString(_pubspec(dependency: packageName));
-    final result = await Process.run(
+    final ProcessResult result = await Process.run(
       'dart',
       ['pub', 'get', '--offline'],
       workingDirectory: root.path,
@@ -59,7 +63,7 @@ class _FakeProject {
     String? rawManifest,
     Map<String, String> scripts = const {},
   }) async {
-    final dir = await Directory('${packages.path}/$name').create();
+    final Directory dir = await Directory('${packages.path}/$name').create();
     await File(
       '${dir.path}/pubspec.yaml',
     ).writeAsString('name: $name\nenvironment:\n  sdk: ^3.10.0\n');
@@ -73,7 +77,7 @@ class _FakeProject {
         '${dir.path}/$packageCommandsManifest',
       ).writeAsString(rawManifest);
     }
-    for (final entry in scripts.entries) {
+    for (final MapEntry<String, String> entry in scripts.entries) {
       final file = File('${dir.path}/${entry.key}');
       await file.create(recursive: true);
       await file.writeAsString(entry.value);
@@ -137,9 +141,9 @@ Map<String, dynamic> _command(
   String? description,
 }) => {
   'name': name,
-  if (category != null) 'category': category,
+  'category': ?category,
   'script': script,
-  if (description != null) 'description': description,
+  'description': ?description,
 };
 
 /// Writes the project marker and args[2..] to the file args[0], exits with args[1].
@@ -160,11 +164,12 @@ void main() {
 
   nyGroup('MetroService.discoverPackageCommands', () {
     nyTest('returns nothing when the project has no package config', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+            );
         expect(commands, isEmpty);
       } finally {
         await project.dispose();
@@ -172,7 +177,7 @@ void main() {
     });
 
     nyTest('discovers a manifest through a relative rootUri', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage(
           'demo_package',
@@ -189,12 +194,13 @@ void main() {
           project.relativeEntry('demo_package'),
         ]);
 
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+            );
 
         expect(commands, hasLength(1));
-        final command = commands.single;
+        final NyCommand command = commands.single;
         expect(command.name, 'create');
         expect(command.category, 'demo');
         expect(command.fullName, 'demo:create');
@@ -210,7 +216,7 @@ void main() {
     nyTest(
       'discovers a manifest through an absolute, percent-encoded rootUri',
       () async {
-        final project = await _FakeProject.create();
+        final _FakeProject project = await _FakeProject.create();
         try {
           // The project lives under a folder with a space, so the absolute
           // rootUri pub would write contains "%20".
@@ -218,14 +224,17 @@ void main() {
             'demo_package',
             manifest: [_command('create', category: 'demo')],
           );
-          final entry = project.absoluteEntry('demo_package');
+          final Map<String, dynamic> entry = project.absoluteEntry(
+            'demo_package',
+          );
           expect(entry['rootUri'], startsWith('file://'));
           expect(entry['rootUri'], contains('%20'));
           await project.writePackageConfig([entry]);
 
-          final commands = await MetroService.discoverPackageCommands(
-            projectDirectory: project.root,
-          );
+          final List<NyCommand> commands =
+              await MetroService.discoverPackageCommands(
+                projectDirectory: project.root,
+              );
 
           expect(commands.map((c) => c.fullName), ['demo:create']);
         } finally {
@@ -235,16 +244,17 @@ void main() {
     );
 
     nyTest('defaults the category to the package name', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage('demo_package', manifest: [_command('sync')]);
         await project.writePackageConfig([
           project.relativeEntry('demo_package'),
         ]);
 
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+            );
 
         expect(commands.single.fullName, 'demo_package:sync');
       } finally {
@@ -255,7 +265,7 @@ void main() {
     nyTest(
       'skips packages without a manifest and the project itself',
       () async {
-        final project = await _FakeProject.create();
+        final _FakeProject project = await _FakeProject.create();
         try {
           await project.addPackage('plain_package');
           await project.addPackage(
@@ -271,9 +281,10 @@ void main() {
             project.relativeEntry('demo_package'),
           ]);
 
-          final commands = await MetroService.discoverPackageCommands(
-            projectDirectory: project.root,
-          );
+          final List<NyCommand> commands =
+              await MetroService.discoverPackageCommands(
+                projectDirectory: project.root,
+              );
 
           expect(commands.map((c) => c.fullName), ['demo:create']);
         } finally {
@@ -285,7 +296,7 @@ void main() {
     nyTest(
       'reports a malformed manifest and keeps the other packages',
       () async {
-        final project = await _FakeProject.create();
+        final _FakeProject project = await _FakeProject.create();
         try {
           await project.addPackage('broken', rawManifest: '{ not json');
           await project.addPackage('not_a_list', manifest: {'commands': []});
@@ -300,10 +311,11 @@ void main() {
           ]);
 
           final warnings = <String>[];
-          final commands = await MetroService.discoverPackageCommands(
-            projectDirectory: project.root,
-            onWarning: warnings.add,
-          );
+          final List<NyCommand> commands =
+              await MetroService.discoverPackageCommands(
+                projectDirectory: project.root,
+                onWarning: warnings.add,
+              );
 
           expect(commands.map((c) => c.fullName), ['demo:create']);
           expect(warnings, hasLength(2));
@@ -317,7 +329,7 @@ void main() {
     );
 
     nyTest('ignores invalid entries and keeps the valid ones', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage(
           'demo_package',
@@ -333,10 +345,11 @@ void main() {
         ]);
 
         final warnings = <String>[];
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-          onWarning: warnings.add,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+              onWarning: warnings.add,
+            );
 
         expect(commands.map((c) => c.fullName), ['demo:create']);
         expect(warnings, hasLength(3));
@@ -349,7 +362,7 @@ void main() {
     nyTest(
       'rejects scripts that are not a Dart file directly in bin/',
       () async {
-        final project = await _FakeProject.create();
+        final _FakeProject project = await _FakeProject.create();
         try {
           await project.addPackage(
             'demo_package',
@@ -365,10 +378,11 @@ void main() {
           ]);
 
           final warnings = <String>[];
-          final commands = await MetroService.discoverPackageCommands(
-            projectDirectory: project.root,
-            onWarning: warnings.add,
-          );
+          final List<NyCommand> commands =
+              await MetroService.discoverPackageCommands(
+                projectDirectory: project.root,
+                onWarning: warnings.add,
+              );
 
           expect(commands.map((c) => c.fullName), ['demo:create']);
           expect(warnings, hasLength(3));
@@ -383,7 +397,7 @@ void main() {
     );
 
     nyTest('sorts by package name, then category:name', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage(
           'zeta',
@@ -404,9 +418,10 @@ void main() {
           project.relativeEntry('alpha'),
         ]);
 
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+            );
 
         expect(commands.map((c) => '${c.package} ${c.fullName}'), [
           'alpha x:two',
@@ -420,17 +435,18 @@ void main() {
     });
 
     nyTest('ignores a package config that is not valid JSON', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         final file = File('${project.root.path}/$packageConfigPath');
         await file.create(recursive: true);
         await file.writeAsString('nope');
 
         final warnings = <String>[];
-        final commands = await MetroService.discoverPackageCommands(
-          projectDirectory: project.root,
-          onWarning: warnings.add,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverPackageCommands(
+              projectDirectory: project.root,
+              onWarning: warnings.add,
+            );
 
         expect(commands, isEmpty);
         expect(warnings.single, contains(packageConfigPath));
@@ -447,7 +463,7 @@ void main() {
         NyCommand(name: name, category: category, package: pkg);
 
     nyTest('keeps project commands first, then package commands', () async {
-      final merged = MetroService.mergeCommands(
+      final List<NyCommand> merged = MetroService.mergeCommands(
         projectCommands: [project('app', 'deploy')],
         packageCommands: [package('demo_package', 'demo', 'create')],
       );
@@ -457,7 +473,7 @@ void main() {
 
     nyTest('a project command shadows a package command', () async {
       final warnings = <String>[];
-      final merged = MetroService.mergeCommands(
+      final List<NyCommand> merged = MetroService.mergeCommands(
         projectCommands: [project('demo', 'create')],
         packageCommands: [package('demo_package', 'demo', 'create')],
         onWarning: warnings.add,
@@ -472,7 +488,7 @@ void main() {
 
     nyTest('the first package to define a command wins', () async {
       final warnings = <String>[];
-      final merged = MetroService.mergeCommands(
+      final List<NyCommand> merged = MetroService.mergeCommands(
         projectCommands: [],
         packageCommands: [
           package('alpha', 'demo', 'create'),
@@ -488,7 +504,7 @@ void main() {
 
     nyTest('reserved (built-in) commands shadow everything', () async {
       final warnings = <String>[];
-      final merged = MetroService.mergeCommands(
+      final List<NyCommand> merged = MetroService.mergeCommands(
         projectCommands: [project('make', 'page'), project('app', 'deploy')],
         packageCommands: [package('demo_package', 'make', 'model')],
         reservedCommands: ['make:page', 'make:model'],
@@ -518,7 +534,7 @@ void main() {
 
   nyGroup('MetroService.discoverCustomCommands', () {
     nyTest('combines project and package commands with precedence', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.writeProjectCommands([
           {'name': 'current_time', 'category': 'app', 'script': 'ct.dart'},
@@ -537,11 +553,12 @@ void main() {
         ]);
 
         final warnings = <String>[];
-        final commands = await MetroService.discoverCustomCommands(
-          projectDirectory: project.root,
-          reservedCommands: ['make:page'],
-          onWarning: warnings.add,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverCustomCommands(
+              projectDirectory: project.root,
+              reservedCommands: ['make:page'],
+              onWarning: warnings.add,
+            );
 
         expect(commands.map((c) => '${c.package} ${c.fullName}'), [
           'null app:current_time',
@@ -557,7 +574,7 @@ void main() {
     });
 
     nyTest('works with only package commands', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage(
           'demo_package',
@@ -567,9 +584,10 @@ void main() {
           project.relativeEntry('demo_package'),
         ]);
 
-        final commands = await MetroService.discoverCustomCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverCustomCommands(
+              projectDirectory: project.root,
+            );
 
         expect(commands.map((c) => c.fullName), ['demo:create']);
       } finally {
@@ -584,7 +602,7 @@ void main() {
     });
 
     nyTest('lists project commands under Custom Commands', () async {
-      final menu = MetroService.customCommandsMenu([
+      final String menu = MetroService.customCommandsMenu([
         NyCommand(name: 'current_time', category: 'app'),
         NyCommand(name: 'quote', category: 'motivational'),
       ]);
@@ -596,7 +614,7 @@ void main() {
     });
 
     nyTest('groups package commands per package with descriptions', () async {
-      final menu = MetroService.customCommandsMenu([
+      final String menu = MetroService.customCommandsMenu([
         NyCommand(name: 'current_time', category: 'app'),
         NyCommand(
           name: 'create',
@@ -630,7 +648,7 @@ void main() {
 
   nyGroup('MetroService.runCommand', () {
     nyTest('returns the exit code an action returns', () async {
-      final exitCode = await MetroService.runCommand(
+      final int exitCode = await MetroService.runCommand(
         ['app:fail'],
         allCommands: [
           NyCommand(name: 'fail', category: 'app', action: (args) async => 4),
@@ -643,7 +661,7 @@ void main() {
 
     nyTest('treats an action without an int result as success', () async {
       List<String>? received;
-      final exitCode = await MetroService.runCommand(
+      final int exitCode = await MetroService.runCommand(
         ['app:ok', '--name', 'x'],
         allCommands: [
           NyCommand(
@@ -660,7 +678,7 @@ void main() {
     });
 
     nyTest('returns 1 when a command script is missing', () async {
-      final project = await _FakeProject.create();
+      final _FakeProject project = await _FakeProject.create();
       try {
         await project.addPackage(
           'demo_package',
@@ -671,11 +689,12 @@ void main() {
         await project.writePackageConfig([
           project.relativeEntry('demo_package'),
         ]);
-        final commands = await MetroService.discoverCustomCommands(
-          projectDirectory: project.root,
-        );
+        final List<NyCommand> commands =
+            await MetroService.discoverCustomCommands(
+              projectDirectory: project.root,
+            );
 
-        final exitCode = await MetroService.runCommand(
+        final int exitCode = await MetroService.runCommand(
           ['demo:create'],
           allCommands: commands,
           menu: '',
@@ -691,9 +710,9 @@ void main() {
       'runs a package command as dart run <package>:<executable> in the '
       'project, keeping spaces in the arguments, and propagates its exit code',
       () async {
-        final project = await _FakeProject.create();
+        final _FakeProject project = await _FakeProject.create();
         try {
-          final package = await project.addPackage(
+          final Directory package = await project.addPackage(
             'demo_package',
             manifest: [
               _command('create', category: 'demo', script: 'demo_create.dart'),
@@ -701,12 +720,13 @@ void main() {
             scripts: {'bin/demo_create.dart': _echoScript},
           );
           await project.dependOnAndResolve('demo_package');
-          final commands = await MetroService.discoverCustomCommands(
-            projectDirectory: project.root,
-          );
+          final List<NyCommand> commands =
+              await MetroService.discoverCustomCommands(
+                projectDirectory: project.root,
+              );
           final output = File('${project.root.path}/out put.txt');
 
-          final exitCode = await MetroService.runCommand(
+          final int exitCode = await MetroService.runCommand(
             ['demo:create', output.path, '7', 'two words', '--flag'],
             allCommands: commands,
             menu: '',

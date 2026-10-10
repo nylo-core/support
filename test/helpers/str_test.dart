@@ -452,7 +452,7 @@ void main() {
 
   nyGroup('Str.uuid', () {
     nyTest('generates valid UUID v4', () async {
-      final uuid = Str.uuid();
+      final String uuid = Str.uuid();
       expect(
         RegExp(
           r'^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-'
@@ -700,11 +700,11 @@ void main() {
       );
     });
     nyTest('letters-only contains only letters', () async {
-      final pw = Str.password(40, numbers: false, symbols: false);
+      final String pw = Str.password(40, numbers: false, symbols: false);
       expect(RegExp(r'^[a-zA-Z]+$').hasMatch(pw), isTrue);
     });
     nyTest('numbers-only contains only digits', () async {
-      final pw = Str.password(40, letters: false, symbols: false);
+      final String pw = Str.password(40, letters: false, symbols: false);
       expect(RegExp(r'^[0-9]+$').hasMatch(pw), isTrue);
     });
     nyTest('produces different values each call', () async {
@@ -714,7 +714,7 @@ void main() {
 
   nyGroup('Str.uuid7', () {
     nyTest('matches UUID v7 format', () async {
-      final id = Str.uuid7();
+      final String id = Str.uuid7();
       expect(
         RegExp(
           r'^[0-9a-f]{8}-[0-9a-f]{4}-7[0-9a-f]{3}-[89ab][0-9a-f]{3}-'
@@ -730,9 +730,9 @@ void main() {
       expect(Str.uuid7(), isNot(equals(Str.uuid7())));
     });
     nyTest('is time-ordered', () async {
-      final a = Str.uuid7();
+      final String a = Str.uuid7();
       await Future.delayed(const Duration(milliseconds: 5));
-      final b = Str.uuid7();
+      final String b = Str.uuid7();
       expect(a.compareTo(b) < 0, isTrue);
     });
   });

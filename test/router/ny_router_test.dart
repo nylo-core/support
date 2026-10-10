@@ -60,7 +60,10 @@ void main() {
       });
 
       nyTest('should return NyRouterRoute for chaining', () async {
-        final result = router.route('/test', (context) => const SizedBox());
+        final NyRouterRoute result = router.route(
+          '/test',
+          (context) => const SizedBox(),
+        );
 
         expect(result, isA<NyRouterRoute>());
         expect(result.name, '/test');
@@ -69,7 +72,7 @@ void main() {
       nyTest('should add route with transition type', () async {
         final transitionType = TransitionType.fade();
 
-        final result = router.route(
+        final NyRouterRoute result = router.route(
           '/animated',
           (context) => const SizedBox(),
           transitionType: transitionType,
@@ -81,7 +84,7 @@ void main() {
       nyTest('should add route with route guards', () async {
         final guard = _TestRouteGuard();
 
-        final result = router.route(
+        final NyRouterRoute result = router.route(
           '/protected',
           (context) => const SizedBox(),
           routeGuards: [guard],
@@ -91,7 +94,7 @@ void main() {
       });
 
       nyTest('should add initial route', () async {
-        final result = router.route(
+        final NyRouterRoute result = router.route(
           '/home',
           (context) => const SizedBox(),
           initialRoute: true,
@@ -101,7 +104,7 @@ void main() {
       });
 
       nyTest('should add unknown route', () async {
-        final result = router.route(
+        final NyRouterRoute result = router.route(
           '/404',
           (context) => const SizedBox(),
           unknownRoute: true,
@@ -112,7 +115,7 @@ void main() {
       });
 
       nyTest('should add authenticated route', () async {
-        final result = router.route(
+        final NyRouterRoute result = router.route(
           '/dashboard',
           (context) => const SizedBox(),
           authenticatedRoute: true,
@@ -124,7 +127,10 @@ void main() {
 
     nyGroup('add()', () {
       nyTest('should add route using RouteView tuple', () async {
-        final routeView = ('/home', (BuildContext context) => const SizedBox());
+        final (String, SizedBox Function(BuildContext context)) routeView = (
+          '/home',
+          (BuildContext context) => const SizedBox(),
+        );
 
         router.add(routeView);
 
@@ -132,9 +138,12 @@ void main() {
       });
 
       nyTest('should return NyRouterRoute for chaining', () async {
-        final routeView = ('/test', (BuildContext context) => const SizedBox());
+        final (String, SizedBox Function(BuildContext context)) routeView = (
+          '/test',
+          (BuildContext context) => const SizedBox(),
+        );
 
-        final result = router.add(routeView);
+        final NyRouterRoute result = router.add(routeView);
 
         expect(result, isA<NyRouterRoute>());
         expect(result.name, '/test');
@@ -142,12 +151,12 @@ void main() {
 
       nyTest('should add with all options', () async {
         final guard = _TestRouteGuard();
-        final routeView = (
+        final (String, SizedBox Function(BuildContext context)) routeView = (
           '/protected',
           (BuildContext context) => const SizedBox(),
         );
 
-        final result = router.add(
+        final NyRouterRoute result = router.add(
           routeView,
           routeGuards: [guard],
           initialRoute: true,
@@ -177,7 +186,7 @@ void main() {
       });
 
       nyTest('should handle empty list', () async {
-        final countBefore = router.getRegisteredRouteNames().length;
+        final int countBefore = router.getRegisteredRouteNames().length;
 
         router.addRoutes([]);
 
@@ -227,7 +236,7 @@ void main() {
         router.route('/about', (context) => const SizedBox());
         router.route('/contact', (context) => const SizedBox());
 
-        final names = router.getRegisteredRouteNames();
+        final List<String> names = router.getRegisteredRouteNames();
 
         expect(names.length, 3);
         expect(names, containsAll(['/home', '/about', '/contact']));
@@ -238,7 +247,7 @@ void main() {
       nyTest('should return map of route name to route', () async {
         router.route('/test', (context) => const SizedBox());
 
-        final routes = router.getRegisteredRoutes();
+        final Map<String, NyRouterRoute> routes = router.getRegisteredRoutes();
 
         expect(routes, isA<Map<String, NyRouterRoute>>());
         expect(routes['/test'], isNotNull);
@@ -342,7 +351,7 @@ void main() {
           },
         );
 
-        final routes = router.getRegisteredRoutes();
+        final Map<String, NyRouterRoute> routes = router.getRegisteredRoutes();
         expect(routes['/protected1']!.getRouteGuards(), contains(guard));
         expect(routes['/protected2']!.getRouteGuards(), contains(guard));
       });
@@ -360,7 +369,7 @@ void main() {
           },
         );
 
-        final routes = router.getRegisteredRoutes();
+        final Map<String, NyRouterRoute> routes = router.getRegisteredRoutes();
         expect(
           routes['/animated1']!.pageTransitionType,
           PageTransitionType.fade,
@@ -438,7 +447,7 @@ void main() {
       });
 
       nyTest('should add route to history', () async {
-        final route = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/test'),
         );
@@ -450,7 +459,7 @@ void main() {
       });
 
       nyTest('should remove route from history', () async {
-        final route = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/test'),
         );
@@ -462,11 +471,11 @@ void main() {
       });
 
       nyTest('should remove last route from history', () async {
-        final route1 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route1 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/first'),
         );
-        final route2 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route2 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/second'),
         );
@@ -480,11 +489,11 @@ void main() {
       });
 
       nyTest('should return current route', () async {
-        final route1 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route1 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/first'),
         );
-        final route2 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route2 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/second'),
         );
@@ -503,11 +512,11 @@ void main() {
       );
 
       nyTest('should return previous route', () async {
-        final route1 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route1 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/first'),
         );
-        final route2 = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> route2 = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: '/second'),
         );
@@ -521,7 +530,7 @@ void main() {
       nyTest(
         'should return null for previous route when only one route exists',
         () async {
-          final route = MaterialPageRoute(
+          final MaterialPageRoute<dynamic> route = MaterialPageRoute(
             builder: (context) => const SizedBox(),
             settings: const RouteSettings(name: '/only'),
           );
@@ -632,16 +641,18 @@ void main() {
 
     nyGroup('generator()', () {
       nyTest('should return RouteFactory', () async {
-        final generator = router.generator();
+        final RouteFactory generator = router.generator();
 
         expect(generator, isA<RouteFactory>());
       });
 
       nyTest('should return null for null settings name', () async {
         router.route('/test', (context) => const SizedBox());
-        final generator = router.generator();
+        final RouteFactory generator = router.generator();
 
-        final result = generator(const RouteSettings(name: null));
+        final Route<dynamic>? result = generator(
+          const RouteSettings(name: null),
+        );
 
         expect(result, isNull);
       });
@@ -650,15 +661,17 @@ void main() {
     nyGroup('unknownRoute() factory', () {
       nyTest('should return RouteFactory', () async {
         router.route('/404', (context) => const SizedBox(), unknownRoute: true);
-        final factory = router.unknownRoute();
+        final RouteFactory factory = router.unknownRoute();
 
         expect(factory, isA<RouteFactory>());
       });
 
       nyTest('should return null when no unknown routes registered', () async {
-        final factory = router.unknownRoute();
+        final RouteFactory factory = router.unknownRoute();
 
-        final result = factory(const RouteSettings(name: '/missing'));
+        final Route<dynamic>? result = factory(
+          const RouteSettings(name: '/missing'),
+        );
 
         expect(result, isNull);
       });
@@ -666,7 +679,7 @@ void main() {
 
     nyGroup('static methods', () {
       nyTest('unknownRouteGenerator should return RouteFactory', () async {
-        final generator = NyRouter.unknownRouteGenerator();
+        final RouteFactory generator = NyRouter.unknownRouteGenerator();
 
         expect(generator, isA<RouteFactory>());
       });
@@ -675,7 +688,7 @@ void main() {
 
   nyGroup('nyRoutes()', () {
     nyTest('should create NyRouter with routes', () async {
-      final router = nyRoutes((r) {
+      final NyRouter router = nyRoutes((r) {
         r.route('/home', (context) => const SizedBox());
         r.route('/about', (context) => const SizedBox());
       });

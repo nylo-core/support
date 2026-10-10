@@ -44,8 +44,8 @@ class Spinner {
     this.message = '',
     this.spinnerCharacters = const <String>['|', '/', '-', '\\'],
     this.intervalMs = 100,
-    Coordinate? startCoordinate,
-  }) : _startCoordinate = startCoordinate;
+    this._startCoordinate,
+  });
 
   /// Whether the spinner is currently running.
   bool get isRunning => _isRunning;
@@ -111,7 +111,7 @@ class Spinner {
     }
     _console.eraseCursorToEnd();
 
-    final spinnerChar = spinnerCharacters[_frameIndex];
+    final String spinnerChar = spinnerCharacters[_frameIndex];
     if (message.isNotEmpty) {
       _console.write('$spinnerChar $message');
     } else {

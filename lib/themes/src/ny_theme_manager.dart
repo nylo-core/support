@@ -109,7 +109,7 @@ class NyThemeManager with WidgetsBindingObserver {
 
   /// Check if the current theme is dark.
   bool get isDark {
-    final theme = currentTheme;
+    final BaseThemeConfig<dynamic>? theme = currentTheme;
     if (theme == null) return false;
     return theme.type == NyThemeType.dark;
   }
@@ -164,7 +164,9 @@ class NyThemeManager with WidgetsBindingObserver {
   /// otherwise returns the first light theme.
   BaseThemeConfig? get effectiveLightTheme {
     if (_preferredLightThemeId != null) {
-      final preferred = getThemeById(_preferredLightThemeId!);
+      final BaseThemeConfig<dynamic>? preferred = getThemeById(
+        _preferredLightThemeId!,
+      );
       if (preferred != null && preferred.type == NyThemeType.light) {
         return preferred;
       }
@@ -178,7 +180,9 @@ class NyThemeManager with WidgetsBindingObserver {
   /// otherwise returns the first dark theme.
   BaseThemeConfig? get effectiveDarkTheme {
     if (_preferredDarkThemeId != null) {
-      final preferred = getThemeById(_preferredDarkThemeId!);
+      final BaseThemeConfig<dynamic>? preferred = getThemeById(
+        _preferredDarkThemeId!,
+      );
       if (preferred != null && preferred.type == NyThemeType.dark) {
         return preferred;
       }
@@ -199,7 +203,7 @@ class NyThemeManager with WidgetsBindingObserver {
   /// print(colors.primaryAccent);
   /// ```
   T colorStyles<T>() {
-    final theme = currentTheme;
+    final BaseThemeConfig<dynamic>? theme = currentTheme;
     if (theme == null) {
       throw StateError(
         'No theme registered. Call registerThemes() before accessing colorStyles.',
@@ -210,7 +214,7 @@ class NyThemeManager with WidgetsBindingObserver {
 
   /// Get color styles from a specific theme by ID.
   T colorStylesFromTheme<T>(String themeId) {
-    final theme = _themes.firstWhere(
+    final BaseThemeConfig<dynamic> theme = _themes.firstWhere(
       (t) => t.id == themeId,
       orElse: () => throw ArgumentError('Theme with id "$themeId" not found.'),
     );
@@ -229,10 +233,10 @@ class NyThemeManager with WidgetsBindingObserver {
 
     // Load saved preferences concurrently (each is a platform-channel call)
     final (
-      savedThemeId,
-      savedFollowSystem,
-      savedPreferredLight,
-      savedPreferredDark,
+      String? savedThemeId,
+      bool? savedFollowSystem,
+      String? savedPreferredLight,
+      String? savedPreferredDark,
     ) = await (
       _storage.readThemeId(),
       _storage.readFollowSystem(),
@@ -245,7 +249,8 @@ class NyThemeManager with WidgetsBindingObserver {
     _preferredDarkThemeId = savedPreferredDark;
 
     // Determine if this is first launch (no saved preferences)
-    final isFirstLaunch = savedThemeId == null && savedFollowSystem == null;
+    final bool isFirstLaunch =
+        savedThemeId == null && savedFollowSystem == null;
 
     if (savedFollowSystem != null) {
       _followSystemTheme = savedFollowSystem;
@@ -253,13 +258,13 @@ class NyThemeManager with WidgetsBindingObserver {
 
     if (savedThemeId != null && savedThemeId.isNotEmpty) {
       // Use saved theme if it exists in registered themes
-      final themeExists = _themes.any((t) => t.id == savedThemeId);
+      final bool themeExists = _themes.any((t) => t.id == savedThemeId);
       if (themeExists) {
         _setThemeInternal(savedThemeId, notify: true, persist: false);
       }
     } else if (isFirstLaunch && _initialThemeId != null) {
       // First launch: use initialThemeId if provided
-      final themeExists = _themes.any((t) => t.id == _initialThemeId);
+      final bool themeExists = _themes.any((t) => t.id == _initialThemeId);
       if (themeExists) {
         _setThemeInternal(_initialThemeId!, notify: true, persist: true);
       }
@@ -296,7 +301,7 @@ class NyThemeManager with WidgetsBindingObserver {
     // If initialThemeId is provided, disable follow system theme
     if (initialThemeId != null && initialThemeId.isNotEmpty) {
       _followSystemTheme = false;
-      final themeExists = _themes.any((t) => t.id == initialThemeId);
+      final bool themeExists = _themes.any((t) => t.id == initialThemeId);
       if (themeExists) {
         _setThemeInternal(initialThemeId, notify: false, persist: false);
       } else {
@@ -318,7 +323,7 @@ class NyThemeManager with WidgetsBindingObserver {
   ///              (light or dark). This is used when following system theme to
   ///              remember which theme variant the user prefers.
   Future<void> setTheme(String themeId, {bool remember = false}) async {
-    final theme = getThemeById(themeId);
+    final BaseThemeConfig<dynamic>? theme = getThemeById(themeId);
     if (theme == null) {
       throw ArgumentError('Theme with id "$themeId" not found.');
     }
@@ -351,7 +356,7 @@ class NyThemeManager with WidgetsBindingObserver {
   /// Useful when you have multiple dark themes (e.g., dark, dark_amoled, dark_blue)
   /// and want the user to choose which one to use for dark mode.
   Future<void> setPreferredDarkTheme(String themeId) async {
-    final theme = getThemeById(themeId);
+    final BaseThemeConfig<dynamic>? theme = getThemeById(themeId);
     if (theme == null || theme.type != NyThemeType.dark) {
       throw ArgumentError('Dark theme with id "$themeId" not found.');
     }
@@ -373,7 +378,7 @@ class NyThemeManager with WidgetsBindingObserver {
   /// Useful when you have multiple light themes and want the user to choose
   /// which one to use for light mode.
   Future<void> setPreferredLightTheme(String themeId) async {
-    final theme = getThemeById(themeId);
+    final BaseThemeConfig<dynamic>? theme = getThemeById(themeId);
     if (theme == null || theme.type != NyThemeType.light) {
       throw ArgumentError('Light theme with id "$themeId" not found.');
     }
@@ -420,7 +425,7 @@ class NyThemeManager with WidgetsBindingObserver {
 
   /// Apply theme based on system brightness.
   void _applySystemTheme({required bool notify, required bool persist}) {
-    final isDarkMode = _isSystemDarkMode;
+    final bool isDarkMode = _isSystemDarkMode;
 
     BaseThemeConfig? targetTheme;
     if (isDarkMode) {
@@ -441,7 +446,7 @@ class NyThemeManager with WidgetsBindingObserver {
     required bool persist,
   }) {
     // Allow setting on first call even if themeId matches (for initialization)
-    final isInitialSet = _themeNotifier.value.isEmpty;
+    final bool isInitialSet = _themeNotifier.value.isEmpty;
     if (!isInitialSet && _themeNotifier.value == themeId) return;
 
     _current = null;

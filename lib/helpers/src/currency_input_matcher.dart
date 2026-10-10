@@ -100,14 +100,14 @@ class CurrencyInputMatcher {
     required String value,
     void Function(num? value)? onChanged,
   }) {
-    final code = castTo.replaceFirst('currency:', '');
-    final def = _currencyDefinitions[code];
+    final String code = castTo.replaceFirst('currency:', '');
+    final _CurrencyDef? def = _currencyDefinitions[code];
 
     if (def == null) {
       throw Exception('Currency not supported: $code');
     }
 
-    final symbol = def.symbol;
+    final String symbol = def.symbol;
     String defaultValue;
     CurrencyInputFormatter formatter;
 

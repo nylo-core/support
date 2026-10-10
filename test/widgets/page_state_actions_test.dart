@@ -28,7 +28,7 @@ UpdateState _lastEvent() {
 /// The shape Metro scaffolds: one declared line gives `CounterPage.actions`.
 class CounterPage extends NyStatefulWidget {
   static RouteView path = ("/counter", (_) => CounterPage());
-  static final actions = path.actions;
+  static final PageStateActions actions = path.actions;
 
   CounterPage({super.key}) : super(child: () => _CounterPageState());
 }
@@ -76,7 +76,7 @@ class _CounterPageState extends NyPage<CounterPage> {
 /// No `stateManaged` override: a page ignores state actions by default.
 class OptedOutPage extends NyStatefulWidget {
   static RouteView path = ("/opted-out", (_) => OptedOutPage());
-  static final actions = path.actions;
+  static final PageStateActions actions = path.actions;
 
   OptedOutPage({super.key}) : super(child: () => _OptedOutPageState());
 }
@@ -205,7 +205,7 @@ void main() {
     nyTest('fires the named action with its data', () async {
       CounterPage.actions.call('add', 3);
 
-      final event = _lastEvent();
+      final UpdateState event = _lastEvent();
       expect(event.stateName, CounterPage.path.stateName());
       expect(event.data, {'action': 'add', 'data': 3});
     });
@@ -249,7 +249,9 @@ void main() {
       );
       await tester.pumpAndSettle();
 
-      final state = tester.state<_CounterPageState>(find.byType(CounterPage));
+      final _CounterPageState state = tester.state<_CounterPageState>(
+        find.byType(CounterPage),
+      );
       expect(state.toastDescription, 'hello');
       expect(state.toastId, 'info');
       expect(state.toastDuration, const Duration(seconds: 2));
@@ -274,7 +276,9 @@ void main() {
 
     nyWidgetTest('refreshPage re-runs init', (tester) async {
       await tester.pumpNyWidget(CounterPage());
-      final state = tester.state<_CounterPageState>(find.byType(CounterPage));
+      final _CounterPageState state = tester.state<_CounterPageState>(
+        find.byType(CounterPage),
+      );
       expect(state.inits, 1);
 
       CounterPage.actions.refreshPage();
@@ -287,7 +291,9 @@ void main() {
       tester,
     ) async {
       await tester.pumpNyWidget(CounterPage());
-      final state = tester.state<_CounterPageState>(find.byType(CounterPage));
+      final _CounterPageState state = tester.state<_CounterPageState>(
+        find.byType(CounterPage),
+      );
 
       // ignore: deprecated_member_use_from_same_package
       CounterPage.path.stateRefresh();

@@ -93,7 +93,7 @@ void main() {
         surfaceContent: Colors.black87,
       );
 
-      final modified = original.copyWith(background: Colors.red);
+      final GeneralColors modified = original.copyWith(background: Colors.red);
 
       expect(modified.background, Colors.red);
       expect(modified.content, Colors.black);
@@ -109,7 +109,7 @@ void main() {
         surfaceContent: Colors.black87,
       );
 
-      final modified = original.copyWith();
+      final GeneralColors modified = original.copyWith();
 
       expect(modified.background, original.background);
       expect(modified.content, original.content);
@@ -136,7 +136,7 @@ void main() {
         content: Colors.white,
       );
 
-      final modified = original.copyWith(background: Colors.green);
+      final AppBarColors modified = original.copyWith(background: Colors.green);
 
       expect(modified.background, Colors.green);
       expect(modified.content, Colors.white);
@@ -166,7 +166,7 @@ void main() {
         labelUnselected: Colors.grey,
       );
 
-      final modified = original.copyWith(
+      final BottomTabBarColors modified = original.copyWith(
         iconSelected: Colors.green,
         labelSelected: Colors.green,
       );

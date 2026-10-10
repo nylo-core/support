@@ -9,21 +9,27 @@ void main() {
   nyGroup('MetroConsole', () {
     nyGroup('hyperlink', () {
       nyTest('should create OSC 8 hyperlink', () async {
-        final link = MetroConsole.hyperlink('test.dart', 'lib/test.dart');
+        final String link = MetroConsole.hyperlink(
+          'test.dart',
+          'lib/test.dart',
+        );
         expect(link, contains('test.dart'));
         expect(link, contains('\x1B]8;;'));
         expect(link, contains('\x07'));
       });
 
       nyTest('should contain file:// protocol', () async {
-        final link = MetroConsole.hyperlink('test.dart', 'lib/test.dart');
+        final String link = MetroConsole.hyperlink(
+          'test.dart',
+          'lib/test.dart',
+        );
         expect(link, contains('file://'));
       });
     });
 
     nyGroup('coloredHyperlink', () {
       nyTest('should create colored hyperlink', () async {
-        final link = MetroConsole.coloredHyperlink(
+        final String link = MetroConsole.coloredHyperlink(
           'test.dart',
           'lib/test.dart',
           ConsoleColor.brightGreen,
@@ -33,7 +39,7 @@ void main() {
       });
 
       nyTest('should include color escape sequence', () async {
-        final link = MetroConsole.coloredHyperlink(
+        final String link = MetroConsole.coloredHyperlink(
           'test.dart',
           'lib/test.dart',
           ConsoleColor.red,
@@ -42,7 +48,7 @@ void main() {
       });
 
       nyTest('should include bold when requested', () async {
-        final link = MetroConsole.coloredHyperlink(
+        final String link = MetroConsole.coloredHyperlink(
           'test.dart',
           'lib/test.dart',
           ConsoleColor.green,

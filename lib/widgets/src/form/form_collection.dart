@@ -116,7 +116,9 @@ class FormCollection {
   /// ]);
   /// ```
   factory FormCollection.fromKeyValue(List<Map<String, dynamic>> data) {
-    final options = data.map((item) => FormOption.fromJson(item)).toList();
+    final List<FormOption> options = data
+        .map((item) => FormOption.fromJson(item))
+        .toList();
     return FormCollection._(options, true);
   }
 
@@ -133,7 +135,7 @@ class FormCollection {
   /// });
   /// ```
   factory FormCollection.fromMap(Map<String, String> data) {
-    final options = data.entries
+    final List<FormOption> options = data.entries
         .map((entry) => FormOption(value: entry.key, label: entry.value))
         .toList();
     return FormCollection._(options, true);
@@ -149,7 +151,7 @@ class FormCollection {
   /// final collection = FormCollection.fromArray(['Red', 'Green', 'Blue']);
   /// ```
   factory FormCollection.fromArray(List<String> data) {
-    final options = data
+    final List<FormOption> options = data
         .map((item) => FormOption(value: item, label: item))
         .toList();
     return FormCollection._(options, false);
@@ -262,7 +264,7 @@ class FormCollection {
   }
 
   List<FormOption> searchByLabel(String query) {
-    final lowerQuery = query.toLowerCase();
+    final String lowerQuery = query.toLowerCase();
     return _options
         .where((option) => option.label.toLowerCase().contains(lowerQuery))
         .toList();
@@ -320,12 +322,12 @@ class FormCollection {
 
   // Functional methods
   FormCollection filter(bool Function(FormOption) test) {
-    final filtered = _options.where(test).toList();
+    final List<FormOption> filtered = _options.where(test).toList();
     return FormCollection._(filtered, _isKeyValue);
   }
 
   FormCollection sort([int Function(FormOption, FormOption)? compare]) {
-    final sorted = [..._options];
+    final List<FormOption> sorted = [..._options];
     if (compare != null) {
       sorted.sort(compare);
     } else {

@@ -21,9 +21,9 @@ void main() {
   nyGroup('NyStrExt (String? extensions)', () {
     nyGroup('toHexColor', () {
       nyTest('should convert hex string to Color', () async {
-        const String? hexString = 'FF5733';
+        const String hexString = 'FF5733';
 
-        final color = hexString.toHexColor();
+        final Color color = hexString.toHexColor();
 
         expect(color, isA<Color>());
         expect((color.r * 255).round(), 255);
@@ -39,9 +39,9 @@ void main() {
       });
 
       nyTest('should handle hex with hash', () async {
-        const String? hexString = '#00FF00';
+        const String hexString = '#00FF00';
 
-        final color = hexString.toHexColor();
+        final Color color = hexString.toHexColor();
 
         expect((color.g * 255).round(), 255);
       });
@@ -49,17 +49,17 @@ void main() {
 
     nyGroup('parseJson', () {
       nyTest('should parse valid JSON string', () async {
-        const String? jsonString = '{"name": "John", "age": 30}';
+        const String jsonString = '{"name": "John", "age": 30}';
 
-        final result = jsonString.parseJson();
+        final dynamic result = jsonString.parseJson();
 
         expect(result, {'name': 'John', 'age': 30});
       });
 
       nyTest('should parse JSON array', () async {
-        const String? jsonString = '[1, 2, 3]';
+        const String jsonString = '[1, 2, 3]';
 
-        final result = jsonString.parseJson();
+        final dynamic result = jsonString.parseJson();
 
         expect(result, [1, 2, 3]);
       });
@@ -67,7 +67,7 @@ void main() {
       nyTest('should handle null string', () async {
         const String? nullString = null;
 
-        final result = nullString.parseJson();
+        final dynamic result = nullString.parseJson();
 
         expect(result, {});
       });
@@ -82,9 +82,9 @@ void main() {
 
     nyGroup('toDateTime', () {
       nyTest('should convert ISO string to DateTime', () async {
-        const String? dateString = '2024-03-15T10:30:00';
+        const String dateString = '2024-03-15T10:30:00';
 
-        final result = dateString.toDateTime();
+        final DateTime result = dateString.toDateTime();
 
         expect(result, isA<DateTime>());
         expect(result.year, 2024);
@@ -95,9 +95,9 @@ void main() {
       });
 
       nyTest('should parse date-only string', () async {
-        const String? dateString = '2024-03-15';
+        const String dateString = '2024-03-15';
 
-        final result = dateString.toDateTime();
+        final DateTime result = dateString.toDateTime();
 
         expect(result.year, 2024);
         expect(result.month, 3);
@@ -111,7 +111,7 @@ void main() {
       });
 
       nyTest('should throw for invalid date string', () async {
-        const String? invalidString = 'not-a-date';
+        const String invalidString = 'not-a-date';
 
         expect(
           () => invalidString.toDateTime(),
@@ -128,43 +128,43 @@ void main() {
   nyGroup('NyStringExt (String extensions)', () {
     nyGroup('toBool', () {
       nyTest('should convert "true" to true', () async {
-        final result = 'true'.toBool();
+        final bool result = 'true'.toBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should convert "TRUE" to true (case insensitive)', () async {
-        final result = 'TRUE'.toBool();
+        final bool result = 'TRUE'.toBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should convert "True" to true (mixed case)', () async {
-        final result = 'True'.toBool();
+        final bool result = 'True'.toBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should convert "1" to true', () async {
-        final result = '1'.toBool();
+        final bool result = '1'.toBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should convert "false" to false', () async {
-        final result = 'false'.toBool();
+        final bool result = 'false'.toBool();
 
         expect(result, isFalse);
       });
 
       nyTest('should convert "FALSE" to false (case insensitive)', () async {
-        final result = 'FALSE'.toBool();
+        final bool result = 'FALSE'.toBool();
 
         expect(result, isFalse);
       });
 
       nyTest('should convert "0" to false', () async {
-        final result = '0'.toBool();
+        final bool result = '0'.toBool();
 
         expect(result, isFalse);
       });
@@ -184,37 +184,37 @@ void main() {
 
     nyGroup('tryParseBool', () {
       nyTest('should return true for "true"', () async {
-        final result = 'true'.tryParseBool();
+        final bool? result = 'true'.tryParseBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should return true for "1"', () async {
-        final result = '1'.tryParseBool();
+        final bool? result = '1'.tryParseBool();
 
         expect(result, isTrue);
       });
 
       nyTest('should return false for "false"', () async {
-        final result = 'false'.tryParseBool();
+        final bool? result = 'false'.tryParseBool();
 
         expect(result, isFalse);
       });
 
       nyTest('should return false for "0"', () async {
-        final result = '0'.tryParseBool();
+        final bool? result = '0'.tryParseBool();
 
         expect(result, isFalse);
       });
 
       nyTest('should return null for invalid string', () async {
-        final result = 'invalid'.tryParseBool();
+        final bool? result = 'invalid'.tryParseBool();
 
         expect(result, isNull);
       });
 
       nyTest('should return null for empty string', () async {
-        final result = ''.tryParseBool();
+        final bool? result = ''.tryParseBool();
 
         expect(result, isNull);
       });
@@ -234,49 +234,49 @@ void main() {
   nyGroup('StringExtensionExt', () {
     nyGroup('capitalize', () {
       nyTest('should capitalize first letter', () async {
-        final result = 'hello'.capitalize();
+        final String result = 'hello'.capitalize();
 
         expect(result, 'Hello');
       });
 
       nyTest('should handle already capitalized string', () async {
-        final result = 'Hello'.capitalize();
+        final String result = 'Hello'.capitalize();
 
         expect(result, 'Hello');
       });
 
       nyTest('should handle single character', () async {
-        final result = 'a'.capitalize();
+        final String result = 'a'.capitalize();
 
         expect(result, 'A');
       });
 
       nyTest('should preserve rest of string', () async {
-        final result = 'hELLO wORLD'.capitalize();
+        final String result = 'hELLO wORLD'.capitalize();
 
         expect(result, 'HELLO wORLD');
       });
 
       nyTest('should handle uppercase first letter', () async {
-        final result = 'HELLO'.capitalize();
+        final String result = 'HELLO'.capitalize();
 
         expect(result, 'HELLO');
       });
 
       nyTest('should handle numbers at start', () async {
-        final result = '123abc'.capitalize();
+        final String result = '123abc'.capitalize();
 
         expect(result, '123abc');
       });
 
       nyTest('should handle special characters at start', () async {
-        final result = '!hello'.capitalize();
+        final String result = '!hello'.capitalize();
 
         expect(result, '!hello');
       });
 
       nyTest('should handle unicode characters', () async {
-        final result = 'cafe'.capitalize();
+        final String result = 'cafe'.capitalize();
 
         expect(result, 'Cafe');
       });
@@ -297,7 +297,7 @@ void main() {
     nyTest('should handle nested JSON objects', () async {
       const json = '{"user": {"name": "John", "address": {"city": "NYC"}}}';
 
-      final result = json.parseJson();
+      final dynamic result = json.parseJson();
 
       expect(result['user']['name'], 'John');
       expect(result['user']['address']['city'], 'NYC');
@@ -306,7 +306,7 @@ void main() {
     nyTest('should handle JSON with special characters', () async {
       const json = '{"message": "Hello\\nWorld", "symbol": "\\u0024"}';
 
-      final result = json.parseJson();
+      final dynamic result = json.parseJson();
 
       expect(result['message'], 'Hello\nWorld');
       expect(result['symbol'], '\$');
@@ -315,7 +315,7 @@ void main() {
     nyTest('should handle ISO 8601 date with timezone', () async {
       const dateString = '2024-03-15T10:30:00Z';
 
-      final result = dateString.toDateTime();
+      final DateTime result = dateString.toDateTime();
 
       expect(result.isUtc, isTrue);
       expect(result.year, 2024);

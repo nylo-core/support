@@ -70,7 +70,9 @@ void main() {
 
         eventBus.fire(TestEvent('hello'));
 
-        final event = await completer.future.timeout(Duration(seconds: 1));
+        final TestEvent event = await completer.future.timeout(
+          Duration(seconds: 1),
+        );
         expect(event.message, 'hello');
       });
 

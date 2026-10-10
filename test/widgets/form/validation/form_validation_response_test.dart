@@ -4,8 +4,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 /// Simple mock rule for testing
 class _MockFormRule extends FormRule {
-  _MockFormRule({String? rule, String? message})
-    : super(rule: rule ?? 'mock', message: message);
+  _MockFormRule({String? rule, super.message}) : super(rule: rule ?? 'mock');
 
   @override
   bool validate(dynamic data) => true;

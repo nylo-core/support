@@ -33,7 +33,7 @@ class Auth {
   /// When [session] is null or 'default', returns the base auth key.
   /// Otherwise, returns a namespaced key like 'auth_key_sessionName'.
   static String key([String? session]) {
-    final baseKey = Nylo.authKey();
+    final String baseKey = Nylo.authKey();
     if (session == null || session == defaultSession) {
       return baseKey;
     }
@@ -64,7 +64,7 @@ class Auth {
       }
     }
 
-    final authData = data ?? {"date": DateTime.now().toIso8601String()};
+    final dynamic authData = data ?? {"date": DateTime.now().toIso8601String()};
     await NyStorage.saveJson(key(session), authData, inBackpack: true);
   }
 
@@ -113,7 +113,7 @@ class Auth {
   /// Auth.data(field: 'id', session: 'device'); // Device's ID
   /// ```
   static dynamic data({String? field, String? session}) {
-    final authData = Backpack.instance.read(key(session));
+    final dynamic authData = Backpack.instance.read(key(session));
     if (field != null && authData is Map) {
       return authData[field];
     }
@@ -128,8 +128,8 @@ class Auth {
     dynamic Function(dynamic data) update, {
     String? session,
   }) async {
-    final currentData = await NyStorage.readJson(key(session));
-    final updatedData = update(currentData);
+    final dynamic currentData = await NyStorage.readJson(key(session));
+    final dynamic updatedData = update(currentData);
     await authenticate(data: updatedData, session: session);
   }
 
@@ -140,7 +140,7 @@ class Auth {
     String? deviceUid = await NyStorage.read(_deviceIdKey);
     if (deviceUid == null) {
       const uuid = Uuid();
-      final timestamp = DateTime.now().millisecondsSinceEpoch;
+      final int timestamp = DateTime.now().millisecondsSinceEpoch;
       deviceUid = "${uuid.v4()}-$timestamp";
       await NyStorage.save(_deviceIdKey, deviceUid);
     }
@@ -151,8 +151,8 @@ class Auth {
   ///
   /// [session] specifies which auth session to sync (default: 'default').
   static Future<void> syncToBackpack({String? session}) async {
-    final sessionKey = key(session);
-    final data = await NyStorage.readJson(sessionKey);
+    final String sessionKey = key(session);
+    final dynamic data = await NyStorage.readJson(sessionKey);
     Backpack.instance.save(sessionKey, data);
   }
 

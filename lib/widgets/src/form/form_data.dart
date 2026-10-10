@@ -117,7 +117,7 @@ class NyFormData {
   /// [stream] is the StreamController used for field synchronization.
   List<dynamic> getFields(StreamController stream) {
     List<dynamic> fieldList = [];
-    for (var field in fields()) {
+    for (Object? field in fields()) {
       if (field is Field) {
         field.setUpdated(stream);
         if (field.dummyData != null) {
@@ -242,7 +242,7 @@ class NyFormData {
 
   /// Find a field in the form by its key
   Field findField(String key) {
-    for (var item in _children) {
+    for (Object? item in _children) {
       if (item is Field && item.key.snakeCase == key.snakeCase) {
         return item;
       } else if (item is List) {
@@ -259,7 +259,7 @@ class NyFormData {
   /// Clear the form
   void clear() {
     /// all clear on the fields
-    widgets.forEach((field) {
+    for (Object? field in widgets) {
       if (field is Field) {
         field.clear();
       } else if (field is List) {
@@ -267,7 +267,7 @@ class NyFormData {
           item.clear();
         }
       }
-    });
+    }
   }
 
   /// Clear a field in the form
@@ -352,19 +352,19 @@ class NyFormData {
   void _applyDataToFields(Map<String, dynamic> data, {bool updateUI = true}) {
     // Normalize data keys to snake_case for matching
     final normalizedData = <String, dynamic>{};
-    for (final entry in data.entries) {
+    for (final MapEntry<String, dynamic> entry in data.entries) {
       normalizedData[entry.key.snakeCase] = entry.value;
     }
 
-    for (var field in _children) {
+    for (Object? field in _children) {
       if (field is Field) {
-        final fieldKey = field.key.snakeCase;
+        final String fieldKey = field.key.snakeCase;
         if (normalizedData.containsKey(fieldKey)) {
           _applyFieldData(field, normalizedData[fieldKey], updateUI);
         }
       } else if (field is List) {
         for (Field item in field) {
-          final itemKey = item.key.snakeCase;
+          final String itemKey = item.key.snakeCase;
           if (normalizedData.containsKey(itemKey)) {
             _applyFieldData(item, normalizedData[itemKey], updateUI);
           }
@@ -409,7 +409,7 @@ class NyFormData {
   /// Get the error bag for the form
   List<FormValidationError> errorBag() {
     List<FormValidationError> errorBag = [];
-    for (var field in widgets) {
+    for (Object? field in widgets) {
       if (field is Field) {
         FormValidationResult? formValidationResult = field.validate();
         if (formValidationResult != null) {
@@ -432,10 +432,10 @@ class NyFormData {
     Function(Map<String, dynamic> formData)? onSuccess,
     Function(List<FormValidationError> errors)? onError,
   }) {
-    List<FormValidationError> _errorBag = errorBag();
-    if (_errorBag.isNotEmpty) {
+    List<FormValidationError> errors = errorBag();
+    if (errors.isNotEmpty) {
       if (onError != null) {
-        onError(_errorBag.cast<FormValidationError>());
+        onError(errors.cast<FormValidationError>());
       }
       return false;
     }
@@ -454,7 +454,7 @@ class NyFormData {
   /// If a [key] is provided, it will return the data for that key
   dynamic data({String? key}) {
     Map<String, dynamic> dataMap = {};
-    for (var field in widgets) {
+    for (Object? field in widgets) {
       if (field is Field) {
         dataMap.addAll(fieldData(field));
       } else if (field is List) {
@@ -473,7 +473,7 @@ class NyFormData {
   /// Returns a Map with snake_case keys and field values.
   Map<String, dynamic> extractCurrentValues() {
     Map<String, dynamic> values = {};
-    for (var item in _children) {
+    for (Object? item in _children) {
       if (item is Field) {
         values[item.key.snakeCase] = item.value;
       } else if (item is List) {
@@ -489,7 +489,7 @@ class NyFormData {
   /// Called during hot reload to pick up field definition changes.
   void refreshFields() {
     // Step 1: Extract current values before refresh
-    final preservedValues = extractCurrentValues();
+    final Map<String, dynamic> preservedValues = extractCurrentValues();
 
     // Step 2: Cancel old subscription and close old stream to prevent memory leaks
     _onChangedSubscription?.cancel();
@@ -571,10 +571,10 @@ class NyFormData {
 
   /// Update a field in the form
   void updateField(String key, Field Function(Field item) update) {
-    final normalizedKey = key.snakeCase;
+    final String normalizedKey = key.snakeCase;
 
     for (int i = 0; i < _children.length; i++) {
-      final item = _children[i];
+      final dynamic item = _children[i];
 
       if (item is Field && item.key.snakeCase == normalizedKey) {
         _children[i] = update(item);

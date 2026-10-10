@@ -26,7 +26,7 @@ void main() {
       });
 
       nyTest('should create with Map data', () async {
-        final data = {'id': 1, 'name': 'Test'};
+        final Map<String, Object> data = {'id': 1, 'name': 'Test'};
         final argument = NyArgument(data);
 
         expect(argument.data, data);

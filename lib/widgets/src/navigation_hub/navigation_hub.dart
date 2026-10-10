@@ -248,18 +248,18 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     }
 
     TextStyle textStyle = TextStyle();
-    NavigationHubLayout? _layout = layout(context);
+    NavigationHubLayout? hubLayout = layout(context);
     if (currentIndex == page.key) {
       textStyle =
-          _layout?.selectedLabelStyle?.copyWith() ?? textStyle.copyWith();
-      if (_layout?.selectedItemColor != null) {
-        textStyle = textStyle.copyWith(color: _layout?.selectedItemColor);
+          hubLayout?.selectedLabelStyle?.copyWith() ?? textStyle.copyWith();
+      if (hubLayout?.selectedItemColor != null) {
+        textStyle = textStyle.copyWith(color: hubLayout?.selectedItemColor);
       }
     } else {
       textStyle =
-          _layout?.unselectedLabelStyle?.copyWith() ?? textStyle.copyWith();
-      if (_layout?.unselectedItemColor != null) {
-        textStyle = textStyle.copyWith(color: _layout?.unselectedItemColor);
+          hubLayout?.unselectedLabelStyle?.copyWith() ?? textStyle.copyWith();
+      if (hubLayout?.unselectedItemColor != null) {
+        textStyle = textStyle.copyWith(color: hubLayout?.unselectedItemColor);
       }
     }
     Widget textWidget = Text(page.value.title ?? "", style: textStyle);
@@ -450,14 +450,15 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
     NavigationTab currentTab = pages[currentPage]!;
 
     // Per-tab override takes precedence over layout-level default
-    final progressStyle = currentTab.progressStyle ?? _layout?.progressStyle;
+    final JourneyProgressStyle? progressStyle =
+        currentTab.progressStyle ?? _layout?.progressStyle;
 
     // Build progress indicator (only if progressStyle is not null)
     Widget? progressIndicator;
     ProgressIndicatorPosition position = ProgressIndicatorPosition.top;
     if (progressStyle != null) {
       position = progressStyle.position;
-      final padding =
+      final EdgeInsets padding =
           progressStyle.padding ??
           const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0);
       progressIndicator = Padding(
@@ -892,7 +893,8 @@ mixin BottomNavPageControls {
 /// Sort a map by key
 Map<int, NavigationTab> _sortMapByKey(Map<int, NavigationTab> unsortedMap) {
   // Convert map entries to a list
-  var sortedEntries = unsortedMap.entries.toList();
+  List<MapEntry<int, NavigationTab>> sortedEntries = unsortedMap.entries
+      .toList();
 
   // Sort the list based on the keys
   sortedEntries.sort((a, b) => a.key.compareTo(b.key));

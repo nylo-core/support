@@ -14,7 +14,8 @@ void main() {
           args: NyArgument({'userId': 123, 'name': 'Test User'}),
         );
 
-        final result = request.data<Map<String, dynamic>>();
+        final Map<String, dynamic>? result = request
+            .data<Map<String, dynamic>>();
 
         expect(result, isNotNull);
         expect(result!['userId'], 123);
@@ -24,7 +25,7 @@ void main() {
       nyTest('returns defaultValue when args are null', () async {
         final request = NyRequest(currentRoute: '/test-page');
 
-        final result = request.data<String>(defaultValue: 'default');
+        final String? result = request.data<String>(defaultValue: 'default');
 
         expect(result, 'default');
       });
@@ -35,7 +36,7 @@ void main() {
           args: NyArgument(null),
         );
 
-        final result = request.data<String>(defaultValue: 'fallback');
+        final String? result = request.data<String>(defaultValue: 'fallback');
 
         expect(result, 'fallback');
       });
@@ -46,7 +47,7 @@ void main() {
           args: NyArgument('simple string'),
         );
 
-        final result = request.data<String>();
+        final String? result = request.data<String>();
 
         expect(result, 'simple string');
       });
@@ -57,7 +58,7 @@ void main() {
           args: NyArgument(42),
         );
 
-        final result = request.data<int>();
+        final int? result = request.data<int>();
 
         expect(result, 42);
       });
@@ -68,7 +69,7 @@ void main() {
           args: NyArgument([1, 2, 3]),
         );
 
-        final result = request.data<List<int>>();
+        final List<int>? result = request.data<List<int>>();
 
         expect(result, [1, 2, 3]);
       });
@@ -106,7 +107,7 @@ void main() {
           }),
         );
 
-        final result = request.queryParameters();
+        final dynamic result = request.queryParameters();
 
         expect(result, isA<Map>());
         expect(result['tab'], 'settings');
@@ -120,7 +121,7 @@ void main() {
           queryParameters: NyQueryParameters({'tab': 'settings', 'page': '2'}),
         );
 
-        final result = request.queryParameters(key: 'tab');
+        final dynamic result = request.queryParameters(key: 'tab');
 
         expect(result, 'settings');
       });
@@ -131,7 +132,7 @@ void main() {
           queryParameters: NyQueryParameters({'tab': 'settings'}),
         );
 
-        final result = request.queryParameters(key: 'nonexistent');
+        final dynamic result = request.queryParameters(key: 'nonexistent');
 
         expect(result, isNull);
       });
@@ -139,7 +140,7 @@ void main() {
       nyTest('returns null when queryParameters are not set', () async {
         final request = NyRequest(currentRoute: '/test-page');
 
-        final result = request.queryParameters();
+        final dynamic result = request.queryParameters();
 
         expect(result, isNull);
       });
@@ -147,7 +148,7 @@ void main() {
       nyTest('returns null for key when queryParameters are not set', () async {
         final request = NyRequest(currentRoute: '/test-page');
 
-        final result = request.queryParameters(key: 'anyKey');
+        final dynamic result = request.queryParameters(key: 'anyKey');
 
         expect(result, isNull);
       });
@@ -158,7 +159,7 @@ void main() {
           queryParameters: NyQueryParameters({}),
         );
 
-        final result = request.queryParameters();
+        final dynamic result = request.queryParameters();
 
         expect(result, isA<Map>());
         expect(result.isEmpty, true);

@@ -92,7 +92,7 @@ class NyFactory {
       'No factory defined for type $T. Call NyFactory.define<$T>() first.',
     );
 
-    final definition = _definitions[T]!;
+    final FactoryDefinition<dynamic> definition = _definitions[T]!;
     final faker = NyFaker();
 
     T instance;
@@ -109,7 +109,7 @@ class NyFactory {
 
     // Apply states
     if (states != null) {
-      for (final stateName in states) {
+      for (final String stateName in states) {
         final key = '${T}_$stateName';
         if (_stateDefinitions.containsKey(key)) {
           final stateModifier = _stateDefinitions[key] as FactoryState<T>;
@@ -314,16 +314,16 @@ class NyFaker {
 
   /// Generate a random email address.
   String email() {
-    final first = firstName().toLowerCase();
-    final last = lastName().toLowerCase();
-    final domain = _randomElement(_domains);
+    final String first = firstName().toLowerCase();
+    final String last = lastName().toLowerCase();
+    final String domain = _randomElement(_domains);
     return '$first.$last@$domain';
   }
 
   /// Generate a random username.
   String username() {
-    final first = firstName().toLowerCase();
-    final num = randomInt(1, 999);
+    final String first = firstName().toLowerCase();
+    final int num = randomInt(1, 999);
     return '$first$num';
   }
 
@@ -332,9 +332,9 @@ class NyFaker {
 
   /// Generate a random phone number.
   String phone() {
-    final area = randomInt(200, 999);
-    final prefix = randomInt(200, 999);
-    final line = randomInt(1000, 9999);
+    final int area = randomInt(200, 999);
+    final int prefix = randomInt(200, 999);
+    final int line = randomInt(1000, 9999);
     return '($area) $prefix-$line';
   }
 
@@ -360,8 +360,8 @@ class NyFaker {
   DateTime date({DateTime? start, DateTime? end}) {
     start ??= DateTime(2000);
     end ??= DateTime.now();
-    final diff = end.difference(start).inMilliseconds;
-    final randomMillis = _random.nextInt(diff);
+    final int diff = end.difference(start).inMilliseconds;
+    final int randomMillis = _random.nextInt(diff);
     return start.add(Duration(milliseconds: randomMillis));
   }
 
@@ -391,8 +391,8 @@ class NyFaker {
   /// Generate lorem ipsum sentences.
   String sentences({int count = 3}) {
     return List.generate(count, (_) {
-      final wordCount = randomInt(5, 15);
-      final sentence = lorem(words: wordCount);
+      final int wordCount = randomInt(5, 15);
+      final String sentence = lorem(words: wordCount);
       return '${sentence[0].toUpperCase()}${sentence.substring(1)}.';
     }).join(' ');
   }
@@ -407,8 +407,8 @@ class NyFaker {
 
   /// Generate a random URL.
   String url() {
-    final domain = _randomElement(_domains);
-    final path = List.generate(
+    final String domain = _randomElement(_domains);
+    final String path = List.generate(
       randomInt(1, 3),
       (_) => _randomElement(_lorem),
     ).join('/');
@@ -422,13 +422,13 @@ class NyFaker {
 
   /// Generate a random color hex code.
   String hexColor() {
-    final color = _random.nextInt(0xFFFFFF);
+    final int color = _random.nextInt(0xFFFFFF);
     return '#${color.toRadixString(16).padLeft(6, '0')}';
   }
 
   /// Generate a random street address.
   String address() {
-    final number = randomInt(1, 9999);
+    final int number = randomInt(1, 9999);
     final streets = ['Main', 'Oak', 'Maple', 'Cedar', 'Pine', 'Elm', 'Park'];
     final types = ['St', 'Ave', 'Blvd', 'Dr', 'Ln', 'Way'];
     return '$number ${_randomElement(streets)} ${_randomElement(types)}';
@@ -512,10 +512,13 @@ class NyFaker {
 
   /// Generate a credit card number (fake).
   String creditCardNumber() {
-    final prefix = ['4', '5', '37', '6011'][_random.nextInt(4)];
+    final String prefix = ['4', '5', '37', '6011'][_random.nextInt(4)];
     final length = prefix == '37' ? 15 : 16;
-    final remaining = length - prefix.length;
-    final number = List.generate(remaining, (_) => _random.nextInt(10)).join();
+    final int remaining = length - prefix.length;
+    final String number = List.generate(
+      remaining,
+      (_) => _random.nextInt(10),
+    ).join();
     return '$prefix$number';
   }
 

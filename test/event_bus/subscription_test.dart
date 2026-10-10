@@ -5,7 +5,7 @@ import 'package:nylo_support/event_bus/src/subscription.dart';
 void main() {
   group('Subscription', () {
     test('creates from stream', () {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
 
       expect(subscription, isNotNull);
@@ -15,7 +15,7 @@ void main() {
     });
 
     test('respond adds subscription to list', () {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
 
       subscription.respond<String>((event) {});
@@ -27,7 +27,7 @@ void main() {
     });
 
     test('respond can be chained', () {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
 
       subscription.respond<String>((event) {}).respond<int>((event) {});
@@ -39,7 +39,7 @@ void main() {
     });
 
     test('respond receives events of matching type', () async {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
       final receivedEvents = <String>[];
 
@@ -61,7 +61,7 @@ void main() {
     });
 
     test('respond with dynamic receives all events', () async {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
       final receivedEvents = <dynamic>[];
 
@@ -83,7 +83,7 @@ void main() {
     });
 
     test('dispose cancels all subscriptions', () async {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
       final receivedEvents = <String>[];
 
@@ -106,7 +106,7 @@ void main() {
     });
 
     test('dispose can be called multiple times safely', () {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
 
       subscription.respond<String>((event) {});
@@ -121,7 +121,7 @@ void main() {
     });
 
     test('dispose on empty subscription does nothing', () {
-      final controller = StreamController.broadcast();
+      final StreamController<dynamic> controller = StreamController.broadcast();
       final subscription = Subscription(controller.stream);
 
       expect(() => subscription.dispose(), returnsNormally);

@@ -69,7 +69,7 @@
 /// - **Authentication**: Test as authenticated user with [NyTest.actingAs]
 /// - **Assertions**: Custom assertions for routes, backpack, locale, and more
 /// - **Debugging**: Use [NyTest.dump] and [NyTest.dd] to inspect test state
-library ny_testing;
+library;
 
 // Core test framework
 export 'src/ny_test.dart';

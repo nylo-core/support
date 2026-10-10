@@ -38,7 +38,7 @@ void main() {
           expect(config.boot, isNotNull);
 
           // Verify functions can be called
-          final nylo = await config.setup();
+          final Nylo nylo = await config.setup();
           await config.boot(nylo);
 
           expect(setupCalled, isTrue);
@@ -54,7 +54,7 @@ void main() {
           boot: (Nylo nylo) async {},
         );
 
-        final result = await config.setup();
+        final Nylo result = await config.setup();
         expect(result, same(existingNylo));
       });
 
@@ -72,7 +72,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         await config.boot(nylo);
 
         expect(receivedNylo, same(capturedNylo));
@@ -127,7 +127,7 @@ void main() {
           boot: (Nylo nylo) async {},
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         expect(nylo.getModelDecoders(), containsPair(String, isNotNull));
       });
     });
@@ -144,7 +144,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         expect(bootOrder, equals(0));
         await config.boot(nylo);
         expect(bootOrder, equals(1));
@@ -158,7 +158,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         expect(
           () => config.boot(nylo),
           throwsA(
@@ -181,7 +181,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         await config.boot(nylo);
 
         expect(receivedNylo, same(nylo));
@@ -195,7 +195,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         await config.boot(nylo);
 
         expect(nylo.getModelDecoders(), containsPair(int, isNotNull));
@@ -216,7 +216,7 @@ void main() {
           },
         );
 
-        final nylo = await config.setup();
+        final Nylo nylo = await config.setup();
         await config.boot(nylo);
 
         expect(executionOrder, equals(['setup', 'boot']));
@@ -237,11 +237,11 @@ void main() {
         );
 
         // First lifecycle
-        final nylo1 = await config.setup();
+        final Nylo nylo1 = await config.setup();
         await config.boot(nylo1);
 
         // Second lifecycle
-        final nylo2 = await config.setup();
+        final Nylo nylo2 = await config.setup();
         await config.boot(nylo2);
 
         expect(setupCount, equals(2));

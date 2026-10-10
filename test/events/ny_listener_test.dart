@@ -85,7 +85,7 @@ void main() {
         final event = TestEvent();
 
         listener.setEvent(event);
-        final retrieved = listener.getEvent();
+        final NyEvent? retrieved = listener.getEvent();
 
         expect(retrieved, equals(event));
         expect(identical(retrieved, event), isTrue);
@@ -114,7 +114,7 @@ void main() {
 
       nyTest('should receive event data map', () async {
         final listener = TrackingListener();
-        final eventData = {'key': 'value', 'number': 42};
+        final Map<String, Object> eventData = {'key': 'value', 'number': 42};
 
         await listener.handle(eventData);
 
@@ -144,7 +144,7 @@ void main() {
 
       nyTest('should handle complex nested data', () async {
         final listener = TrackingListener();
-        final complexData = {
+        final Map<String, Object> complexData = {
           'user': {'id': 1, 'name': 'Test'},
           'items': [1, 2, 3],
           'nested': {
@@ -170,7 +170,7 @@ void main() {
         final listener = TrackingListener();
         listener.returnValue = 'custom-return';
 
-        final result = await listener.handle({'data': 'test'});
+        final dynamic result = await listener.handle({'data': 'test'});
 
         expect(result, 'custom-return');
       });
@@ -179,7 +179,7 @@ void main() {
         final listener = TrackingListener();
         listener.returnValue = false;
 
-        final result = await listener.handle({'data': 'test'});
+        final dynamic result = await listener.handle({'data': 'test'});
 
         expect(result, false);
       });

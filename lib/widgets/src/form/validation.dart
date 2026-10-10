@@ -499,10 +499,7 @@ class FormValidator {
     if (data != null) {
       setData(data);
     }
-    FormValidationResult result = FormValidationResult(
-      this.data,
-      this.attribute,
-    );
+    FormValidationResult result = FormValidationResult(this.data, attribute);
 
     if (_isNullable && (this.data == null || this.data.toString().isEmpty)) {
       return result;
@@ -587,11 +584,7 @@ class FormValidationResult {
   /// Get a map of responses with the rule as the key and the response as the value.
   Map<dynamic, Map<FormRule, FormValidationResponse>> get responsesMap {
     return {
-      data: Map.fromIterable(
-        responses,
-        key: (response) => response.rule,
-        value: (response) => response,
-      ),
+      data: {for (var response in responses) response.rule: response},
     };
   }
 

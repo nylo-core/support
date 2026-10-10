@@ -119,17 +119,17 @@ void main() {
   nyGroup('JsonHelper', () {
     nyGroup('tryEncode', () {
       nyTest('should encode valid JSON data', () async {
-        final result = JsonHelper.tryEncode({'key': 'value'});
+        final String? result = JsonHelper.tryEncode({'key': 'value'});
         expect(result, '{"key":"value"}');
       });
 
       nyTest('should encode list data', () async {
-        final result = JsonHelper.tryEncode([1, 2, 3]);
+        final String? result = JsonHelper.tryEncode([1, 2, 3]);
         expect(result, '[1,2,3]');
       });
 
       nyTest('should encode nested objects', () async {
-        final result = JsonHelper.tryEncode({
+        final String? result = JsonHelper.tryEncode({
           'user': {'name': 'John', 'age': 30},
         });
         expect(result, '{"user":{"name":"John","age":30}}');
@@ -146,7 +146,7 @@ void main() {
         'should return null for DateTime (not directly JSON encodable)',
         () async {
           // DateTime is not directly JSON encodable without custom encoder
-          final result = JsonHelper.tryEncode(DateTime(2024, 1, 1));
+          final String? result = JsonHelper.tryEncode(DateTime(2024, 1, 1));
           // Returns null because DateTime cannot be directly encoded to JSON
           expect(result, isNull);
         },
@@ -158,7 +158,7 @@ void main() {
       });
 
       nyTest('should encode complex nested structures', () async {
-        final data = {
+        final Map<String, Object> data = {
           'users': [
             {'id': 1, 'name': 'Alice'},
             {'id': 2, 'name': 'Bob'},
@@ -166,7 +166,7 @@ void main() {
           'total': 2,
           'active': true,
         };
-        final result = JsonHelper.tryEncode(data);
+        final String? result = JsonHelper.tryEncode(data);
 
         expect(result, isNotNull);
         expect(result!.contains('"users"'), isTrue);
@@ -243,12 +243,15 @@ void main() {
     });
 
     nyTest('should encode arrays with null values', () async {
-      final result = JsonHelper.tryEncode([1, null, 3]);
+      final String? result = JsonHelper.tryEncode([1, null, 3]);
       expect(result, '[1,null,3]');
     });
 
     nyTest('should encode maps with null values', () async {
-      final result = JsonHelper.tryEncode({'key': null, 'other': 'value'});
+      final String? result = JsonHelper.tryEncode({
+        'key': null,
+        'other': 'value',
+      });
       expect(result, '{"key":null,"other":"value"}');
     });
 
@@ -262,17 +265,17 @@ void main() {
           },
         },
       };
-      final result = JsonHelper.tryEncode(deepNested);
+      final String? result = JsonHelper.tryEncode(deepNested);
       expect(result, isNotNull);
       expect(result!.contains('"e":"deep"'), isTrue);
     });
 
     nyTest('should encode array of maps', () async {
-      final arrayOfMaps = [
+      final List<Map<String, Object>> arrayOfMaps = [
         {'id': 1, 'name': 'first'},
         {'id': 2, 'name': 'second'},
       ];
-      final result = JsonHelper.tryEncode(arrayOfMaps);
+      final String? result = JsonHelper.tryEncode(arrayOfMaps);
       expect(result, isNotNull);
       expect(result!.contains('"id":1'), isTrue);
       expect(result.contains('"id":2'), isTrue);
@@ -283,12 +286,12 @@ void main() {
       final map = <String, dynamic>{};
       map['self'] = map; // Circular reference
 
-      final result = JsonHelper.tryEncode(map);
+      final String? result = JsonHelper.tryEncode(map);
       expect(result, isNull);
     });
 
     nyTest('should encode unicode strings', () async {
-      final result = JsonHelper.tryEncode({
+      final String? result = JsonHelper.tryEncode({
         'emoji': 'Hello',
         'chinese': 'Test',
       });
@@ -296,14 +299,16 @@ void main() {
     });
 
     nyTest('should encode strings with escape characters', () async {
-      final result = JsonHelper.tryEncode({'text': 'line1\nline2\ttab'});
+      final String? result = JsonHelper.tryEncode({
+        'text': 'line1\nline2\ttab',
+      });
       expect(result, isNotNull);
       expect(result!.contains('\\n'), isTrue);
       expect(result.contains('\\t'), isTrue);
     });
 
     nyTest('should encode strings with quotes', () async {
-      final result = JsonHelper.tryEncode({'quote': 'He said "hello"'});
+      final String? result = JsonHelper.tryEncode({'quote': 'He said "hello"'});
       expect(result, isNotNull);
       expect(result!.contains('\\"hello\\"'), isTrue);
     });

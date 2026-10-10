@@ -94,7 +94,7 @@ void main() {
     nyWidgetTest('listens on the name its route addresses', (tester) async {
       await tester.pumpNyWidget(RenamedNyStatePage());
 
-      final state = tester.state<_AnUnrelatedName>(
+      final _AnUnrelatedName state = tester.state<_AnUnrelatedName>(
         find.byType(RenamedNyStatePage),
       );
 
@@ -104,7 +104,7 @@ void main() {
     nyWidgetTest('keeps the name given to the state', (tester) async {
       await tester.pumpNyWidget(StateNamedPage());
 
-      final state = tester.state<_StateNamedPageState>(
+      final _StateNamedPageState state = tester.state<_StateNamedPageState>(
         find.byType(StateNamedPage),
       );
 
@@ -115,15 +115,17 @@ void main() {
   nyGroup('NyState with a singleton controller', () {
     nyWidgetTest('each page listens on its own name', (tester) async {
       await tester.pumpNyWidget(SharedControllerPageA());
-      final pageA = tester.state<_SharedControllerPageAState>(
-        find.byType(SharedControllerPageA),
-      );
+      final _SharedControllerPageAState pageA = tester
+          .state<_SharedControllerPageAState>(
+            find.byType(SharedControllerPageA),
+          );
       expect(pageA.stateName, SharedControllerPageA.path.stateName());
 
       await tester.pumpNyWidget(SharedControllerPageB());
-      final pageB = tester.state<_SharedControllerPageBState>(
-        find.byType(SharedControllerPageB),
-      );
+      final _SharedControllerPageBState pageB = tester
+          .state<_SharedControllerPageBState>(
+            find.byType(SharedControllerPageB),
+          );
       expect(pageB.stateName, SharedControllerPageB.path.stateName());
     });
 
@@ -133,10 +135,12 @@ void main() {
       await tester.pumpNyWidget(SharedControllerPageA());
       await tester.pumpNyWidget(SharedControllerPageB());
 
-      final pageB = tester.state<_SharedControllerPageBState>(
-        find.byType(SharedControllerPageB),
-      );
-      final controller = (pageB.widget as NyStatefulWidget).controller;
+      final _SharedControllerPageBState pageB = tester
+          .state<_SharedControllerPageBState>(
+            find.byType(SharedControllerPageB),
+          );
+      final BaseController controller =
+          (pageB.widget as NyStatefulWidget).controller;
 
       /// The controller carries page A's name until page B replaces it, and a
       /// stale name here sends `controller.refreshPage()` to the wrong page.

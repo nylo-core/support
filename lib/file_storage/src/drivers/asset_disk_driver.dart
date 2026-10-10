@@ -10,8 +10,8 @@ import '../path_normalizer.dart';
 /// `pubspec.yaml` appear. Paths are asset keys, e.g. `assets/images/logo.png`;
 /// the `assets` disk adds the `assets/` prefix for you.
 class AssetDiskDriver implements DiskDriver {
-  /// A driver over [bundle], or [rootBundle] when null.
-  AssetDiskDriver({AssetBundle? bundle}) : _bundle = bundle;
+  /// A driver over [_bundle], or [rootBundle] when null.
+  AssetDiskDriver({this._bundle});
 
   final AssetBundle? _bundle;
   Future<List<String>>? _assets;
@@ -90,8 +90,9 @@ class AssetDiskDriver implements DiskDriver {
       }
     }
     for (final String dir in directories.toList()..sort()) {
-      if (within(dir))
+      if (within(dir)) {
         yield DiskEntry(path: dir, type: DiskEntryType.directory);
+      }
     }
     for (final String asset in assets) {
       if (within(asset)) yield DiskEntry(path: asset, type: DiskEntryType.file);

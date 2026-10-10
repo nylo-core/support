@@ -30,7 +30,8 @@ class DioApiService {
   Map<Type, Interceptor> get interceptors => {};
 
   /// Decoders for morphing json into models
-  final Map<Type, dynamic>? decoders = {};
+  Map<Type, dynamic>? get decoders => _decoders;
+  final Map<Type, dynamic> _decoders = {};
 
   /// how many times should the request retry
   int retry = 0;
@@ -157,7 +158,7 @@ class DioApiService {
   /// api.cancelAllRequests('User logged out');
   /// ```
   void cancelAllRequests([String? reason]) {
-    for (final token in _activeCancelTokens) {
+    for (final CancelToken token in _activeCancelTokens) {
       if (!token.isCancelled) {
         token.cancel(reason);
       }
@@ -238,7 +239,7 @@ class DioApiService {
 
     // Evaluate the [interceptors] getter once; subclasses build a fresh map
     // (and fresh interceptor instances) on every access.
-    final resolvedInterceptors = interceptors;
+    final Map<Type, Interceptor> resolvedInterceptors = interceptors;
     if (resolvedInterceptors.isNotEmpty) {
       _addInterceptors(resolvedInterceptors);
     }
@@ -394,7 +395,7 @@ class DioApiService {
       // Compute per-request headers
       Map<String, dynamic> newValuesToAddToHeader = {};
       if (headers.isNotEmpty) {
-        for (var header in headers.entries) {
+        for (MapEntry<String, dynamic> header in headers.entries) {
           if (!_api.options.headers.containsKey(header.key)) {
             newValuesToAddToHeader.addAll({header.key: header.value});
           }
@@ -424,7 +425,9 @@ class DioApiService {
 
       // Handle cache-first policies
       if (effectivePolicy.shouldTryCacheFirst && cacheKeyRequest != null) {
-        final cachedData = await _tryGetFromCache(cacheKeyRequest);
+        final Map<dynamic, dynamic>? cachedData = await _tryGetFromCache(
+          cacheKeyRequest,
+        );
         if (cachedData != null) {
           printDebug('');
           printDebug('╔╣ Cache hit: $cacheKeyRequest');
@@ -456,7 +459,9 @@ class DioApiService {
       if (shouldCheckConnectivity && await NyConnectivity.isOffline()) {
         // For networkFirst, try cache on offline
         if (effectivePolicy.shouldFallbackToCache && cacheKeyRequest != null) {
-          final cachedData = await _tryGetFromCache(cacheKeyRequest);
+          final Map<dynamic, dynamic>? cachedData = await _tryGetFromCache(
+            cacheKeyRequest,
+          );
           if (cachedData != null) {
             printDebug('Offline - using cached data for: $cacheKeyRequest');
             return _createResponseFromCache<T>(cachedData, handleSuccess);
@@ -506,7 +511,7 @@ class DioApiService {
       return apiResponse;
     } on DioException catch (dioException) {
       NyResponse response = NyResponse(
-        response: dioException.response ?? null,
+        response: dioException.response,
         data: null,
         rawData: dioException.response?.data,
       );
@@ -779,7 +784,7 @@ class DioApiService {
   /// Skipped in release builds; the full response body is never retained.
   void _recordApiResponse(NyResponse response, String requestTime) {
     if (kReleaseMode) return;
-    final requestOptions = response.response?.requestOptions;
+    final RequestOptions? requestOptions = response.response?.requestOptions;
     Backpack.instance.append(
       'NY_API_LOGS',
       {
@@ -796,7 +801,7 @@ class DioApiService {
   /// Try to get cached data for the given key.
   Future<Map?> _tryGetFromCache(String cacheKey) async {
     try {
-      final cached = await ny_cache.cache().get(cacheKey);
+      final dynamic cached = await ny_cache.cache().get(cacheKey);
       if (cached != null && cached is Map) {
         return cached;
       }
@@ -813,7 +818,7 @@ class DioApiService {
     Duration? duration,
   ) async {
     try {
-      final cacheData = {
+      final Map<String, dynamic> cacheData = {
         'requestOptions': {
           'path': response.requestOptions.path,
           'method': response.requestOptions.method,
@@ -824,7 +829,7 @@ class DioApiService {
         'data': response.data,
         'cachedAt': DateTime.now().toIso8601String(),
       };
-      final inSeconds = duration?.inSeconds ?? 3600; // Default 1 hour
+      final int inSeconds = duration?.inSeconds ?? 3600; // Default 1 hour
       await ny_cache.cache().put(cacheKey, cacheData, seconds: inSeconds);
     } catch (e) {
       printDebug('Cache save error: $e');
@@ -836,7 +841,7 @@ class DioApiService {
     Map cachedData,
     Function(NyResponse<T> response)? handleSuccess,
   ) {
-    final response = Response(
+    final Response<Object> response = Response(
       requestOptions: RequestOptions(
         path: cachedData['requestOptions']?['path'] ?? '',
         method: cachedData['requestOptions']?['method'] ?? 'GET',
@@ -861,7 +866,7 @@ class DioApiService {
     // Fire and forget - don't await
     Future(() async {
       try {
-        final response = await request(requestDio);
+        final dynamic response = await request(requestDio);
         await _saveToCache(cacheKey, response, cacheDuration);
         printDebug('Background revalidation complete: $cacheKey');
       } catch (e) {

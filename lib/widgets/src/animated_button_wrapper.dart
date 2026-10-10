@@ -53,7 +53,7 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   void _initializeControllers() {
-    final style = widget.animationStyle;
+    final ButtonAnimationStyle style = widget.animationStyle;
 
     _pressController = AnimationController(
       vsync: this,
@@ -82,7 +82,7 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   void _initializeAnimations() {
-    final style = widget.animationStyle;
+    final ButtonAnimationStyle style = widget.animationStyle;
 
     // Scale animation for bounce effect
     _scaleAnimation = Tween<double>(
@@ -187,7 +187,7 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   void _startPressAnimation() {
-    final type = widget.animationStyle.type;
+    final ButtonAnimationType type = widget.animationStyle.type;
 
     switch (type) {
       case ButtonAnimationType.clickable:
@@ -213,7 +213,7 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   void _endPressAnimation() {
-    final type = widget.animationStyle.type;
+    final ButtonAnimationType type = widget.animationStyle.type;
 
     switch (type) {
       case ButtonAnimationType.clickable:
@@ -347,15 +347,15 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   Widget _buildJellyAnimation() {
-    final style = widget.animationStyle;
+    final ButtonAnimationStyle style = widget.animationStyle;
     return AnimatedBuilder(
       animation: _pressController,
       builder: (context, child) {
-        final jellyStrength = style.jellyStrength ?? 0.15;
-        final t = _pressController.value;
+        final double jellyStrength = style.jellyStrength ?? 0.15;
+        final double t = _pressController.value;
         // Create a wobbly effect
-        final scaleX = 1.0 - (jellyStrength * math.sin(t * math.pi));
-        final scaleY = 1.0 + (jellyStrength * math.sin(t * math.pi));
+        final double scaleX = 1.0 - (jellyStrength * math.sin(t * math.pi));
+        final double scaleY = 1.0 + (jellyStrength * math.sin(t * math.pi));
         return Transform(
           alignment: Alignment.center,
           transform: Matrix4.diagonal3Values(scaleX, scaleY, 1.0),
@@ -367,7 +367,7 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   Widget _buildShineAnimation() {
-    final style = widget.animationStyle;
+    final ButtonAnimationStyle style = widget.animationStyle;
     return AnimatedBuilder(
       animation: _shineAnimation,
       builder: (context, child) {
@@ -458,13 +458,13 @@ class AnimatedButtonWrapperState extends State<AnimatedButtonWrapper>
   }
 
   Widget _buildShakeAnimation() {
-    final style = widget.animationStyle;
+    final ButtonAnimationStyle style = widget.animationStyle;
     return AnimatedBuilder(
       animation: _shakeAnimation,
       builder: (context, child) {
-        final shakeOffset = style.shakeOffset ?? 8.0;
-        final shakeCount = style.shakeCount ?? 3;
-        final offsetX =
+        final double shakeOffset = style.shakeOffset ?? 8.0;
+        final int shakeCount = style.shakeCount ?? 3;
+        final double offsetX =
             math.sin(_shakeAnimation.value * shakeCount * 2 * math.pi) *
             shakeOffset *
             (1 - _shakeAnimation.value);

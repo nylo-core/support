@@ -147,7 +147,7 @@ class PageTransition<T> extends PageRouteBuilder<T> {
          opaque: opaque,
          fullscreenDialog: fullscreenDialog,
        ) {
-    this.reverseDuration = reverseDuration ?? duration;
+    reverseDuration = reverseDuration ?? duration;
     if (kIsWeb) {
       isIos = false;
       return;

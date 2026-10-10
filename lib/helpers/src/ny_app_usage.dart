@@ -87,7 +87,7 @@ class NyAppUsage {
   /// This method will return the app launch count.
   static Future<int?> appLaunchCount() async {
     return await useMonitoringMethod(() async {
-      final launchCount = await readValue('launch_count');
+      final String? launchCount = await readValue('launch_count');
       if (launchCount == null || launchCount.isEmpty) {
         return null;
       }
@@ -98,7 +98,7 @@ class NyAppUsage {
   /// Days since first launch
   static Future<int> appTotalDaysSinceFirstLaunch() async {
     return await useMonitoringMethod(() async {
-      final firstLaunchDate = await appFirstLaunchDate();
+      final DateTime? firstLaunchDate = await appFirstLaunchDate();
       if (firstLaunchDate == null) {
         return 0;
       }
@@ -109,7 +109,7 @@ class NyAppUsage {
   /// Get the first launch date
   static Future<DateTime?> appFirstLaunchDate() async {
     return await useMonitoringMethod(() async {
-      final firstLaunch = await readValue('first_launch');
+      final String? firstLaunch = await readValue('first_launch');
       if (firstLaunch == null || firstLaunch.isEmpty) {
         return null;
       }

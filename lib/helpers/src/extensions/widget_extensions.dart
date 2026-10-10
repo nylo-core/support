@@ -198,9 +198,9 @@ extension NySingleChildRenderObjectWidgetExt on SingleChildRenderObjectWidget {
     }
 
     return _TapLoadingWrapper(
-      child: this,
       action: action,
       loadingStyle: loadingStyle,
+      child: this,
     );
   }
 
@@ -299,9 +299,9 @@ extension NyStatelessWidgetExt on StatelessWidget {
     }
 
     return _TapLoadingWrapper(
-      child: this,
       action: action,
       loadingStyle: loadingStyle,
+      child: this,
     );
   }
 
@@ -602,7 +602,7 @@ class _TapLoadingWrapperState extends State<_TapLoadingWrapper> {
     if (_isLoading) return;
     setState(() => _isLoading = true);
     try {
-      final result = widget.action();
+      final dynamic result = widget.action();
       if (result is Future) {
         await result;
       }
@@ -617,7 +617,7 @@ class _TapLoadingWrapperState extends State<_TapLoadingWrapper> {
 
   @override
   Widget build(BuildContext context) {
-    final child = _isLoading
+    final Widget child = _isLoading
         ? widget.loadingStyle.render(child: widget.child)
         : widget.child;
 

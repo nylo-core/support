@@ -32,7 +32,7 @@ class NyThemeStorage {
 
   /// Read the follow system theme preference.
   Future<bool?> readFollowSystem() async {
-    final value = await _secureStorage.read(key: _followSystemKey);
+    final String? value = await _secureStorage.read(key: _followSystemKey);
     if (value == null) return null;
     return value.toLowerCase() == 'true';
   }

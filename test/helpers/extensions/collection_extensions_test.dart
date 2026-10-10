@@ -23,7 +23,7 @@ void main() {
       nyTest('should add SizedBox gaps between widgets', () async {
         final widgets = <Widget>[Container(), Container(), Container()];
 
-        final result = widgets.withGap(10.0);
+        final List<Widget> result = widgets.withGap(10.0);
 
         expect(result.length, 5); // 3 widgets + 2 gaps
         expect(result[1], isA<SizedBox>());
@@ -33,7 +33,7 @@ void main() {
       nyTest('should create SizedBox with correct height', () async {
         final widgets = <Widget>[Container(), Container()];
 
-        final result = widgets.withGap(20.0);
+        final List<Widget> result = widgets.withGap(20.0);
         final gap = result[1] as SizedBox;
 
         expect(gap.height, 20.0);
@@ -42,7 +42,7 @@ void main() {
       nyTest('should return empty list for empty input', () async {
         final widgets = <Widget>[];
 
-        final result = widgets.withGap(10.0);
+        final List<Widget> result = widgets.withGap(10.0);
 
         expect(result, isEmpty);
       });
@@ -50,7 +50,7 @@ void main() {
       nyTest('should return single widget without gaps', () async {
         final widgets = <Widget>[Container()];
 
-        final result = widgets.withGap(10.0);
+        final List<Widget> result = widgets.withGap(10.0);
 
         expect(result.length, 1);
         expect(result[0], isA<Container>());
@@ -59,7 +59,7 @@ void main() {
       nyTest('should preserve original widget order', () async {
         final widgets = <Widget>[Text('First'), Text('Second'), Text('Third')];
 
-        final result = widgets.withGap(10.0);
+        final List<Widget> result = widgets.withGap(10.0);
 
         expect((result[0] as Text).data, 'First');
         expect((result[2] as Text).data, 'Second');
@@ -69,7 +69,7 @@ void main() {
       nyTest('should handle zero gap', () async {
         final widgets = <Widget>[Container(), Container()];
 
-        final result = widgets.withGap(0);
+        final List<Widget> result = widgets.withGap(0);
         final gap = result[1] as SizedBox;
 
         expect(gap.height, 0);
@@ -84,26 +84,28 @@ void main() {
   nyGroup('NyListExt (List? extensions)', () {
     nyGroup('row', () {
       nyTest('should convert list to Row widget', () async {
-        final List<Widget>? widgets = [Container(), Container()];
+        final List<Widget> widgets = [Container(), Container()];
 
-        final result = widgets.row();
+        final Row result = widgets.row();
 
         expect(result, isA<Row>());
         expect(result.children.length, 2);
       });
 
       nyTest('should support mainAxisAlignment parameter', () async {
-        final List<Widget>? widgets = [Container()];
+        final List<Widget> widgets = [Container()];
 
-        final result = widgets.row(mainAxisAlignment: MainAxisAlignment.center);
+        final Row result = widgets.row(
+          mainAxisAlignment: MainAxisAlignment.center,
+        );
 
         expect(result.mainAxisAlignment, MainAxisAlignment.center);
       });
 
       nyTest('should support crossAxisAlignment parameter', () async {
-        final List<Widget>? widgets = [Container()];
+        final List<Widget> widgets = [Container()];
 
-        final result = widgets.row(
+        final Row result = widgets.row(
           crossAxisAlignment: CrossAxisAlignment.start,
         );
 
@@ -111,9 +113,9 @@ void main() {
       });
 
       nyTest('should support mainAxisSize parameter', () async {
-        final List<Widget>? widgets = [Container()];
+        final List<Widget> widgets = [Container()];
 
-        final result = widgets.row(mainAxisSize: MainAxisSize.min);
+        final Row result = widgets.row(mainAxisSize: MainAxisSize.min);
 
         expect(result.mainAxisSize, MainAxisSize.min);
       });
@@ -121,9 +123,9 @@ void main() {
 
     nyGroup('randomItem', () {
       nyTest('should return a random item from list', () async {
-        final List? items = [1, 2, 3, 4, 5];
+        final List items = [1, 2, 3, 4, 5];
 
-        final result = items.randomItem();
+        final dynamic result = items.randomItem();
 
         expect(items, contains(result));
       });
@@ -131,22 +133,22 @@ void main() {
       nyTest('should return null for null list', () async {
         List? nullList;
 
-        final result = nullList.randomItem();
+        final dynamic result = nullList.randomItem();
 
         expect(result, isNull);
       });
 
       nyTest('should return single item from single-item list', () async {
-        final List? items = ['only'];
+        final List items = ['only'];
 
-        final result = items.randomItem();
+        final dynamic result = items.randomItem();
 
         expect(result, 'only');
       });
 
       nyTest('should work with different types', () async {
-        final List? intList = [1, 2, 3];
-        final List? stringList = ['a', 'b', 'c'];
+        final List intList = [1, 2, 3];
+        final List stringList = ['a', 'b', 'c'];
 
         expect(intList, contains(intList.randomItem()));
         expect(stringList, contains(stringList.randomItem()));
@@ -163,7 +165,7 @@ void main() {
       nyTest('should update items matching condition', () async {
         final list = [1, 2, 3, 4, 5];
 
-        final result = list.update(
+        final List<int> result = list.update(
           (item) => item % 2 == 0,
           (item) => item * 10,
         );
@@ -182,7 +184,7 @@ void main() {
       nyTest('should return new list', () async {
         final list = [1, 2, 3];
 
-        final result = list.update((item) => item == 2, (item) => 20);
+        final List<int> result = list.update((item) => item == 2, (item) => 20);
 
         expect(identical(list, result), isFalse);
       });
@@ -190,7 +192,10 @@ void main() {
       nyTest('should handle empty list', () async {
         final list = <int>[];
 
-        final result = list.update((item) => true, (item) => item * 2);
+        final List<int> result = list.update(
+          (item) => true,
+          (item) => item * 2,
+        );
 
         expect(result, isEmpty);
       });
@@ -198,7 +203,10 @@ void main() {
       nyTest('should handle no matches', () async {
         final list = [1, 2, 3];
 
-        final result = list.update((item) => item > 10, (item) => item * 2);
+        final List<int> result = list.update(
+          (item) => item > 10,
+          (item) => item * 2,
+        );
 
         expect(result, [1, 2, 3]);
       });
@@ -206,18 +214,21 @@ void main() {
       nyTest('should handle all matches', () async {
         final list = [2, 4, 6];
 
-        final result = list.update((item) => item % 2 == 0, (item) => item + 1);
+        final List<int> result = list.update(
+          (item) => item % 2 == 0,
+          (item) => item + 1,
+        );
 
         expect(result, [3, 5, 7]);
       });
 
       nyTest('should work with objects', () async {
-        final list = [
+        final List<Map<String, Object>> list = [
           {'id': 1, 'active': false},
           {'id': 2, 'active': false},
         ];
 
-        final result = list.update(
+        final List<Map<String, Object>> result = list.update(
           (item) => item['id'] == 2,
           (item) => {...item, 'active': true},
         );
@@ -291,7 +302,9 @@ void main() {
       nyTest('should return first page correctly', () async {
         final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        final result = list.paginate(itemsPerPage: 3, page: 1).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 3, page: 1)
+            .toList();
 
         expect(result, [1, 2, 3]);
       });
@@ -299,7 +312,9 @@ void main() {
       nyTest('should return second page correctly', () async {
         final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        final result = list.paginate(itemsPerPage: 3, page: 2).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 3, page: 2)
+            .toList();
 
         expect(result, [4, 5, 6]);
       });
@@ -307,7 +322,9 @@ void main() {
       nyTest('should return partial last page', () async {
         final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
-        final result = list.paginate(itemsPerPage: 3, page: 4).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 3, page: 4)
+            .toList();
 
         expect(result, [10]);
       });
@@ -315,7 +332,9 @@ void main() {
       nyTest('should return empty for page beyond data', () async {
         final list = [1, 2, 3];
 
-        final result = list.paginate(itemsPerPage: 3, page: 2).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 3, page: 2)
+            .toList();
 
         expect(result, isEmpty);
       });
@@ -323,7 +342,9 @@ void main() {
       nyTest('should handle empty list', () async {
         final list = <int>[];
 
-        final result = list.paginate(itemsPerPage: 10, page: 1).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 10, page: 1)
+            .toList();
 
         expect(result, isEmpty);
       });
@@ -339,7 +360,9 @@ void main() {
       nyTest('should handle page size larger than list', () async {
         final list = [1, 2, 3];
 
-        final result = list.paginate(itemsPerPage: 10, page: 1).toList();
+        final List<int> result = list
+            .paginate(itemsPerPage: 10, page: 1)
+            .toList();
 
         expect(result, [1, 2, 3]);
       });
@@ -353,12 +376,12 @@ void main() {
   nyGroup('NyMapEntryExt', () {
     nyGroup('toMap', () {
       nyTest('should convert entries to map', () async {
-        final entries = [
+        final List<MapEntry<String, String>> entries = [
           MapEntry('key1', 'value1'),
           MapEntry('key2', 'value2'),
         ];
 
-        final result = entries.toMap();
+        final Map<String, dynamic> result = entries.toMap();
 
         expect(result, {'key1': 'value1', 'key2': 'value2'});
       });
@@ -366,20 +389,20 @@ void main() {
       nyTest('should handle empty entries', () async {
         final entries = <MapEntry<String, dynamic>>[];
 
-        final result = entries.toMap();
+        final Map<String, dynamic> result = entries.toMap();
 
         expect(result, isEmpty);
       });
 
       nyTest('should handle various value types', () async {
-        final entries = [
+        final List<MapEntry<String, Object>> entries = [
           MapEntry('string', 'text'),
           MapEntry('int', 42),
           MapEntry('bool', true),
           MapEntry('list', [1, 2, 3]),
         ];
 
-        final result = entries.toMap();
+        final Map<String, dynamic> result = entries.toMap();
 
         expect(result['string'], 'text');
         expect(result['int'], 42);
@@ -388,9 +411,12 @@ void main() {
       });
 
       nyTest('should handle duplicate keys (last wins)', () async {
-        final entries = [MapEntry('key', 'first'), MapEntry('key', 'second')];
+        final List<MapEntry<String, String>> entries = [
+          MapEntry('key', 'first'),
+          MapEntry('key', 'second'),
+        ];
 
-        final result = entries.toMap();
+        final Map<String, dynamic> result = entries.toMap();
 
         expect(result['key'], 'second');
       });
@@ -406,20 +432,31 @@ void main() {
       final list = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
       // Update even numbers, then paginate
-      final updated = list.update((item) => item % 2 == 0, (item) => item * 10);
+      final List<int> updated = list.update(
+        (item) => item % 2 == 0,
+        (item) => item * 10,
+      );
 
-      final page1 = updated.paginate(itemsPerPage: 3, page: 1).toList();
+      final List<int> page1 = updated
+          .paginate(itemsPerPage: 3, page: 1)
+          .toList();
 
       expect(page1, [1, 20, 3]);
     });
 
     nyTest('should handle complex pagination workflow', () async {
-      final items = List.generate(25, (i) => i + 1);
+      final List<int> items = List.generate(25, (i) => i + 1);
 
       // Simulate pagination UI
-      final page1 = items.paginate(itemsPerPage: 10, page: 1).toList();
-      final page2 = items.paginate(itemsPerPage: 10, page: 2).toList();
-      final page3 = items.paginate(itemsPerPage: 10, page: 3).toList();
+      final List<int> page1 = items
+          .paginate(itemsPerPage: 10, page: 1)
+          .toList();
+      final List<int> page2 = items
+          .paginate(itemsPerPage: 10, page: 2)
+          .toList();
+      final List<int> page3 = items
+          .paginate(itemsPerPage: 10, page: 3)
+          .toList();
 
       expect(page1.length, 10);
       expect(page2.length, 10);

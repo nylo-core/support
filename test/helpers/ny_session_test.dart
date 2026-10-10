@@ -20,14 +20,14 @@ void main() {
 
         nySession.add('key1', 'value1');
 
-        final result = nySession.get<String>('key1');
+        final String? result = nySession.get<String>('key1');
         expect(result, 'value1');
       });
 
       nyTest('should return self for method chaining', () async {
         final nySession = NySession(name: 'chain_session');
 
-        final result = nySession.add('key', 'value');
+        final NySession result = nySession.add('key', 'value');
 
         expect(result, same(nySession));
       });
@@ -76,7 +76,7 @@ void main() {
       nyTest('should return self for method chaining', () async {
         final nySession = NySession(name: 'set_chain_session');
 
-        final result = nySession.set('key', 'value');
+        final NySession result = nySession.set('key', 'value');
 
         expect(result, same(nySession));
       });
@@ -87,7 +87,7 @@ void main() {
         final nySession = NySession(name: 'get_session');
         nySession.add('existing', 'found');
 
-        final result = nySession.get<String>('existing');
+        final String? result = nySession.get<String>('existing');
 
         expect(result, 'found');
       });
@@ -95,7 +95,7 @@ void main() {
       nyTest('should return null for nonexistent key', () async {
         final nySession = NySession(name: 'get_null_session');
 
-        final result = nySession.get<String>('nonexistent');
+        final String? result = nySession.get<String>('nonexistent');
 
         expect(result, isNull);
       });
@@ -104,7 +104,7 @@ void main() {
         final nySession = NySession(name: 'typed_get_session');
         nySession.add('number', 123);
 
-        final result = nySession.get<int>('number');
+        final int? result = nySession.get<int>('number');
 
         expect(result, 123);
         expect(result, isA<int>());
@@ -125,7 +125,7 @@ void main() {
         final nySession = NySession(name: 'delete_chain_session');
         nySession.add('key', 'value');
 
-        final result = nySession.delete('key');
+        final NySession result = nySession.delete('key');
 
         expect(result, same(nySession));
       });
@@ -153,7 +153,7 @@ void main() {
       nyTest('should return self for method chaining', () async {
         final nySession = NySession(name: 'flush_chain_session');
 
-        final result = nySession.flush();
+        final NySession result = nySession.flush();
 
         expect(result, same(nySession));
       });
@@ -172,7 +172,7 @@ void main() {
       nyTest('should return self for method chaining', () async {
         final nySession = NySession(name: 'clear_chain_session');
 
-        final result = nySession.clear();
+        final NySession result = nySession.clear();
 
         expect(result, same(nySession));
       });
@@ -184,7 +184,7 @@ void main() {
         nySession.add('key1', 'value1');
         nySession.add('key2', 'value2');
 
-        final result = nySession.data();
+        final Map<String, dynamic>? result = nySession.data();
 
         expect(result, {'key1': 'value1', 'key2': 'value2'});
       });
@@ -193,7 +193,7 @@ void main() {
         final nySession = NySession(name: 'empty_data_session');
         nySession.flush();
 
-        final result = nySession.data();
+        final Map<String, dynamic>? result = nySession.data();
 
         expect(result, isNull);
       });
@@ -203,7 +203,7 @@ void main() {
         nySession.add('specific', 'value');
         nySession.add('other', 'other_value');
 
-        final result = nySession.data('specific');
+        final Map<String, dynamic>? result = nySession.data('specific');
 
         expect(result, {'specific': 'value'});
       });
@@ -216,14 +216,14 @@ void main() {
 
   nyGroup('session() helper function', () {
     nyTest('should create NySession with name', () async {
-      final nySession = session('helper_session');
+      final NySession nySession = session('helper_session');
 
       expect(nySession, isA<NySession>());
       expect(nySession.name, 'helper_session');
     });
 
     nyTest('should create session with initial items', () async {
-      final nySession = session('init_session', {
+      final NySession nySession = session('init_session', {
         'key1': 'value1',
         'key2': 'value2',
       });
@@ -233,14 +233,14 @@ void main() {
     });
 
     nyTest('should create empty session when no items provided', () async {
-      final nySession = session('no_items_session');
+      final NySession nySession = session('no_items_session');
 
-      final data = nySession.data();
+      final Map<String, dynamic>? data = nySession.data();
       expect(data, isNull);
     });
 
     nyTest('should support various value types in initial items', () async {
-      final nySession = session('types_init_session', {
+      final NySession nySession = session('types_init_session', {
         'string': 'text',
         'int': 42,
         'bool': true,
@@ -262,7 +262,7 @@ void main() {
       nySession.add('test_key', 'test_value');
 
       // Verify data is in Backpack
-      final backpackValue = Backpack.instance.sessionGet<String>(
+      final String? backpackValue = Backpack.instance.sessionGet<String>(
         'backpack_integration',
         'test_key',
       );
@@ -288,7 +288,7 @@ void main() {
       expect(nySession.get<String>('item'), 'created');
 
       // Read
-      final readValue = nySession.get<String>('item');
+      final String? readValue = nySession.get<String>('item');
       expect(readValue, 'created');
 
       // Update
@@ -303,7 +303,7 @@ void main() {
     nyTest('should handle complex nested data', () async {
       final nySession = NySession(name: 'nested_session');
 
-      final complexData = {
+      final Map<String, Map<String, Object>> complexData = {
         'user': {
           'name': 'John',
           'address': {'city': 'New York', 'zip': '10001'},
@@ -313,7 +313,9 @@ void main() {
 
       nySession.add('complex', complexData);
 
-      final result = nySession.get<Map<String, dynamic>>('complex');
+      final Map<String, dynamic>? result = nySession.get<Map<String, dynamic>>(
+        'complex',
+      );
       expect(result?['user']['name'], 'John');
       expect(result?['user']['address']['city'], 'New York');
       expect(result?['user']['tags'], ['admin', 'user']);

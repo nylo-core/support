@@ -1,6 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
-import 'package:nylo_support/helpers/src/helper.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 

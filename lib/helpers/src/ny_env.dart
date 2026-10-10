@@ -62,7 +62,7 @@ class NyEnvRegistry {
         '  nylo.addEnv(Env.get);',
       );
     }
-    final value = _getter!(key, defaultValue: defaultValue);
+    final dynamic value = _getter!(key, defaultValue: defaultValue);
     if (value is String) {
       return _interpolate(value);
     }
@@ -89,9 +89,9 @@ class NyEnvRegistry {
     if (!value.contains('\$')) return value;
     visited ??= {};
     return value.replaceAllMapped(_envVarPattern, (match) {
-      final refKey = match.group(1)!;
+      final String refKey = match.group(1)!;
       if (visited!.contains(refKey)) return match.group(0)!;
-      final rawValue = _getter!(refKey, defaultValue: null);
+      final dynamic rawValue = _getter!(refKey, defaultValue: null);
       if (rawValue == null) return match.group(0)!;
       if (rawValue is String) {
         return _interpolate(rawValue, {...visited, refKey});

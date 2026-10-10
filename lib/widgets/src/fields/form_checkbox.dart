@@ -83,10 +83,11 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
   dynamic currentValue;
 
   _NyFormCheckboxState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
+  @override
   FieldStyleCheckbox get style {
     return widget.field.style as FieldStyleCheckbox;
   }

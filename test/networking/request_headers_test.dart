@@ -26,7 +26,7 @@ void main() {
       nyTest('returns the modified map', () async {
         final headers = <String, dynamic>{};
 
-        final result = headers.addBearerToken('token');
+        final Map<String, dynamic> result = headers.addBearerToken('token');
 
         expect(result, same(headers));
         expect(result['Authorization'], 'Bearer token');
@@ -52,7 +52,7 @@ void main() {
           'Authorization': 'Bearer my-token-123',
         };
 
-        final token = headers.getBearerToken();
+        final String? token = headers.getBearerToken();
 
         expect(token, 'my-token-123');
       });
@@ -60,7 +60,7 @@ void main() {
       nyTest('returns null when no Authorization header', () async {
         final headers = <String, dynamic>{'Content-Type': 'application/json'};
 
-        final token = headers.getBearerToken();
+        final String? token = headers.getBearerToken();
 
         expect(token, isNull);
       });
@@ -68,7 +68,7 @@ void main() {
       nyTest('returns null when Authorization is null', () async {
         final headers = <String, dynamic>{'Authorization': null};
 
-        final token = headers.getBearerToken();
+        final String? token = headers.getBearerToken();
 
         expect(token, isNull);
       });
@@ -76,7 +76,7 @@ void main() {
       nyTest('handles non-Bearer authorization', () async {
         final headers = <String, dynamic>{'Authorization': 'Basic abc123'};
 
-        final token = headers.getBearerToken();
+        final String? token = headers.getBearerToken();
 
         // Removes "Bearer " prefix even if it's Basic auth
         expect(token, 'Basic abc123');
@@ -130,7 +130,7 @@ void main() {
       nyTest('returns the modified map', () async {
         final headers = <String, dynamic>{};
 
-        final result = headers.addHeader('key', 'value');
+        final Map<String, dynamic> result = headers.addHeader('key', 'value');
 
         expect(result, same(headers));
       });

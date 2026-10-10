@@ -41,7 +41,7 @@ class TermLibUnix implements TermLib {
   /// - musl-based distributions (Alpine Linux)
   /// - Different library path configurations
   static DynamicLibrary _loadLinuxLibc() {
-    for (final path in _linuxLibcPaths) {
+    for (final String path in _linuxLibcPaths) {
       try {
         return DynamicLibrary.open(path);
       } catch (_) {
@@ -67,9 +67,9 @@ class TermLibUnix implements TermLib {
 
   @override
   void enableRawMode() {
-    final origTermIOS = _origTermIOSPointer.ref;
+    final TermIOS origTermIOS = _origTermIOSPointer.ref;
 
-    final newTermIOSPointer = calloc<TermIOS>()
+    final Pointer<TermIOS> newTermIOSPointer = calloc<TermIOS>()
       ..ref.c_iflag =
           origTermIOS.c_iflag & ~(brkint | icrnl | inpck | istrip | ixon)
       ..ref.c_oflag = origTermIOS.c_oflag & ~opost

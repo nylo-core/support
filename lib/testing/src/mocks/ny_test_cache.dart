@@ -37,7 +37,7 @@ class NyTestCache {
     Function() callback,
   ) async {
     if (_store.containsKey(key)) {
-      final entry = _store[key]!;
+      final _CacheEntry entry = _store[key]!;
       if (entry.expiration == null ||
           NyTime.now().isBefore(entry.expiration!)) {
         return entry.value as T;
@@ -51,7 +51,7 @@ class NyTestCache {
       value = callback() as T;
     }
 
-    final expiration = NyTime.now().add(Duration(seconds: seconds));
+    final DateTime expiration = NyTime.now().add(Duration(seconds: seconds));
     _store[key] = _CacheEntry(value: value, expiration: expiration);
     return value;
   }
@@ -93,7 +93,7 @@ class NyTestCache {
       return null;
     }
 
-    final entry = _store[key]!;
+    final _CacheEntry entry = _store[key]!;
     if (entry.expiration != null && NyTime.now().isAfter(entry.expiration!)) {
       _store.remove(key);
       return null;
@@ -114,7 +114,7 @@ class NyTestCache {
   /// Calculates the total size of the cache in bytes (approximate).
   Future<int> size() async {
     int totalSize = 0;
-    for (var entry in _store.values) {
+    for (_CacheEntry entry in _store.values) {
       try {
         totalSize += jsonEncode(entry.value).length;
       } catch (_) {

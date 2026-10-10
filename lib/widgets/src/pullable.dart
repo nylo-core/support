@@ -78,7 +78,7 @@ class Pullable extends StatefulWidget {
   });
 
   /// Classic Header constructor
-  Pullable.classicHeader({
+  const Pullable.classicHeader({
     super.key,
     required this.child,
     this.controller,
@@ -87,7 +87,7 @@ class Pullable extends StatefulWidget {
   }) : config = const PullableConfig(headerType: PullableHeaderType.classic);
 
   /// WaterDrop Header constructor
-  Pullable.waterDropHeader({
+  const Pullable.waterDropHeader({
     super.key,
     required this.child,
     this.controller,
@@ -96,7 +96,7 @@ class Pullable extends StatefulWidget {
   }) : config = const PullableConfig(headerType: PullableHeaderType.waterDrop);
 
   /// MaterialClassic Header constructor
-  Pullable.materialClassicHeader({
+  const Pullable.materialClassicHeader({
     super.key,
     required this.child,
     this.controller,
@@ -107,7 +107,7 @@ class Pullable extends StatefulWidget {
        );
 
   /// WaterDropMaterial Header constructor
-  Pullable.waterDropMaterialHeader({
+  const Pullable.waterDropMaterialHeader({
     super.key,
     required this.child,
     this.controller,
@@ -118,7 +118,7 @@ class Pullable extends StatefulWidget {
        );
 
   /// Bezier Header constructor
-  Pullable.bezierHeader({
+  const Pullable.bezierHeader({
     super.key,
     required this.child,
     this.controller,
@@ -201,7 +201,7 @@ class _PullableState extends State<Pullable> {
 
   @override
   Widget build(BuildContext context) {
-    final effectiveConfig = _getEffectiveConfig();
+    final PullableConfig effectiveConfig = _getEffectiveConfig();
 
     return SmartRefresher(
       enablePullDown: effectiveConfig.enablePullDown,
@@ -274,7 +274,7 @@ class _PullableState extends State<Pullable> {
   /// Handles refresh action
   Future<void> _handleRefresh() async {
     try {
-      final effectiveConfig = _getEffectiveConfig();
+      final PullableConfig effectiveConfig = _getEffectiveConfig();
       await effectiveConfig.onRefresh?.call();
       await Future.delayed(effectiveConfig.refreshCompleteDelay);
       if (mounted) {
@@ -290,7 +290,7 @@ class _PullableState extends State<Pullable> {
   /// Handles loading more action
   Future<void> _handleLoading() async {
     try {
-      final effectiveConfig = _getEffectiveConfig();
+      final PullableConfig effectiveConfig = _getEffectiveConfig();
       await effectiveConfig.onLoading?.call();
       await Future.delayed(effectiveConfig.loadCompleteDelay);
       if (mounted) {

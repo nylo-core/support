@@ -66,7 +66,7 @@ void main() {
 
       nyTest('should return platform locale when context is null', () async {
         // Without context, falls back to platform dispatcher
-        final locale = NyLocaleHelper.getCurrentLocale();
+        final Locale locale = NyLocaleHelper.getCurrentLocale();
 
         expect(locale, isA<Locale>());
         expect(locale.languageCode, isNotEmpty);
@@ -103,7 +103,7 @@ void main() {
       });
 
       nyTest('should return language code without context', () async {
-        final languageCode = NyLocaleHelper.getLanguageCode();
+        final String languageCode = NyLocaleHelper.getLanguageCode();
 
         expect(languageCode, isA<String>());
         expect(languageCode, isNotEmpty);
@@ -278,7 +278,7 @@ void main() {
 
       nyTest('should work with null context using platform locale', () async {
         // Without context, uses platform dispatcher locale
-        final matches = NyLocaleHelper.matchesLocale(null, 'en');
+        final bool matches = NyLocaleHelper.matchesLocale(null, 'en');
 
         // Result depends on platform locale - just verify it returns a boolean
         expect(matches, isA<bool>());
@@ -426,7 +426,7 @@ void main() {
       });
 
       nyTest('should work without context using platform locale', () async {
-        final isRtl = NyLocaleHelper.isCurrentLocaleRtl();
+        final bool isRtl = NyLocaleHelper.isCurrentLocaleRtl();
 
         // Result depends on platform locale - just verify it returns a boolean
         expect(isRtl, isA<bool>());
@@ -519,14 +519,14 @@ void main() {
 
     nyGroup('toLocale', () {
       nyTest('should create locale with language code only', () async {
-        final locale = NyLocaleHelper.toLocale('en');
+        final Locale locale = NyLocaleHelper.toLocale('en');
 
         expect(locale.languageCode, 'en');
         expect(locale.countryCode, isNull);
       });
 
       nyTest('should create locale with language and country code', () async {
-        final locale = NyLocaleHelper.toLocale('en', 'US');
+        final Locale locale = NyLocaleHelper.toLocale('en', 'US');
 
         expect(locale.languageCode, 'en');
         expect(locale.countryCode, 'US');

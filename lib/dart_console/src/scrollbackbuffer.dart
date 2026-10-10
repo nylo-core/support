@@ -57,7 +57,7 @@ class ScrollbackBuffer {
         // Once the user scrolls to the bottom, reset the current line
         // buffer so that up() can store it again: The user might have
         // edited it between down() and up().
-        final temp = currentLineBuffer;
+        final String? temp = currentLineBuffer;
         currentLineBuffer = null;
         return temp;
       } else {

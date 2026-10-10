@@ -35,12 +35,12 @@ class RouteMatcher {
   /// Find matching route and extract parameters
   RouteMatch? findMatch(Map<String, NyRouterRoute> routeMappings) {
     // Normalize the input path but keep leading slash
-    final normalizedPath = _normalizePath(path);
-    final pathSegments = normalizedPath.split('/');
+    final String normalizedPath = _normalizePath(path);
+    final List<String> pathSegments = normalizedPath.split('/');
 
     // Try each registered route
-    for (final entry in routeMappings.entries) {
-      final patternSegments = _segmentsFor(entry.key);
+    for (final MapEntry<String, NyRouterRoute> entry in routeMappings.entries) {
+      final List<String> patternSegments = _segmentsFor(entry.key);
 
       // Quick check for segment count (including empty segments from leading slash)
       if (pathSegments.length != patternSegments.length) {
@@ -52,8 +52,8 @@ class RouteMatcher {
 
       // Check each segment
       for (var i = 0; i < patternSegments.length; i++) {
-        final patternSegment = patternSegments[i];
-        final pathSegment = pathSegments[i];
+        final String patternSegment = patternSegments[i];
+        final String pathSegment = pathSegments[i];
 
         // Skip empty segments from leading slash
         if (patternSegment.isEmpty && pathSegment.isEmpty) {
@@ -62,7 +62,7 @@ class RouteMatcher {
 
         if (patternSegment.startsWith('{') && patternSegment.endsWith('}')) {
           // Extract parameter
-          final paramName = patternSegment.substring(
+          final String paramName = patternSegment.substring(
             1,
             patternSegment.length - 1,
           );

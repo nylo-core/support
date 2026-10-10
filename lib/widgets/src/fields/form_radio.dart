@@ -103,7 +103,7 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
   FormCollection? _options;
 
   _NyFormRadioState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
@@ -124,7 +124,7 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
       setState(() {});
     },
     "setOptions": (data) {
-      final options = data["options"];
+      final dynamic options = data["options"];
       if (options is FormCollection) {
         _options = options;
         setState(() {});

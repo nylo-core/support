@@ -149,7 +149,9 @@ class _LinearProgressIndicator extends JourneyProgressIndicator {
 
   @override
   Widget build(BuildContext context, int currentStep, int totalSteps) {
-    final percentage = totalSteps == 0 ? 0.0 : (currentStep + 1) / totalSteps;
+    final double percentage = totalSteps == 0
+        ? 0.0
+        : (currentStep + 1) / totalSteps;
     return LinearProgressIndicator(
       value: percentage,
       backgroundColor: inactiveColor,
@@ -202,7 +204,7 @@ class _NumberedProgressIndicator extends JourneyProgressIndicator {
 
   @override
   Widget build(BuildContext context, int currentStep, int totalSteps) {
-    final effectiveTextColor =
+    final Color effectiveTextColor =
         textColor ??
         Theme.of(context).textTheme.bodySmall?.color ??
         Colors.black87;
@@ -263,8 +265,10 @@ class _CircularProgressIndicator extends JourneyProgressIndicator {
 
   @override
   Widget build(BuildContext context, int currentStep, int totalSteps) {
-    final percentage = totalSteps == 0 ? 0.0 : (currentStep + 1) / totalSteps;
-    final effectiveTextColor =
+    final double percentage = totalSteps == 0
+        ? 0.0
+        : (currentStep + 1) / totalSteps;
+    final Color effectiveTextColor =
         textColor ??
         Theme.of(context).textTheme.bodySmall?.color ??
         Colors.black87;
@@ -324,7 +328,9 @@ class _CustomProgressIndicator extends JourneyProgressIndicator {
 
   @override
   Widget build(BuildContext context, int currentStep, int totalSteps) {
-    final percentage = totalSteps == 0 ? 0.0 : (currentStep + 1) / totalSteps;
+    final double percentage = totalSteps == 0
+        ? 0.0
+        : (currentStep + 1) / totalSteps;
     return builder(context, currentStep, totalSteps, percentage);
   }
 }

@@ -32,8 +32,8 @@ void main() {
   nyGroup('NyLocalization', () {
     nyGroup('singleton', () {
       nyTest('should return same instance on multiple calls', () async {
-        final instance1 = NyLocalization.instance;
-        final instance2 = NyLocalization.instance;
+        final NyLocalization instance1 = NyLocalization.instance;
+        final NyLocalization instance2 = NyLocalization.instance;
 
         expect(identical(instance1, instance2), isTrue);
       });
@@ -48,14 +48,14 @@ void main() {
         'should return default English locale when not initialized',
         () async {
           // Note: In test mode, without initialization, defaults to 'en'
-          final locale = NyLocalization.instance.locale;
+          final Locale locale = NyLocalization.instance.locale;
 
           expect(locale, isA<Locale>());
         },
       );
 
       nyTest('should return languageCode as string', () async {
-        final languageCode = NyLocalization.instance.languageCode;
+        final String languageCode = NyLocalization.instance.languageCode;
 
         expect(languageCode, isA<String>());
         expect(languageCode, isNotEmpty);
@@ -64,38 +64,54 @@ void main() {
 
     nyGroup('delegates', () {
       nyTest('should return localization delegates', () async {
-        final delegates = NyLocalization.instance.delegates;
+        final Iterable<LocalizationsDelegate<dynamic>> delegates =
+            NyLocalization.instance.delegates;
 
         expect(delegates, isA<Iterable<LocalizationsDelegate>>());
         expect(delegates, isNotEmpty);
       });
 
       nyTest('should contain GlobalMaterialLocalizations delegate', () async {
-        final delegates = NyLocalization.instance.delegates.toList();
+        final List<LocalizationsDelegate<dynamic>> delegates = NyLocalization
+            .instance
+            .delegates
+            .toList();
 
         expect(delegates, contains(GlobalMaterialLocalizations.delegate));
       });
 
       nyTest('should contain GlobalWidgetsLocalizations delegate', () async {
-        final delegates = NyLocalization.instance.delegates.toList();
+        final List<LocalizationsDelegate<dynamic>> delegates = NyLocalization
+            .instance
+            .delegates
+            .toList();
 
         expect(delegates, contains(GlobalWidgetsLocalizations.delegate));
       });
 
       nyTest('should contain GlobalCupertinoLocalizations delegate', () async {
-        final delegates = NyLocalization.instance.delegates.toList();
+        final List<LocalizationsDelegate<dynamic>> delegates = NyLocalization
+            .instance
+            .delegates
+            .toList();
 
         expect(delegates, contains(GlobalCupertinoLocalizations.delegate));
       });
 
       nyTest('should contain DefaultCupertinoLocalizations delegate', () async {
-        final delegates = NyLocalization.instance.delegates.toList();
+        final List<LocalizationsDelegate<dynamic>> delegates = NyLocalization
+            .instance
+            .delegates
+            .toList();
 
         expect(delegates, contains(DefaultCupertinoLocalizations.delegate));
       });
 
       nyTest('should contain exactly 4 delegates', () async {
-        final delegates = NyLocalization.instance.delegates.toList();
+        final List<LocalizationsDelegate<dynamic>> delegates = NyLocalization
+            .instance
+            .delegates
+            .toList();
 
         expect(delegates.length, 4);
       });
@@ -106,7 +122,7 @@ void main() {
         'should return key when values not loaded and key contains dot',
         () async {
           // Without initialization, _values is null, returns key safely
-          final result = NyLocalization.instance.translate('nested.key');
+          final String result = NyLocalization.instance.translate('nested.key');
           expect(result, 'nested.key');
         },
       );
@@ -115,7 +131,7 @@ void main() {
         'should return key directly when values null and no dot in key',
         () async {
           // For non-nested keys, returns key when values null
-          final result = NyLocalization.instance.translate('simple_key');
+          final String result = NyLocalization.instance.translate('simple_key');
           expect(result, 'simple_key');
         },
       );
@@ -133,7 +149,7 @@ void main() {
       nyTest(
         'should fill arguments into a nylo default when values null',
         () async {
-          final result = NyLocalization.instance.translate(
+          final String result = NyLocalization.instance.translate(
             'nylo.validation.min_length',
             {'attribute': 'Name', 'minLength': '3'},
           );
@@ -146,7 +162,7 @@ void main() {
       nyTest('should return false when values not loaded', () async {
         // Without initialization, _values is null
         // hasTranslation returns false when _values is null
-        final result = NyLocalization.instance.hasTranslation('any_key');
+        final bool result = NyLocalization.instance.hasTranslation('any_key');
 
         // hasTranslation checks _values == null first, returns false
         expect(result, isFalse);
@@ -156,13 +172,13 @@ void main() {
     nyGroup('getAllKeys', () {
       nyTest('should return empty list when values not loaded', () async {
         // Without proper initialization, getAllKeys returns empty
-        final keys = NyLocalization.instance.getAllKeys();
+        final List<String> keys = NyLocalization.instance.getAllKeys();
 
         expect(keys, isA<List<String>>());
       });
 
       nyTest('should return a list type', () async {
-        final keys = NyLocalization.instance.getAllKeys();
+        final List<String> keys = NyLocalization.instance.getAllKeys();
 
         expect(keys, isA<List<String>>());
       });
@@ -199,7 +215,7 @@ void main() {
         'should return key when accessing nested keys without initialization',
         () async {
           // Keys with dots return the key safely when _values is null
-          final result = NyLocalization.instance.translate(
+          final String result = NyLocalization.instance.translate(
             'parent.child.grandchild',
           );
           expect(result, 'parent.child.grandchild');
@@ -212,9 +228,10 @@ void main() {
         'should return key without initialization when translate called',
         () async {
           // Without initialization, _values is null, returns key safely
-          final result = NyLocalization.instance.translate('hello_{{name}}', {
-            'name': 'World',
-          });
+          final String result = NyLocalization.instance.translate(
+            'hello_{{name}}',
+            {'name': 'World'},
+          );
           expect(result, 'hello_{{name}}');
         },
       );
@@ -267,12 +284,12 @@ void main() {
     nyTest('should return key when localization not initialized', () async {
       // The tr() extension method calls translate internally
       // which returns key when _values is null
-      final result = 'test_key'.tr();
+      final String result = 'test_key'.tr();
       expect(result, 'test_key');
     });
 
     nyTest('should return key with arguments when not initialized', () async {
-      final result = 'greeting_{{name}}'.tr(arguments: {'name': 'Test'});
+      final String result = 'greeting_{{name}}'.tr(arguments: {'name': 'Test'});
       expect(result, 'greeting_{{name}}');
     });
   });
@@ -291,19 +308,19 @@ void main() {
   nyGroup('edge cases and error handling', () {
     nyTest('should return key when translate called without init', () async {
       // translate returns key safely when _values is null
-      final result = NyLocalization.instance.translate('any_key');
+      final String result = NyLocalization.instance.translate('any_key');
       expect(result, 'any_key');
     });
 
     nyTest('hasTranslation should return false safely without init', () async {
       // hasTranslation has null check so it should return false safely
-      final result = NyLocalization.instance.hasTranslation('any_key');
+      final bool result = NyLocalization.instance.hasTranslation('any_key');
       expect(result, isFalse);
     });
 
     nyTest('getAllKeys should return empty list safely without init', () async {
       // getAllKeys has null check so it should return empty safely
-      final result = NyLocalization.instance.getAllKeys();
+      final List<String> result = NyLocalization.instance.getAllKeys();
       expect(result, isEmpty);
     });
   });

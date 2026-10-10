@@ -49,7 +49,7 @@ class NyRouteHistoryObserver extends NavigatorObserver {
     Nylo.addRouteHistory(route);
 
     // Notify external listener if registered
-    final routeName = _getRouteName(route);
+    final String? routeName = _getRouteName(route);
     if (hasExternalListener && routeName != null) {
       onRouteChange!(
         'push',
@@ -69,7 +69,7 @@ class NyRouteHistoryObserver extends NavigatorObserver {
     Nylo.removeLastRouteHistory();
 
     // Notify external listener if registered
-    final routeName = _getRouteName(route);
+    final String? routeName = _getRouteName(route);
     if (hasExternalListener && routeName != null) {
       onRouteChange!(
         'pop',
@@ -93,7 +93,7 @@ class NyRouteHistoryObserver extends NavigatorObserver {
     Nylo.removeRouteHistory(route);
 
     // Notify external listener if registered
-    final routeName = _getRouteName(route);
+    final String? routeName = _getRouteName(route);
     if (hasExternalListener && routeName != null) {
       onRouteChange!(
         'remove',
@@ -114,7 +114,7 @@ class NyRouteHistoryObserver extends NavigatorObserver {
     }
 
     // Notify external listener if registered
-    final routeName = _getRouteName(newRoute);
+    final String? routeName = _getRouteName(newRoute);
     if (hasExternalListener && routeName != null) {
       onRouteChange!(
         'replace',

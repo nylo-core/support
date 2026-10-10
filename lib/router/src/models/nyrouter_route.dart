@@ -37,7 +37,7 @@ class NyRouterRoute {
     this.defaultArgs,
     this.queryParameters,
     List<RouteGuard>? routeGuards,
-    TransitionType? transitionType,
+    this._transitionType,
     this.pageTransitionType,
     this.pageTransitionSettings,
     initialRoute = false,
@@ -46,8 +46,7 @@ class NyRouterRoute {
   }) : _initialRoute = initialRoute,
        _unknownRoute = unknownRoute,
        _authPage = authPage,
-       _previewRoute = false,
-       _transitionType = transitionType {
+       _previewRoute = false {
     _routeGuards.addAll(routeGuards ?? []);
     builder = (context, arg, queryParameters) {
       Widget widget = view(context);
@@ -178,7 +177,7 @@ class NyRouterRoute {
     // Clear preview and initial flags on all other routes
     Map<String, NyRouterRoute> routes = NyNavigator.instance.router
         .getRegisteredRoutes();
-    for (var route in routes.values) {
+    for (NyRouterRoute route in routes.values) {
       route._previewRoute = false;
       route._initialRoute = false;
     }

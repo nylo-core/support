@@ -92,7 +92,8 @@ void main() {
 
     nyGroup('registry integration', () {
       nyTest('uses registry to look up styles by id', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
         var factoryCalled = false;
 
         Widget successFactory(ToastMeta meta, void Function(ToastMeta) update) {
@@ -106,7 +107,7 @@ void main() {
         expect(registry.has('success'), isTrue);
 
         // Simulate what showToastNotification does
-        final factory = registry.get('success');
+        final ToastStyleFactory? factory = registry.get('success');
         expect(factory, isNotNull);
 
         final testMeta = ToastMeta(title: 'Test');
@@ -116,7 +117,8 @@ void main() {
       });
 
       nyTest('factory can update ToastMeta via callback', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
         ToastMeta? updatedMeta;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
@@ -127,7 +129,7 @@ void main() {
 
         registry.register('custom', factory);
 
-        final retrievedFactory = registry.get('custom');
+        final ToastStyleFactory? retrievedFactory = registry.get('custom');
         final originalMeta = ToastMeta(
           title: 'Original',
           position: ToastNotificationPosition.top,
@@ -146,19 +148,21 @@ void main() {
       nyTest(
         'falls back to DefaultToastNotification when no styles registered',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
 
           // Registry is empty
           expect(registry.styleIds, isEmpty);
 
           // get returns null when no success fallback
-          final factory = registry.get('nonexistent');
+          final ToastStyleFactory? factory = registry.get('nonexistent');
           expect(factory, isNull);
         },
       );
 
       nyTest('falls back to success style for unknown id', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget successFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Text('Success');
@@ -167,14 +171,15 @@ void main() {
         registry.register('success', successFactory);
 
         // Unknown id should fall back to success
-        final factory = registry.get('unknown_style');
+        final ToastStyleFactory? factory = registry.get('unknown_style');
         expect(factory, successFactory);
       });
     });
 
     nyGroup('standard toast IDs', () {
       nyTest('supports success style', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget successFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Icon(Icons.check, color: Colors.green);
@@ -187,7 +192,8 @@ void main() {
       });
 
       nyTest('supports warning style', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget warningFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Icon(Icons.warning, color: Colors.orange);
@@ -200,7 +206,8 @@ void main() {
       });
 
       nyTest('supports info style', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget infoFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Icon(Icons.info, color: Colors.blue);
@@ -213,7 +220,8 @@ void main() {
       });
 
       nyTest('supports danger style', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget dangerFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Icon(Icons.error, color: Colors.red);
@@ -226,7 +234,8 @@ void main() {
       });
 
       nyTest('supports custom style IDs', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget customFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Text('Custom Style');
@@ -241,21 +250,24 @@ void main() {
 
     nyGroup('position mapping', () {
       nyTest('top position is correctly represented', () async {
-        const position = ToastNotificationPosition.top;
+        const ToastNotificationPosition position =
+            ToastNotificationPosition.top;
         expect(position, ToastNotificationPosition.top);
         expect(position.name, 'top');
         expect(position.index, 0);
       });
 
       nyTest('bottom position is correctly represented', () async {
-        const position = ToastNotificationPosition.bottom;
+        const ToastNotificationPosition position =
+            ToastNotificationPosition.bottom;
         expect(position, ToastNotificationPosition.bottom);
         expect(position.name, 'bottom');
         expect(position.index, 1);
       });
 
       nyTest('center position is correctly represented', () async {
-        const position = ToastNotificationPosition.center;
+        const ToastNotificationPosition position =
+            ToastNotificationPosition.center;
         expect(position, ToastNotificationPosition.center);
         expect(position.name, 'center');
         expect(position.index, 2);
@@ -354,7 +366,7 @@ void main() {
       });
 
       nyTest('handles very long title', () async {
-        final longTitle = 'A' * 1000;
+        final String longTitle = 'A' * 1000;
         final meta = ToastMeta(title: longTitle);
 
         expect(meta.title, longTitle);
@@ -362,7 +374,7 @@ void main() {
       });
 
       nyTest('handles very long description', () async {
-        final longDescription = 'B' * 5000;
+        final String longDescription = 'B' * 5000;
         final meta = ToastMeta(description: longDescription);
 
         expect(meta.description, longDescription);
@@ -414,7 +426,8 @@ void main() {
 
     nyGroup('data factory support', () {
       nyTest('registerWithData stores a ToastStyleDataFactory', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         registry.registerWithData('custom_data', (Map<String, dynamic> data) {
           return (ToastMeta meta, void Function(ToastMeta) update) {
@@ -426,7 +439,8 @@ void main() {
       });
 
       nyTest('resolve calls data factory with provided data', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
         Map<String, dynamic>? receivedData;
 
         registry.registerWithData('data_toast', (Map<String, dynamic> data) {
@@ -436,7 +450,9 @@ void main() {
           };
         });
 
-        final factory = registry.resolve('data_toast', {'name': 'Alice'});
+        final ToastStyleFactory? factory = registry.resolve('data_toast', {
+          'name': 'Alice',
+        });
         expect(factory, isNotNull);
         expect(receivedData, {'name': 'Alice'});
       });
@@ -444,7 +460,8 @@ void main() {
       nyTest(
         'resolve works with old-style ToastStyleFactory (backward compat)',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
           var factoryCalled = false;
 
           registry.register('old_style', (
@@ -455,7 +472,9 @@ void main() {
             return const SizedBox();
           });
 
-          final factory = registry.resolve('old_style', {'ignored': true});
+          final ToastStyleFactory? factory = registry.resolve('old_style', {
+            'ignored': true,
+          });
           expect(factory, isNotNull);
 
           factory!(ToastMeta(title: 'Test'), (updated) {});
@@ -466,18 +485,18 @@ void main() {
       nyTest(
         'registerAll accepts mix of old and new style factories',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
 
-          ToastStyleFactory oldFactory =
-              (ToastMeta meta, void Function(ToastMeta) update) {
-                return const Text('old');
-              };
+          Widget oldFactory(ToastMeta meta, void Function(ToastMeta) update) {
+            return const Text('old');
+          }
 
-          ToastStyleDataFactory newFactory = (Map<String, dynamic> data) {
+          ToastStyleFactory newFactory(Map<String, dynamic> data) {
             return (ToastMeta meta, void Function(ToastMeta) update) {
               return Text(data['label'] ?? 'new');
             };
-          };
+          }
 
           registry.registerAll({'old': oldFactory, 'new': newFactory});
 
@@ -485,21 +504,25 @@ void main() {
           expect(registry.has('new'), isTrue);
 
           // Both should resolve
-          final resolvedOld = registry.resolve('old', {});
-          final resolvedNew = registry.resolve('new', {'label': 'hello'});
+          final ToastStyleFactory? resolvedOld = registry.resolve('old', {});
+          final ToastStyleFactory? resolvedNew = registry.resolve('new', {
+            'label': 'hello',
+          });
           expect(resolvedOld, isNotNull);
           expect(resolvedNew, isNotNull);
         },
       );
 
       nyTest('resolve returns null when no styles registered', () async {
-        final registry = ToastNotificationRegistry.instance;
-        final factory = registry.resolve('nonexistent', {});
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
+        final ToastStyleFactory? factory = registry.resolve('nonexistent', {});
         expect(factory, isNull);
       });
 
       nyTest('resolve falls back to success style for unknown id', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         registry.register('success', (
           ToastMeta meta,
@@ -508,14 +531,15 @@ void main() {
           return const Text('Success');
         });
 
-        final factory = registry.resolve('unknown', {});
+        final ToastStyleFactory? factory = registry.resolve('unknown', {});
         expect(factory, isNotNull);
       });
 
       nyTest(
         'data map with title and description keys is passed through',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
           Map<String, dynamic>? receivedData;
 
           registry.registerWithData('follower', (Map<String, dynamic> data) {

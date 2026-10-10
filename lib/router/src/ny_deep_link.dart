@@ -103,9 +103,10 @@ class NyDeepLinkHandler {
   @visibleForTesting
   Future<void> handle(Uri uri) async {
     try {
-      final callback = Nylo.instance.onIncomingLinkAction;
+      final Future<bool> Function(Uri uri)? callback =
+          Nylo.instance.onIncomingLinkAction;
       if (callback != null) {
-        final shouldRoute = await callback(uri);
+        final bool shouldRoute = await callback(uri);
         if (!shouldRoute) return;
       }
       _navigate(uri);

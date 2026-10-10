@@ -31,7 +31,9 @@ void main() {
   nyGroup('NyResponse', () {
     nyGroup('constructor', () {
       nyTest('creates with all required parameters', () async {
-        final dioResponse = createMockResponse(data: {'id': 1});
+        final Response<Map<String, int>> dioResponse = createMockResponse(
+          data: {'id': 1},
+        );
 
         final response = NyResponse<Map<String, dynamic>>(
           response: dioResponse,
@@ -45,7 +47,9 @@ void main() {
       });
 
       nyTest('creates with null data', () async {
-        final dioResponse = createMockResponse<dynamic>(data: null);
+        final Response<dynamic> dioResponse = createMockResponse<dynamic>(
+          data: null,
+        );
 
         final response = NyResponse<String>(
           response: dioResponse,
@@ -60,7 +64,7 @@ void main() {
 
     nyGroup('fromResponse factory', () {
       nyTest('creates from Dio Response with morphed data', () async {
-        final dioResponse = createMockResponse(
+        final Response<Map<String, String>> dioResponse = createMockResponse(
           data: {'name': 'John'},
           statusCode: 200,
         );
@@ -258,7 +262,7 @@ void main() {
           rawData: 'test',
         );
 
-        final cookies = response.getHeaderValues('set-cookie');
+        final List<String>? cookies = response.getHeaderValues('set-cookie');
         expect(cookies, isNotNull);
         expect(cookies?.length, 2);
       });
@@ -392,7 +396,9 @@ void main() {
           rawData: 'test',
         );
 
-        final result = response.ifSuccessful((data) => 'processed: $data');
+        final String? result = response.ifSuccessful(
+          (data) => 'processed: $data',
+        );
 
         expect(result, 'processed: test');
       });
@@ -404,7 +410,9 @@ void main() {
           rawData: 'test',
         );
 
-        final result = response.ifSuccessful((data) => 'processed: $data');
+        final String? result = response.ifSuccessful(
+          (data) => 'processed: $data',
+        );
 
         expect(result, isNull);
       });
@@ -416,7 +424,9 @@ void main() {
           rawData: null,
         );
 
-        final result = response.ifSuccessful((data) => 'processed: $data');
+        final String? result = response.ifSuccessful(
+          (data) => 'processed: $data',
+        );
 
         expect(result, isNull);
       });
@@ -430,7 +440,7 @@ void main() {
           rawData: 'hello',
         );
 
-        final result = response.when(
+        final String result = response.when(
           success: (data) => 'success: $data',
           failure: (response) => 'failure: ${response.statusCode}',
         );
@@ -445,7 +455,7 @@ void main() {
           rawData: null,
         );
 
-        final result = response.when(
+        final String result = response.when(
           success: (data) => 'success: $data',
           failure: (response) => 'failure: ${response.statusCode}',
         );
@@ -460,7 +470,7 @@ void main() {
           rawData: null,
         );
 
-        final result = response.when(
+        final String result = response.when(
           success: (data) => 'success: $data',
           failure: (r) => 'no data',
         );
@@ -524,7 +534,7 @@ void main() {
           rawData: {'id': 1},
         );
 
-        final map = response.toMap();
+        final Map<String, dynamic> map = response.toMap();
 
         expect(map['statusCode'], 201);
         expect(map['statusMessage'], 'Created');

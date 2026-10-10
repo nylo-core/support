@@ -219,7 +219,7 @@ class Console {
 
     // avoid infinite loop if we're getting a bad result
     while (i < 16) {
-      final readByte = stdin.readByteSync();
+      final int readByte = stdin.readByteSync();
 
       if (readByte == -1) break; // headless console may not report back
 
@@ -235,7 +235,7 @@ class Console {
     }
 
     result = result.substring(2, result.length - 1);
-    final coords = result.split(';');
+    final List<String> coords = result.split(';');
 
     if (coords.length != 2) {
       return null;
@@ -548,7 +548,7 @@ class Console {
         }
         final secondChar = String.fromCharCode(charCode);
 
-        final csiResult = _parseCsiSequence(secondChar);
+        final ControlCharacter csiResult = _parseCsiSequence(secondChar);
         if (csiResult != ControlCharacter.unknown) {
           key = KeyStroke.control(csiResult);
         } else if (secondChar.codeUnits[0] >= '0'.codeUnits[0] &&
@@ -640,13 +640,13 @@ class Console {
     var buffer = '';
     var index = 0; // cursor position relative to buffer, not screen
 
-    final screenRow = cursorPosition!.row;
-    final screenColOffset = cursorPosition!.col;
+    final int screenRow = cursorPosition!.row;
+    final int screenColOffset = cursorPosition!.col;
 
-    final bufferMaxLength = windowWidth - screenColOffset - 3;
+    final int bufferMaxLength = windowWidth - screenColOffset - 3;
 
     while (true) {
-      final key = readKey();
+      final KeyStroke key = readKey();
 
       if (key.isControl) {
         switch (key.controlChar) {
@@ -696,7 +696,7 @@ class Console {
             break;
           case ControlCharacter.arrowDown:
             if (_scrollbackBuffer != null) {
-              final temp = _scrollbackBuffer.down();
+              final String? temp = _scrollbackBuffer.down();
               if (temp != null) {
                 buffer = temp;
                 index = buffer.length;
@@ -709,15 +709,15 @@ class Console {
             break;
           case ControlCharacter.wordLeft:
             if (index > 0) {
-              final bufferLeftOfCursor = buffer.substring(0, index - 1);
-              final lastSpace = bufferLeftOfCursor.lastIndexOf(' ');
+              final String bufferLeftOfCursor = buffer.substring(0, index - 1);
+              final int lastSpace = bufferLeftOfCursor.lastIndexOf(' ');
               index = lastSpace != -1 ? lastSpace + 1 : 0;
             }
             break;
           case ControlCharacter.wordRight:
             if (index < buffer.length) {
-              final bufferRightOfCursor = buffer.substring(index + 1);
-              final nextSpace = bufferRightOfCursor.indexOf(' ');
+              final String bufferRightOfCursor = buffer.substring(index + 1);
+              final int nextSpace = bufferRightOfCursor.indexOf(' ');
               index = nextSpace != -1
                   ? min(index + nextSpace + 2, buffer.length)
                   : buffer.length;
@@ -750,7 +750,7 @@ class Console {
       cursorPosition = Coordinate(screenRow, screenColOffset);
       eraseCursorToEnd();
       // Display masked characters if maskChar is provided, otherwise show actual buffer
-      final displayBuffer = maskChar != null
+      final String displayBuffer = maskChar != null
           ? maskChar * buffer.length
           : buffer;
       write(displayBuffer); // allow for backspace condition

@@ -63,7 +63,7 @@ class Str {
   /// Returns [subject] unchanged if [search] is empty or not found.
   static String after(String subject, String search) {
     if (search.isEmpty) return subject;
-    final index = subject.indexOf(search);
+    final int index = subject.indexOf(search);
     if (index == -1) return subject;
     return subject.substring(index + search.length);
   }
@@ -71,7 +71,7 @@ class Str {
   /// Returns the portion of [subject] after the last occurrence of [search].
   static String afterLast(String subject, String search) {
     if (search.isEmpty) return subject;
-    final index = subject.lastIndexOf(search);
+    final int index = subject.lastIndexOf(search);
     if (index == -1) return subject;
     return subject.substring(index + search.length);
   }
@@ -79,7 +79,7 @@ class Str {
   /// Returns the portion of [subject] before the first occurrence of [search].
   static String before(String subject, String search) {
     if (search.isEmpty) return subject;
-    final index = subject.indexOf(search);
+    final int index = subject.indexOf(search);
     if (index == -1) return subject;
     return subject.substring(0, index);
   }
@@ -87,7 +87,7 @@ class Str {
   /// Returns the portion of [subject] before the last occurrence of [search].
   static String beforeLast(String subject, String search) {
     if (search.isEmpty) return subject;
-    final index = subject.lastIndexOf(search);
+    final int index = subject.lastIndexOf(search);
     if (index == -1) return subject;
     return subject.substring(0, index);
   }
@@ -110,10 +110,10 @@ class Str {
     dynamic needles, {
     bool ignoreCase = false,
   }) {
-    final h = ignoreCase ? haystack.toLowerCase() : haystack;
-    final list = needles is List ? needles : [needles];
+    final String h = ignoreCase ? haystack.toLowerCase() : haystack;
+    final List<dynamic> list = needles is List ? needles : [needles];
     for (final n in list) {
-      final s = ignoreCase ? n.toString().toLowerCase() : n.toString();
+      final String s = ignoreCase ? n.toString().toLowerCase() : n.toString();
       if (s.isNotEmpty && h.contains(s)) return true;
     }
     return false;
@@ -133,7 +133,7 @@ class Str {
 
   /// Determines if [haystack] starts with any of the [needles].
   static bool startsWith(String haystack, dynamic needles) {
-    final list = needles is List ? needles : [needles];
+    final List<dynamic> list = needles is List ? needles : [needles];
     for (final n in list) {
       final s = n.toString();
       if (s.isNotEmpty && haystack.startsWith(s)) return true;
@@ -143,7 +143,7 @@ class Str {
 
   /// Determines if [haystack] ends with any of the [needles].
   static bool endsWith(String haystack, dynamic needles) {
-    final list = needles is List ? needles : [needles];
+    final List<dynamic> list = needles is List ? needles : [needles];
     for (final n in list) {
       final s = n.toString();
       if (s.isNotEmpty && haystack.endsWith(s)) return true;
@@ -159,11 +159,11 @@ class Str {
   /// ```
   // ignore: non_constant_identifier_names
   static bool is_(dynamic pattern, String value) {
-    final patterns = pattern is List ? pattern : [pattern];
+    final List<dynamic> patterns = pattern is List ? pattern : [pattern];
     for (final p in patterns) {
       final s = p.toString();
       if (s == value) return true;
-      final escaped = RegExp.escape(s).replaceAll(r'\*', '.*');
+      final String escaped = RegExp.escape(s).replaceAll(r'\*', '.*');
       if (RegExp('^$escaped\$').hasMatch(value)) return true;
     }
     return false;
@@ -178,7 +178,7 @@ class Str {
 
   /// Converts [value] to snake_case (or with custom [delimiter]).
   static String snake(String value, [String delimiter = '_']) {
-    final snake = value.snakeCase;
+    final String snake = value.snakeCase;
     return delimiter == '_' ? snake : snake.replaceAll('_', delimiter);
   }
 
@@ -193,9 +193,9 @@ class Str {
 
   /// Converts [value] to a "Headline" — words split, then title cased.
   static String headline(String value) {
-    final parts = value.trim().split(RegExp(r'[\s_-]+'))
+    final List<String> parts = value.trim().split(RegExp(r'[\s_-]+'))
       ..removeWhere((p) => p.isEmpty);
-    final expanded = parts
+    final String expanded = parts
         .map(
           (p) => p.replaceAllMapped(
             RegExp(r'([a-z])([A-Z])'),
@@ -232,7 +232,7 @@ class Str {
 
   /// Limits [value] to a number of [words].
   static String words(String value, [int words = 100, String end = '...']) {
-    final match = RegExp(
+    final RegExpMatch? match = RegExp(
       r'^\s*(?:\S+\s*){1,' + words.toString() + r'}',
     ).firstMatch(value);
     if (match == null || match.group(0)!.length >= value.length) return value;
@@ -242,14 +242,17 @@ class Str {
   /// Caps [value] with a single instance of [cap].
   static String finish(String value, String cap) {
     if (cap.isEmpty) return value;
-    final stripped = value.replaceAll(RegExp(RegExp.escape(cap) + r'+$'), '');
+    final String stripped = value.replaceAll(
+      RegExp(RegExp.escape(cap) + r'+$'),
+      '',
+    );
     return '$stripped$cap';
   }
 
   /// Begins [value] with a single instance of [prefix].
   static String start(String value, String prefix) {
     if (prefix.isEmpty) return value;
-    final stripped = value.replaceAll(
+    final String stripped = value.replaceAll(
       RegExp('^(?:${RegExp.escape(prefix)})+'),
       '',
     );
@@ -270,8 +273,8 @@ class Str {
 
   /// Replaces every occurrence of [search] with [replace] in [subject].
   static String replace(dynamic search, dynamic replace, String subject) {
-    final searches = search is List ? search : [search];
-    final replaces = replace is List ? replace : [replace];
+    final List<dynamic> searches = search is List ? search : [search];
+    final List<dynamic> replaces = replace is List ? replace : [replace];
     var result = subject;
     for (var i = 0; i < searches.length; i++) {
       final r = i < replaces.length
@@ -285,7 +288,7 @@ class Str {
   /// Replaces the first occurrence of [search] with [replace] in [subject].
   static String replaceFirst(String search, String replace, String subject) {
     if (search.isEmpty) return subject;
-    final index = subject.indexOf(search);
+    final int index = subject.indexOf(search);
     if (index == -1) return subject;
     return subject.replaceFirst(search, replace, index);
   }
@@ -293,7 +296,7 @@ class Str {
   /// Replaces the last occurrence of [search] with [replace] in [subject].
   static String replaceLast(String search, String replace, String subject) {
     if (search.isEmpty) return subject;
-    final index = subject.lastIndexOf(search);
+    final int index = subject.lastIndexOf(search);
     if (index == -1) return subject;
     return subject.replaceFirst(search, replace, index);
   }
@@ -304,7 +307,7 @@ class Str {
     String subject, {
     bool caseSensitive = true,
   }) {
-    final list = search is List ? search : [search];
+    final List<dynamic> list = search is List ? search : [search];
     var result = subject;
     for (final s in list) {
       final str = s.toString();
@@ -336,7 +339,7 @@ class Str {
     });
     t = t.toLowerCase();
     t = t.replaceAll(RegExp(r'[^\p{L}\p{N}\s_-]+', unicode: true), '');
-    final sep = RegExp.escape(separator);
+    final String sep = RegExp.escape(separator);
     t = t.replaceAll(RegExp('[\\s${sep}_]+'), separator);
     t = t.replaceAll(RegExp('^$sep+|$sep+\$'), '');
     return t;
@@ -349,9 +352,9 @@ class Str {
   /// Pads both sides of [value] with [pad] until [length] is reached.
   static String padBoth(String value, int length, [String pad = ' ']) {
     if (value.length >= length || pad.isEmpty) return value;
-    final short = length - value.length;
-    final leftLen = (short / 2).floor();
-    final rightLen = short - leftLen;
+    final int short = length - value.length;
+    final int leftLen = (short / 2).floor();
+    final int rightLen = short - leftLen;
     return '${_repeatToLen(pad, leftLen)}$value${_repeatToLen(pad, rightLen)}';
   }
 
@@ -381,10 +384,10 @@ class Str {
 
   /// Returns a substring of [value] starting at [start] for [length] chars.
   static String substr(String value, int start, [int? length]) {
-    var s = start < 0 ? value.length + start : start;
+    int s = start < 0 ? value.length + start : start;
     if (s < 0) s = 0;
     if (s > value.length) return '';
-    final end = length == null
+    final int end = length == null
         ? value.length
         : (s + length).clamp(s, value.length);
     return value.substring(s, end);
@@ -393,7 +396,7 @@ class Str {
   /// Returns the first [limit] characters of [value].
   static String take(String value, int limit) {
     if (limit < 0) {
-      final start = value.length + limit;
+      final int start = value.length + limit;
       return start < 0 ? value : value.substring(start);
     }
     return value.length <= limit ? value : value.substring(0, limit);
@@ -401,7 +404,7 @@ class Str {
 
   /// Returns the character at [index] (negative indexes count from the end).
   static String? charAt(String subject, int index) {
-    final i = index < 0 ? subject.length + index : index;
+    final int i = index < 0 ? subject.length + index : index;
     if (i < 0 || i >= subject.length) return null;
     return subject[i];
   }
@@ -418,7 +421,7 @@ class Str {
 
   /// Returns the word count of [value].
   static int wordCount(String value) {
-    final trimmed = value.trim();
+    final String trimmed = value.trim();
     if (trimmed.isEmpty) return 0;
     return trimmed.split(RegExp(r'\s+')).length;
   }
@@ -440,12 +443,12 @@ class Str {
     int? length,
   ]) {
     if (character.isEmpty) return string;
-    final start = index < 0 ? string.length + index : index;
+    final int start = index < 0 ? string.length + index : index;
     if (start >= string.length) return string;
-    final end = length == null
+    final int end = length == null
         ? string.length
         : (start + length.abs()).clamp(start, string.length);
-    final maskLen = end - start;
+    final int maskLen = end - start;
     return string.substring(0, start) +
         character[0] * maskLen +
         string.substring(end);
@@ -472,7 +475,9 @@ class Str {
     final bytes = List<int>.generate(16, (_) => _random.nextInt(256));
     bytes[6] = (bytes[6] & 0x0f) | 0x40; // version 4
     bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10
-    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    final String hex = bytes
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
         '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
   }
@@ -480,7 +485,7 @@ class Str {
   /// Generates a ULID (Universally Unique Lexicographically Sortable Identifier).
   static String ulid() {
     const encoding = '0123456789ABCDEFGHJKMNPQRSTVWXYZ';
-    var time = DateTime.now().millisecondsSinceEpoch;
+    int time = DateTime.now().millisecondsSinceEpoch;
     final timePart = StringBuffer();
     for (var i = 0; i < 10; i++) {
       timePart.write(encoding[time % 32]);
@@ -513,7 +518,7 @@ class Str {
 
   /// Returns true if [value] is a valid URL.
   static bool isUrl(String value) {
-    final uri = Uri.tryParse(value);
+    final Uri? uri = Uri.tryParse(value);
     return uri != null && uri.hasScheme && uri.hasAuthority;
   }
 
@@ -535,7 +540,7 @@ class Str {
   /// or `null` if not found. [offset] starts the search from a position.
   static int? position(String haystack, String needle, {int offset = 0}) {
     if (needle.isEmpty) return null;
-    final index = haystack.indexOf(needle, offset);
+    final int index = haystack.indexOf(needle, offset);
     return index == -1 ? null : index;
   }
 
@@ -545,7 +550,7 @@ class Str {
     var count = 0;
     var start = 0;
     while (true) {
-      final i = haystack.indexOf(needle, start);
+      final int i = haystack.indexOf(needle, start);
       if (i == -1) break;
       count++;
       start = i + needle.length;
@@ -558,13 +563,17 @@ class Str {
   /// Note: this is a regex match — distinct from the global `match()` value
   /// mapper defined in `helper.dart`.
   static String? match(Pattern pattern, String subject) {
-    final regex = pattern is RegExp ? pattern : RegExp(pattern.toString());
+    final RegExp regex = pattern is RegExp
+        ? pattern
+        : RegExp(pattern.toString());
     return regex.firstMatch(subject)?.group(0);
   }
 
   /// Returns all regex matches of [pattern] in [subject].
   static List<String> matchAll(Pattern pattern, String subject) {
-    final regex = pattern is RegExp ? pattern : RegExp(pattern.toString());
+    final RegExp regex = pattern is RegExp
+        ? pattern
+        : RegExp(pattern.toString());
     return regex.allMatches(subject).map((m) => m.group(0) ?? '').toList();
   }
 
@@ -579,11 +588,11 @@ class Str {
     String omission = '...',
   }) {
     if (phrase.isEmpty) return null;
-    final i = text.indexOf(phrase);
+    final int i = text.indexOf(phrase);
     if (i == -1) return null;
-    final start = (i - radius).clamp(0, text.length);
-    final end = (i + phrase.length + radius).clamp(0, text.length);
-    final snippet = text.substring(start, end);
+    final int start = (i - radius).clamp(0, text.length);
+    final int end = (i + phrase.length + radius).clamp(0, text.length);
+    final String snippet = text.substring(start, end);
     final prefix = start > 0 ? omission : '';
     final suffix = end < text.length ? omission : '';
     return '$prefix$snippet$suffix';
@@ -596,7 +605,7 @@ class Str {
   /// Strips a single instance of [before] from the start and [after]
   /// (or [before] if `after` is null) from the end of [value].
   static String unwrap(String value, String before, [String? after]) {
-    final end = after ?? before;
+    final String end = after ?? before;
     var result = value;
     if (before.isNotEmpty && result.startsWith(before)) {
       result = result.substring(before.length);
@@ -678,7 +687,7 @@ class Str {
 
   /// Generates a UUID v7 (time-ordered, RFC 9562).
   static String uuid7() {
-    final ms = DateTime.now().millisecondsSinceEpoch;
+    final int ms = DateTime.now().millisecondsSinceEpoch;
     final bytes = List<int>.filled(16, 0);
     bytes[0] = (ms >> 40) & 0xff;
     bytes[1] = (ms >> 32) & 0xff;
@@ -691,7 +700,9 @@ class Str {
     }
     bytes[6] = (bytes[6] & 0x0f) | 0x70; // version 7
     bytes[8] = (bytes[8] & 0x3f) | 0x80; // variant 10
-    final hex = bytes.map((b) => b.toRadixString(16).padLeft(2, '0')).join();
+    final String hex = bytes
+        .map((b) => b.toRadixString(16).padLeft(2, '0'))
+        .join();
     return '${hex.substring(0, 8)}-${hex.substring(8, 12)}-'
         '${hex.substring(12, 16)}-${hex.substring(16, 20)}-${hex.substring(20)}';
   }

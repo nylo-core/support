@@ -167,7 +167,7 @@ void main() {
 
   nyGroup('Arr.shuffle', () {
     nyTest('returns same elements', () async {
-      final result = Arr.shuffle([1, 2, 3, 4, 5]);
+      final List<int> result = Arr.shuffle([1, 2, 3, 4, 5]);
       expect(result.toSet(), {1, 2, 3, 4, 5});
     });
     nyTest('is deterministic with seed', () async {
@@ -215,7 +215,7 @@ void main() {
   nyGroup('Arr.randomMany', () {
     nyTest('returns up to count elements without replacement', () async {
       final list = [1, 2, 3, 4, 5];
-      final picked = Arr.randomMany(list, 3);
+      final List<int> picked = Arr.randomMany(list, 3);
       expect(picked.length, 3);
       expect(picked.toSet().length, 3); // unique
     });
@@ -254,7 +254,7 @@ void main() {
 
   nyGroup('Arr.keyBy', () {
     nyTest('indexes maps by key value', () async {
-      final result = Arr.keyBy([
+      final Map<Object, Map<String, Object>> result = Arr.keyBy([
         {'id': 1, 'name': 'Anna'},
         {'id': 2, 'name': 'Brad'},
       ], 'id');
@@ -262,7 +262,7 @@ void main() {
       expect(result[2], {'id': 2, 'name': 'Brad'});
     });
     nyTest('later entries overwrite earlier on duplicate keys', () async {
-      final result = Arr.keyBy([
+      final Map<Object, Map<String, Object>> result = Arr.keyBy([
         {'id': 1, 'name': 'A'},
         {'id': 1, 'name': 'B'},
       ], 'id');
@@ -689,7 +689,7 @@ void main() {
       expect(Arr.min([3, 1, 2]), 1);
     });
     nyTest('uses extractor and returns the element', () async {
-      final users = [
+      final List<Map<String, Object>> users = [
         {'name': 'Anna', 'age': 30},
         {'name': 'Brad', 'age': 25},
         {'name': 'Cara', 'age': 40},
@@ -706,7 +706,7 @@ void main() {
       expect(Arr.max([3, 1, 2]), 3);
     });
     nyTest('uses extractor and returns the element', () async {
-      final users = [
+      final List<Map<String, Object>> users = [
         {'name': 'Anna', 'age': 30},
         {'name': 'Brad', 'age': 25},
         {'name': 'Cara', 'age': 40},

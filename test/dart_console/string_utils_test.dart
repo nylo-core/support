@@ -15,22 +15,22 @@ void main() {
       });
 
       test('wraps text at default length of 76', () {
-        final text = 'a ' * 50; // 100 characters with spaces
-        final wrapped = text.wrapText();
+        final String text = 'a ' * 50; // 100 characters with spaces
+        final String wrapped = text.wrapText();
 
         expect(wrapped.contains('\n'), isTrue);
       });
 
       test('wraps text at custom length', () {
         const text = 'Hello world this is a test';
-        final wrapped = text.wrapText(10);
+        final String wrapped = text.wrapText(10);
 
         expect(wrapped.contains('\n'), isTrue);
       });
 
       test('preserves words', () {
         const text = 'one two three four five';
-        final wrapped = text.wrapText(10);
+        final String wrapped = text.wrapText(10);
 
         expect(wrapped, contains('one'));
         expect(wrapped, contains('two'));
@@ -39,7 +39,7 @@ void main() {
 
       test('trims trailing whitespace', () {
         const text = 'Hello world';
-        final wrapped = text.wrapText();
+        final String wrapped = text.wrapText();
 
         expect(wrapped, isNot(endsWith(' ')));
       });
@@ -48,7 +48,7 @@ void main() {
     group('alignText()', () {
       group('left alignment', () {
         test('pads text on the right', () {
-          final aligned = 'test'.alignText(
+          final String aligned = 'test'.alignText(
             width: 10,
             alignment: TextAlignment.left,
           );
@@ -59,7 +59,7 @@ void main() {
         });
 
         test('handles text equal to width', () {
-          final aligned = 'test'.alignText(
+          final String aligned = 'test'.alignText(
             width: 4,
             alignment: TextAlignment.left,
           );
@@ -70,7 +70,7 @@ void main() {
 
       group('right alignment', () {
         test('pads text on the left', () {
-          final aligned = 'test'.alignText(
+          final String aligned = 'test'.alignText(
             width: 10,
             alignment: TextAlignment.right,
           );
@@ -83,7 +83,7 @@ void main() {
 
       group('center alignment', () {
         test('pads text on both sides', () {
-          final aligned = 'test'.alignText(
+          final String aligned = 'test'.alignText(
             width: 10,
             alignment: TextAlignment.center,
           );
@@ -93,7 +93,7 @@ void main() {
         });
 
         test('handles odd padding correctly', () {
-          final aligned = 'a'.alignText(
+          final String aligned = 'a'.alignText(
             width: 4,
             alignment: TextAlignment.center,
           );
@@ -103,7 +103,7 @@ void main() {
       });
 
       test('default alignment is left', () {
-        final aligned = 'test'.alignText(width: 10);
+        final String aligned = 'test'.alignText(width: 10);
 
         expect(aligned, startsWith('test'));
       });

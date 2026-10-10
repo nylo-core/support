@@ -56,10 +56,8 @@ class LocalNotification {
 
   bool _initialized = false;
 
-  /// Creates a [LocalNotification] with the given [title] and [body].
-  LocalNotification({String title = '', String body = ''})
-    : _title = title,
-      _body = body;
+  /// Creates a [LocalNotification] with the given [_title] and [_body].
+  LocalNotification({this._title = '', this._body = ''});
 
   /// Sends a notification with the specified parameters.
   ///
@@ -123,7 +121,8 @@ class LocalNotification {
 
     _sendAt = at;
 
-    final notificationDetails = await _getNotificationDetails();
+    final NotificationDetails notificationDetails =
+        await _getNotificationDetails();
 
     if (!_initialized) {
       _initialized =
@@ -145,7 +144,7 @@ class LocalNotification {
     NotificationDetails notificationDetails,
     AndroidScheduleMode androidScheduleMode,
   ) async {
-    final sendAtDateTime = _sendAt.toDateTimeString();
+    final String? sendAtDateTime = _sendAt.toDateTimeString();
 
     if (sendAtDateTime == null) {
       throw const NotificationException('Invalid date provided');
@@ -285,8 +284,9 @@ class LocalNotification {
   }
 
   Future<NotificationDetails> _getIOSNotificationDetails() async {
-    final attachments = await _downloadAttachments();
-    final config = _iosConfig;
+    final List<DarwinNotificationAttachment> attachments =
+        await _downloadAttachments();
+    final IOSNotificationConfig config = _iosConfig;
 
     final iosDetails = DarwinNotificationDetails(
       presentList: config.presentList ?? true,
@@ -309,9 +309,9 @@ class LocalNotification {
   Future<List<DarwinNotificationAttachment>> _downloadAttachments() async {
     final attachments = <DarwinNotificationAttachment>[];
 
-    for (final attachment in _attachments) {
+    for (final NotificationAttachment attachment in _attachments) {
       try {
-        final filePath = await _downloadAndSaveFile(
+        final String filePath = await _downloadAndSaveFile(
           attachment.url,
           attachment.fileName,
         );
@@ -333,8 +333,8 @@ class LocalNotification {
   }
 
   NotificationDetails _getAndroidNotificationDetails() {
-    final config = _mergeAndroidConfigWithDefaults();
-    final sound = _sound;
+    final AndroidNotificationConfig config = _mergeAndroidConfigWithDefaults();
+    final String? sound = _sound;
 
     final androidDetails = AndroidNotificationDetails(
       config.channelId ?? 'default_channel',
@@ -396,14 +396,15 @@ class LocalNotification {
   }
 
   String? _getDefaultAndroidIcon() {
-    final initSettings = Nylo.instance.getInitializationSettings();
+    final InitializationSettings? initSettings = Nylo.instance
+        .getInitializationSettings();
     return initSettings?.android?.defaultIcon ?? 'app_icon';
   }
 
   AndroidNotificationSound? _buildAndroidSound(String? sound) {
     if (sound == null) return null;
 
-    final isUrl = sound.startsWith('http');
+    final bool isUrl = sound.startsWith('http');
     return isUrl
         ? UriAndroidNotificationSound(sound)
         : RawResourceAndroidNotificationSound(sound);
@@ -502,14 +503,14 @@ void _applyIfNotNull<T>(T? value, LocalNotification Function(T) apply) {
 
 /// Downloads and saves a file from a URL.
 Future<String> _downloadAndSaveFile(String url, String fileName) async {
-  final directory = await getApplicationDocumentsDirectory();
+  final Directory directory = await getApplicationDocumentsDirectory();
   final filePath = '${directory.path}/$fileName';
 
   final api = NyApiService(
     decoders: {List<int>: (data) => List<int>.from(data)},
   );
 
-  final responseData = await api.get<List<int>>(
+  final List<int>? responseData = await api.get<List<int>>(
     url,
     options: Options(responseType: ResponseType.bytes),
   );

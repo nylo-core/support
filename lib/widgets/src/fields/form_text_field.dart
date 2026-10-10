@@ -82,7 +82,7 @@ class FormTextFieldStateActions extends FormStateActions {
 
 class _NyFormTextFieldState extends FieldBaseState<NyFormTextField> {
   _NyFormTextFieldState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field

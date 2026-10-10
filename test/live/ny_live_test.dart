@@ -15,12 +15,12 @@ EnvGetter _env(Map<String, dynamic> values) =>
     (String key, {dynamic defaultValue}) => values[key] ?? defaultValue;
 
 class OrderShippedEvent extends NyEvent {
-  OrderShippedEvent(_RecordingListener listener) {
-    listeners[_RecordingListener] = listener;
+  OrderShippedEvent(RecordingListener listener) {
+    listeners[RecordingListener] = listener;
   }
 }
 
-class _RecordingListener extends NyListener {
+class RecordingListener extends NyListener {
   final List<Map?> calls = [];
 
   @override
@@ -762,7 +762,7 @@ void main() {
 
   nyGroup('event.fire', () {
     nyTest('fires a registered event by class name', () async {
-      final _RecordingListener listener = _RecordingListener();
+      final RecordingListener listener = RecordingListener();
       Nylo.instance.addEvents({OrderShippedEvent: OrderShippedEvent(listener)});
 
       expect(
@@ -780,7 +780,7 @@ void main() {
 
     nyTest('lists registered events when the name is wrong', () async {
       Nylo.instance.addEvents({
-        OrderShippedEvent: OrderShippedEvent(_RecordingListener()),
+        OrderShippedEvent: OrderShippedEvent(RecordingListener()),
       });
 
       await expectLater(

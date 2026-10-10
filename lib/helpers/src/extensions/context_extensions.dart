@@ -249,7 +249,7 @@ extension FormValidatorExtensionExt on List<FormValidator> {
   /// Returns the newly created [FormValidator].
   FormValidator that(dynamic data, {String? label}) {
     FormValidator? newValidator = FormValidator(data: data, attribute: label);
-    this.add(newValidator);
+    add(newValidator);
     return newValidator;
   }
 }
@@ -272,13 +272,13 @@ extension ListFormValidationResponseExtensionExt on FormValidationResponseBag {
   /// Get a list of all validation errors.
   /// Returns a list of [FormValidationResult] objects that are not valid.
   List<FormValidationResult> get validationErrors {
-    return this.where((value) => !value.isValid).toList();
+    return where((value) => !value.isValid).toList();
   }
 
   /// Get a list of all successful validations.
   /// Returns a list of [FormValidationResult] objects that are valid.
   List<FormValidationResult> get validationSuccess {
-    return this.where((value) => value.isValid).toList();
+    return where((value) => value.isValid).toList();
   }
 }
 

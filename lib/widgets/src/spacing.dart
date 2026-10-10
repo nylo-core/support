@@ -30,10 +30,8 @@ import 'package:flutter/material.dart';
 /// )
 /// ```
 class Spacing extends StatelessWidget {
-  /// Creates spacing with the specified [width] and [height].
-  const Spacing({super.key, double? width, double? height})
-    : _width = width,
-      _height = height;
+  /// Creates spacing with the specified [_width] and [_height].
+  const Spacing({super.key, this._width, this._height});
 
   /// Creates vertical spacing with the specified [height].
   ///

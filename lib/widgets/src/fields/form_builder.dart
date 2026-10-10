@@ -73,7 +73,7 @@ class _NyFormBuilderState extends FieldBaseState<NyFormBuilder> {
   dynamic currentValue;
 
   _NyFormBuilderState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   @override

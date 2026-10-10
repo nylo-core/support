@@ -165,14 +165,14 @@ class ButtonSplashStyle {
   /// Get the resolved splash color with opacity applied
   Color getSplashColor(BuildContext context, Color fallbackColor) {
     if (type == ButtonSplashType.none) return Colors.transparent;
-    final baseColor = splashColor ?? fallbackColor;
+    final Color baseColor = splashColor ?? fallbackColor;
     return baseColor.withValues(alpha: splashOpacity ?? 0.12);
   }
 
   /// Get the resolved highlight color with opacity applied
   Color getHighlightColor(BuildContext context, Color fallbackColor) {
     if (type == ButtonSplashType.none) return Colors.transparent;
-    final baseColor = highlightColor ?? fallbackColor;
+    final Color baseColor = highlightColor ?? fallbackColor;
     return baseColor.withValues(alpha: highlightOpacity ?? 0.06);
   }
 

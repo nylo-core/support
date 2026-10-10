@@ -33,12 +33,10 @@ class NyMockRouteGuard extends NyRouteGuard {
   RouteContext? _lastContext;
 
   NyMockRouteGuard._({
-    Future<GuardResult> Function(RouteContext context)? onBeforeHandler,
-    String? redirectPath,
-    dynamic redirectData,
-  }) : _onBeforeHandler = onBeforeHandler,
-       _redirectPath = redirectPath,
-       _redirectData = redirectData;
+    this._onBeforeHandler,
+    this._redirectPath,
+    this._redirectData,
+  });
 
   /// Create a guard that always allows navigation to continue.
   ///

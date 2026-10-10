@@ -352,12 +352,14 @@ class InputField extends StatefulWidget {
        );
 
   InputField.fromFieldStyleText({
+    Key? key,
     required Field field,
     FieldStyleTextField? style,
     FormValidator? formValidator,
     FormValidatorCallback? validate,
     Function(String value)? onChanged,
   }) : this(
+         key: key,
          field: field,
          labelText: field.name,
          stateName: field.stateKey,
@@ -443,7 +445,7 @@ class InputField extends StatefulWidget {
        );
 
   /// Password Text Field - obscured by default with visibility toggle
-  InputField.password({
+  const InputField.password({
     Key? key,
     required TextEditingController controller,
     String labelText = "nylo.input_field.password",
@@ -600,7 +602,7 @@ class InputField extends StatefulWidget {
        );
 
   /// Email Address Text Field - email keyboard with autofocus
-  InputField.emailAddress({
+  const InputField.emailAddress({
     Key? key,
     required TextEditingController controller,
     String labelText = "nylo.input_field.email_address",
@@ -901,8 +903,8 @@ class InputField extends StatefulWidget {
       focusedBorder: focusedBorder ?? this.focusedBorder,
       enabledBorder: enabledBorder ?? this.enabledBorder,
       contentPadding: contentPadding ?? this.contentPadding,
-      header: header ?? this.header,
-      footer: footer ?? this.footer,
+      header: header ?? header,
+      footer: footer ?? footer,
       clearable: clearable ?? this.clearable,
       clearIcon: clearIcon ?? this.clearIcon,
       mask: mask ?? this.mask,
@@ -1041,6 +1043,7 @@ class InputField extends StatefulWidget {
   }
 
   @override
+  // ignore: no_logic_in_create_state
   createState() => _InputFieldState(stateName);
 
   /// Applies input formatters to initial text so programmatic values
@@ -1050,7 +1053,7 @@ class InputField extends StatefulWidget {
     List<TextInputFormatter>? formatters,
   ) {
     if (text.isEmpty || formatters == null || formatters.isEmpty) return text;
-    for (final formatter in formatters) {
+    for (final TextInputFormatter formatter in formatters) {
       text = formatter
           .formatEditUpdate(
             TextEditingValue.empty,
@@ -1108,7 +1111,7 @@ class _InputFieldState extends NyState<InputField> {
   String? _errorText;
   bool? didChange = false;
   bool _obscured = false;
-  bool _passedValidation = false;
+  final bool _passedValidation = false;
   TextInputFormatter? maskTextInputFormatter;
   String? _lastErrorMessage;
   bool _hasReportedFirstResult = false;
@@ -1128,9 +1131,10 @@ class _InputFieldState extends NyState<InputField> {
       });
     },
     "setValue": (data) {
-      final value = data["value"];
+      final dynamic value = data["value"];
       String text = value?.toString() ?? "";
-      for (final formatter in widget.inputFormatters ?? []) {
+      for (final TextInputFormatter formatter
+          in widget.inputFormatters ?? const <TextInputFormatter>[]) {
         text = formatter
             .formatEditUpdate(
               TextEditingValue.empty,
@@ -1280,7 +1284,8 @@ class _InputFieldState extends NyState<InputField> {
   /// Notify [InputField.handleValidationError] on result transitions, deferred
   /// to the next frame so callers can safely call `setState` from inside it.
   void _reportValidationResult(FormValidationResult result, String? message) {
-    final handler = widget.handleValidationError;
+    final Function(FormValidationResult handleError)? handler =
+        widget.handleValidationError;
     if (handler == null) return;
 
     final bool changed =

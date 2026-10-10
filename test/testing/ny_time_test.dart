@@ -14,7 +14,7 @@ void main() {
     group('now()', () {
       test('returns current time when not frozen', () {
         final before = DateTime.now();
-        final result = NyTime.now();
+        final DateTime result = NyTime.now();
         final after = DateTime.now();
 
         expect(
@@ -64,7 +64,7 @@ void main() {
         NyTime.setTestNow(DateTime(2020, 1, 1));
         NyTime.reset();
 
-        final now = NyTime.now();
+        final DateTime now = NyTime.now();
         final systemNow = DateTime.now();
 
         expect(now.difference(systemNow).abs().inSeconds, lessThan(2));
@@ -101,8 +101,8 @@ void main() {
         NyTime.advanceBy(const Duration(days: 1));
 
         expect(NyTime.isFrozen, isTrue);
-        final frozenNow = NyTime.now();
-        final tomorrow = DateTime.now().add(const Duration(days: 1));
+        final DateTime frozenNow = NyTime.now();
+        final DateTime tomorrow = DateTime.now().add(const Duration(days: 1));
         expect(frozenNow.difference(tomorrow).abs().inSeconds, lessThan(2));
       });
     });
@@ -126,7 +126,7 @@ void main() {
       test('freezes time at current moment', () {
         final before = DateTime.now();
         NyTime.freeze();
-        final frozen = NyTime.now();
+        final DateTime frozen = NyTime.now();
 
         expect(NyTime.isFrozen, isTrue);
         expect(frozen.difference(before).abs().inSeconds, lessThan(2));
@@ -166,7 +166,7 @@ void main() {
       });
 
       test('returns callback result', () async {
-        final result = await NyTime.withFrozenTime(
+        final int result = await NyTime.withFrozenTime(
           DateTime(2025, 1, 1),
           () async {
             return 42;
@@ -200,9 +200,12 @@ void main() {
       });
 
       test('returns callback result', () {
-        final result = NyTime.withFrozenTimeSync(DateTime(2025, 1, 1), () {
-          return 'test result';
-        });
+        final String result = NyTime.withFrozenTimeSync(
+          DateTime(2025, 1, 1),
+          () {
+            return 'test result';
+          },
+        );
 
         expect(result, equals('test result'));
       });

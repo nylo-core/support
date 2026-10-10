@@ -69,9 +69,9 @@ Future<Nylo> setupApplication(
   final bool shouldLog =
       enableDebugLogging ?? getEnv('APP_DEBUG', defaultValue: false);
 
-  for (final entry in providers.entries) {
+  for (final MapEntry<Type, NyProvider> entry in providers.entries) {
     final providerName = entry.key.toString();
-    final provider = entry.value;
+    final NyProvider provider = entry.value;
 
     final Stopwatch? stopwatch = shouldLog ? (Stopwatch()..start()) : null;
 
@@ -124,9 +124,9 @@ Future<Nylo> bootFinished(
   final bool shouldLog =
       enableDebugLogging ?? getEnv('APP_DEBUG', defaultValue: false);
 
-  for (final entry in providers.entries) {
+  for (final MapEntry<Type, NyProvider> entry in providers.entries) {
     final providerName = entry.key.toString();
-    final provider = entry.value;
+    final NyProvider provider = entry.value;
 
     final Stopwatch? stopwatch = shouldLog ? (Stopwatch()..start()) : null;
 

@@ -10,7 +10,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 /// A one-field form, so validation can pass or fail on demand.
 class EmailForm extends NyFormWidget {
-  EmailForm({super.key});
+  const EmailForm({super.key});
 
   static NyFormActions get actions => const NyFormActions('EmailForm');
 

@@ -146,7 +146,8 @@ void main() {
 
     nyGroup('defaults', () {
       nyTest('returns correct default configuration', () async {
-        final defaults = AndroidNotificationConfig.defaults;
+        final AndroidNotificationConfig defaults =
+            AndroidNotificationConfig.defaults;
 
         expect(defaults.channelId, 'default_channel');
         expect(defaults.channelName, 'Default Channel');
@@ -172,7 +173,7 @@ void main() {
           priority: Priority.max,
         );
 
-        final copied = original.copyWith();
+        final AndroidNotificationConfig copied = original.copyWith();
 
         expect(copied.channelId, original.channelId);
         expect(copied.channelName, original.channelName);
@@ -187,7 +188,7 @@ void main() {
           importance: Importance.high,
         );
 
-        final copied = original.copyWith(
+        final AndroidNotificationConfig copied = original.copyWith(
           channelId: 'new_channel',
           importance: Importance.low,
         );
@@ -203,7 +204,7 @@ void main() {
       nyTest('can update all fields', () async {
         const original = AndroidNotificationConfig();
 
-        final copied = original.copyWith(
+        final AndroidNotificationConfig copied = original.copyWith(
           channelId: 'new_channel',
           channelName: 'New Channel',
           channelDescription: 'New Description',

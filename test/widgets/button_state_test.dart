@@ -10,7 +10,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 
 /// A one-field form for driving the submitForm path.
 class EmailForm extends NyFormWidget {
-  EmailForm({super.key});
+  const EmailForm({super.key});
 
   @override
   List<dynamic> fields() => [

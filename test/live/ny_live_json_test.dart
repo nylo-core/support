@@ -25,12 +25,8 @@ class _Opaque {
 
 enum _Tier { gold }
 
-String _envelope(String type, String data, {int? expiresAt}) => jsonEncode({
-  '_v': 'v1',
-  '_t': type,
-  '_d': data,
-  if (expiresAt != null) '_e': expiresAt,
-});
+String _envelope(String type, String data, {int? expiresAt}) =>
+    jsonEncode({'_v': 'v1', '_t': type, '_d': data, '_e': ?expiresAt});
 
 void main() {
   NyTest.init();

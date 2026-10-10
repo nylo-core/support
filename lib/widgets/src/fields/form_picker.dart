@@ -108,7 +108,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
   FormCollection? _options;
 
   _NyFormPickerState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   @override
@@ -140,7 +140,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
       setState(() {});
     },
     "setOptions": (data) {
-      final options = data["options"];
+      final dynamic options = data["options"];
       if (options is FormCollection) {
         _options = options;
         setState(() {});
@@ -368,7 +368,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                 Expanded(
                   child: ListView.separated(
                     itemCount: values.length,
-                    separatorBuilder: (_, __) =>
+                    separatorBuilder: (_, _) =>
                         Divider(color: dividerColor, height: 1),
                     itemBuilder: (BuildContext context, int index) =>
                         _buildPickerTile(
@@ -395,7 +395,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
     FormOption item, {
     required TextStyle itemStyle,
   }) {
-    final listTileStyle = style.listTileStyle;
+    final PickerListTileStyle? listTileStyle = style.listTileStyle;
     final bool isSelected =
         currentValue != null && item.value == currentValue.toString();
 

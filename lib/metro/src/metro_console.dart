@@ -91,7 +91,7 @@ class MetroConsole {
   /// Supported by VS Code, Cursor, iTerm2, GNOME Terminal, Windows Terminal, etc.
   /// Falls back to plain text in terminals that don't support it.
   static String hyperlink(String text, String filePath) {
-    final absolutePath = File(filePath).absolute.path;
+    final String absolutePath = File(filePath).absolute.path;
     // Using BEL (\x07) instead of ST (\x1B\\) for broader terminal compatibility
     return '\x1B]8;;file://$absolutePath\x07$text\x1B]8;;\x07';
   }
@@ -115,7 +115,7 @@ class MetroConsole {
     ConsoleColor color, {
     bool bold = false,
   }) {
-    final absolutePath = File(filePath).absolute.path;
+    final String absolutePath = File(filePath).absolute.path;
     final buffer = StringBuffer();
 
     // Apply bold if requested

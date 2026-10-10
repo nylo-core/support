@@ -94,12 +94,12 @@ class ProgressBar {
       return;
     }
     _tickCount++;
-    final fractionComplete = math.max(
+    final int fractionComplete = math.max(
       0,
       _tickCount * _innerWidth ~/ maxValue - 1,
     );
-    final remaining = _innerWidth - fractionComplete - 1;
-    final spinner = showSpinner
+    final int remaining = _innerWidth - fractionComplete - 1;
+    final String spinner = showSpinner
         ? tickCharacters[_tickCount % tickCharacters.length]
         : ' ';
 
@@ -111,7 +111,7 @@ class ProgressBar {
   void _printProgressBar(String progressBar) {
     // Push current location, so we can restore it after we've printed the
     // progress bar.
-    final originalCursorPosition = _console.cursorPosition;
+    final Coordinate? originalCursorPosition = _console.cursorPosition;
 
     // Go to the starting location for the progress bar; if none specified, go
     // to the start of the current column.

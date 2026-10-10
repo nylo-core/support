@@ -50,7 +50,7 @@ Future<bool> openUrl(
   Map<String, String>? headers,
 }) async {
   try {
-    final uri = Uri.parse(url);
+    final Uri uri = Uri.parse(url);
 
     // Validate web-only URLs
     if (webOnly && !['http', 'https'].contains(uri.scheme)) {
@@ -61,12 +61,12 @@ Future<bool> openUrl(
     }
 
     // Map UrlLaunchModeType to url_launcher's LaunchMode
-    final launchMode = _mapLaunchMode(mode);
+    final LaunchMode launchMode = _mapLaunchMode(mode);
 
     // Configure WebView settings if using in-app mode
     final webViewConfig = WebViewConfiguration(headers: headers ?? {});
 
-    final result = await launchUrl(
+    final bool result = await launchUrl(
       uri,
       mode: launchMode,
       webViewConfiguration: webViewConfig,
@@ -97,7 +97,7 @@ Future<bool> openUrl(
 /// ```
 Future<bool> canOpenUrl(String url) async {
   try {
-    final uri = Uri.parse(url);
+    final Uri uri = Uri.parse(url);
     return await canLaunchUrl(uri);
   } catch (e) {
     NyLogger.error('canOpenUrl: Error checking URL: $e');

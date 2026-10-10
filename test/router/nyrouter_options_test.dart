@@ -80,7 +80,7 @@ void main() {
     nyGroup('default pageTransitionSettings', () {
       nyTest('should use base settings by default', () async {
         const options = NyRouterOptions();
-        final settings = options.pageTransitionSettings;
+        final PageTransitionSettings settings = options.pageTransitionSettings;
 
         // PageTransitionSettings.base() defaults
         expect(settings.inheritTheme, isFalse);

@@ -216,7 +216,7 @@ void main() {
         table.insertColumn(header: 'Age');
         table.insertRow(['Alice', '30']);
         table.insertRow(['Bob', '25']);
-        final output = table.render();
+        final String output = table.render();
         expect(output, isNotEmpty);
       });
 
@@ -225,7 +225,7 @@ void main() {
         table.borderStyle = BorderStyle.none;
         table.insertColumn(header: 'Name');
         table.insertRow(['Alice']);
-        final output = table.render();
+        final String output = table.render();
         expect(output, isNotEmpty);
       });
 
@@ -233,7 +233,7 @@ void main() {
         final table = Table();
         table.insertColumn(header: 'Name');
         table.insertRow(['Alice']);
-        final output = table.render(plainText: true);
+        final String output = table.render(plainText: true);
         expect(output, isNotEmpty);
         // Plain text should not contain escape characters
         expect(output, isNot(contains('\x1b')));
@@ -244,17 +244,17 @@ void main() {
         table.title = 'Test Table';
         table.insertColumn(header: 'Name');
         table.insertRow(['Alice']);
-        final output = table.render(plainText: true);
+        final String output = table.render(plainText: true);
         expect(output, contains('Test Table'));
       });
 
       nyTest('should render with different border styles', () async {
-        for (final style in BorderStyle.values) {
+        for (final BorderStyle style in BorderStyle.values) {
           final table = Table();
           table.borderStyle = style;
           table.insertColumn(header: 'Col');
           table.insertRow(['Val']);
-          final output = table.render();
+          final String output = table.render();
           expect(output, isNotEmpty, reason: 'BorderStyle.$style');
         }
       });
@@ -265,7 +265,7 @@ void main() {
         table.insertColumn(header: 'Name');
         table.insertRow(['A']);
         table.insertRow(['B']);
-        final output = table.render();
+        final String output = table.render();
         expect(output, isNotEmpty);
       });
     });

@@ -29,7 +29,7 @@ void main() {
     nyGroup('custom values', () {
       nyTest('creates with custom values', () async {
         final testIcon = const Icon(Icons.warning);
-        final testColor = Colors.orange;
+        final MaterialColor testColor = Colors.orange;
         var actionCalled = false;
         var dismissCalled = false;
         var onDismissCalled = false;
@@ -84,7 +84,7 @@ void main() {
           position: ToastNotificationPosition.center,
         );
 
-        final copied = original.copyWith();
+        final ToastMeta copied = original.copyWith();
 
         expect(copied.title, original.title);
         expect(copied.description, original.description);
@@ -100,7 +100,7 @@ void main() {
           position: ToastNotificationPosition.top,
         );
 
-        final copied = original.copyWith(
+        final ToastMeta copied = original.copyWith(
           title: 'New Title',
           position: ToastNotificationPosition.bottom,
         );
@@ -120,7 +120,7 @@ void main() {
         final newIcon = const Icon(Icons.error);
         var newActionCalled = false;
 
-        final copied = original.copyWith(
+        final ToastMeta copied = original.copyWith(
           icon: newIcon,
           title: 'Error',
           style: 'danger',
@@ -162,7 +162,7 @@ void main() {
     nyGroup('property accessibility', () {
       nyTest('all properties are readable', () async {
         final icon = const Icon(Icons.info);
-        final color = Colors.blue;
+        final MaterialColor color = Colors.blue;
         final metaData = {'custom': 'data'};
 
         final meta = ToastMeta(

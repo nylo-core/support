@@ -11,7 +11,7 @@ void main() {
 
   nyGroup('CurrencyMeta', () {
     nyTest('should store currency symbol', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
       );
@@ -20,7 +20,7 @@ void main() {
     });
 
     nyTest('should store initial value', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
       );
@@ -29,7 +29,7 @@ void main() {
     });
 
     nyTest('should have formatter', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
       );
@@ -44,7 +44,7 @@ void main() {
 
   nyGroup('CurrencyInputMatcher.currencies', () {
     nyTest('should contain common currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('usd'));
       expect(currencies, contains('eur'));
@@ -55,7 +55,7 @@ void main() {
     });
 
     nyTest('should contain Asian currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('jpy'));
       expect(currencies, contains('cny'));
@@ -67,7 +67,7 @@ void main() {
     });
 
     nyTest('should contain European currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('eur'));
       expect(currencies, contains('gbp'));
@@ -79,7 +79,7 @@ void main() {
     });
 
     nyTest('should contain Middle Eastern currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('aed'));
       expect(currencies, contains('sar'));
@@ -89,7 +89,7 @@ void main() {
     });
 
     nyTest('should contain Latin American currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('brl'));
       expect(currencies, contains('mxn'));
@@ -100,7 +100,7 @@ void main() {
     });
 
     nyTest('should contain African currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       expect(currencies, contains('zar'));
       expect(currencies, contains('ngn'));
@@ -112,7 +112,7 @@ void main() {
     });
 
     nyTest('should have expected number of currencies', () async {
-      final currencies = CurrencyInputMatcher.currencies;
+      final List<String> currencies = CurrencyInputMatcher.currencies;
 
       // Verify we have a reasonable number of currencies
       expect(currencies.length, greaterThan(50));
@@ -126,7 +126,7 @@ void main() {
   nyGroup('CurrencyInputMatcher.getCurrencyMeta - Leading Symbol', () {
     nyGroup('USD (US Dollar)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:usd',
           value: '100',
         );
@@ -135,7 +135,7 @@ void main() {
       });
 
       nyTest('should format initial value with leading symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:usd',
           value: '100',
         );
@@ -146,7 +146,7 @@ void main() {
 
     nyGroup('GBP (British Pound)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:gbp',
           value: '100',
         );
@@ -158,7 +158,7 @@ void main() {
 
     nyGroup('JPY (Japanese Yen)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:jpy',
           value: '1000',
         );
@@ -170,7 +170,7 @@ void main() {
 
     nyGroup('AUD (Australian Dollar)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:aud',
           value: '100',
         );
@@ -182,7 +182,7 @@ void main() {
 
     nyGroup('CAD (Canadian Dollar)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:cad',
           value: '100',
         );
@@ -194,7 +194,7 @@ void main() {
 
     nyGroup('TWD (Taiwan Dollar)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:twd',
           value: '1000',
         );
@@ -206,7 +206,7 @@ void main() {
 
     nyGroup('INR (Indian Rupee)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:inr',
           value: '1000',
         );
@@ -218,7 +218,7 @@ void main() {
 
     nyGroup('KRW (Korean Won)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:krw',
           value: '10000',
         );
@@ -230,7 +230,7 @@ void main() {
 
     nyGroup('TRY (Turkish Lira)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:try',
           value: '100',
         );
@@ -242,7 +242,7 @@ void main() {
 
     nyGroup('BRL (Brazilian Real)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:brl',
           value: '100',
         );
@@ -260,7 +260,7 @@ void main() {
   nyGroup('CurrencyInputMatcher.getCurrencyMeta - Trailing Symbol', () {
     nyGroup('EUR (Euro)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:eur',
           value: '100',
         );
@@ -272,7 +272,7 @@ void main() {
 
     nyGroup('VND (Vietnamese Dong)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:vnd',
           value: '100000',
         );
@@ -284,7 +284,7 @@ void main() {
 
     nyGroup('THB (Thai Baht)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:thb',
           value: '1000',
         );
@@ -296,7 +296,7 @@ void main() {
 
     nyGroup('RUB (Russian Ruble)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:rub',
           value: '1000',
         );
@@ -308,7 +308,7 @@ void main() {
 
     nyGroup('SEK (Swedish Krona)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:sek',
           value: '100',
         );
@@ -320,7 +320,7 @@ void main() {
 
     nyGroup('CZK (Czech Koruna)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:czk',
           value: '1000',
         );
@@ -332,7 +332,7 @@ void main() {
 
     nyGroup('PLN (Polish Zloty)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:pln',
           value: '100',
         );
@@ -344,7 +344,7 @@ void main() {
 
     nyGroup('HUF (Hungarian Forint)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:huf',
           value: '10000',
         );
@@ -365,7 +365,7 @@ void main() {
   nyGroup('CurrencyInputMatcher.getCurrencyMeta - Space-Separated', () {
     nyGroup('CHF (Swiss Franc)', () {
       nyTest('should return correct symbol with space', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:chf',
           value: '100',
         );
@@ -377,7 +377,7 @@ void main() {
 
     nyGroup('MYR (Malaysian Ringgit)', () {
       nyTest('should return correct symbol', () async {
-        final meta = CurrencyInputMatcher.getCurrencyMeta(
+        final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
           'currency:myr',
           value: '100',
         );
@@ -422,7 +422,7 @@ void main() {
 
   nyGroup('CurrencyInputMatcher onChanged Callback', () {
     nyTest('should accept onChanged callback', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
         onChanged: (value) {},
@@ -433,7 +433,7 @@ void main() {
     });
 
     nyTest('should create formatter with onChanged', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '100',
         onChanged: (value) {},
@@ -449,7 +449,7 @@ void main() {
 
   nyGroup('CurrencyInputMatcher Edge Cases', () {
     nyTest('should handle empty value', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '',
       );
@@ -458,7 +458,7 @@ void main() {
     });
 
     nyTest('should handle zero value', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '0',
       );
@@ -467,7 +467,7 @@ void main() {
     });
 
     nyTest('should handle large values', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '1000000000',
       );
@@ -476,7 +476,7 @@ void main() {
     });
 
     nyTest('should handle decimal values', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: '99.99',
       );
@@ -485,7 +485,7 @@ void main() {
     });
 
     nyTest('should handle value with spaces', () async {
-      final meta = CurrencyInputMatcher.getCurrencyMeta(
+      final CurrencyMeta meta = CurrencyInputMatcher.getCurrencyMeta(
         'currency:usd',
         value: ' 100 ',
       );

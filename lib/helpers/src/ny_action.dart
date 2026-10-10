@@ -18,11 +18,11 @@ class NyAction {
     FutureOr<void> Function()? unauthorized,
   }) async {
     final key = 'action_$actionKey';
-    final today = DateTime.now().toDateString();
+    final String? today = DateTime.now().toDateString();
 
-    final stored = await NyStorage.readJson(key);
-    final isNewDay = stored == null || stored['date'] != today;
-    final count = isNewDay ? 0 : (stored['count'] as int? ?? 0);
+    final dynamic stored = await NyStorage.readJson(key);
+    final bool isNewDay = stored == null || stored['date'] != today;
+    final int count = isNewDay ? 0 : (stored['count'] as int? ?? 0);
 
     if (count >= maxPerDay) {
       await unauthorized?.call();
@@ -42,7 +42,7 @@ class NyAction {
     required FutureOr<bool> Function() when,
     FutureOr<void> Function()? unauthorized,
   }) async {
-    final canPerform = await when();
+    final bool canPerform = await when();
     if (!canPerform) {
       await unauthorized?.call();
       return;

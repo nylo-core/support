@@ -24,7 +24,7 @@ class NyCache {
   /// Gets the cache file for a given key.
   /// Sanitizes the key to prevent path traversal attacks.
   File _fileFor(String key) {
-    final sanitized = key.replaceAll(RegExp(r'[/\\.]'), '_');
+    final String sanitized = key.replaceAll(RegExp(r'[/\\.]'), '_');
     return File('${_cacheDirectory!.path}/$sanitized');
   }
 
@@ -87,11 +87,13 @@ class NyCache {
   ) async {
     if (!isAvailable) return await callback();
 
-    final cacheFile = _fileFor(key);
+    final File cacheFile = _fileFor(key);
     if (await cacheFile.exists()) {
       try {
-        final data = jsonDecode(await cacheFile.readAsString());
-        final expiration = DateTime.tryParse(data['expiration'] ?? '');
+        final dynamic data = jsonDecode(await cacheFile.readAsString());
+        final DateTime? expiration = DateTime.tryParse(
+          data['expiration'] ?? '',
+        );
         if (expiration != null && DateTime.now().isBefore(expiration)) {
           return data['value'] as T?;
         }
@@ -101,7 +103,7 @@ class NyCache {
       }
     }
 
-    final value = await callback();
+    final T value = await callback();
     await cacheFile.writeAsString(
       jsonEncode({
         'value': _serialize(value),
@@ -123,10 +125,10 @@ class NyCache {
   Future<T?> saveForever<T>(String key, FutureOr<T> Function() callback) async {
     if (!isAvailable) return await callback();
 
-    final cacheFile = _fileFor(key);
+    final File cacheFile = _fileFor(key);
     if (await cacheFile.exists()) {
       try {
-        final data = jsonDecode(await cacheFile.readAsString());
+        final dynamic data = jsonDecode(await cacheFile.readAsString());
         return data['value'] as T?;
       } catch (_) {
         // Corrupted cache file, delete and continue to fetch fresh value
@@ -134,7 +136,7 @@ class NyCache {
       }
     }
 
-    final value = await callback();
+    final T value = await callback();
     await cacheFile.writeAsString(jsonEncode({'value': _serialize(value)}));
     return value;
   }
@@ -145,7 +147,7 @@ class NyCache {
   Future<void> clear(String key) async {
     if (!isAvailable) return;
 
-    final cacheFile = _fileFor(key);
+    final File cacheFile = _fileFor(key);
     if (await cacheFile.exists()) {
       await cacheFile.delete();
     }
@@ -202,14 +204,14 @@ class NyCache {
   Future<T?> get<T>(String key) async {
     if (!isAvailable) return null;
 
-    final cacheFile = _fileFor(key);
+    final File cacheFile = _fileFor(key);
     if (!await cacheFile.exists()) return null;
 
     try {
-      final data = jsonDecode(await cacheFile.readAsString());
+      final dynamic data = jsonDecode(await cacheFile.readAsString());
       final expirationStr = data['expiration'] as String?;
       if (expirationStr != null) {
-        final expiration = DateTime.tryParse(expirationStr);
+        final DateTime? expiration = DateTime.tryParse(expirationStr);
         if (expiration == null || DateTime.now().isAfter(expiration)) {
           await cacheFile.delete();
           return null;
@@ -248,7 +250,7 @@ class NyCache {
     if (!isAvailable) return 0;
 
     int totalSize = 0;
-    await for (var file in _cacheDirectory!.list(
+    await for (FileSystemEntity file in _cacheDirectory!.list(
       recursive: true,
       followLinks: false,
     )) {
@@ -263,7 +265,7 @@ class NyCache {
 /// Get the cache instance.
 /// Throws [StateError] if cache is not initialized.
 NyCache cache() {
-  final nyCache = backpackNylo().getCache;
+  final NyCache? nyCache = backpackNylo().getCache;
   if (nyCache == null) {
     throw StateError('Cache not initialized');
   }

@@ -27,7 +27,8 @@ void main() {
       });
 
       nyTest('values list contains all positions', () async {
-        final values = ToastNotificationPosition.values;
+        final List<ToastNotificationPosition> values =
+            ToastNotificationPosition.values;
 
         expect(values, contains(ToastNotificationPosition.top));
         expect(values, contains(ToastNotificationPosition.bottom));
@@ -57,7 +58,7 @@ void main() {
 
       nyTest('can be changed via copyWith', () async {
         final meta = ToastMeta(position: ToastNotificationPosition.top);
-        final updated = meta.copyWith(
+        final ToastMeta updated = meta.copyWith(
           position: ToastNotificationPosition.bottom,
         );
 
@@ -71,9 +72,12 @@ void main() {
 
     nyGroup('enum comparison', () {
       nyTest('equality works correctly', () async {
-        const position1 = ToastNotificationPosition.top;
-        const position2 = ToastNotificationPosition.top;
-        const position3 = ToastNotificationPosition.bottom;
+        const ToastNotificationPosition position1 =
+            ToastNotificationPosition.top;
+        const ToastNotificationPosition position2 =
+            ToastNotificationPosition.top;
+        const ToastNotificationPosition position3 =
+            ToastNotificationPosition.bottom;
 
         expect(position1 == position2, isTrue);
         expect(position1 == position3, isFalse);

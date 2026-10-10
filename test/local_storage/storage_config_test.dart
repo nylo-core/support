@@ -9,8 +9,8 @@ void main() {
   nyGroup('StorageConfig', () {
     nyGroup('singleton instance', () {
       nyTest('should return the same instance', () async {
-        final instance1 = StorageConfig.instance;
-        final instance2 = StorageConfig.instance;
+        final StorageConfig instance1 = StorageConfig.instance;
+        final StorageConfig instance2 = StorageConfig.instance;
 
         expect(identical(instance1, instance2), isTrue);
       });
@@ -18,37 +18,37 @@ void main() {
 
     nyGroup('default values', () {
       nyTest('should have default iOS options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.iosOptions, isA<IOSOptions>());
       });
 
       nyTest('should have default Android options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.androidOptions, isA<AndroidOptions>());
       });
 
       nyTest('should have default Linux options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.linuxOptions, isA<LinuxOptions>());
       });
 
       nyTest('should have default Windows options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.windowsOptions, isA<WindowsOptions>());
       });
 
       nyTest('should have default Web options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.webOptions, isA<WebOptions>());
       });
 
       nyTest('should have default macOS options', () async {
-        final config = StorageConfig.instance;
+        final StorageConfig config = StorageConfig.instance;
 
         expect(config.macOsOptions, isA<MacOsOptions>());
       });
@@ -104,7 +104,7 @@ void main() {
       });
 
       nyTest('should allow partial initialization', () async {
-        final customWebOptions = WebOptions.defaultOptions;
+        final WebOptions customWebOptions = WebOptions.defaultOptions;
 
         StorageConfig.init(webOptions: customWebOptions);
 
@@ -135,7 +135,7 @@ void main() {
 
       nyTest('should allow setting Linux options', () async {
         final config = StorageConfig();
-        final newLinuxOptions = LinuxOptions.defaultOptions;
+        final LinuxOptions newLinuxOptions = LinuxOptions.defaultOptions;
 
         config.linuxOptions = newLinuxOptions;
 
@@ -144,7 +144,7 @@ void main() {
 
       nyTest('should allow setting Windows options', () async {
         final config = StorageConfig();
-        final newWindowsOptions = WindowsOptions.defaultOptions;
+        final WindowsOptions newWindowsOptions = WindowsOptions.defaultOptions;
 
         config.windowsOptions = newWindowsOptions;
 
@@ -153,7 +153,7 @@ void main() {
 
       nyTest('should allow setting Web options', () async {
         final config = StorageConfig();
-        final newWebOptions = WebOptions.defaultOptions;
+        final WebOptions newWebOptions = WebOptions.defaultOptions;
 
         config.webOptions = newWebOptions;
 
@@ -162,7 +162,7 @@ void main() {
 
       nyTest('should allow setting macOS options', () async {
         final config = StorageConfig();
-        final newMacOsOptions = MacOsOptions.defaultOptions;
+        final MacOsOptions newMacOsOptions = MacOsOptions.defaultOptions;
 
         config.macOsOptions = newMacOsOptions;
 

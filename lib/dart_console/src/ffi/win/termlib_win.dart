@@ -25,7 +25,7 @@ class TermLibWindows implements TermLib {
 
   @override
   void enableRawMode() {
-    final dwMode =
+    final int dwMode =
         (~ENABLE_ECHO_INPUT) &
         (~ENABLE_PROCESSED_INPUT) &
         (~ENABLE_LINE_INPUT) &
@@ -53,8 +53,8 @@ class TermLibWindows implements TermLib {
   }
 
   void hideCursor() {
-    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()
-      ..ref.bVisible = false;
+    final Pointer<CONSOLE_CURSOR_INFO> lpConsoleCursorInfo =
+        calloc<CONSOLE_CURSOR_INFO>()..ref.bVisible = false;
     try {
       SetConsoleCursorInfo(outputHandle, lpConsoleCursorInfo);
     } finally {
@@ -63,8 +63,8 @@ class TermLibWindows implements TermLib {
   }
 
   void showCursor() {
-    final lpConsoleCursorInfo = calloc<CONSOLE_CURSOR_INFO>()
-      ..ref.bVisible = true;
+    final Pointer<CONSOLE_CURSOR_INFO> lpConsoleCursorInfo =
+        calloc<CONSOLE_CURSOR_INFO>()..ref.bVisible = true;
     try {
       SetConsoleCursorInfo(outputHandle, lpConsoleCursorInfo);
     } finally {
@@ -73,14 +73,15 @@ class TermLibWindows implements TermLib {
   }
 
   void clearScreen() {
-    final pBufferInfo = calloc<CONSOLE_SCREEN_BUFFER_INFO>();
-    final pCharsWritten = calloc<Uint32>();
-    final origin = calloc<COORD>();
+    final Pointer<CONSOLE_SCREEN_BUFFER_INFO> pBufferInfo =
+        calloc<CONSOLE_SCREEN_BUFFER_INFO>();
+    final Pointer<Uint32> pCharsWritten = calloc<Uint32>();
+    final Pointer<COORD> origin = calloc<COORD>();
     try {
-      final bufferInfo = pBufferInfo.ref;
+      final CONSOLE_SCREEN_BUFFER_INFO bufferInfo = pBufferInfo.ref;
       GetConsoleScreenBufferInfo(outputHandle, pBufferInfo);
 
-      final consoleSize = bufferInfo.dwSize.X * bufferInfo.dwSize.Y;
+      final int consoleSize = bufferInfo.dwSize.X * bufferInfo.dwSize.Y;
 
       FillConsoleOutputCharacter(
         outputHandle,
@@ -109,7 +110,7 @@ class TermLibWindows implements TermLib {
   }
 
   void setCursorPosition(int x, int y) {
-    final coord = calloc<COORD>()
+    final Pointer<COORD> coord = calloc<COORD>()
       ..ref.X = x
       ..ref.Y = y;
     try {

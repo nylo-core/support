@@ -56,7 +56,7 @@ class NyStorage {
 
     if (object is! Model) {
       // Use envelope format: single write with inline type metadata
-      final envelope = _createEnvelope(
+      final Map<String, dynamic> envelope = _createEnvelope(
         type: object.runtimeType.toString(),
         value: object.toString(),
       );
@@ -67,7 +67,10 @@ class NyStorage {
     try {
       Map<String, dynamic> json = object.toJson();
       // Store model as envelope with 'model' type
-      final envelope = _createEnvelope(type: 'model', value: jsonEncode(json));
+      final Map<String, dynamic> envelope = _createEnvelope(
+        type: 'model',
+        value: jsonEncode(json),
+      );
       await _write(key, jsonEncode(envelope));
     } on NoSuchMethodError catch (_) {
       NyLogger.error(
@@ -88,7 +91,10 @@ class NyStorage {
 
     try {
       // Use envelope format for JSON
-      final envelope = _createEnvelope(type: 'json', value: jsonEncode(object));
+      final Map<String, dynamic> envelope = _createEnvelope(
+        type: 'json',
+        value: jsonEncode(object),
+      );
       await _write(key, jsonEncode(envelope));
     } on Exception catch (e) {
       NyLogger.error(e.toString());
@@ -109,7 +115,7 @@ class NyStorage {
   /// Attempts to parse data as an envelope, returns null if not envelope format.
   static _StorageEnvelope? _parseEnvelope(String data) {
     try {
-      final decoded = jsonDecode(data);
+      final dynamic decoded = jsonDecode(data);
       if (decoded is Map<String, dynamic> &&
           decoded.containsKey('_v') &&
           decoded.containsKey('_t') &&
@@ -141,14 +147,44 @@ class NyStorage {
     }
 
     // Try to parse as new envelope format first
-    final envelope = _parseEnvelope(data);
+    final _StorageEnvelope? envelope = _parseEnvelope(data);
     if (envelope != null) {
       return _readFromEnvelope<T>(envelope, modelDecoders: modelDecoders);
     }
 
     // Fall back to legacy format: check for separate _runtime_type key
-    String? runtimeType = await _read("${key}_runtime_type");
+    return _readFromLegacy<T>(
+      data,
+      runtimeType: await _read("${key}_runtime_type"),
+      modelDecoders: modelDecoders,
+    );
+  }
 
+  /// Decodes a raw stored [data] string without touching storage.
+  /// Use this when the raw values are already in hand (e.g. from [readAll]).
+  /// [legacyRuntimeType] is the value of the legacy `<key>_runtime_type` entry.
+  static T? decodeRaw<T>(
+    String data, {
+    String? legacyRuntimeType,
+    Map<Type, dynamic>? modelDecoders,
+  }) {
+    final _StorageEnvelope? envelope = _parseEnvelope(data);
+    if (envelope != null) {
+      return _readFromEnvelope<T>(envelope, modelDecoders: modelDecoders);
+    }
+    return _readFromLegacy<T>(
+      data,
+      runtimeType: legacyRuntimeType,
+      modelDecoders: modelDecoders,
+    );
+  }
+
+  /// Reads a value stored in the legacy format (separate _runtime_type key).
+  static T? _readFromLegacy<T>(
+    String data, {
+    String? runtimeType,
+    Map<Type, dynamic>? modelDecoders,
+  }) {
     // Handle stored runtime type metadata (legacy format)
     if (runtimeType != null && modelDecoders == null) {
       switch (runtimeType.toLowerCase()) {
@@ -213,8 +249,8 @@ class NyStorage {
     _StorageEnvelope envelope, {
     Map<Type, dynamic>? modelDecoders,
   }) {
-    final type = envelope.type.toLowerCase();
-    final value = envelope.value;
+    final String type = envelope.type.toLowerCase();
+    final String value = envelope.value;
 
     switch (type) {
       case 'int':
@@ -273,7 +309,7 @@ class NyStorage {
     }
 
     // Try envelope format first
-    final envelope = _parseEnvelope(data);
+    final _StorageEnvelope? envelope = _parseEnvelope(data);
     if (envelope != null) {
       // Always use envelope.value (the actual data), never expose envelope structure
       try {
@@ -306,7 +342,7 @@ class NyStorage {
       for (String key in excludeKeys) {
         allValues.remove(key);
       }
-      for (var data in allValues.entries) {
+      for (MapEntry<String, String> data in allValues.entries) {
         await delete(data.key, andFromBackpack: andFromBackpack);
       }
       return;
@@ -490,7 +526,7 @@ class NyStorage {
   static Future<void> syncToBackpack({bool overwrite = false}) async {
     Map<String, String> values = await readAll();
     Backpack backpack = Backpack.instance;
-    for (var data in values.entries) {
+    for (MapEntry<String, String> data in values.entries) {
       if (overwrite == false && backpack.contains(data.key)) {
         continue;
       }
@@ -501,7 +537,7 @@ class NyStorage {
 
   /// Checks if a key exists in local storage.
   static Future<bool> hasKey(String key) async {
-    final data = await _read(key);
+    final String? data = await _read(key);
     return data != null;
   }
 
@@ -517,10 +553,10 @@ class NyStorage {
       Backpack.instance.save(key, object);
     }
 
-    final expiresAt = NyTime.now().add(ttl).millisecondsSinceEpoch;
+    final int expiresAt = NyTime.now().add(ttl).millisecondsSinceEpoch;
 
     if (object is! Model) {
-      final envelope = _createEnvelopeWithExpiry(
+      final Map<String, dynamic> envelope = _createEnvelopeWithExpiry(
         type: object.runtimeType.toString(),
         value: object.toString(),
         expiresAt: expiresAt,
@@ -531,7 +567,7 @@ class NyStorage {
 
     try {
       Map<String, dynamic> json = object.toJson();
-      final envelope = _createEnvelopeWithExpiry(
+      final Map<String, dynamic> envelope = _createEnvelopeWithExpiry(
         type: 'model',
         value: jsonEncode(json),
         expiresAt: expiresAt,
@@ -572,11 +608,11 @@ class NyStorage {
       return defaultValue;
     }
 
-    final envelope = _parseEnvelopeWithExpiry(data);
+    final _StorageEnvelopeWithExpiry? envelope = _parseEnvelopeWithExpiry(data);
     if (envelope != null) {
       // Check if expired
       if (envelope.expiresAt != null) {
-        final now = NyTime.now().millisecondsSinceEpoch;
+        final int now = NyTime.now().millisecondsSinceEpoch;
         if (now > envelope.expiresAt!) {
           if (deleteIfExpired) {
             await delete(key);
@@ -605,7 +641,7 @@ class NyStorage {
   /// Parses an envelope that may contain expiry information.
   static _StorageEnvelopeWithExpiry? _parseEnvelopeWithExpiry(String data) {
     try {
-      final decoded = jsonDecode(data);
+      final dynamic decoded = jsonDecode(data);
       if (decoded is Map<String, dynamic> &&
           decoded.containsKey('_v') &&
           decoded.containsKey('_t') &&
@@ -629,11 +665,11 @@ class NyStorage {
     String? data = await _read(key);
     if (data == null) return null;
 
-    final envelope = _parseEnvelopeWithExpiry(data);
+    final _StorageEnvelopeWithExpiry? envelope = _parseEnvelopeWithExpiry(data);
     if (envelope?.expiresAt == null) return null;
 
-    final now = NyTime.now().millisecondsSinceEpoch;
-    final remaining = envelope!.expiresAt! - now;
+    final int now = NyTime.now().millisecondsSinceEpoch;
+    final int remaining = envelope!.expiresAt! - now;
 
     if (remaining <= 0) return Duration.zero;
     return Duration(milliseconds: remaining);
@@ -645,7 +681,7 @@ class NyStorage {
     Map<String, dynamic> items, {
     bool inBackpack = false,
   }) async {
-    for (final entry in items.entries) {
+    for (final MapEntry<String, dynamic> entry in items.entries) {
       await save(entry.key, entry.value, inBackpack: inBackpack);
     }
   }
@@ -677,12 +713,14 @@ class NyStorage {
   /// Returns the number of keys removed.
   static Future<int> removeExpired() async {
     int removedCount = 0;
-    final allData = await readAll();
+    final Map<String, String> allData = await readAll();
 
-    for (final entry in allData.entries) {
-      final envelope = _parseEnvelopeWithExpiry(entry.value);
+    for (final MapEntry<String, String> entry in allData.entries) {
+      final _StorageEnvelopeWithExpiry? envelope = _parseEnvelopeWithExpiry(
+        entry.value,
+      );
       if (envelope?.expiresAt != null) {
-        final now = NyTime.now().millisecondsSinceEpoch;
+        final int now = NyTime.now().millisecondsSinceEpoch;
         if (now > envelope!.expiresAt!) {
           await delete(entry.key);
           removedCount++;
@@ -698,24 +736,24 @@ class NyStorage {
   /// Returns the number of keys migrated.
   static Future<int> migrateToEnvelopeFormat() async {
     int migratedCount = 0;
-    final allData = await readAll();
+    final Map<String, String> allData = await readAll();
 
-    for (final entry in allData.entries) {
-      final key = entry.key;
+    for (final MapEntry<String, String> entry in allData.entries) {
+      final String key = entry.key;
 
       // Skip runtime_type keys - they're part of legacy format
       if (key.endsWith('_runtime_type')) continue;
 
       // Check if already in envelope format
-      final envelope = _parseEnvelope(entry.value);
+      final _StorageEnvelope? envelope = _parseEnvelope(entry.value);
       if (envelope != null) continue;
 
       // Check for legacy runtime_type key
       final runtimeTypeKey = '${key}_runtime_type';
       if (allData.containsKey(runtimeTypeKey)) {
         // Migrate to envelope format
-        final runtimeType = allData[runtimeTypeKey]!;
-        final newEnvelope = _createEnvelope(
+        final String runtimeType = allData[runtimeTypeKey]!;
+        final Map<String, dynamic> newEnvelope = _createEnvelope(
           type: runtimeType,
           value: entry.value,
         );

@@ -184,7 +184,7 @@ void main() {
     nyWidgetTest('listens on the name its route addresses', (tester) async {
       await tester.pumpNyWidget(RenamedStatePage());
 
-      final state = tester.state<_AnUnrelatedName>(
+      final _AnUnrelatedName state = tester.state<_AnUnrelatedName>(
         find.byType(RenamedStatePage),
       );
 
@@ -204,7 +204,7 @@ void main() {
     nyWidgetTest('keeps the stateName declared on the widget', (tester) async {
       await tester.pumpNyWidget(DeclaredNamePage());
 
-      final state = tester.state<_DeclaredNamePageState>(
+      final _DeclaredNamePageState state = tester.state<_DeclaredNamePageState>(
         find.byType(DeclaredNamePage),
       );
 
@@ -214,7 +214,7 @@ void main() {
     nyWidgetTest('keeps the name given to the state', (tester) async {
       await tester.pumpNyWidget(StateNamedPage());
 
-      final state = tester.state<_StateNamedPageState>(
+      final _StateNamedPageState state = tester.state<_StateNamedPageState>(
         find.byType(StateNamedPage),
       );
 
@@ -228,7 +228,7 @@ void main() {
 
       await tester.pumpNyWidget(DeclaredNamePage());
 
-      final state = tester.state<_DeclaredNamePageState>(
+      final _DeclaredNamePageState state = tester.state<_DeclaredNamePageState>(
         find.byType(DeclaredNamePage),
       );
 
@@ -240,7 +240,7 @@ void main() {
 
       await tester.pumpNyWidget(DeclaredNamePage());
 
-      final state = tester.state<_DeclaredNamePageState>(
+      final _DeclaredNamePageState state = tester.state<_DeclaredNamePageState>(
         find.byType(DeclaredNamePage),
       );
 
@@ -263,7 +263,7 @@ void main() {
     nyWidgetTest('advance when the hub declares its own name', (tester) async {
       await tester.pumpNyWidget(DeclaredNameHub());
 
-      final state = tester.state<_DeclaredNameHubState>(
+      final _DeclaredNameHubState state = tester.state<_DeclaredNameHubState>(
         find.byType(DeclaredNameHub),
       );
       expect(state.stateName, DeclaredNameHub.stateKey);
@@ -293,7 +293,9 @@ void main() {
     ) async {
       await tester.pumpNyWidget(const OrphanStep());
 
-      final state = tester.state<_OrphanStepState>(find.byType(OrphanStep));
+      final _OrphanStepState state = tester.state<_OrphanStepState>(
+        find.byType(OrphanStep),
+      );
 
       expect(state.totalSteps, 0);
       expect(state.isFirstStep, isTrue);

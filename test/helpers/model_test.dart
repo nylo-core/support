@@ -6,7 +6,7 @@ class TestModel extends Model {
   String? name;
   String? email;
 
-  TestModel({this.name, this.email, String? key}) : super(key: key);
+  TestModel({this.name, this.email, super.key});
 
   @override
   Map<String, dynamic> toJson() => {'name': name, 'email': email};
@@ -30,20 +30,20 @@ void main() {
 
     nyGroup('toJson', () {
       nyTest('should return empty map for base Model', () async {
-        final model = Model();
+        final Model<dynamic> model = Model();
         expect(model.toJson(), isEmpty);
       });
 
       nyTest('should return populated map for subclass', () async {
         final model = TestModel(name: 'John', email: 'john@example.com');
-        final json = model.toJson();
+        final Map<String, dynamic> json = model.toJson();
         expect(json['name'], 'John');
         expect(json['email'], 'john@example.com');
       });
 
       nyTest('should handle null values', () async {
         final model = TestModel();
-        final json = model.toJson();
+        final Map<String, dynamic> json = model.toJson();
         expect(json['name'], isNull);
         expect(json['email'], isNull);
       });
@@ -51,7 +51,7 @@ void main() {
 
     nyGroup('runtimeType', () {
       nyTest('should return correct type for base Model', () async {
-        final model = Model();
+        final Model<dynamic> model = Model();
         expect(model.runtimeType.toString(), 'Model<dynamic>');
       });
 

@@ -250,8 +250,10 @@ void main() {
     nyTest('validates dates in the past', () async {
       final rule = FormRuleDateInPast();
 
-      final pastDate = DateTime.now().subtract(const Duration(days: 1));
-      final futureDate = DateTime.now().add(const Duration(days: 1));
+      final DateTime pastDate = DateTime.now().subtract(
+        const Duration(days: 1),
+      );
+      final DateTime futureDate = DateTime.now().add(const Duration(days: 1));
 
       expect(rule.validate(pastDate), true);
       expect(rule.validate(futureDate), false);
@@ -262,8 +264,10 @@ void main() {
     nyTest('validates dates in the future', () async {
       final rule = FormRuleDateInFuture();
 
-      final pastDate = DateTime.now().subtract(const Duration(days: 1));
-      final futureDate = DateTime.now().add(const Duration(days: 1));
+      final DateTime pastDate = DateTime.now().subtract(
+        const Duration(days: 1),
+      );
+      final DateTime futureDate = DateTime.now().add(const Duration(days: 1));
 
       expect(rule.validate(futureDate), true);
       expect(rule.validate(pastDate), false);
@@ -274,10 +278,10 @@ void main() {
     nyTest('validates age is younger than specified', () async {
       final rule = FormRuleDateAgeIsYounger(30);
 
-      final youngBirthDate = DateTime.now().subtract(
+      final DateTime youngBirthDate = DateTime.now().subtract(
         const Duration(days: 365 * 20),
       );
-      final oldBirthDate = DateTime.now().subtract(
+      final DateTime oldBirthDate = DateTime.now().subtract(
         const Duration(days: 365 * 40),
       );
 
@@ -290,10 +294,10 @@ void main() {
     nyTest('validates age is older than specified', () async {
       final rule = FormRuleDateAgeIsOlder(18);
 
-      final youngBirthDate = DateTime.now().subtract(
+      final DateTime youngBirthDate = DateTime.now().subtract(
         const Duration(days: 365 * 15),
       );
-      final oldBirthDate = DateTime.now().subtract(
+      final DateTime oldBirthDate = DateTime.now().subtract(
         const Duration(days: 365 * 25),
       );
 

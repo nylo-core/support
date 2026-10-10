@@ -111,11 +111,11 @@ extension NyWidgetTesterExtension on WidgetTester {
     // Ensure Google Fonts is configured
     NyWidgetTest.configure();
 
-    final effectiveTheme = useSimpleTheme
+    final ThemeData effectiveTheme = useSimpleTheme
         ? NyWidgetTest.simpleTestTheme
         : (theme ?? _getDefaultTheme());
 
-    final effectiveDarkTheme = useSimpleTheme
+    final ThemeData effectiveDarkTheme = useSimpleTheme
         ? NyWidgetTest.simpleDarkTestTheme
         : (darkTheme ?? _getDefaultDarkTheme());
 
@@ -183,11 +183,12 @@ extension NyWidgetTesterExtension on WidgetTester {
       await pump(const Duration(milliseconds: 100));
 
       // Check if any loading indicators are gone
-      final loaderFinder = find.byType(CircularProgressIndicator);
+      final Finder loaderFinder = find.byType(CircularProgressIndicator);
       if (loaderFinder.evaluate().isEmpty) {
         // Also check for Skeletonizer
-        final skeletonizerFinder = find.byType(skel.Skeletonizer);
-        final skeletonizers = skeletonizerFinder.evaluate();
+        final Finder skeletonizerFinder = find.byType(skel.Skeletonizer);
+        final FinderResult<Element> skeletonizers = skeletonizerFinder
+            .evaluate();
         bool hasActiveSkeletonizer = false;
         for (final element in skeletonizers) {
           final widget = element.widget as skel.Skeletonizer;
@@ -211,14 +212,14 @@ extension NyWidgetTesterExtension on WidgetTester {
   /// is found in the widget tree.
   bool isLoading() {
     // Check for CircularProgressIndicator
-    final loaderFinder = find.byType(CircularProgressIndicator);
+    final Finder loaderFinder = find.byType(CircularProgressIndicator);
     if (loaderFinder.evaluate().isNotEmpty) {
       return true;
     }
 
     // Check for enabled Skeletonizer
-    final skeletonizerFinder = find.byType(skel.Skeletonizer);
-    for (final element in skeletonizerFinder.evaluate()) {
+    final Finder skeletonizerFinder = find.byType(skel.Skeletonizer);
+    for (final Element element in skeletonizerFinder.evaluate()) {
       final widget = element.widget as skel.Skeletonizer;
       if (widget.enabled) {
         return true;
@@ -282,8 +283,8 @@ extension NyWidgetTesterExtension on WidgetTester {
     ThemeData? darkTheme,
     ThemeMode themeMode = ThemeMode.light,
   }) async {
-    final effectiveTheme = theme ?? _getDefaultTheme();
-    final effectiveDarkTheme = darkTheme ?? _getDefaultDarkTheme();
+    final ThemeData effectiveTheme = theme ?? _getDefaultTheme();
+    final ThemeData effectiveDarkTheme = darkTheme ?? _getDefaultDarkTheme();
 
     await pumpWidget(
       MaterialApp(
@@ -320,7 +321,7 @@ extension NyWidgetTesterExtension on WidgetTester {
   /// tester.assertNavigatedTo(ProfilePage.path);
   /// ```
   void assertNavigatedTo(RouteView route) {
-    final currentRoute = Nylo.getCurrentRouteName();
+    final String? currentRoute = Nylo.getCurrentRouteName();
     expect(
       currentRoute,
       route.$1,
@@ -361,7 +362,7 @@ extension NyWidgetTesterExtension on WidgetTester {
   /// tester.assertOnRoute(DashboardPage.path);
   /// ```
   void assertOnRoute(RouteView route) {
-    final currentRoute = Nylo.getCurrentRouteName();
+    final String? currentRoute = Nylo.getCurrentRouteName();
     expect(
       currentRoute,
       route.$1,
@@ -478,7 +479,7 @@ extension NyWidgetTesterExtension on WidgetTester {
   /// expect(tester.isLoadingNamed(find.byType(MyPage), name: 'fetchUsers'), isTrue);
   /// ```
   bool isLoadingNamed(Finder finder, {required String name}) {
-    final state = _findNyBaseState(finder);
+    final NyBaseState<StatefulWidget>? state = _findNyBaseState(finder);
     if (state != null) {
       return state.isLoading(name: name);
     }
@@ -495,7 +496,7 @@ extension NyWidgetTesterExtension on WidgetTester {
   /// expect(tester.isLockedNamed(find.byType(MyPage), name: 'submit'), isTrue);
   /// ```
   bool isLockedNamed(Finder finder, {required String name}) {
-    final state = _findNyBaseState(finder);
+    final NyBaseState<StatefulWidget>? state = _findNyBaseState(finder);
     if (state != null) {
       return state.isLocked(name);
     }
@@ -504,9 +505,9 @@ extension NyWidgetTesterExtension on WidgetTester {
 
   /// Find a [NyBaseState] from a widget [Finder].
   NyBaseState? _findNyBaseState(Finder finder) {
-    final elements = finder.evaluate();
+    final FinderResult<Element> elements = finder.evaluate();
     if (elements.isEmpty) return null;
-    final element = elements.first;
+    final Element element = elements.first;
     if (element is StatefulElement && element.state is NyBaseState) {
       return element.state as NyBaseState;
     }
@@ -557,9 +558,9 @@ class _NyTestWrapper extends StatelessWidget {
 ThemeData _getDefaultTheme() {
   try {
     if (Nylo.isInitialized()) {
-      final themes = Nylo.getThemes();
+      final List<BaseThemeConfig<dynamic>> themes = Nylo.getThemes();
       if (themes.isNotEmpty) {
-        final lightTheme = themes.firstWhere(
+        final BaseThemeConfig<dynamic> lightTheme = themes.firstWhere(
           (t) => t.type == NyThemeType.light,
           orElse: () => themes.first,
         );
@@ -575,9 +576,9 @@ ThemeData _getDefaultTheme() {
 ThemeData _getDefaultDarkTheme() {
   try {
     if (Nylo.isInitialized()) {
-      final themes = Nylo.getThemes();
+      final List<BaseThemeConfig<dynamic>> themes = Nylo.getThemes();
       if (themes.isNotEmpty) {
-        final darkTheme = themes.firstWhere(
+        final BaseThemeConfig<dynamic> darkTheme = themes.firstWhere(
           (t) => t.type == NyThemeType.dark,
           orElse: () => themes.first,
         );
@@ -624,11 +625,11 @@ mixin NyPageTestMixin {
     await tester.pump();
 
     // Check if loading is shown (either CircularProgressIndicator or Skeletonizer)
-    final hasLoader = find
+    final bool hasLoader = find
         .byType(CircularProgressIndicator)
         .evaluate()
         .isNotEmpty;
-    final hasSkeletonizer = find
+    final bool hasSkeletonizer = find
         .byType(skel.Skeletonizer)
         .evaluate()
         .isNotEmpty;
@@ -658,7 +659,7 @@ void testNyPage(
   bool skip = false,
 }) {
   testWidgets(description, (tester) async {
-    final widget = build();
+    final Widget widget = build();
     await tester.pumpNyWidgetAndWaitForInit(
       widget,
       timeout: initTimeout,
@@ -692,11 +693,11 @@ void testNyPageLoading(
     await tester.pump();
 
     // Verify some form of loading indicator is present
-    final hasLoader = find
+    final bool hasLoader = find
         .byType(CircularProgressIndicator)
         .evaluate()
         .isNotEmpty;
-    final hasSkeletonizer = find
+    final bool hasSkeletonizer = find
         .byType(skel.Skeletonizer)
         .evaluate()
         .isNotEmpty;

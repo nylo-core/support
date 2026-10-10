@@ -125,7 +125,8 @@ void main() {
 
     nyGroup('position support', () {
       nyTest('supports all ToastNotificationPosition values', () async {
-        for (final position in ToastNotificationPosition.values) {
+        for (final ToastNotificationPosition position
+            in ToastNotificationPosition.values) {
           final meta = ToastMeta(position: position);
           final widget = DefaultToastNotification(meta);
 
@@ -136,7 +137,7 @@ void main() {
 
     nyGroup('color support', () {
       nyTest('accepts various color values', () async {
-        final colors = [
+        final List<Color> colors = [
           Colors.red,
           Colors.green,
           Colors.blue,
@@ -208,7 +209,7 @@ void main() {
 
     nyGroup('metaData support', () {
       nyTest('passes through metaData from ToastMeta', () async {
-        final testData = {
+        final Map<String, Object> testData = {
           'key1': 'value1',
           'key2': 123,
           'nested': {'a': 'b'},
@@ -229,7 +230,7 @@ void main() {
           MaterialApp(home: Scaffold(body: DefaultToastNotification(meta)));
 
       nyWidgetTest('titles an untitled toast "Success"', (tester) async {
-        final semantics = tester.ensureSemantics();
+        final SemanticsHandle semantics = tester.ensureSemantics();
         await tester.pumpWidget(toast(ToastMeta(description: 'Saved')));
 
         expect(find.text('Success'), findsOneWidget);
@@ -252,7 +253,7 @@ void main() {
         addTearDown(
           () => NyLocalization.instance.setValuesForTesting(values: {}),
         );
-        final semantics = tester.ensureSemantics();
+        final SemanticsHandle semantics = tester.ensureSemantics();
         await tester.pumpWidget(toast(ToastMeta(description: 'Guardado')));
 
         expect(find.text('Éxito'), findsOneWidget);

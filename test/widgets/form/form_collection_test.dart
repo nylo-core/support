@@ -35,7 +35,7 @@ void main() {
       nyTest('converts to map', () async {
         const option = FormOption(value: 'uk', label: 'United Kingdom');
 
-        final json = option.toJson();
+        final Map<String, dynamic> json = option.toJson();
 
         expect(json, {'value': 'uk', 'label': 'United Kingdom'});
       });
@@ -237,7 +237,7 @@ void main() {
       nyTest('finds options matching query', () async {
         final collection = FormCollection.from(['Apple', 'Apricot', 'Banana']);
 
-        final results = collection.searchByLabel('ap');
+        final List<FormOption> results = collection.searchByLabel('ap');
 
         expect(results, hasLength(2));
         expect(results[0].label, 'Apple');
@@ -352,7 +352,7 @@ void main() {
       nyTest('toKeyValueList converts to list of maps', () async {
         final collection = FormCollection.fromMap({'a': 'Alpha'});
 
-        final list = collection.toKeyValueList();
+        final List<Map<String, dynamic>> list = collection.toKeyValueList();
 
         expect(list, [
           {'value': 'a', 'label': 'Alpha'},
@@ -372,7 +372,9 @@ void main() {
       nyTest('filters options by predicate', () async {
         final collection = FormCollection.from(['Apple', 'Banana', 'Apricot']);
 
-        final filtered = collection.filter((o) => o.label.startsWith('A'));
+        final FormCollection filtered = collection.filter(
+          (o) => o.label.startsWith('A'),
+        );
 
         expect(filtered.length, 2);
         expect(filtered.labels, ['Apple', 'Apricot']);
@@ -383,7 +385,7 @@ void main() {
       nyTest('sorts by label alphabetically by default', () async {
         final collection = FormCollection.from(['Banana', 'Apple', 'Cherry']);
 
-        final sorted = collection.sort();
+        final FormCollection sorted = collection.sort();
 
         expect(sorted.labels, ['Apple', 'Banana', 'Cherry']);
       });
@@ -391,7 +393,7 @@ void main() {
       nyTest('sorts by custom comparator', () async {
         final collection = FormCollection.from(['AA', 'BBB', 'C']);
 
-        final sorted = collection.sort(
+        final FormCollection sorted = collection.sort(
           (a, b) => a.label.length.compareTo(b.label.length),
         );
 

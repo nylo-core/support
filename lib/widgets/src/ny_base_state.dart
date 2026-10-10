@@ -111,7 +111,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Check if the [queryParameters] contains a specific key.
   bool hasQueryParameter(String key) {
-    final queryParametersData = queryParameters();
+    final dynamic queryParametersData = queryParameters();
     if (queryParametersData == null) return false;
     if (queryParametersData is Map) {
       return queryParametersData.containsKey(key);
@@ -272,7 +272,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
           Future<void> performValidation() async {
             List<String> errors = [];
 
-            for (var entry in rules.entries) {
+            for (MapEntry<String, dynamic> entry in rules.entries) {
               String field = entry.key;
               dynamic rule = entry.value;
               dynamic value = data?[field];
@@ -358,7 +358,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
 
   /// Restore [stateData] from the last [UpdateState] sent to [stateName].
   void restoreStateFromHistory() {
-    final lastEvent = eventBus?.history
+    final UpdateState? lastEvent = eventBus?.history
         .where((entry) => entry.event is UpdateState)
         .map((entry) => entry.event as UpdateState)
         .where((event) => event.stateName == stateName)
@@ -424,7 +424,7 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     _lockMap = {};
     _loadingMap = {};
 
-    for (var subscription in _eventSubscriptions) {
+    for (NyEventSubscription<NyEvent> subscription in _eventSubscriptions) {
       subscription.cancel();
     }
     _eventSubscriptions.clear();
@@ -636,11 +636,11 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
     Function()? onSuccess,
     Function(FormValidationResponseBag)? onValidationError,
   }) {
-    List<FormValidator> _allValidators = [];
-    validate(_allValidators);
+    List<FormValidator> allValidators = [];
+    validate(allValidators);
 
     FormValidationResponseBag bag = [];
-    for (FormValidator validator in _allValidators) {
+    for (FormValidator validator in allValidators) {
       bag.add(validator.check());
     }
 
@@ -798,11 +798,13 @@ abstract class NyBaseState<T extends StatefulWidget> extends State<T> {
   /// i.e. a bug) is rethrown once the lock is released.
   ///
   /// E.g.
+  /// ```dart
   /// lockRelease('save', perform: () async {
   ///   await api<ApiService>((request) => request.save(data));
   /// }, onError: (error, stackTrace) {
   ///   showToastDanger(description: "Couldn't save your changes");
   /// });
+  /// ```
   Future<void> lockRelease(
     String name, {
     required Function perform,

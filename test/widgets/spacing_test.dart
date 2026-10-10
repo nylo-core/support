@@ -13,7 +13,9 @@ void main() {
 
         await tester.pumpWidget(const MaterialApp(home: spacing));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 10);
         expect(sizedBox.height, 20);
       });
@@ -23,7 +25,9 @@ void main() {
 
         await tester.pumpWidget(const MaterialApp(home: spacing));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, isNull);
         expect(sizedBox.height, isNull);
       });
@@ -35,7 +39,9 @@ void main() {
 
         await tester.pumpWidget(const MaterialApp(home: spacing));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 24);
         expect(sizedBox.width, isNull);
       });
@@ -47,7 +53,9 @@ void main() {
 
         await tester.pumpWidget(const MaterialApp(home: spacing));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 16);
         expect(sizedBox.height, isNull);
       });
@@ -57,42 +65,54 @@ void main() {
       testWidgets('zero creates no spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.zero));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 0);
       });
 
       testWidgets('xs creates 4px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.xs));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 4);
       });
 
       testWidgets('sm creates 8px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.sm));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 8);
       });
 
       testWidgets('md creates 16px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.md));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 16);
       });
 
       testWidgets('lg creates 24px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.lg));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 24);
       });
 
       testWidgets('xl creates 32px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.xl));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.height, 32);
       });
     });
@@ -101,35 +121,45 @@ void main() {
       testWidgets('xsHorizontal creates 4px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.xsHorizontal));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 4);
       });
 
       testWidgets('smHorizontal creates 8px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.smHorizontal));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 8);
       });
 
       testWidgets('mdHorizontal creates 16px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.mdHorizontal));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 16);
       });
 
       testWidgets('lgHorizontal creates 24px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.lgHorizontal));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 24);
       });
 
       testWidgets('xlHorizontal creates 32px spacing', (tester) async {
         await tester.pumpWidget(const MaterialApp(home: Spacing.xlHorizontal));
 
-        final sizedBox = tester.widget<SizedBox>(find.byType(SizedBox));
+        final SizedBox sizedBox = tester.widget<SizedBox>(
+          find.byType(SizedBox),
+        );
         expect(sizedBox.width, 32);
       });
     });

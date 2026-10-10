@@ -257,7 +257,7 @@ class NyLogger {
   static String _colorize(String message, String? type) {
     if (kIsWeb || !useColors || !kDebugMode) return message;
     if (!stdout.supportsAnsiEscapes) return message;
-    final color = _colors[type];
+    final String? color = _colors[type];
     if (color == null) return message;
     return '$color$message$_reset';
   }
@@ -284,7 +284,10 @@ class NyLogger {
     final now = DateTime.now();
 
     // Interpolate context into message
-    final interpolatedMessage = _interpolate(message.toString(), context);
+    final String interpolatedMessage = _interpolate(
+      message.toString(),
+      context,
+    );
 
     // Always notify listeners if set (even in production)
     if (onLog != null || _listeners.isNotEmpty) {
@@ -315,7 +318,7 @@ class NyLogger {
     try {
       String logMessage;
       if (Nylo.instance.shouldShowDateTimeInLogs()) {
-        String dateTimeFormatted = "$nowToDateTime";
+        String dateTimeFormatted = nowToDateTime;
         logMessage =
             '[$dateTimeFormatted] ${type != null ? "[$type] " : ""}$interpolatedMessage$contextSuffix';
       } else {

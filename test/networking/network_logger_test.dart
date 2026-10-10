@@ -138,7 +138,7 @@ void main() {
   nyGroup('NetworkLogger serialization', () {
     nyTest('toJson should return correct map', () async {
       final logger = NetworkLogger();
-      final json = logger.toJson();
+      final Map<String, dynamic> json = logger.toJson();
       expect(json['logLevel'], 'verbose');
       expect(json['request'], isTrue);
       expect(json['requestHeader'], isTrue);
@@ -154,7 +154,7 @@ void main() {
     });
 
     nyTest('fromJson should create correct instance', () async {
-      final json = {
+      final Map<String, Object> json = {
         'logLevel': 'minimal',
         'request': false,
         'requestHeader': false,
@@ -210,7 +210,7 @@ void main() {
   nyGroup('NetworkLogger.copyWith', () {
     nyTest('should create copy with no changes', () async {
       final original = NetworkLogger();
-      final copy = original.copyWith();
+      final NetworkLogger copy = original.copyWith();
       expect(copy.logLevel, original.logLevel);
       expect(copy.maxWidth, original.maxWidth);
       expect(copy.enabled, original.enabled);
@@ -218,7 +218,7 @@ void main() {
 
     nyTest('should override specified fields', () async {
       final original = NetworkLogger();
-      final copy = original.copyWith(
+      final NetworkLogger copy = original.copyWith(
         logLevel: LogLevelType.none,
         maxWidth: 200,
         enabled: false,
@@ -232,9 +232,9 @@ void main() {
     });
 
     nyTest('should preserve filter', () async {
-      bool Function(RequestOptions, FilterArgs) myFilter = (opts, args) => true;
+      bool myFilter(RequestOptions opts, FilterArgs args) => true;
       final original = NetworkLogger(filter: myFilter);
-      final copy = original.copyWith(maxWidth: 100);
+      final NetworkLogger copy = original.copyWith(maxWidth: 100);
       expect(copy.filter, myFilter);
     });
   });
@@ -309,7 +309,7 @@ void main() {
       );
       final options = RequestOptions(path: '/api/users', method: 'GET');
       logger.onRequest(options, RequestInterceptorHandler());
-      final logStr = logs.join(' ');
+      final String logStr = logs.join(' ');
       expect(logStr, contains('GET'));
       expect(logStr, contains('/api/users'));
     });
@@ -319,7 +319,7 @@ void main() {
       final logger = NetworkLogger(structuredOutput: true, logPrint: logs.add);
       final options = RequestOptions(path: '/test', method: 'POST');
       logger.onRequest(options, RequestInterceptorHandler());
-      final logStr = logs.join(' ');
+      final String logStr = logs.join(' ');
       expect(logStr, contains('[REQUEST]'));
       expect(logStr, contains('POST'));
     });
@@ -338,7 +338,7 @@ void main() {
       requestOptions.extra['_network_logger_timestamp_'] =
           DateTime.timestamp().millisecondsSinceEpoch;
 
-      final response = Response(
+      final Response<Map<String, String>> response = Response(
         requestOptions: requestOptions,
         statusCode: 200,
         statusMessage: 'OK',
@@ -351,7 +351,7 @@ void main() {
     nyTest('should not log response when disabled', () async {
       final logs = <Object>[];
       final logger = NetworkLogger(enabled: false, logPrint: logs.add);
-      final response = Response(
+      final Response<dynamic> response = Response(
         requestOptions: RequestOptions(path: '/test'),
         statusCode: 200,
       );

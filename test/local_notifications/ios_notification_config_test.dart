@@ -68,7 +68,7 @@ void main() {
 
     nyGroup('defaults', () {
       nyTest('returns correct default configuration', () async {
-        final defaults = IOSNotificationConfig.defaults;
+        final IOSNotificationConfig defaults = IOSNotificationConfig.defaults;
 
         expect(defaults.presentList, true);
         expect(defaults.presentAlert, true);
@@ -78,7 +78,7 @@ void main() {
       });
 
       nyTest('has null optional values in defaults', () async {
-        final defaults = IOSNotificationConfig.defaults;
+        final IOSNotificationConfig defaults = IOSNotificationConfig.defaults;
 
         expect(defaults.sound, isNull);
         expect(defaults.badgeNumber, isNull);
@@ -97,7 +97,7 @@ void main() {
           badgeNumber: 10,
         );
 
-        final copied = original.copyWith();
+        final IOSNotificationConfig copied = original.copyWith();
 
         expect(copied.presentList, original.presentList);
         expect(copied.presentAlert, original.presentAlert);
@@ -113,7 +113,10 @@ void main() {
           sound: 'original.aiff',
         );
 
-        final copied = original.copyWith(presentList: false, sound: 'new.aiff');
+        final IOSNotificationConfig copied = original.copyWith(
+          presentList: false,
+          sound: 'new.aiff',
+        );
 
         // Changed fields
         expect(copied.presentList, false);
@@ -127,7 +130,7 @@ void main() {
       nyTest('can update all fields', () async {
         const original = IOSNotificationConfig();
 
-        final copied = original.copyWith(
+        final IOSNotificationConfig copied = original.copyWith(
           presentList: false,
           presentAlert: false,
           presentBadge: false,

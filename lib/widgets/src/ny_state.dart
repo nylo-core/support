@@ -1,3 +1,5 @@
+import 'package:nylo_support/controllers/src/controller.dart';
+
 import '/widgets/ny_widgets.dart';
 import 'package:flutter/material.dart';
 
@@ -11,9 +13,9 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
 
     /// Set the state name if the widget is a NyStatefulWidget
     if (widget is NyStatefulWidget) {
-      final _controller = (widget as NyStatefulWidget).controller;
-      if (_controller.context == null) {
-        _controller.construct(context);
+      final BaseController controller = (widget as NyStatefulWidget).controller;
+      if (controller.context == null) {
+        controller.construct(context);
       }
 
       /// Take the name from the widget, so this state listens on the name its
@@ -25,7 +27,7 @@ abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
       /// being used from. A controller declared as a singleton is shared by
       /// every page that asks for it, so the name an earlier page left behind
       /// is replaced rather than kept.
-      _controller.state = stateName;
+      controller.state = stateName;
     }
 
     /// Set the state name from a NyStateManaged widget that declares its baseState

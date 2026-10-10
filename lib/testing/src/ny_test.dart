@@ -1,5 +1,7 @@
+// ignore_for_file: avoid_print — NyTest.dump() writes its report to the test output.
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/testing/src/fake_disk.dart';
 import '/file_storage/src/file_storage.dart';
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';
@@ -152,7 +154,7 @@ class NyTest {
   /// Clear the authenticated user.
   static void logout() {
     if (Nylo.isInitialized()) {
-      final authKey = Nylo.instance.getAuthKey();
+      final String? authKey = Nylo.instance.getAuthKey();
       if (authKey != null) {
         Backpack.instance.delete(authKey);
       }
@@ -296,7 +298,7 @@ class NyTest {
     print('║ Current Route: ${Nylo.getCurrentRouteName() ?? 'None'}');
 
     // Route history
-    final history = Nylo.getRouteHistory();
+    final List<dynamic> history = Nylo.getRouteHistory();
     if (history.isNotEmpty) {
       print('║ Route History:');
       for (final route in history) {
@@ -311,7 +313,7 @@ class NyTest {
     );
 
     // API call history
-    final calls = NyMockApi.getCalls();
+    final List<ApiCallInfo> calls = NyMockApi.getCalls();
     if (calls.isNotEmpty) {
       print('║ API Call History:');
       for (final call in calls) {
@@ -320,24 +322,27 @@ class NyTest {
     }
 
     // Cache
-    final cache = NyTestCache.getInstance();
+    final NyTestCache cache = NyTestCache.getInstance();
     print('╠════════════════════════════════════════════════════════════════╣');
     print('║ Cache: ${cache.count} entries');
     if (cache.isNotEmpty) {
       print('║ Cache Keys:');
-      for (final key in cache.entries.keys) {
+      for (final String key in cache.entries.keys) {
         print('║   - $key');
       }
     }
 
     // Disks
-    final fakes = FileStorage.fakes;
+    final Map<String, FakeDisk> fakes = FileStorage.fakes;
     print('╠════════════════════════════════════════════════════════════════╣');
     print('║ Faked Disks: ${fakes.length}');
-    for (final entry in fakes.entries) {
-      final files = entry.value.memory.filesSync('', recursive: true);
+    for (final MapEntry<String, FakeDisk> entry in fakes.entries) {
+      final List<String> files = entry.value.memory.filesSync(
+        '',
+        recursive: true,
+      );
       print('║   - ${entry.key}: ${files.length} files');
-      for (final file in files.take(20)) {
+      for (final String file in files.take(20)) {
         print('║       $file');
       }
       if (files.length > 20) print('║       …and ${files.length - 20} more');
@@ -372,7 +377,7 @@ class NyTest {
 
   /// Seed backpack with test data.
   static void seedBackpack(Map<String, dynamic> data) {
-    for (final entry in data.entries) {
+    for (final MapEntry<String, dynamic> entry in data.entries) {
       Backpack.instance.save(entry.key, entry.value);
     }
   }

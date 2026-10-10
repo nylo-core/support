@@ -78,10 +78,12 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
 
     awaitData(
       perform: () async {
-        final _controller = (widget as NyStatefulWidget).controller;
-        if (_controller.context == null) {
-          await _controller.construct(context);
+        final BaseController controller =
+            (widget as NyStatefulWidget).controller;
+        if (controller.context == null) {
+          await controller.construct(context);
         }
+        if (!mounted) return;
 
         // routeTo()/navigate() already ran the route's guards; this pass
         // covers the rest.

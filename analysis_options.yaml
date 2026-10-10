@@ -7,8 +7,7 @@ plugins:
   vibe_check:
     version: ^1.0.1
     diagnostics:
-      nonstandard_nylo_page: true
-      unlocalized_string: true          # switched on
+      unlocalized_string: true
       inline_async_in_builder: true
-      swallowed_exception: warning      # true/false, or info / warning / error
-      redundant_null_check: false       # switched off
+      swallowed_exception: false
+      redundant_null_check: true

@@ -236,7 +236,7 @@ class NyApiService extends DioApiService {
   }) async {
     final Map<String, dynamic> formMap = {...?additionalFields};
 
-    for (final entry in files.entries) {
+    for (final MapEntry<String, String> entry in files.entries) {
       formMap[entry.key] = await MultipartFile.fromFile(entry.value);
     }
 

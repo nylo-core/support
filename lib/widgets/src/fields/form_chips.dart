@@ -105,7 +105,7 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
   FormCollection? _options;
 
   _NyFormChipState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
@@ -134,7 +134,7 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
       setState(() {});
     },
     "setValue": (data) {
-      final value = data["value"];
+      final dynamic value = data["value"];
       if (value is List) {
         currentValues = value;
       } else if (value != null) {
@@ -146,7 +146,7 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
       setState(() {});
     },
     "setOptions": (data) {
-      final options = data["options"];
+      final dynamic options = data["options"];
       if (options is FormCollection) {
         _options = options;
         setState(() {});

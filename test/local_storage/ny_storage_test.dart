@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/local_storage/ny_local_storage.dart';
@@ -72,7 +73,7 @@ void main() {
         nyTest('should save and read string value', () async {
           await NyStorage.save('test_string', 'Hello World');
 
-          final result = await NyStorage.read<String>('test_string');
+          final String? result = await NyStorage.read<String>('test_string');
 
           expect(result, 'Hello World');
         });
@@ -80,7 +81,7 @@ void main() {
         nyTest('should save and read integer value', () async {
           await NyStorage.save('test_int', 42);
 
-          final result = await NyStorage.read<int>('test_int');
+          final int? result = await NyStorage.read<int>('test_int');
 
           expect(result, 42);
         });
@@ -88,7 +89,7 @@ void main() {
         nyTest('should save and read double value', () async {
           await NyStorage.save('test_double', 3.14);
 
-          final result = await NyStorage.read<double>('test_double');
+          final double? result = await NyStorage.read<double>('test_double');
 
           expect(result, 3.14);
         });
@@ -96,7 +97,7 @@ void main() {
         nyTest('should save and read boolean true value', () async {
           await NyStorage.save('test_bool', true);
 
-          final result = await NyStorage.read<bool>('test_bool');
+          final bool? result = await NyStorage.read<bool>('test_bool');
 
           expect(result, isTrue);
         });
@@ -104,7 +105,7 @@ void main() {
         nyTest('should save and read boolean false value', () async {
           await NyStorage.save('test_bool_false', false);
 
-          final result = await NyStorage.read<bool>('test_bool_false');
+          final bool? result = await NyStorage.read<bool>('test_bool_false');
 
           expect(result, isFalse);
         });
@@ -112,7 +113,7 @@ void main() {
         nyTest('should save and read negative integer', () async {
           await NyStorage.save('negative_int', -100);
 
-          final result = await NyStorage.read<int>('negative_int');
+          final int? result = await NyStorage.read<int>('negative_int');
 
           expect(result, -100);
         });
@@ -120,7 +121,9 @@ void main() {
         nyTest('should save and read negative double', () async {
           await NyStorage.save('negative_double', -99.99);
 
-          final result = await NyStorage.read<double>('negative_double');
+          final double? result = await NyStorage.read<double>(
+            'negative_double',
+          );
 
           expect(result, -99.99);
         });
@@ -128,7 +131,7 @@ void main() {
 
       nyGroup('default values', () {
         nyTest('should return default value when key not found', () async {
-          final result = await NyStorage.read<String>(
+          final String? result = await NyStorage.read<String>(
             'nonexistent_key',
             defaultValue: 'default',
           );
@@ -139,14 +142,16 @@ void main() {
         nyTest(
           'should return null when key not found and no default',
           () async {
-            final result = await NyStorage.read<String>('nonexistent_key');
+            final String? result = await NyStorage.read<String>(
+              'nonexistent_key',
+            );
 
             expect(result, isNull);
           },
         );
 
         nyTest('should return default int when key not found', () async {
-          final result = await NyStorage.read<int>(
+          final int? result = await NyStorage.read<int>(
             'nonexistent_int',
             defaultValue: 0,
           );
@@ -184,13 +189,16 @@ void main() {
 
     nyGroup('saveJson and readJson', () {
       nyTest('should save and read JSON object', () async {
-        final jsonData = {'name': 'John', 'age': 30, 'active': true};
+        final Map<String, Object> jsonData = {
+          'name': 'John',
+          'age': 30,
+          'active': true,
+        };
 
         await NyStorage.saveJson('json_data', jsonData);
 
-        final result = await NyStorage.readJson<Map<String, dynamic>>(
-          'json_data',
-        );
+        final Map<String, dynamic>? result =
+            await NyStorage.readJson<Map<String, dynamic>>('json_data');
 
         expect(result, jsonData);
       });
@@ -200,13 +208,15 @@ void main() {
 
         await NyStorage.saveJson('json_array', jsonArray);
 
-        final result = await NyStorage.readJson<List>('json_array');
+        final List<dynamic>? result = await NyStorage.readJson<List>(
+          'json_array',
+        );
 
         expect(result, jsonArray);
       });
 
       nyTest('should save and read nested JSON', () async {
-        final nestedJson = {
+        final Map<String, Object> nestedJson = {
           'user': {
             'profile': {'name': 'Alice', 'settings': {}},
           },
@@ -215,18 +225,18 @@ void main() {
 
         await NyStorage.saveJson('nested_json', nestedJson);
 
-        final result = await NyStorage.readJson<Map<String, dynamic>>(
-          'nested_json',
-        );
+        final Map<String, dynamic>? result =
+            await NyStorage.readJson<Map<String, dynamic>>('nested_json');
 
         expect(result, nestedJson);
       });
 
       nyTest('should return default value when JSON key not found', () async {
-        final result = await NyStorage.readJson<Map<String, dynamic>>(
-          'nonexistent_json',
-          defaultValue: {'default': true},
-        );
+        final Map<String, dynamic>? result =
+            await NyStorage.readJson<Map<String, dynamic>>(
+              'nonexistent_json',
+              defaultValue: {'default': true},
+            );
 
         expect(result, {'default': true});
       });
@@ -246,7 +256,7 @@ void main() {
 
         await NyStorage.delete('to_delete');
 
-        final result = await NyStorage.read<String>('to_delete');
+        final String? result = await NyStorage.read<String>('to_delete');
         expect(result, isNull);
       });
 
@@ -331,7 +341,7 @@ void main() {
         await NyStorage.save('all_key1', 'value1');
         await NyStorage.save('all_key2', 'value2');
 
-        final result = await NyStorage.readAll();
+        final Map<String, String> result = await NyStorage.readAll();
 
         expect(result, isA<Map<String, String>>());
         expect(result.length, greaterThanOrEqualTo(2));
@@ -340,7 +350,7 @@ void main() {
       nyTest('should return empty map when storage is empty', () async {
         await NyStorage.deleteAll();
 
-        final result = await NyStorage.readAll();
+        final Map<String, String> result = await NyStorage.readAll();
 
         expect(result, isEmpty);
       });
@@ -350,13 +360,13 @@ void main() {
       nyTest('should return true when key exists', () async {
         await NyStorage.save('existing_key', 'value');
 
-        final result = await NyStorage.hasKey('existing_key');
+        final bool result = await NyStorage.hasKey('existing_key');
 
         expect(result, isTrue);
       });
 
       nyTest('should return false when key does not exist', () async {
-        final result = await NyStorage.hasKey('nonexistent_key');
+        final bool result = await NyStorage.hasKey('nonexistent_key');
 
         expect(result, isFalse);
       });
@@ -369,7 +379,9 @@ void main() {
 
           await NyStorage.saveCollection<String>('fruits', collection);
 
-          final result = await NyStorage.readCollection<String>('fruits');
+          final List<String> result = await NyStorage.readCollection<String>(
+            'fruits',
+          );
 
           expect(result, collection);
         });
@@ -379,7 +391,9 @@ void main() {
 
           await NyStorage.saveCollection<int>('numbers', collection);
 
-          final result = await NyStorage.readCollection<int>('numbers');
+          final List<int> result = await NyStorage.readCollection<int>(
+            'numbers',
+          );
 
           expect(result, collection);
         });
@@ -389,7 +403,9 @@ void main() {
 
           await NyStorage.saveCollection<double>('decimals', collection);
 
-          final result = await NyStorage.readCollection<double>('decimals');
+          final List<double> result = await NyStorage.readCollection<double>(
+            'decimals',
+          );
 
           expect(result, collection);
         });
@@ -397,7 +413,7 @@ void main() {
         nyTest(
           'should return empty list when collection key not found',
           () async {
-            final result = await NyStorage.readCollection<String>(
+            final List<String> result = await NyStorage.readCollection<String>(
               'nonexistent_collection',
             );
 
@@ -412,7 +428,9 @@ void main() {
 
           await NyStorage.addToCollection<String>('items', item: 'item3');
 
-          final result = await NyStorage.readCollection<String>('items');
+          final List<String> result = await NyStorage.readCollection<String>(
+            'items',
+          );
 
           expect(result, ['item1', 'item2', 'item3']);
         });
@@ -423,7 +441,7 @@ void main() {
             item: 'first_item',
           );
 
-          final result = await NyStorage.readCollection<String>(
+          final List<String> result = await NyStorage.readCollection<String>(
             'new_collection',
           );
 
@@ -435,7 +453,9 @@ void main() {
 
           await NyStorage.addToCollection<String>('dups', item: 'a');
 
-          final result = await NyStorage.readCollection<String>('dups');
+          final List<String> result = await NyStorage.readCollection<String>(
+            'dups',
+          );
 
           expect(result, ['a', 'b', 'a']);
         });
@@ -451,7 +471,9 @@ void main() {
               allowDuplicates: false,
             );
 
-            final result = await NyStorage.readCollection<String>('no_dups');
+            final List<String> result = await NyStorage.readCollection<String>(
+              'no_dups',
+            );
 
             expect(result, ['a', 'b']);
           },
@@ -471,7 +493,7 @@ void main() {
             key: 'del_collection',
           );
 
-          final result = await NyStorage.readCollection<String>(
+          final List<String> result = await NyStorage.readCollection<String>(
             'del_collection',
           );
 
@@ -504,7 +526,7 @@ void main() {
             key: 'where_collection',
           );
 
-          final result = await NyStorage.readCollection<int>(
+          final List<int> result = await NyStorage.readCollection<int>(
             'where_collection',
           );
 
@@ -519,7 +541,9 @@ void main() {
             key: 'no_match',
           );
 
-          final result = await NyStorage.readCollection<int>('no_match');
+          final List<int> result = await NyStorage.readCollection<int>(
+            'no_match',
+          );
 
           expect(result, [1, 2, 3]);
         });
@@ -539,7 +563,7 @@ void main() {
             value: 'b',
           );
 
-          final result = await NyStorage.readCollection<String>(
+          final List<String> result = await NyStorage.readCollection<String>(
             'val_collection',
           );
 
@@ -551,7 +575,7 @@ void main() {
         nyTest('should update item at specific index', () async {
           await NyStorage.saveCollection<String>('update_col', ['a', 'b', 'c']);
 
-          final success = await NyStorage.updateCollectionByIndex<String>(
+          final bool success = await NyStorage.updateCollectionByIndex<String>(
             1,
             (item) => 'updated_$item',
             key: 'update_col',
@@ -559,7 +583,9 @@ void main() {
 
           expect(success, isTrue);
 
-          final result = await NyStorage.readCollection<String>('update_col');
+          final List<String> result = await NyStorage.readCollection<String>(
+            'update_col',
+          );
 
           expect(result, ['a', 'updated_b', 'c']);
         });
@@ -574,7 +600,7 @@ void main() {
         nyTest('should return true for empty collection', () async {
           await NyStorage.saveCollection<String>('empty_check', []);
 
-          final result = await NyStorage.isCollectionEmpty('empty_check');
+          final bool result = await NyStorage.isCollectionEmpty('empty_check');
 
           expect(result, isTrue);
         });
@@ -582,13 +608,15 @@ void main() {
         nyTest('should return false for non-empty collection', () async {
           await NyStorage.saveCollection<String>('non_empty_check', ['item']);
 
-          final result = await NyStorage.isCollectionEmpty('non_empty_check');
+          final bool result = await NyStorage.isCollectionEmpty(
+            'non_empty_check',
+          );
 
           expect(result, isFalse);
         });
 
         nyTest('should return true for nonexistent key', () async {
-          final result = await NyStorage.isCollectionEmpty(
+          final bool result = await NyStorage.isCollectionEmpty(
             'nonexistent_collection',
           );
 
@@ -606,7 +634,9 @@ void main() {
             ttl: const Duration(hours: 1),
           );
 
-          final result = await NyStorage.readWithExpiry<String>('ttl_key');
+          final String? result = await NyStorage.readWithExpiry<String>(
+            'ttl_key',
+          );
 
           expect(result, 'ttl_value');
         });
@@ -623,7 +653,7 @@ void main() {
         });
 
         nyTest('should return default value for nonexistent key', () async {
-          final result = await NyStorage.readWithExpiry<String>(
+          final String? result = await NyStorage.readWithExpiry<String>(
             'nonexistent_ttl_key',
             defaultValue: 'default_value',
           );
@@ -638,7 +668,7 @@ void main() {
             ttl: const Duration(hours: 1),
           );
 
-          final result = await NyStorage.readWithExpiry<int>('ttl_int');
+          final int? result = await NyStorage.readWithExpiry<int>('ttl_int');
 
           expect(result, 42);
         });
@@ -650,7 +680,9 @@ void main() {
             ttl: const Duration(hours: 1),
           );
 
-          final result = await NyStorage.readWithExpiry<double>('ttl_double');
+          final double? result = await NyStorage.readWithExpiry<double>(
+            'ttl_double',
+          );
 
           expect(result, 3.14);
         });
@@ -664,7 +696,7 @@ void main() {
             ttl: const Duration(hours: 1),
           );
 
-          final ttl = await NyStorage.getTimeToLive('ttl_check');
+          final Duration? ttl = await NyStorage.getTimeToLive('ttl_check');
 
           expect(ttl, isNotNull);
           // Should be approximately 1 hour (60 minutes)
@@ -673,7 +705,9 @@ void main() {
         });
 
         nyTest('should return null for nonexistent key', () async {
-          final ttl = await NyStorage.getTimeToLive('nonexistent_ttl');
+          final Duration? ttl = await NyStorage.getTimeToLive(
+            'nonexistent_ttl',
+          );
 
           expect(ttl, isNull);
         });
@@ -681,7 +715,7 @@ void main() {
         nyTest('should return null for key without expiry', () async {
           await NyStorage.save('no_expiry_key', 'value');
 
-          final ttl = await NyStorage.getTimeToLive('no_expiry_key');
+          final Duration? ttl = await NyStorage.getTimeToLive('no_expiry_key');
 
           expect(ttl, isNull);
         });
@@ -695,7 +729,7 @@ void main() {
             ttl: const Duration(hours: 24),
           );
 
-          final removedCount = await NyStorage.removeExpired();
+          final int removedCount = await NyStorage.removeExpired();
 
           expect(removedCount, 0);
         });
@@ -703,7 +737,7 @@ void main() {
         nyTest('should handle empty storage', () async {
           await NyStorage.deleteAll();
 
-          final removedCount = await NyStorage.removeExpired();
+          final int removedCount = await NyStorage.removeExpired();
 
           expect(removedCount, 0);
         });
@@ -741,11 +775,12 @@ void main() {
           await NyStorage.save('multi2', 'value2');
           await NyStorage.save('multi3', 'value3');
 
-          final results = await NyStorage.readMultiple<String>([
-            'multi1',
-            'multi2',
-            'multi3',
-          ]);
+          final Map<String, String?> results =
+              await NyStorage.readMultiple<String>([
+                'multi1',
+                'multi2',
+                'multi3',
+              ]);
 
           expect(results['multi1'], 'value1');
           expect(results['multi2'], 'value2');
@@ -755,10 +790,8 @@ void main() {
         nyTest('should return null for nonexistent keys', () async {
           await NyStorage.save('exists', 'value');
 
-          final results = await NyStorage.readMultiple<String>([
-            'exists',
-            'not_exists',
-          ]);
+          final Map<String, String?> results =
+              await NyStorage.readMultiple<String>(['exists', 'not_exists']);
 
           expect(results['exists'], 'value');
           expect(results['not_exists'], isNull);
@@ -800,8 +833,8 @@ void main() {
       nyTest('should store data in envelope format', () async {
         await NyStorage.save('envelope_test', 'test_value');
 
-        final raw = (await NyStorage.readAll())['envelope_test'];
-        final decoded = jsonDecode(raw!);
+        final String? raw = (await NyStorage.readAll())['envelope_test'];
+        final dynamic decoded = jsonDecode(raw!);
 
         expect(decoded['_v'], 'v1');
         expect(decoded['_t'], isNotNull);
@@ -811,8 +844,8 @@ void main() {
       nyTest('should store int type in envelope', () async {
         await NyStorage.save('envelope_int', 123);
 
-        final raw = (await NyStorage.readAll())['envelope_int'];
-        final decoded = jsonDecode(raw!);
+        final String? raw = (await NyStorage.readAll())['envelope_int'];
+        final dynamic decoded = jsonDecode(raw!);
 
         expect(decoded['_t'].toLowerCase(), 'int');
         expect(decoded['_d'], '123');
@@ -821,8 +854,8 @@ void main() {
       nyTest('should store json type in envelope', () async {
         await NyStorage.saveJson('envelope_json', {'key': 'value'});
 
-        final raw = (await NyStorage.readAll())['envelope_json'];
-        final decoded = jsonDecode(raw!);
+        final String? raw = (await NyStorage.readAll())['envelope_json'];
+        final dynamic decoded = jsonDecode(raw!);
 
         expect(decoded['_t'], 'json');
       });
@@ -833,7 +866,7 @@ void main() {
         Nylo.isTestMode = true;
 
         await NyStorage.save('snapshot_key', 'snapshot_value');
-        final result = await NyStorage.read<String>('snapshot_key');
+        final String? result = await NyStorage.read<String>('snapshot_key');
 
         expect(result, 'snapshot_value');
       });
@@ -844,14 +877,14 @@ void main() {
         await NyStorage.save('clear_key', 'value');
         await NyStorage.deleteAll();
 
-        final result = await NyStorage.read<String>('clear_key');
+        final String? result = await NyStorage.read<String>('clear_key');
         expect(result, isNull);
       });
     });
 
     nyGroup('manager', () {
       nyTest('should return FlutterSecureStorage manager', () async {
-        final manager = NyStorage.manager();
+        final FlutterSecureStorage manager = NyStorage.manager();
 
         expect(manager, isNotNull);
       });
@@ -864,8 +897,8 @@ void main() {
         await NyStorage.save('model_key', model);
 
         // Read back the raw data to verify envelope format
-        final raw = (await NyStorage.readAll())['model_key'];
-        final decoded = jsonDecode(raw!);
+        final String? raw = (await NyStorage.readAll())['model_key'];
+        final dynamic decoded = jsonDecode(raw!);
 
         expect(decoded['_t'], 'model');
         expect(decoded['_v'], 'v1');
@@ -889,8 +922,8 @@ void main() {
         );
 
         // Verify it was saved with expiry envelope
-        final raw = (await NyStorage.readAll())['model_expiry'];
-        final decoded = jsonDecode(raw!);
+        final String? raw = (await NyStorage.readAll())['model_expiry'];
+        final dynamic decoded = jsonDecode(raw!);
 
         expect(decoded['_t'], 'model');
         expect(decoded['_e'], isNotNull);
@@ -906,12 +939,14 @@ void main() {
         );
 
         // Verify it exists before expiry
-        final result = await NyStorage.readWithExpiry<String>('valid_ttl_key');
+        final String? result = await NyStorage.readWithExpiry<String>(
+          'valid_ttl_key',
+        );
         expect(result, 'ttl_value');
       });
 
       nyTest('should return default value for nonexistent TTL key', () async {
-        final result = await NyStorage.readWithExpiry<String>(
+        final String? result = await NyStorage.readWithExpiry<String>(
           'nonexistent_ttl_key',
           defaultValue: 'default_value',
         );
@@ -926,7 +961,7 @@ void main() {
           await NyStorage.save('regular_key_for_expiry', 'regular_value');
 
           // readWithExpiry should fall back to regular read
-          final result = await NyStorage.readWithExpiry<String>(
+          final String? result = await NyStorage.readWithExpiry<String>(
             'regular_key_for_expiry',
           );
           expect(result, 'regular_value');
@@ -940,7 +975,7 @@ void main() {
           ttl: const Duration(hours: 2),
         );
 
-        final ttl = await NyStorage.getTimeToLive('ttl_duration_key');
+        final Duration? ttl = await NyStorage.getTimeToLive('ttl_duration_key');
 
         expect(ttl, isNotNull);
         // Should be approximately 2 hours (120 minutes)
@@ -951,13 +986,13 @@ void main() {
       nyTest('should return null TTL for key without expiry', () async {
         await NyStorage.save('no_expiry_key', 'value');
 
-        final ttl = await NyStorage.getTimeToLive('no_expiry_key');
+        final Duration? ttl = await NyStorage.getTimeToLive('no_expiry_key');
 
         expect(ttl, isNull);
       });
 
       nyTest('should return null TTL for nonexistent key', () async {
-        final ttl = await NyStorage.getTimeToLive('nonexistent_key');
+        final Duration? ttl = await NyStorage.getTimeToLive('nonexistent_key');
 
         expect(ttl, isNull);
       });
@@ -970,7 +1005,7 @@ void main() {
         );
         await NyStorage.save('permanent_key', 'value');
 
-        final removedCount = await NyStorage.removeExpired();
+        final int removedCount = await NyStorage.removeExpired();
 
         expect(removedCount, 0);
         expect(await NyStorage.hasKey('not_expired_yet'), isTrue);
@@ -980,7 +1015,7 @@ void main() {
       nyTest('should handle removeExpired with empty storage', () async {
         await NyStorage.deleteAll();
 
-        final removedCount = await NyStorage.removeExpired();
+        final int removedCount = await NyStorage.removeExpired();
 
         expect(removedCount, 0);
       });
@@ -993,7 +1028,7 @@ void main() {
         );
 
         // Read with deleteIfExpired = false
-        final result = await NyStorage.readWithExpiry<String>(
+        final String? result = await NyStorage.readWithExpiry<String>(
           'preserve_key',
           deleteIfExpired: false,
         );
@@ -1011,7 +1046,7 @@ void main() {
           ttl: const Duration(hours: 1),
         );
 
-        final result = await NyStorage.readWithExpiry<int>('int_expiry');
+        final int? result = await NyStorage.readWithExpiry<int>('int_expiry');
 
         expect(result, 42);
       });
@@ -1023,7 +1058,9 @@ void main() {
           ttl: const Duration(hours: 1),
         );
 
-        final result = await NyStorage.readWithExpiry<double>('double_expiry');
+        final double? result = await NyStorage.readWithExpiry<double>(
+          'double_expiry',
+        );
 
         expect(result, 3.14159);
       });
@@ -1039,7 +1076,9 @@ void main() {
           update: (value) => value + 100,
         );
 
-        final result = await NyStorage.readCollection<int>('update_where');
+        final List<int> result = await NyStorage.readCollection<int>(
+          'update_where',
+        );
 
         // Note: The original update modifies elements in place
         // For primitive types, this may not work as expected since
@@ -1060,7 +1099,9 @@ void main() {
           update: (value) => 'updated_$value',
         );
 
-        final result = await NyStorage.readCollection<String>('no_update');
+        final List<String> result = await NyStorage.readCollection<String>(
+          'no_update',
+        );
 
         expect(result, ['apple', 'banana', 'cherry']);
       });
@@ -1074,7 +1115,9 @@ void main() {
           update: (value) => value * 2,
         );
 
-        final result = await NyStorage.readCollection<int>('empty_update');
+        final List<int> result = await NyStorage.readCollection<int>(
+          'empty_update',
+        );
 
         expect(result, isEmpty);
       });
@@ -1135,17 +1178,17 @@ void main() {
       nyTest('should handle empty string value', () async {
         await NyStorage.save('empty_value', '');
 
-        final result = await NyStorage.read<String>('empty_value');
+        final String? result = await NyStorage.read<String>('empty_value');
 
         expect(result, '');
       });
 
       nyTest('should handle very long string values', () async {
-        final longString = 'a' * 10000;
+        final String longString = 'a' * 10000;
 
         await NyStorage.save('long_value', longString);
 
-        final result = await NyStorage.read<String>('long_value');
+        final String? result = await NyStorage.read<String>('long_value');
 
         expect(result, longString);
         expect(result!.length, 10000);
@@ -1177,7 +1220,7 @@ void main() {
 
         await NyStorage.save('max_int', maxInt);
 
-        final result = await NyStorage.read<int>('max_int');
+        final int? result = await NyStorage.read<int>('max_int');
 
         expect(result, maxInt);
       });
@@ -1194,7 +1237,7 @@ void main() {
       });
 
       nyTest('should handle JSON with nested arrays', () async {
-        final complexJson = {
+        final Map<String, List<Map<String, Object>>> complexJson = {
           'users': [
             {
               'id': 1,
@@ -1208,9 +1251,8 @@ void main() {
 
         await NyStorage.saveJson('complex_json', complexJson);
 
-        final result = await NyStorage.readJson<Map<String, dynamic>>(
-          'complex_json',
-        );
+        final Map<String, dynamic>? result =
+            await NyStorage.readJson<Map<String, dynamic>>('complex_json');
 
         expect(result, complexJson);
       });
@@ -1246,7 +1288,7 @@ void main() {
           // Save a raw JSON array with mixed types
           await NyStorage.save('mixed_collection', jsonEncode([1, 'two', 3.0]));
 
-          final result = await NyStorage.readCollection<dynamic>(
+          final List<dynamic> result = await NyStorage.readCollection<dynamic>(
             'mixed_collection',
           );
 
@@ -1260,7 +1302,7 @@ void main() {
         // All new data uses envelope format
         await NyStorage.save('new_format_key', 'value');
 
-        final migratedCount = await NyStorage.migrateToEnvelopeFormat();
+        final int migratedCount = await NyStorage.migrateToEnvelopeFormat();
 
         expect(migratedCount, 0);
       });
@@ -1269,7 +1311,7 @@ void main() {
         await NyStorage.save('envelope_key1', 'value1');
         await NyStorage.save('envelope_key2', 'value2');
 
-        final migratedCount = await NyStorage.migrateToEnvelopeFormat();
+        final int migratedCount = await NyStorage.migrateToEnvelopeFormat();
 
         expect(migratedCount, 0);
       });
@@ -1283,7 +1325,7 @@ void main() {
         expect(await NyStorage.hasKey('test_key'), isTrue);
 
         // Migration should not create issues
-        final migratedCount = await NyStorage.migrateToEnvelopeFormat();
+        final int migratedCount = await NyStorage.migrateToEnvelopeFormat();
 
         expect(migratedCount, greaterThanOrEqualTo(0));
       });
@@ -1301,7 +1343,7 @@ void main() {
           );
 
           // Verify value exists before time travel
-          final beforeTravel = await NyStorage.readWithExpiry<String>(
+          final String? beforeTravel = await NyStorage.readWithExpiry<String>(
             'time_travel_key',
           );
           expect(beforeTravel, 'original_value');
@@ -1310,7 +1352,7 @@ void main() {
           NyTest.travel(DateTime.now().add(const Duration(hours: 2)));
 
           // Value should now be expired and return default
-          final afterTravel = await NyStorage.readWithExpiry<String>(
+          final String? afterTravel = await NyStorage.readWithExpiry<String>(
             'time_travel_key',
             defaultValue: 'expired_default',
           );
@@ -1334,7 +1376,7 @@ void main() {
           // Travel 1 hour into the future (still within TTL)
           NyTest.travel(DateTime.now().add(const Duration(hours: 1)));
 
-          final result = await NyStorage.readWithExpiry<String>(
+          final String? result = await NyStorage.readWithExpiry<String>(
             'still_valid_key',
           );
           expect(result, 'valid_value');
@@ -1354,7 +1396,7 @@ void main() {
         // Travel 1 hour into the future
         NyTest.travel(DateTime.now().add(const Duration(hours: 1)));
 
-        final ttl = await NyStorage.getTimeToLive('zero_ttl_key');
+        final Duration? ttl = await NyStorage.getTimeToLive('zero_ttl_key');
         expect(ttl, Duration.zero);
 
         NyTest.travelBack();
@@ -1423,7 +1465,7 @@ void main() {
           // Travel 1 hour into the future
           NyTest.travel(DateTime.now().add(const Duration(hours: 1)));
 
-          final removedCount = await NyStorage.removeExpired();
+          final int removedCount = await NyStorage.removeExpired();
 
           // Only short_ttl should be removed
           expect(removedCount, 1);
@@ -1447,7 +1489,9 @@ void main() {
           // Travel 30 minutes into the future
           NyTest.travel(DateTime.now().add(const Duration(minutes: 30)));
 
-          final ttl = await NyStorage.getTimeToLive('ttl_remaining_key');
+          final Duration? ttl = await NyStorage.getTimeToLive(
+            'ttl_remaining_key',
+          );
 
           // Should have approximately 90 minutes remaining
           expect(ttl, isNotNull);
@@ -1465,7 +1509,9 @@ void main() {
 
         await NyStorage.saveCollection<int>('number_list', numbers);
 
-        final result = await NyStorage.readCollection<int>('number_list');
+        final List<int> result = await NyStorage.readCollection<int>(
+          'number_list',
+        );
 
         expect(result, numbers);
       });
@@ -1475,17 +1521,21 @@ void main() {
 
         await NyStorage.saveCollection<double>('double_list', doubles);
 
-        final result = await NyStorage.readCollection<double>('double_list');
+        final List<double> result = await NyStorage.readCollection<double>(
+          'double_list',
+        );
 
         expect(result, doubles);
       });
 
       nyTest('should save and read mixed dynamic collection', () async {
-        final mixed = ['string', 123, 45.67, true];
+        final List<Object> mixed = ['string', 123, 45.67, true];
 
         await NyStorage.saveCollection<dynamic>('mixed_list', mixed);
 
-        final result = await NyStorage.readCollection<dynamic>('mixed_list');
+        final List<dynamic> result = await NyStorage.readCollection<dynamic>(
+          'mixed_list',
+        );
 
         expect(result.length, 4);
       });
@@ -1504,7 +1554,7 @@ void main() {
             TestModel(name: 'Alice', age: 30),
           );
 
-          final result = await NyStorage.read<TestModel>(
+          final TestModel? result = await NyStorage.read<TestModel>(
             'typed_model',
             modelDecoders: modelDecoders,
           );
@@ -1523,7 +1573,7 @@ void main() {
             TestModel(name: 'Bob', age: 25),
           );
 
-          final result = await NyStorage.read('dynamic_model');
+          final dynamic result = await NyStorage.read('dynamic_model');
 
           // With T=dynamic, should return raw decoded JSON (not a TestModel)
           expect(result, isNot(isA<TestModel>()));
@@ -1541,7 +1591,7 @@ void main() {
           final json = '{"name":"Charlie","age":40}';
           await NyStorage.manager().write(key: 'legacy_model', value: json);
 
-          final result = await NyStorage.read<TestModel>(
+          final TestModel? result = await NyStorage.read<TestModel>(
             'legacy_model',
             modelDecoders: modelDecoders,
           );
@@ -1560,7 +1610,9 @@ void main() {
         // ignore: deprecated_member_use_from_same_package
         await NyStorage.deleteCollection('deprecated_col');
 
-        final result = await NyStorage.readCollection<String>('deprecated_col');
+        final List<String> result = await NyStorage.readCollection<String>(
+          'deprecated_col',
+        );
 
         expect(result, isEmpty);
       });
@@ -1572,7 +1624,7 @@ void main() {
         await NyStorage.clear('clear_key');
 
         // After clear, the key might have 'null' as string value
-        final exists = await NyStorage.hasKey('clear_key');
+        final bool exists = await NyStorage.hasKey('clear_key');
 
         // The key exists but with null value stored
         expect(exists, isTrue);

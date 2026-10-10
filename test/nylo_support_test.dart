@@ -49,7 +49,7 @@ void main() {
     });
 
     nyTest('can use withFrozenTime', () async {
-      final result = await NyTime.withFrozenTime(
+      final int result = await NyTime.withFrozenTime(
         DateTime(2025, 12, 25),
         () async {
           return NyTime.now().month;
@@ -65,7 +65,7 @@ void main() {
     nyTest('can mock API with wildcard pattern', () async {
       NyMockApi.respond('/users/*', {'id': 1, 'name': 'Test User'});
 
-      final match = NyMockApi.matchUrl('/users/123');
+      final MockResponse? match = NyMockApi.matchUrl('/users/123');
       expect(match, isNotNull);
       expect(match!.data['name'], 'Test User');
     });
@@ -73,7 +73,7 @@ void main() {
     nyTest('can mock API with double wildcard', () async {
       NyMockApi.respond('/api/**', {'posts': []});
 
-      final match = NyMockApi.matchUrl('/api/v1/users/123/posts');
+      final MockResponse? match = NyMockApi.matchUrl('/api/v1/users/123/posts');
       expect(match, isNotNull);
       expect(match!.data['posts'], isEmpty);
     });
@@ -91,10 +91,16 @@ void main() {
       NyMockApi.respond('/users', {'users': []}, method: 'GET');
       NyMockApi.respond('/users', {'created': true}, method: 'POST');
 
-      final getMatch = NyMockApi.matchUrl('/users', method: 'GET');
+      final MockResponse? getMatch = NyMockApi.matchUrl(
+        '/users',
+        method: 'GET',
+      );
       expect(getMatch!.data['users'], isEmpty);
 
-      final postMatch = NyMockApi.matchUrl('/users', method: 'POST');
+      final MockResponse? postMatch = NyMockApi.matchUrl(
+        '/users',
+        method: 'POST',
+      );
       expect(postMatch!.data['created'], isTrue);
     });
   });
@@ -116,7 +122,7 @@ void main() {
     });
 
     nyTest('can create instances with factory', () async {
-      final user = NyFactory.make<Map<String, dynamic>>();
+      final Map<String, dynamic> user = NyFactory.make<Map<String, dynamic>>();
 
       expect(user['id'], isA<int>());
       expect(user['name'], isA<String>());
@@ -124,7 +130,8 @@ void main() {
     });
 
     nyTest('can create multiple instances', () async {
-      final users = NyFactory.create<Map<String, dynamic>>(count: 5);
+      final List<Map<String, dynamic>> users =
+          NyFactory.create<Map<String, dynamic>>(count: 5);
 
       expect(users.length, 5);
       expect(users.map((u) => u['id']).toSet().length, 5); // Unique IDs
@@ -145,10 +152,11 @@ void main() {
     });
 
     nyTest('can create sequence data', () async {
-      final users = NyFactory.sequence<Map<String, dynamic>>(
-        3,
-        (i, faker) => {'id': i, 'email': 'user$i@example.com'},
-      );
+      final List<Map<String, dynamic>> users =
+          NyFactory.sequence<Map<String, dynamic>>(
+            3,
+            (i, faker) => {'id': i, 'email': 'user$i@example.com'},
+          );
 
       expect(users[0]['id'], 0);
       expect(users[1]['id'], 1);
@@ -159,16 +167,16 @@ void main() {
 
   nyGroup('Test Cache', () {
     nyTest('in-memory cache works', () async {
-      final cache = NyTestCache.getInstance();
+      final NyTestCache cache = NyTestCache.getInstance();
 
       await cache.put('key', 'value');
-      final result = await cache.get<String>('key');
+      final String? result = await cache.get<String>('key');
 
       expect(result, 'value');
     });
 
     nyTest('cache respects expiration with time travel', () async {
-      final cache = NyTestCache.getInstance();
+      final NyTestCache cache = NyTestCache.getInstance();
 
       NyTest.travel(DateTime(2025, 1, 1, 12, 0, 0));
       await cache.put('key', 'value', seconds: 60);
@@ -182,15 +190,15 @@ void main() {
     });
 
     nyTest('saveRemember caches results', () async {
-      final cache = NyTestCache.getInstance();
+      final NyTestCache cache = NyTestCache.getInstance();
       var callCount = 0;
 
-      final result1 = await cache.saveRemember<String>('data', 60, () {
+      final String result1 = await cache.saveRemember<String>('data', 60, () {
         callCount++;
         return 'computed value';
       });
 
-      final result2 = await cache.saveRemember<String>('data', 60, () {
+      final String result2 = await cache.saveRemember<String>('data', 60, () {
         callCount++;
         return 'computed value 2';
       });
@@ -225,10 +233,15 @@ void main() {
       // Initialize Nylo first
       await Nylo.init(env: mockEnv({'APP_NAME': 'Test App'}));
 
-      final testUser = {'id': 1, 'name': 'Test User', 'role': 'admin'};
+      final Map<String, Object> testUser = {
+        'id': 1,
+        'name': 'Test User',
+        'role': 'admin',
+      };
       NyTest.actingAs<Map<String, dynamic>>(testUser);
 
-      final user = NyTest.actingUser<Map<String, dynamic>>();
+      final Map<String, dynamic>? user =
+          NyTest.actingUser<Map<String, dynamic>>();
       expect(user?['name'], 'Test User');
     });
 
@@ -245,10 +258,11 @@ void main() {
 
     nyTest('can act as user without Nylo init', () async {
       // This should work even without Nylo.init
-      final testUser = {'id': 2, 'name': 'No Init User'};
+      final Map<String, Object> testUser = {'id': 2, 'name': 'No Init User'};
       NyTest.actingAs<Map<String, dynamic>>(testUser, key: 'test_user');
 
-      final user = NyTest.actingUser<Map<String, dynamic>>();
+      final Map<String, dynamic>? user =
+          NyTest.actingUser<Map<String, dynamic>>();
       expect(user?['name'], 'No Init User');
 
       NyTest.logout();
@@ -285,7 +299,7 @@ void main() {
     nyTest('secure storage is mocked', () async {
       NyMockChannels.setSecureStorageValue('api_token', 'test123');
 
-      final storage = NyMockChannels.getSecureStorage();
+      final Map<String, String> storage = NyMockChannels.getSecureStorage();
       expect(storage['api_token'], 'test123');
     });
   });
@@ -305,7 +319,7 @@ void main() {
   nyGroup('Integration Example', () {
     nyTest('complete user journey', () async {
       // Setup
-      final nylo = await Nylo.init(
+      final Nylo nylo = await Nylo.init(
         env: mockEnv({'APP_NAME': 'Test App', 'APP_DEBUG': 'true'}),
       );
 
@@ -327,7 +341,7 @@ void main() {
       NyTest.travel(DateTime(2025, 3, 15, 10, 30, 0));
 
       // Act as authenticated user
-      final user = NyFactory.make<Map<String, dynamic>>();
+      final Map<String, dynamic> user = NyFactory.make<Map<String, dynamic>>();
       NyTest.actingAs<Map<String, dynamic>>(user);
 
       // Assertions

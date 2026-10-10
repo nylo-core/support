@@ -150,7 +150,7 @@ class Number {
   static String fileSize(num bytes, {int precision = 0, int? maxPrecision}) {
     const units = ['B', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
     var i = 0;
-    var value = bytes.toDouble();
+    double value = bytes.toDouble();
     while (value.abs() >= 1024 && i < units.length - 1) {
       value /= 1024;
       i++;
@@ -191,9 +191,9 @@ class Number {
     int? maxPrecision, {
     required bool abbreviate,
   }) {
-    final scales = abbreviate ? _shortScales : _longScales;
+    final List<List<Object>> scales = abbreviate ? _shortScales : _longScales;
     if (n.abs() < 1000) return _formatNumber(n, precision, maxPrecision);
-    for (var i = scales.length - 1; i >= 0; i--) {
+    for (int i = scales.length - 1; i >= 0; i--) {
       final divisor = scales[i][0] as num;
       final suffix = scales[i][1] as String;
       if (n.abs() >= divisor) {
@@ -204,8 +204,8 @@ class Number {
   }
 
   static String _formatNumber(num n, int precision, int? maxPrecision) {
-    final p = maxPrecision ?? precision;
-    var formatted = n.toStringAsFixed(p);
+    final int p = maxPrecision ?? precision;
+    String formatted = n.toStringAsFixed(p);
     if (maxPrecision != null) formatted = _trimZeros(formatted);
     return formatted;
   }
@@ -216,8 +216,8 @@ class Number {
 
   /// Returns the ordinal form of [number] (1st, 2nd, 3rd, 4th).
   static String ordinal(int number) {
-    final mod100 = number.abs() % 100;
-    final mod10 = number.abs() % 10;
+    final int mod100 = number.abs() % 100;
+    final int mod10 = number.abs() % 10;
     String suffix;
     if (mod100 >= 11 && mod100 <= 13) {
       suffix = 'th';
@@ -285,23 +285,23 @@ class Number {
     if (number < 0) return 'negative ${spell(-number)}';
     if (number < 20) return _ones[number];
     if (number < 100) {
-      final t = number ~/ 10;
-      final o = number % 10;
+      final int t = number ~/ 10;
+      final int o = number % 10;
       return o == 0 ? _tens[t] : '${_tens[t]}-${_ones[o]}';
     }
     if (number < 1000) {
-      final h = number ~/ 100;
-      final rem = number % 100;
+      final int h = number ~/ 100;
+      final int rem = number % 100;
       return rem == 0
           ? '${_ones[h]} hundred'
           : '${_ones[h]} hundred ${spell(rem)}';
     }
-    for (final scale in _spellScales) {
+    for (final List<Object> scale in _spellScales) {
       final divisor = scale[0] as int;
       final name = scale[1] as String;
       if (number >= divisor) {
-        final whole = number ~/ divisor;
-        final rem = number % divisor;
+        final int whole = number ~/ divisor;
+        final int rem = number % divisor;
         return rem == 0
             ? '${spell(whole)} $name'
             : '${spell(whole)} $name ${spell(rem)}';
@@ -322,9 +322,9 @@ class Number {
 
   /// Spells out the ordinal form of [number] in English (first, second, third).
   static String spellOrdinal(int number) {
-    final spelled = spell(number);
-    final words = spelled.split(RegExp(r'[\s-]'));
-    final last = words.last;
+    final String spelled = spell(number);
+    final List<String> words = spelled.split(RegExp(r'[\s-]'));
+    final String last = words.last;
     String ordinalLast;
     if (_ordinalIrregular.containsKey(last)) {
       ordinalLast = _ordinalIrregular[last]!;
@@ -343,7 +343,7 @@ class Number {
   /// Parses [value] as an int, locale-aware. Returns null on failure.
   static int? parseInt(String value, {String? locale}) {
     try {
-      final parsed = _decimalParser(locale ?? _defaultLocale).parse(value);
+      final num parsed = _decimalParser(locale ?? _defaultLocale).parse(value);
       return parsed.toInt();
     } catch (_) {
       return null;
@@ -393,7 +393,7 @@ class Number {
     final result = <List<int>>[];
     var start = 0;
     while (start < to) {
-      final end = (start + by - offset).clamp(0, to);
+      final int end = (start + by - offset).clamp(0, to);
       result.add([start, end]);
       start += by;
     }
@@ -413,7 +413,7 @@ class Number {
   /// platforms including dart2js.
   static int random({int min = 0, int max = 0x7fffffff, int? seed}) {
     if (max < min) throw ArgumentError('max must be >= min');
-    final rng = seed == null ? _random : math.Random(seed);
+    final math.Random rng = seed == null ? _random : math.Random(seed);
     return min + rng.nextInt(max - min + 1);
   }
 
@@ -431,19 +431,19 @@ class Number {
 
   /// Rounds [value] to [precision] decimal places.
   static double round(num value, [int precision = 0]) {
-    final f = math.pow(10, precision);
+    final num f = math.pow(10, precision);
     return (value * f).round() / f;
   }
 
   /// Floors [value] to [precision] decimal places.
   static double floor(num value, [int precision = 0]) {
-    final f = math.pow(10, precision);
+    final num f = math.pow(10, precision);
     return (value * f).floor() / f;
   }
 
   /// Ceils [value] to [precision] decimal places.
   static double ceil(num value, [int precision = 0]) {
-    final f = math.pow(10, precision);
+    final num f = math.pow(10, precision);
     return (value * f).ceil() / f;
   }
 
@@ -466,7 +466,7 @@ class Number {
     required num toMin,
     required num toMax,
   }) {
-    final fromRange = fromMax - fromMin;
+    final num fromRange = fromMax - fromMin;
     if (fromRange == 0) return toMin.toDouble();
     return toMin + (value - fromMin) * (toMax - toMin) / fromRange;
   }
@@ -518,17 +518,17 @@ class Number {
   /// (`Number.toBytes(1.5, 'KB')`). Returns `null` on parse failure.
   static num? toBytes(Object value, [String? unit]) {
     if (value is num) {
-      final mult = _byteUnits[(unit ?? 'B').toUpperCase()];
+      final int? mult = _byteUnits[(unit ?? 'B').toUpperCase()];
       if (mult == null) return null;
       return value * mult;
     }
     if (value is String) {
-      final m = RegExp(
+      final RegExpMatch? m = RegExp(
         r'^\s*(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)\s*$',
       ).firstMatch(value);
       if (m == null) return null;
       final num n = double.parse(m.group(1)!);
-      final mult = _byteUnits[m.group(2)!.toUpperCase()];
+      final int? mult = _byteUnits[m.group(2)!.toUpperCase()];
       if (mult == null) return null;
       return n * mult;
     }
@@ -539,12 +539,12 @@ class Number {
   ///
   /// Short form: `'1h 2m 5s'`. Long form: `'1:02:05'`.
   static String duration(num seconds, {bool short = true}) {
-    final total = seconds.abs().floor();
-    final negative = seconds < 0;
-    final days = total ~/ 86400;
-    final hours = (total % 86400) ~/ 3600;
-    final minutes = (total % 3600) ~/ 60;
-    final secs = total % 60;
+    final int total = seconds.abs().floor();
+    final bool negative = seconds < 0;
+    final int days = total ~/ 86400;
+    final int hours = (total % 86400) ~/ 3600;
+    final int minutes = (total % 3600) ~/ 60;
+    final int secs = total % 60;
     final sign = negative ? '-' : '';
     if (short) {
       final parts = <String>[];
@@ -554,9 +554,9 @@ class Number {
       if (secs > 0 || parts.isEmpty) parts.add('${secs}s');
       return '$sign${parts.join(' ')}';
     }
-    final h = hours + days * 24;
-    final mm = minutes.toString().padLeft(2, '0');
-    final ss = secs.toString().padLeft(2, '0');
+    final int h = hours + days * 24;
+    final String mm = minutes.toString().padLeft(2, '0');
+    final String ss = secs.toString().padLeft(2, '0');
     return h > 0 ? '$sign$h:$mm:$ss' : '$sign$minutes:$ss';
   }
 
@@ -600,7 +600,7 @@ class Number {
   static double median(Iterable<num> values) {
     if (values.isEmpty) return 0;
     final sorted = [...values]..sort();
-    final mid = sorted.length ~/ 2;
+    final int mid = sorted.length ~/ 2;
     if (sorted.length.isOdd) return sorted[mid].toDouble();
     return (sorted[mid - 1] + sorted[mid]) / 2;
   }

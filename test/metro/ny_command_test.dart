@@ -234,7 +234,7 @@ void main() {
         final command = NyCommand(action: actionFn);
 
         // Act
-        final result = command.action!(['arg1', 'arg2']);
+        final dynamic result = command.action!(['arg1', 'arg2']);
 
         // Assert
         expect(result, equals('executed'));
@@ -267,7 +267,7 @@ void main() {
         final command = NyCommand(action: asyncAction);
 
         // Act
-        final result = await command.action!(<String>['test']);
+        final dynamic result = await command.action!(<String>['test']);
 
         // Assert
         expect(result, equals('async_result'));
@@ -346,7 +346,7 @@ void main() {
         );
 
         // Act
-        final result = await command.action!(<String>[]);
+        final dynamic result = await command.action!(<String>[]);
 
         // Assert
         expect(initialized, isTrue);
@@ -360,7 +360,7 @@ void main() {
           capturedOptions = {};
           for (var arg in args) {
             if (arg.startsWith('--')) {
-              final parts = arg.substring(2).split('=');
+              final List<String> parts = arg.substring(2).split('=');
               if (parts.length == 2) {
                 capturedOptions![parts[0]] = parts[1];
               }

@@ -86,10 +86,11 @@ class _NyFormRangeSliderState extends FieldBaseState<NyFormRangeSlider> {
   RangeValues currentValues = const RangeValues(0.0, 100.0);
 
   _NyFormRangeSliderState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
+  @override
   FieldStyleRangeSlider get style {
     return widget.field.style as FieldStyleRangeSlider;
   }

@@ -26,7 +26,7 @@ class NyEventCallbackListener extends NyListener {
 
   @override
   Future handle(Map? data) async {
-    final result = await callback(data);
+    final dynamic result = await callback(data);
 
     // If callback returns false, flag this subscription for cancellation
     if (result != null && result == false) {

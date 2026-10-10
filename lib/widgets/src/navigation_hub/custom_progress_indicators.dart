@@ -25,7 +25,7 @@ class JourneyDotProgress extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: List.generate(totalSteps, (index) {
-        final isActive = index <= currentStep;
+        final bool isActive = index <= currentStep;
         return Padding(
           padding: EdgeInsets.symmetric(horizontal: spacing / 2),
           child: AnimatedContainer(
@@ -111,7 +111,7 @@ class JourneyNumberedProgress extends StatelessWidget {
   }
 
   Widget _buildNumberCircle(int index, {bool isTotal = false}) {
-    final isActive = index <= currentStep && !isTotal;
+    final bool isActive = index <= currentStep && !isTotal;
     return AnimatedContainer(
       duration: const Duration(milliseconds: 300),
       width: circleSize,
@@ -161,7 +161,7 @@ class JourneySegmentProgress extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: List.generate(totalSteps, (index) {
-        final isActive = index <= currentStep;
+        final bool isActive = index <= currentStep;
         return Expanded(
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: spacing / 2),
@@ -260,8 +260,8 @@ class JourneyTimelineProgress extends StatelessWidget {
           // Even indices are dots, odd indices are connecting lines
           if (index % 2 == 0) {
             // This is a dot (step indicator)
-            final stepIndex = index ~/ 2;
-            final isActive = stepIndex <= currentStep;
+            final int stepIndex = index ~/ 2;
+            final bool isActive = stepIndex <= currentStep;
             final isCurrent = stepIndex == currentStep;
 
             return Column(
@@ -307,8 +307,8 @@ class JourneyTimelineProgress extends StatelessWidget {
             );
           } else {
             // This is a connecting line
-            final beforeIndex = index ~/ 2;
-            final isActive = beforeIndex <= currentStep - 1;
+            final int beforeIndex = index ~/ 2;
+            final bool isActive = beforeIndex <= currentStep - 1;
 
             return Expanded(
               child: Container(

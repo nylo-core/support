@@ -100,7 +100,7 @@ void main() {
           pageTransitionType: PageTransitionType.fade,
         );
 
-        final copy = original.copyWith();
+        final ArgumentsWrapper copy = original.copyWith();
 
         expect(copy.baseArguments, same(original.baseArguments));
         expect(copy.queryParameters, same(original.queryParameters));
@@ -113,7 +113,7 @@ void main() {
         );
         final newArgs = NyArgument('new');
 
-        final copy = original.copyWith(baseArguments: newArgs);
+        final ArgumentsWrapper copy = original.copyWith(baseArguments: newArgs);
 
         expect(copy.baseArguments, same(newArgs));
         expect(original.baseArguments!.data, 'original');
@@ -125,7 +125,9 @@ void main() {
         );
         final newParams = NyQueryParameters({'new': 'value'});
 
-        final copy = original.copyWith(queryParameters: newParams);
+        final ArgumentsWrapper copy = original.copyWith(
+          queryParameters: newParams,
+        );
 
         expect(copy.queryParameters, same(newParams));
       });
@@ -136,7 +138,9 @@ void main() {
         );
         final newTransition = TransitionType.bottomToTop();
 
-        final copy = original.copyWith(transitionType: newTransition);
+        final ArgumentsWrapper copy = original.copyWith(
+          transitionType: newTransition,
+        );
 
         expect(copy.transitionType, same(newTransition));
       });
@@ -146,7 +150,7 @@ void main() {
           pageTransitionType: PageTransitionType.fade,
         );
 
-        final copy = original.copyWith(
+        final ArgumentsWrapper copy = original.copyWith(
           pageTransitionType: PageTransitionType.scale,
         );
 
@@ -156,7 +160,7 @@ void main() {
       nyTest('should preserve prefix', () async {
         final original = ArgumentsWrapper(prefix: '/api');
 
-        final copy = original.copyWith();
+        final ArgumentsWrapper copy = original.copyWith();
 
         expect(copy.prefix, '/api');
       });
@@ -178,7 +182,7 @@ void main() {
           prefix: '/v1',
         );
 
-        final data = wrapper.getData();
+        final dynamic data = wrapper.getData();
 
         expect(data['data'], {'id': 42});
         expect(data['queryParameters'], {'sort': 'desc'});
@@ -190,7 +194,7 @@ void main() {
       nyTest('should handle null values', () async {
         final wrapper = ArgumentsWrapper();
 
-        final data = wrapper.getData();
+        final dynamic data = wrapper.getData();
 
         expect(data['data'], isNull);
         expect(data['queryParameters'], isNull);

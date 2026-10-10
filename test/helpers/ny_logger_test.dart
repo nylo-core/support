@@ -19,7 +19,7 @@ void main() {
     });
 
     nyTest('should create with all fields', () async {
-      final trace = StackTrace.current;
+      final StackTrace trace = StackTrace.current;
       final context = {'userId': '123', 'action': 'login'};
       final entry = NyLogEntry(
         message: 'Error occurred',

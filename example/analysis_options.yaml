@@ -1,0 +1,7 @@
+# example/analysis_options.yaml
+# The example is its own package, so it takes its analysis options from here
+# instead of the root analysis_options.yaml (whose vibe_check include resolves
+# only in the root package).
+analyzer:
+  exclude:
+    - build/**

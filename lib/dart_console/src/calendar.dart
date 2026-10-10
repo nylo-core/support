@@ -13,14 +13,15 @@ class Calendar extends Table {
 
   Calendar(DateTime dateTime)
     : calendarDate = dateTime.subtract(Duration(days: dateTime.day - 1)) {
-    for (final day in dayLabels) {
+    for (final String day in dayLabels) {
       insertColumn(header: day, alignment: TextAlignment.right);
     }
 
     // ISO format has 1..7 for Mon..Sun, so we adjust this to match the array
-    final startDate = calendarDate.weekday == 7 ? 0 : calendarDate.weekday;
+    final int startDate = calendarDate.weekday == 7 ? 0 : calendarDate.weekday;
 
-    final todayColor = ConsoleColor.brightYellow.ansiSetForegroundColorSequence;
+    final String todayColor =
+        ConsoleColor.brightYellow.ansiSetForegroundColorSequence;
 
     final calendarDates = <String>[
       for (int i = 0; i < startDate; i++) '',

@@ -276,7 +276,7 @@ void main() {
           curve: Curves.easeOut,
         );
 
-        final copied = original.copyWith();
+        final ToastAnimation copied = original.copyWith();
 
         expect(copied.type, original.type);
         expect(copied.duration, original.duration);
@@ -288,7 +288,7 @@ void main() {
           duration: const Duration(milliseconds: 200),
         );
 
-        final copied = original.copyWith(
+        final ToastAnimation copied = original.copyWith(
           duration: const Duration(milliseconds: 500),
         );
 
@@ -300,7 +300,9 @@ void main() {
       nyTest('can update type', () async {
         final original = ToastAnimation.fade();
 
-        final copied = original.copyWith(type: ToastAnimationType.slideFromTop);
+        final ToastAnimation copied = original.copyWith(
+          type: ToastAnimationType.slideFromTop,
+        );
 
         expect(copied.type, ToastAnimationType.slideFromTop);
       });
@@ -308,7 +310,7 @@ void main() {
       nyTest('can update all fields', () async {
         final original = ToastAnimation.fade();
 
-        final copied = original.copyWith(
+        final ToastAnimation copied = original.copyWith(
           type: ToastAnimationType.fadeScale,
           duration: const Duration(milliseconds: 600),
           curve: Curves.bounceInOut,
@@ -358,7 +360,7 @@ void main() {
     nyTest('copyWith preserves animation when not specified', () async {
       final meta = ToastMeta(title: 'Test', animation: ToastAnimation.scale());
 
-      final copied = meta.copyWith(title: 'New Title');
+      final ToastMeta copied = meta.copyWith(title: 'New Title');
 
       expect(copied.animation, isNotNull);
       expect(copied.animation!.type, ToastAnimationType.scale);
@@ -367,7 +369,7 @@ void main() {
     nyTest('copyWith can update animation', () async {
       final meta = ToastMeta(animation: ToastAnimation.fade());
 
-      final copied = meta.copyWith(
+      final ToastMeta copied = meta.copyWith(
         animation: ToastAnimation.rotate(curve: Curves.easeInOut),
       );
 

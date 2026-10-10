@@ -128,7 +128,7 @@ class EventBus implements IEventBus {
   void complete(AppEvent event, {AppEvent? nextEvent}) {
     // complete the event
     if (_isInProgressEvents.any((e) => e == event)) {
-      final newArr = _isInProgressEvents.toList()
+      final List<AppEvent> newArr = _isInProgressEvents.toList()
         ..removeWhere((e) => e == event);
       _inProgress.add(newArr);
       fire(EventCompletionEvent(event));
@@ -174,13 +174,14 @@ class EventBus implements IEventBus {
       return;
     }
 
-    final functions = map[event.runtimeType] ?? [];
+    final List<AppEvent Function(AppEvent event)> functions =
+        map[event.runtimeType] ?? [];
     if (functions.isEmpty) {
       return;
     }
 
     for (final func in functions) {
-      final newEvent = func(event);
+      final AppEvent newEvent = func(event);
       if (newEvent.runtimeType == event.runtimeType) {
         if (allowLogging) {
           NyLogger.debug(

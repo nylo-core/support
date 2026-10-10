@@ -89,7 +89,7 @@ class NyEventBus {
       targetListener = listener._inner;
     }
 
-    for (var type in _subscriptions.keys.toList()) {
+    for (Type type in _subscriptions.keys.toList()) {
       _subscriptions[type]!.removeWhere((l) {
         if (l == targetListener) return true;
         if (l is _OnceListenerWrapper && l._inner == targetListener) {
@@ -174,7 +174,7 @@ class _StreamListener<T extends NyEvent> extends NyListener {
 
   @override
   Future handle(Map? data) async {
-    final event = getEvent();
+    final NyEvent? event = getEvent();
     if (!_controller.isClosed && event != null) {
       _controller.add(event as T);
     }

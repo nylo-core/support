@@ -58,7 +58,7 @@ class DecoratorTextField {
 ///
 /// Learn more: https://nylo.dev/docs/7.x/forms
 abstract class NyFormWidget extends StatefulWidget {
-  NyFormWidget({
+  const NyFormWidget({
     super.key,
     this.crossAxisSpacing = 10,
     this.mainAxisSpacing = 10,
@@ -74,8 +74,8 @@ abstract class NyFormWidget extends StatefulWidget {
     this.locked = false,
     this.onSubmit,
     this.onFailure,
-    String? name,
-  }) : _name = name;
+    this._name,
+  });
 
   /// The header widget
   final Widget? header;
@@ -250,7 +250,7 @@ class _InlineFormData extends NyFormData {
   final List<dynamic> Function() _fieldsBuilder;
   final Function()? _initFn;
 
-  _InlineFormData(String name, this._fieldsBuilder, this._initFn) : super(name);
+  _InlineFormData(super.name, this._fieldsBuilder, this._initFn);
 
   @override
   List<dynamic> fields() => _fieldsBuilder();
@@ -389,7 +389,7 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
       final onSuccess = data['onSuccess'] as Function(dynamic);
       final onFailure =
           data['onFailure'] as Function(List<FormValidationError>)?;
-      final showToastError = data['showToastError'] as bool? ?? true;
+      final bool showToastError = data['showToastError'] as bool? ?? true;
       final completer = data['completer'] as Completer<void>?;
 
       try {
@@ -431,7 +431,7 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
               return ListView(
                 physics: const NeverScrollableScrollPhysics(),
                 shrinkWrap: true,
-                children: [if (data != null) ...data],
+                children: [...?data],
               );
             },
             loadingStyle: LoadingStyle.normal(child: loadingWidget()),
@@ -477,7 +477,7 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
           widgetForm,
           if (widget.submitButtonSpacing > 0)
             SizedBox(height: widget.submitButtonSpacing),
-          if (_cachedSubmitButton != null) _cachedSubmitButton!,
+          ?_cachedSubmitButton,
           if (widget.footerSpacing > 0) SizedBox(height: widget.footerSpacing),
           if (widget.footer != null) widget.footer!,
         ],
@@ -504,7 +504,7 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
   List<Widget> _createForm() {
     List<Widget> items = [];
 
-    for (var child in _formData.widgets) {
+    for (Object? child in _formData.widgets) {
       if (child is Field && child.field != null) {
         items.add(
           KeyedSubtree(key: ValueKey(child.stateKey), child: child.field!),

@@ -18,8 +18,10 @@ void main() {
 
     nyGroup('singleton', () {
       nyTest('returns same instance', () async {
-        final instance1 = ToastNotificationRegistry.instance;
-        final instance2 = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry instance1 =
+            ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry instance2 =
+            ToastNotificationRegistry.instance;
 
         expect(identical(instance1, instance2), isTrue);
       });
@@ -27,7 +29,8 @@ void main() {
 
     nyGroup('register', () {
       nyTest('adds a factory', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -39,7 +42,8 @@ void main() {
       });
 
       nyTest('overwrites existing factory with same id', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory1(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox(width: 100);
@@ -52,14 +56,15 @@ void main() {
         registry.register('test', factory1);
         registry.register('test', factory2);
 
-        final retrieved = registry.get('test');
+        final ToastStyleFactory? retrieved = registry.get('test');
         expect(retrieved, factory2);
       });
     });
 
     nyGroup('registerAll', () {
       nyTest('adds multiple factories', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget successFactory(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -85,7 +90,8 @@ void main() {
       });
 
       nyTest('merges with existing factories', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget existing(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -110,7 +116,8 @@ void main() {
 
     nyGroup('get', () {
       nyTest('returns registered factory', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
           return const Text('Test');
@@ -118,14 +125,15 @@ void main() {
 
         registry.register('test', factory);
 
-        final retrieved = registry.get('test');
+        final ToastStyleFactory? retrieved = registry.get('test');
         expect(retrieved, factory);
       });
 
       nyTest(
         'returns success fallback for unknown id when success is registered',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
 
           Widget successFactory(
             ToastMeta meta,
@@ -136,7 +144,7 @@ void main() {
 
           registry.register('success', successFactory);
 
-          final retrieved = registry.get('unknown');
+          final ToastStyleFactory? retrieved = registry.get('unknown');
           expect(retrieved, successFactory);
         },
       );
@@ -144,10 +152,11 @@ void main() {
       nyTest(
         'returns null when id not found and no success fallback',
         () async {
-          final registry = ToastNotificationRegistry.instance;
+          final ToastNotificationRegistry registry =
+              ToastNotificationRegistry.instance;
           // Registry is empty after clear()
 
-          final retrieved = registry.get('nonexistent');
+          final ToastStyleFactory? retrieved = registry.get('nonexistent');
           expect(retrieved, isNull);
         },
       );
@@ -155,7 +164,8 @@ void main() {
 
     nyGroup('has', () {
       nyTest('returns true when id exists', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -167,7 +177,8 @@ void main() {
       });
 
       nyTest('returns false when id does not exist', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         expect(registry.has('nonexistent'), isFalse);
       });
@@ -175,7 +186,8 @@ void main() {
 
     nyGroup('clear', () {
       nyTest('removes all factories', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -197,7 +209,8 @@ void main() {
       });
 
       nyTest('styleIds is empty after clear', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -212,7 +225,8 @@ void main() {
 
     nyGroup('styleIds getter', () {
       nyTest('returns all registered style IDs', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         Widget factory1(ToastMeta meta, void Function(ToastMeta) update) {
           return const SizedBox();
@@ -225,7 +239,7 @@ void main() {
         registry.register('style1', factory1);
         registry.register('style2', factory2);
 
-        final ids = registry.styleIds;
+        final Set<String> ids = registry.styleIds;
 
         expect(ids.length, 2);
         expect(ids.contains('style1'), isTrue);
@@ -233,7 +247,8 @@ void main() {
       });
 
       nyTest('returns empty set when no styles registered', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
 
         expect(registry.styleIds, isEmpty);
       });
@@ -241,7 +256,8 @@ void main() {
 
     nyGroup('factory invocation', () {
       nyTest('factory receives ToastMeta and update callback', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
         ToastMeta? receivedMeta;
         void Function(ToastMeta)? receivedUpdate;
 
@@ -253,7 +269,7 @@ void main() {
 
         registry.register('test', factory);
 
-        final retrievedFactory = registry.get('test');
+        final ToastStyleFactory? retrievedFactory = registry.get('test');
         final testMeta = ToastMeta(title: 'Test Title');
 
         retrievedFactory!(testMeta, (updated) {});
@@ -264,7 +280,8 @@ void main() {
       });
 
       nyTest('update callback can modify meta', () async {
-        final registry = ToastNotificationRegistry.instance;
+        final ToastNotificationRegistry registry =
+            ToastNotificationRegistry.instance;
         ToastMeta? updatedMeta;
 
         Widget factory(ToastMeta meta, void Function(ToastMeta) update) {
@@ -275,7 +292,7 @@ void main() {
 
         registry.register('test', factory);
 
-        final retrievedFactory = registry.get('test');
+        final ToastStyleFactory? retrievedFactory = registry.get('test');
         final testMeta = ToastMeta(title: 'Original');
 
         retrievedFactory!(testMeta, (updated) {

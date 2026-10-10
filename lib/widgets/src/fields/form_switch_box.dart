@@ -82,7 +82,7 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
   dynamic currentValue;
 
   _NyFormSwitchBoxState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field

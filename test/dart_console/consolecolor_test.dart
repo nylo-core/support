@@ -188,21 +188,21 @@ void main() {
     });
 
     test('all colors have non-empty ANSI sequences', () {
-      for (final color in ConsoleColor.values) {
+      for (final ConsoleColor color in ConsoleColor.values) {
         expect(color.ansiSetForegroundColorSequence, isNotEmpty);
         expect(color.ansiSetBackgroundColorSequence, isNotEmpty);
       }
     });
 
     test('all colors start with escape character', () {
-      for (final color in ConsoleColor.values) {
+      for (final ConsoleColor color in ConsoleColor.values) {
         expect(color.ansiSetForegroundColorSequence, startsWith('\x1b['));
         expect(color.ansiSetBackgroundColorSequence, startsWith('\x1b['));
       }
     });
 
     test('all colors end with m', () {
-      for (final color in ConsoleColor.values) {
+      for (final ConsoleColor color in ConsoleColor.values) {
         expect(color.ansiSetForegroundColorSequence, endsWith('m'));
         expect(color.ansiSetBackgroundColorSequence, endsWith('m'));
       }

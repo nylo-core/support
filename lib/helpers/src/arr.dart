@@ -77,7 +77,7 @@ class Arr {
   ///
   /// [depth] limits how deep to flatten; `-1` means unlimited.
   static List flatten(Iterable list, {int depth = -1}) {
-    final result = [];
+    final List<dynamic> result = [];
     for (final item in list) {
       if (item is Iterable && depth != 0) {
         result.addAll(flatten(item, depth: depth - 1));
@@ -158,8 +158,7 @@ class Arr {
 
   /// Returns [list] with `null` values removed.
   static List<T> whereNotNull<T>(Iterable<T?> list) => [
-    for (final v in list)
-      if (v != null) v,
+    for (final v in list) ?v,
   ];
 
   /// Returns the unique values of [list].
@@ -171,7 +170,7 @@ class Arr {
   /// Arr.exceptValues([1, 2, 3, 4], [2, 4]); // [1, 3]
   /// ```
   static List<T> exceptValues<T>(Iterable<T> list, Iterable<T> values) {
-    final exclude = values.toSet();
+    final Set<T> exclude = values.toSet();
     return [
       for (final v in list)
         if (!exclude.contains(v)) v,
@@ -184,7 +183,7 @@ class Arr {
   /// Arr.onlyValues([1, 2, 3, 4], [2, 4, 9]); // [2, 4]
   /// ```
   static List<T> onlyValues<T>(Iterable<T> list, Iterable<T> values) {
-    final include = values.toSet();
+    final Set<T> include = values.toSet();
     return [
       for (final v in list)
         if (include.contains(v)) v,
@@ -198,18 +197,18 @@ class Arr {
   /// Returns the first [count] elements of [list], or last [count] if negative.
   static List<T> take<T>(Iterable<T> list, int count) {
     if (count >= 0) return list.take(count).toList();
-    final source = list.toList();
-    final n = source.length + count;
+    final List<T> source = list.toList();
+    final int n = source.length + count;
     return n < 0 ? <T>[] : source.sublist(n);
   }
 
   /// Splits [list] into chunks of [size] elements.
   static List<List<T>> chunk<T>(Iterable<T> list, int size) {
     if (size <= 0) throw ArgumentError('size must be positive');
-    final source = list.toList();
+    final List<T> source = list.toList();
     final result = <List<T>>[];
     for (var i = 0; i < source.length; i += size) {
-      final end = i + size > source.length ? source.length : i + size;
+      final int end = i + size > source.length ? source.length : i + size;
       result.add(source.sublist(i, end));
     }
     return result;
@@ -228,7 +227,7 @@ class Arr {
   /// Column(children: Arr.interleave(tiles, const Divider()));
   /// ```
   static List<T> interleave<T>(Iterable<T> list, T separator) {
-    final source = list.toList();
+    final List<T> source = list.toList();
     if (source.length <= 1) return source;
     return [
       for (var i = 0; i < source.length; i++) ...[
@@ -244,7 +243,7 @@ class Arr {
 
   /// Returns a shuffled copy of [list]. Pass [seed] for determinism.
   static List<T> shuffle<T>(Iterable<T> list, {int? seed}) {
-    final rng = seed == null ? _random : Random(seed);
+    final Random rng = seed == null ? _random : Random(seed);
     return list.toList()..shuffle(rng);
   }
 
@@ -266,7 +265,7 @@ class Arr {
     List list, {
     int Function(dynamic, dynamic)? compare,
   }) {
-    final c =
+    final int Function(dynamic, dynamic) c =
         compare ??
         (a, b) {
           if (a == null) return b == null ? 0 : -1;
@@ -297,7 +296,7 @@ class Arr {
   /// Returns up to [count] random elements of [list] without replacement.
   static List<T> randomMany<T>(List<T> list, int count) {
     if (count <= 0 || list.isEmpty) return <T>[];
-    final n = count > list.length ? list.length : count;
+    final int n = count > list.length ? list.length : count;
     return shuffle(list).take(n).toList();
   }
 
@@ -328,7 +327,7 @@ class Arr {
   ) {
     final result = <K, V>{};
     for (final v in list) {
-      final entry = callback(v);
+      final MapEntry<K, V> entry = callback(v);
       result[entry.key] = entry.value;
     }
     return result;
@@ -395,7 +394,7 @@ class Arr {
   /// Returns a new list with the element at [index] replaced by [value].
   /// Throws [RangeError] when [index] is out of range.
   static List<T> replaceAt<T>(Iterable<T> list, int index, T value) {
-    final source = list.toList();
+    final List<T> source = list.toList();
     if (index < 0 || index >= source.length) {
       throw RangeError.index(index, source);
     }
@@ -411,26 +410,26 @@ class Arr {
   /// Arr.move(['a', 'b', 'c', 'd'], 0, 2); // ['b', 'c', 'a', 'd']
   /// ```
   static List<T> move<T>(Iterable<T> list, int from, int to) {
-    final source = list.toList();
+    final List<T> source = list.toList();
     if (from < 0 || from >= source.length) {
       throw RangeError.index(from, source, 'from');
     }
-    final target = to.clamp(0, source.length - 1);
-    final item = source.removeAt(from);
+    final int target = to.clamp(0, source.length - 1);
+    final T item = source.removeAt(from);
     source.insert(target, item);
     return source;
   }
 
   /// Returns a new list with the elements at [i] and [j] swapped.
   static List<T> swap<T>(Iterable<T> list, int i, int j) {
-    final source = list.toList();
+    final List<T> source = list.toList();
     if (i < 0 || i >= source.length) {
       throw RangeError.index(i, source, 'i');
     }
     if (j < 0 || j >= source.length) {
       throw RangeError.index(j, source, 'j');
     }
-    final tmp = source[i];
+    final T tmp = source[i];
     source[i] = source[j];
     source[j] = tmp;
     return source;
@@ -452,7 +451,7 @@ class Arr {
   /// Returns the single element matching [predicate]. Throws if zero or more
   /// than one element matches.
   static T sole<T>(Iterable<T> list, {bool Function(T)? predicate}) {
-    final filtered = predicate == null
+    final List<T> filtered = predicate == null
         ? list.toList()
         : list.where(predicate).toList();
     if (filtered.isEmpty) {
@@ -476,11 +475,11 @@ class Arr {
     String separator = ', ',
     String finalSeparator = '',
   ]) {
-    final items = list.toList();
+    final List<dynamic> items = list.toList();
     if (items.isEmpty) return '';
     if (items.length == 1) return items.first.toString();
     if (finalSeparator.isEmpty) return items.join(separator);
-    final head = items.sublist(0, items.length - 1).join(separator);
+    final String head = items.sublist(0, items.length - 1).join(separator);
     return '$head$finalSeparator${items.last}';
   }
 
@@ -514,9 +513,9 @@ class Arr {
   /// Returns the median of [list], or `0` when empty.
   static double median<T>(Iterable<T> list, {num Function(T)? by}) {
     if (list.isEmpty) return 0;
-    final values = (by != null ? list.map(by) : list.cast<num>()).toList()
-      ..sort();
-    final mid = values.length ~/ 2;
+    final List<num> values =
+        (by != null ? list.map(by) : list.cast<num>()).toList()..sort();
+    final int mid = values.length ~/ 2;
     if (values.length.isOdd) return values[mid].toDouble();
     return (values[mid - 1] + values[mid]) / 2;
   }
@@ -532,7 +531,7 @@ class Arr {
     T? best;
     Comparable? bestKey;
     for (final v in list) {
-      final k = by != null ? by(v) : (v as Comparable);
+      final Comparable<dynamic> k = by != null ? by(v) : (v as Comparable);
       if (bestKey == null || k.compareTo(bestKey) < 0) {
         bestKey = k;
         best = v;
@@ -548,7 +547,7 @@ class Arr {
     T? best;
     Comparable? bestKey;
     for (final v in list) {
-      final k = by != null ? by(v) : (v as Comparable);
+      final Comparable<dynamic> k = by != null ? by(v) : (v as Comparable);
       if (bestKey == null || k.compareTo(bestKey) > 0) {
         bestKey = k;
         best = v;
@@ -597,7 +596,7 @@ class Arr {
   static Map<V, Map<K, V>> keyBy<K, V>(Iterable<Map<K, V>> list, K key) {
     final result = <V, Map<K, V>>{};
     for (final m in list) {
-      final k = m[key];
+      final V? k = m[key];
       if (k != null) result[k] = m;
     }
     return result;
@@ -616,7 +615,7 @@ class Arr {
     Iterable<Map<K, V>> list,
     Iterable<K> keys,
   ) {
-    final keySet = keys.toSet();
+    final Set<K> keySet = keys.toSet();
     return [
       for (final m in list)
         {

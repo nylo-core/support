@@ -60,13 +60,13 @@ void main() {
 
     nyTest('should render without errors', () async {
       final calendar = Calendar(DateTime(2025, 3, 1));
-      final output = calendar.render();
+      final String output = calendar.render();
       expect(output, isNotEmpty);
     });
 
     nyTest('should render plain text without errors', () async {
       final calendar = Calendar(DateTime(2025, 3, 1));
-      final output = calendar.render(plainText: true);
+      final String output = calendar.render(plainText: true);
       expect(output, isNotEmpty);
       expect(output, contains('March'));
     });

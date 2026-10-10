@@ -43,7 +43,7 @@ class NyLocaleHelper {
     String languageCode, [
     String? countryCode,
   ]) {
-    final currentLocale = getCurrentLocale(context: context);
+    final Locale currentLocale = getCurrentLocale(context: context);
     if (countryCode != null) {
       return currentLocale.languageCode == languageCode &&
           currentLocale.countryCode == countryCode;

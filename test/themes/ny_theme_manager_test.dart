@@ -69,8 +69,8 @@ void main() {
   nyGroup('NyThemeManager', () {
     nyGroup('singleton', () {
       nyTest('instance returns the same instance', () async {
-        final instance1 = NyThemeManager.instance;
-        final instance2 = NyThemeManager.instance;
+        final NyThemeManager instance1 = NyThemeManager.instance;
+        final NyThemeManager instance2 = NyThemeManager.instance;
 
         expect(identical(instance1, instance2), isTrue);
       });
@@ -78,7 +78,10 @@ void main() {
 
     nyGroup('registerThemes()', () {
       nyTest('registers themes successfully', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
 
         NyThemeManager.instance.registerThemes(themes);
 
@@ -93,7 +96,10 @@ void main() {
       });
 
       nyTest('sets initial theme when provided', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
 
         NyThemeManager.instance.registerThemes(
           themes,
@@ -118,7 +124,7 @@ void main() {
       });
 
       nyTest('uses first theme when initialThemeId not found', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'first_theme'),
           createDarkTheme(id: 'second_theme'),
         ];
@@ -134,7 +140,10 @@ void main() {
       nyTest(
         'disables followSystemTheme when initialThemeId is provided',
         () async {
-          final themes = [createLightTheme(), createDarkTheme()];
+          final List<BaseThemeConfig<TestColors>> themes = [
+            createLightTheme(),
+            createDarkTheme(),
+          ];
 
           NyThemeManager.instance.registerThemes(
             themes,
@@ -148,13 +157,17 @@ void main() {
 
     nyGroup('currentTheme', () {
       nyTest('returns current theme config', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'light_theme',
         );
 
-        final current = NyThemeManager.instance.currentTheme;
+        final BaseThemeConfig<dynamic>? current =
+            NyThemeManager.instance.currentTheme;
 
         expect(current, isNotNull);
         expect(current!.id, 'light_theme');
@@ -172,10 +185,12 @@ void main() {
     nyGroup('themeData', () {
       nyTest('returns ThemeData from current theme', () async {
         final colors = TestColors(primary: Colors.red);
-        final themes = [createLightTheme(colors: colors)];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(colors: colors),
+        ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final themeData = NyThemeManager.instance.themeData;
+        final ThemeData? themeData = NyThemeManager.instance.themeData;
 
         expect(themeData, isNotNull);
         expect(themeData!.primaryColor, Colors.red);
@@ -184,7 +199,10 @@ void main() {
 
     nyGroup('isDark', () {
       nyTest('returns true when current theme is dark', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'dark_theme',
@@ -194,7 +212,10 @@ void main() {
       });
 
       nyTest('returns false when current theme is light', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'light_theme',
@@ -208,7 +229,8 @@ void main() {
       nyTest('returns unmodifiable list', () async {
         NyThemeManager.instance.registerThemes([createLightTheme()]);
 
-        final themes = NyThemeManager.instance.themes;
+        final List<BaseThemeConfig<dynamic>> themes =
+            NyThemeManager.instance.themes;
 
         expect(themes, isA<List<BaseThemeConfig>>());
         expect(
@@ -220,28 +242,30 @@ void main() {
 
     nyGroup('lightThemes and darkThemes', () {
       nyTest('lightThemes returns only light themes', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light1'),
           createLightTheme(id: 'light2'),
           createDarkTheme(id: 'dark1'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final lightThemes = NyThemeManager.instance.lightThemes;
+        final List<BaseThemeConfig<dynamic>> lightThemes =
+            NyThemeManager.instance.lightThemes;
 
         expect(lightThemes.length, 2);
         expect(lightThemes.every((t) => t.type == NyThemeType.light), isTrue);
       });
 
       nyTest('darkThemes returns only dark themes', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light1'),
           createDarkTheme(id: 'dark1'),
           createDarkTheme(id: 'dark2'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final darkThemes = NyThemeManager.instance.darkThemes;
+        final List<BaseThemeConfig<dynamic>> darkThemes =
+            NyThemeManager.instance.darkThemes;
 
         expect(darkThemes.length, 2);
         expect(darkThemes.every((t) => t.type == NyThemeType.dark), isTrue);
@@ -250,19 +274,19 @@ void main() {
 
     nyGroup('getThemesByType()', () {
       nyTest('returns themes of specified type', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light1'),
           createDarkTheme(id: 'dark1'),
           createDarkTheme(id: 'dark2'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final lightResults = NyThemeManager.instance.getThemesByType(
-          NyThemeType.light,
-        );
-        final darkResults = NyThemeManager.instance.getThemesByType(
-          NyThemeType.dark,
-        );
+        final List<BaseThemeConfig<dynamic>> lightResults = NyThemeManager
+            .instance
+            .getThemesByType(NyThemeType.light);
+        final List<BaseThemeConfig<dynamic>> darkResults = NyThemeManager
+            .instance
+            .getThemesByType(NyThemeType.dark);
 
         expect(lightResults.length, 1);
         expect(darkResults.length, 2);
@@ -271,10 +295,14 @@ void main() {
 
     nyGroup('getThemeById()', () {
       nyTest('returns theme when found', () async {
-        final themes = [createLightTheme(id: 'my_theme'), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(id: 'my_theme'),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.getThemeById('my_theme');
+        final BaseThemeConfig<dynamic>? result = NyThemeManager.instance
+            .getThemeById('my_theme');
 
         expect(result, isNotNull);
         expect(result!.id, 'my_theme');
@@ -283,7 +311,8 @@ void main() {
       nyTest('returns null when theme not found', () async {
         NyThemeManager.instance.registerThemes([createLightTheme()]);
 
-        final result = NyThemeManager.instance.getThemeById('non_existent');
+        final BaseThemeConfig<dynamic>? result = NyThemeManager.instance
+            .getThemeById('non_existent');
 
         expect(result, isNull);
       });
@@ -291,28 +320,30 @@ void main() {
 
     nyGroup('lightTheme and darkTheme getters', () {
       nyTest('lightTheme returns first light theme', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createDarkTheme(),
           createLightTheme(id: 'first_light'),
           createLightTheme(id: 'second_light'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.lightTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.lightTheme;
 
         expect(result, isNotNull);
         expect(result!.id, 'first_light');
       });
 
       nyTest('darkTheme returns first dark theme', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(),
           createDarkTheme(id: 'first_dark'),
           createDarkTheme(id: 'second_dark'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.darkTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.darkTheme;
 
         expect(result, isNotNull);
         expect(result!.id, 'first_dark');
@@ -321,10 +352,11 @@ void main() {
       nyTest(
         'lightTheme returns first theme when no light themes exist',
         () async {
-          final themes = [createDarkTheme()];
+          final List<BaseThemeConfig<TestColors>> themes = [createDarkTheme()];
           NyThemeManager.instance.registerThemes(themes);
 
-          final result = NyThemeManager.instance.lightTheme;
+          final BaseThemeConfig<dynamic>? result =
+              NyThemeManager.instance.lightTheme;
 
           expect(result, isNotNull);
           expect(result!.type, NyThemeType.dark);
@@ -332,10 +364,11 @@ void main() {
       );
 
       nyTest('darkTheme returns null when no dark themes exist', () async {
-        final themes = [createLightTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [createLightTheme()];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.darkTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.darkTheme;
 
         expect(result, isNull);
       });
@@ -344,10 +377,13 @@ void main() {
     nyGroup('colorStyles()', () {
       nyTest('returns typed color styles from current theme', () async {
         final colors = TestColors(primary: Colors.orange);
-        final themes = [createLightTheme(colors: colors)];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(colors: colors),
+        ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.colorStyles<TestColors>();
+        final TestColors result = NyThemeManager.instance
+            .colorStyles<TestColors>();
 
         expect(result, isA<TestColors>());
         expect(result.primary, Colors.orange);
@@ -358,15 +394,15 @@ void main() {
       nyTest('returns color styles from specific theme', () async {
         final lightColors = TestColors(primary: Colors.blue);
         final darkColors = TestColors(primary: Colors.purple);
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light', colors: lightColors),
           createDarkTheme(id: 'dark', colors: darkColors),
         ];
         NyThemeManager.instance.registerThemes(themes, initialThemeId: 'light');
 
-        final lightResult = NyThemeManager.instance
+        final TestColors lightResult = NyThemeManager.instance
             .colorStylesFromTheme<TestColors>('light');
-        final darkResult = NyThemeManager.instance
+        final TestColors darkResult = NyThemeManager.instance
             .colorStylesFromTheme<TestColors>('dark');
 
         expect(lightResult.primary, Colors.blue);
@@ -387,7 +423,10 @@ void main() {
 
     nyGroup('setTheme()', () {
       nyTest('changes current theme', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'light_theme',
@@ -408,7 +447,10 @@ void main() {
       });
 
       nyTest('disables followSystemTheme', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(themes);
         await NyThemeManager.instance.setFollowSystemTheme(true);
 
@@ -420,7 +462,7 @@ void main() {
 
     nyGroup('setTheme() with remember parameter', () {
       nyTest('sets preferred dark theme when remember is true', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(),
           createDarkTheme(id: 'dark_amoled'),
           createDarkTheme(id: 'dark_blue'),
@@ -433,7 +475,7 @@ void main() {
       });
 
       nyTest('sets preferred light theme when remember is true', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light_cream'),
           createLightTheme(id: 'light_pure'),
           createDarkTheme(),
@@ -448,7 +490,7 @@ void main() {
 
     nyGroup('setPreferredDarkTheme()', () {
       nyTest('sets preferred dark theme', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(),
           createDarkTheme(id: 'dark1'),
           createDarkTheme(id: 'dark2'),
@@ -461,7 +503,10 @@ void main() {
       });
 
       nyTest('throws when theme is not dark type', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(themes);
 
         expect(
@@ -482,7 +527,7 @@ void main() {
 
     nyGroup('setPreferredLightTheme()', () {
       nyTest('sets preferred light theme', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light1'),
           createLightTheme(id: 'light2'),
           createDarkTheme(),
@@ -495,7 +540,10 @@ void main() {
       });
 
       nyTest('throws when theme is not light type', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(themes);
 
         expect(
@@ -507,7 +555,7 @@ void main() {
 
     nyGroup('effectiveLightTheme and effectiveDarkTheme', () {
       nyTest('effectiveLightTheme returns preferred when set', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light1'),
           createLightTheme(id: 'light_preferred'),
           createDarkTheme(),
@@ -515,14 +563,15 @@ void main() {
         NyThemeManager.instance.registerThemes(themes);
         await NyThemeManager.instance.setPreferredLightTheme('light_preferred');
 
-        final result = NyThemeManager.instance.effectiveLightTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.effectiveLightTheme;
 
         expect(result, isNotNull);
         expect(result!.id, 'light_preferred');
       });
 
       nyTest('effectiveDarkTheme returns preferred when set', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(),
           createDarkTheme(id: 'dark1'),
           createDarkTheme(id: 'dark_preferred'),
@@ -530,20 +579,22 @@ void main() {
         NyThemeManager.instance.registerThemes(themes);
         await NyThemeManager.instance.setPreferredDarkTheme('dark_preferred');
 
-        final result = NyThemeManager.instance.effectiveDarkTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.effectiveDarkTheme;
 
         expect(result, isNotNull);
         expect(result!.id, 'dark_preferred');
       });
 
       nyTest('effectiveLightTheme falls back to first light theme', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'first_light'),
           createLightTheme(id: 'second_light'),
         ];
         NyThemeManager.instance.registerThemes(themes);
 
-        final result = NyThemeManager.instance.effectiveLightTheme;
+        final BaseThemeConfig<dynamic>? result =
+            NyThemeManager.instance.effectiveLightTheme;
 
         expect(result, isNotNull);
         expect(result!.id, 'first_light');
@@ -577,7 +628,10 @@ void main() {
 
     nyGroup('themeNotifier', () {
       nyTest('notifies on theme change', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'light_theme',
@@ -596,24 +650,28 @@ void main() {
 
     nyGroup('onThemeChanged stream', () {
       nyTest('emits theme ID when theme changes', () async {
-        final themes = [createLightTheme(), createDarkTheme()];
+        final List<BaseThemeConfig<TestColors>> themes = [
+          createLightTheme(),
+          createDarkTheme(),
+        ];
         NyThemeManager.instance.registerThemes(
           themes,
           initialThemeId: 'light_theme',
         );
 
         final completer = Completer<String>();
-        final subscription = NyThemeManager.instance.onThemeChanged.listen((
-          themeId,
-        ) {
-          if (!completer.isCompleted) {
-            completer.complete(themeId);
-          }
-        });
+        final StreamSubscription<String> subscription = NyThemeManager
+            .instance
+            .onThemeChanged
+            .listen((themeId) {
+              if (!completer.isCompleted) {
+                completer.complete(themeId);
+              }
+            });
 
         await NyThemeManager.instance.setTheme('dark_theme');
 
-        final emittedTheme = await completer.future.timeout(
+        final String emittedTheme = await completer.future.timeout(
           const Duration(seconds: 1),
         );
         expect(emittedTheme, 'dark_theme');
@@ -624,7 +682,7 @@ void main() {
 
     nyGroup('clearSavedTheme()', () {
       nyTest('clears preferred themes', () async {
-        final themes = [
+        final List<BaseThemeConfig<TestColors>> themes = [
           createLightTheme(id: 'light'),
           createDarkTheme(id: 'dark'),
         ];
@@ -647,7 +705,7 @@ void main() {
         createLightTheme(colors: colors),
       ]);
 
-      final result = nyColorStyles<TestColors>();
+      final TestColors result = nyColorStyles<TestColors>();
 
       expect(result, isA<TestColors>());
       expect(result.primary, Colors.pink);

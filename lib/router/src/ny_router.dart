@@ -148,9 +148,9 @@ class NyRouter {
   /// as the one passed while calling [navigate], else a cast error will be
   /// thrown.
   static T? args<T extends NyArgument?>(BuildContext context) {
-    final route = ModalRoute.of(context);
+    final ModalRoute<Object?>? route = ModalRoute.of(context);
     if (route == null) return null;
-    final arguments = route.settings.arguments;
+    final Object? arguments = route.settings.arguments;
     if (arguments is! ArgumentsWrapper) return null;
     return arguments.baseArguments as T?;
   }
@@ -564,7 +564,7 @@ class NyRouter {
 
     // Execute route guards before navigation
     if (targetRoute != null) {
-      final guards = targetRoute.getRouteGuards();
+      final List<RouteGuard> guards = targetRoute.getRouteGuards();
       if (guards.isNotEmpty) {
         // Create the initial route context
         RouteContext currentContext = RouteContext(
@@ -581,14 +581,16 @@ class NyRouter {
           // Check if this is a new-style NyRouteGuard
           if (guard is NyRouteGuard) {
             guard.setRouteContext(currentContext);
-            final result = await guard.onBefore(currentContext);
+            final GuardResult result = await guard.onBefore(currentContext);
 
             if (result == GuardResult.handled) {
               // Check if guard requested a redirect
               if (guard.redirectConfig != null) {
-                final config = guard.redirectConfig!;
+                final RedirectConfig config = guard.redirectConfig!;
                 _log('Route guard redirected to: ${config.path}');
-                final routeData = RouteData.fromRedirectConfig(config);
+                final RouteData routeData = RouteData.fromRedirectConfig(
+                  config,
+                );
                 await routeData.routeToPage();
               }
               return null;
@@ -607,7 +609,7 @@ class NyRouter {
               nyArgument: args,
               queryParameters: nyQueryParameters?.data,
             );
-            final guardResult = await guard.onRequest(pageRequest);
+            final PageRequest? guardResult = await guard.onRequest(pageRequest);
             if (guardResult != null &&
                 guardResult.isRedirect &&
                 guardResult.routeData != null) {
@@ -620,7 +622,7 @@ class NyRouter {
       }
     }
 
-    final navigationResult = await _navigate(
+    final dynamic navigationResult = await _navigate(
       routeName,
       args,
       navigationType,
@@ -635,7 +637,7 @@ class NyRouter {
 
     // Execute onAfter lifecycle for guards
     if (targetRoute != null) {
-      final afterContext = RouteContext(
+      final RouteContext<Object> afterContext = RouteContext(
         context: navigatorKey?.currentContext,
         data: args?.data,
         queryParameters: nyQueryParameters?.data ?? {},
@@ -643,7 +645,7 @@ class NyRouter {
         originalRouteName: name,
       );
 
-      for (final guard in targetRoute.getRouteGuards()) {
+      for (final RouteGuard guard in targetRoute.getRouteGuards()) {
         if (guard is NyRouteGuard) {
           await guard.onAfter(afterContext);
         }
@@ -896,7 +898,8 @@ class NyRouter {
     return (RouteSettings settings) {
       if (settings.name == null) return null;
 
-      final parsed = _parseRouteSettings(settings);
+      final ({ArgumentsWrapper arguments, bool isNamedArg, String routeName})
+      parsed = _parseRouteSettings(settings);
       final String routeName = parsed.routeName;
       final ArgumentsWrapper argumentsWrapper = parsed.arguments;
 
@@ -1004,7 +1007,8 @@ class NyRouter {
     return (RouteSettings settings) {
       if (settings.name == null) return null;
 
-      final parsed = _parseRouteSettings(settings);
+      final ({ArgumentsWrapper arguments, bool isNamedArg, String routeName})
+      parsed = _parseRouteSettings(settings);
       String routeName = parsed.routeName;
       final ArgumentsWrapper argumentsWrapper = parsed.arguments;
 

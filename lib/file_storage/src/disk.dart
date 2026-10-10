@@ -41,12 +41,10 @@ class Disk {
     this.driver, {
     String prefix = '',
     this.readOnly = false,
-    bool protectRoot = false,
-    Duration? prune,
+    this._protectRoot = false,
+    this._prune,
   }) : prefix = normalizeDiskPath(prefix, disk: name),
-       _home = normalizeDiskPath(prefix, disk: name),
-       _protectRoot = protectRoot,
-       _prune = prune;
+       _home = normalizeDiskPath(prefix, disk: name);
 
   Disk._scope(Disk parent, this.prefix)
     : name = parent.name,

@@ -10,7 +10,7 @@ class NyStateManaged extends StatefulWidget {
   /// Instance identifier used to namespace state actions for multi-instance widgets.
   final String? id;
 
-  NyStateManaged({
+  const NyStateManaged({
     super.key,
     this.child,
     this.baseState,

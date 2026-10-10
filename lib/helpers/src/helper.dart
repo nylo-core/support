@@ -301,7 +301,7 @@ T match<T>(
     );
   }
 
-  final valuesMeta = values();
+  final Map<dynamic, T> valuesMeta = values();
 
   if (valuesMeta.containsKey(value)) {
     return valuesMeta[value] as T;

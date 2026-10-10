@@ -81,9 +81,9 @@ class NyMockApi {
   /// Matches against both the full URL and just the path portion.
   static MockResponse? matchUrl(String url, {String method = 'GET'}) {
     // Try matching against both the full URL and just the path
-    final urlPath = Uri.parse(url).path;
+    final String urlPath = Uri.parse(url).path;
 
-    for (final pattern in _urlPatterns.reversed) {
+    for (final _UrlPattern pattern in _urlPatterns.reversed) {
       if (pattern.method != method.toUpperCase()) continue;
       // Match against full URL first, then path only
       if (_matchPattern(pattern.pattern, url) ||
@@ -110,20 +110,26 @@ class NyMockApi {
     }
 
     // Remove query parameters from URL for matching
-    final urlPath = Uri.parse(url).path;
+    final String urlPath = Uri.parse(url).path;
 
     // Handle exact match
     if (pattern == urlPath) return true;
 
     // Split into segments
-    final patternParts = pattern.split('/').where((s) => s.isNotEmpty).toList();
-    final urlParts = urlPath.split('/').where((s) => s.isNotEmpty).toList();
+    final List<String> patternParts = pattern
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
+    final List<String> urlParts = urlPath
+        .split('/')
+        .where((s) => s.isNotEmpty)
+        .toList();
 
     int patternIndex = 0;
     int urlIndex = 0;
 
     while (patternIndex < patternParts.length && urlIndex < urlParts.length) {
-      final patternPart = patternParts[patternIndex];
+      final String patternPart = patternParts[patternIndex];
 
       if (patternPart == '**') {
         // ** matches zero or more segments
@@ -131,7 +137,7 @@ class NyMockApi {
           return true; // ** at end matches everything
         }
         // Look ahead to find next pattern part
-        final nextPatternPart = patternParts[patternIndex + 1];
+        final String nextPatternPart = patternParts[patternIndex + 1];
         while (urlIndex < urlParts.length) {
           if (urlParts[urlIndex] == nextPatternPart ||
               nextPatternPart == '*' ||
@@ -208,7 +214,7 @@ class NyMockApi {
 
   /// Check if an endpoint was called.
   static bool wasCalled(String endpoint, {String? method, int? times}) {
-    final calls = getCallsFor(endpoint).where((c) {
+    final List<ApiCallInfo> calls = getCallsFor(endpoint).where((c) {
       if (method != null && c.method != method.toUpperCase()) return false;
       return true;
     }).toList();

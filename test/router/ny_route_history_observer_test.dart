@@ -23,7 +23,7 @@ void main() {
       }
     });
 
-    Route<dynamic> _createRoute(String name) {
+    Route<dynamic> createRoute(String name) {
       return MaterialPageRoute(
         builder: (context) => const SizedBox(),
         settings: RouteSettings(name: name),
@@ -32,7 +32,7 @@ void main() {
 
     nyGroup('didPush()', () {
       nyTest('should add route to history when pushed', () async {
-        final route = _createRoute('/home');
+        final Route<dynamic> route = createRoute('/home');
 
         observer.didPush(route, null);
 
@@ -41,9 +41,9 @@ void main() {
       });
 
       nyTest('should add multiple routes to history', () async {
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
-        final route3 = _createRoute('/third');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
+        final Route<dynamic> route3 = createRoute('/third');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -54,8 +54,8 @@ void main() {
       });
 
       nyTest('should track previous route parameter', () async {
-        final route1 = _createRoute('/previous');
-        final route2 = _createRoute('/current');
+        final Route<dynamic> route1 = createRoute('/previous');
+        final Route<dynamic> route2 = createRoute('/current');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -67,8 +67,8 @@ void main() {
 
     nyGroup('didPop()', () {
       nyTest('should remove last route from history when popped', () async {
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -79,7 +79,7 @@ void main() {
       });
 
       nyTest('should handle pop on single route', () async {
-        final route = _createRoute('/only');
+        final Route<dynamic> route = createRoute('/only');
 
         observer.didPush(route, null);
         observer.didPop(route, null);
@@ -88,9 +88,9 @@ void main() {
       });
 
       nyTest('should handle multiple pops', () async {
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
-        final route3 = _createRoute('/third');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
+        final Route<dynamic> route3 = createRoute('/third');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -106,9 +106,9 @@ void main() {
 
     nyGroup('didRemove()', () {
       nyTest('should remove specific route from history', () async {
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
-        final route3 = _createRoute('/third');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
+        final Route<dynamic> route3 = createRoute('/third');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -133,8 +133,8 @@ void main() {
       });
 
       nyTest('should handle removing non-existent route gracefully', () async {
-        final route1 = _createRoute('/existing');
-        final route2 = _createRoute('/nonexistent');
+        final Route<dynamic> route1 = createRoute('/existing');
+        final Route<dynamic> route2 = createRoute('/nonexistent');
 
         observer.didPush(route1, null);
 
@@ -147,9 +147,9 @@ void main() {
 
     nyGroup('didReplace()', () {
       nyTest('should replace old route with new route', () async {
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
-        final newRoute = _createRoute('/replacement');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
+        final Route<dynamic> newRoute = createRoute('/replacement');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -170,7 +170,7 @@ void main() {
       });
 
       nyTest('should handle null newRoute', () async {
-        final route = _createRoute('/test');
+        final Route<dynamic> route = createRoute('/test');
 
         observer.didPush(route, null);
 
@@ -182,7 +182,7 @@ void main() {
       });
 
       nyTest('should handle null oldRoute', () async {
-        final newRoute = _createRoute('/new');
+        final Route<dynamic> newRoute = createRoute('/new');
 
         // This should not throw
         observer.didReplace(newRoute: newRoute, oldRoute: null);
@@ -204,9 +204,9 @@ void main() {
       nyTest(
         'should maintain correct history for typical navigation flow',
         () async {
-          final home = _createRoute('/home');
-          final list = _createRoute('/list');
-          final detail = _createRoute('/detail');
+          final Route<dynamic> home = createRoute('/home');
+          final Route<dynamic> list = createRoute('/list');
+          final Route<dynamic> detail = createRoute('/detail');
 
           // User navigates: home -> list -> detail
           observer.didPush(home, null);
@@ -231,8 +231,8 @@ void main() {
       );
 
       nyTest('should handle pushReplacement scenario', () async {
-        final login = _createRoute('/login');
-        final home = _createRoute('/home');
+        final Route<dynamic> login = createRoute('/login');
+        final Route<dynamic> home = createRoute('/home');
 
         // User starts at login
         observer.didPush(login, null);
@@ -246,11 +246,11 @@ void main() {
       });
 
       nyTest('should handle pushAndRemoveUntil scenario', () async {
-        final home = _createRoute('/home');
-        final step1 = _createRoute('/step1');
-        final step2 = _createRoute('/step2');
-        final step3 = _createRoute('/step3');
-        final success = _createRoute('/success');
+        final Route<dynamic> home = createRoute('/home');
+        final Route<dynamic> step1 = createRoute('/step1');
+        final Route<dynamic> step2 = createRoute('/step2');
+        final Route<dynamic> step3 = createRoute('/step3');
+        final Route<dynamic> success = createRoute('/success');
 
         // Multi-step flow
         observer.didPush(home, null);
@@ -319,8 +319,8 @@ void main() {
               capturedPreviousRoute = previousRoute;
             };
 
-        final previousRoute = _createRoute('/previous');
-        final route = MaterialPageRoute(
+        final Route<dynamic> previousRoute = createRoute('/previous');
+        final MaterialPageRoute<dynamic> route = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(
             name: '/current',
@@ -348,8 +348,8 @@ void main() {
               capturedPreviousRoute = previousRoute;
             };
 
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -372,8 +372,8 @@ void main() {
               capturedPreviousRoute = previousRoute;
             };
 
-        final route1 = _createRoute('/first');
-        final route2 = _createRoute('/second');
+        final Route<dynamic> route1 = createRoute('/first');
+        final Route<dynamic> route2 = createRoute('/second');
 
         observer.didPush(route1, null);
         observer.didPush(route2, route1);
@@ -398,8 +398,8 @@ void main() {
               capturedPreviousRoute = previousRoute;
             };
 
-        final oldRoute = _createRoute('/old');
-        final newRoute = MaterialPageRoute(
+        final Route<dynamic> oldRoute = createRoute('/old');
+        final MaterialPageRoute<dynamic> newRoute = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(
             name: '/new',
@@ -424,7 +424,7 @@ void main() {
               listenerCalled = true;
             };
 
-        final routeWithNullName = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> routeWithNullName = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: null),
         );
@@ -442,7 +442,7 @@ void main() {
               listenerCalled = true;
             };
 
-        final routeWithNullName = MaterialPageRoute(
+        final MaterialPageRoute<dynamic> routeWithNullName = MaterialPageRoute(
           builder: (context) => const SizedBox(),
           settings: const RouteSettings(name: null),
         );
@@ -462,10 +462,10 @@ void main() {
               actions.add('$action:$routeName');
             };
 
-        final home = _createRoute('/home');
-        final list = _createRoute('/list');
-        final detail = _createRoute('/detail');
-        final edit = _createRoute('/edit');
+        final Route<dynamic> home = createRoute('/home');
+        final Route<dynamic> list = createRoute('/list');
+        final Route<dynamic> detail = createRoute('/detail');
+        final Route<dynamic> edit = createRoute('/edit');
 
         observer.didPush(home, null);
         observer.didPush(list, home);

@@ -88,7 +88,8 @@ void main() {
         );
         final controller = TestController(request: request);
 
-        final result = controller.data<Map<String, dynamic>>();
+        final Map<String, dynamic>? result = controller
+            .data<Map<String, dynamic>>();
 
         expect(result, isNotNull);
         expect(result!['userId'], 123);
@@ -97,7 +98,9 @@ void main() {
       nyTest('returns defaultValue when request is null', () async {
         final controller = TestController();
 
-        final result = controller.data<String>(defaultValue: 'fallback');
+        final String? result = controller.data<String>(
+          defaultValue: 'fallback',
+        );
 
         expect(result, 'fallback');
       });
@@ -106,7 +109,7 @@ void main() {
         final request = NyRequest(currentRoute: '/test');
         final controller = TestController(request: request);
 
-        final result = controller.data<String>(defaultValue: 'default');
+        final String? result = controller.data<String>(defaultValue: 'default');
 
         expect(result, 'default');
       });
@@ -120,7 +123,7 @@ void main() {
         );
         final controller = TestController(request: request);
 
-        final result = controller.queryParameters();
+        final dynamic result = controller.queryParameters();
 
         expect(result, isA<Map>());
         expect(result['page'], '1');
@@ -134,7 +137,7 @@ void main() {
         );
         final controller = TestController(request: request);
 
-        final result = controller.queryParameters(key: 'filter');
+        final dynamic result = controller.queryParameters(key: 'filter');
 
         expect(result, 'active');
       });
@@ -142,7 +145,7 @@ void main() {
       nyTest('returns null when request is null', () async {
         final controller = TestController();
 
-        final result = controller.queryParameters();
+        final dynamic result = controller.queryParameters();
 
         expect(result, isNull);
       });
@@ -150,7 +153,7 @@ void main() {
       nyTest('returns null for key when request is null', () async {
         final controller = TestController();
 
-        final result = controller.queryParameters(key: 'anyKey');
+        final dynamic result = controller.queryParameters(key: 'anyKey');
 
         expect(result, isNull);
       });

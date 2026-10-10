@@ -28,14 +28,14 @@ void main() {
 
   nyGroup('NyThemeManager currentTheme cache', () {
     nyTest('returns the identical instance on repeated reads', () async {
-      final manager = NyThemeManager.instance;
+      final NyThemeManager manager = NyThemeManager.instance;
       manager.registerThemes([
         _theme('light', NyThemeType.light),
         _theme('dark', NyThemeType.dark),
       ], initialThemeId: 'light');
 
-      final first = manager.currentTheme;
-      final second = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? first = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? second = manager.currentTheme;
 
       expect(first, isNotNull);
       expect(identical(first, second), isTrue);
@@ -44,20 +44,20 @@ void main() {
     });
 
     nyTest('is invalidated by setTheme', () async {
-      final manager = NyThemeManager.instance;
+      final NyThemeManager manager = NyThemeManager.instance;
       manager.registerThemes([
         _theme('light', NyThemeType.light),
         _theme('dark', NyThemeType.dark),
       ], initialThemeId: 'light');
 
-      final before = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? before = manager.currentTheme;
       expect(before!.id, 'light');
       expect(manager.themeData!.brightness, Brightness.light);
       expect(manager.colorStyles<_Colors>().primary, Colors.blue);
 
       await manager.setTheme('dark');
 
-      final after = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? after = manager.currentTheme;
       expect(after!.id, 'dark');
       expect(identical(before, after), isFalse);
       expect(manager.isDark, isTrue);
@@ -68,11 +68,11 @@ void main() {
     });
 
     nyTest('is invalidated by registerThemes', () async {
-      final manager = NyThemeManager.instance;
+      final NyThemeManager manager = NyThemeManager.instance;
       manager.registerThemes([
         _theme('light', NyThemeType.light),
       ], initialThemeId: 'light');
-      final before = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? before = manager.currentTheme;
       expect(before!.id, 'light');
 
       // Re-register with a new instance under the same id: the cache must
@@ -81,7 +81,7 @@ void main() {
         _theme('light', NyThemeType.light),
         _theme('dark', NyThemeType.dark),
       ], initialThemeId: 'light');
-      final after = manager.currentTheme;
+      final BaseThemeConfig<dynamic>? after = manager.currentTheme;
 
       expect(after!.id, 'light');
       expect(identical(before, after), isFalse);
@@ -89,7 +89,7 @@ void main() {
     });
 
     nyTest('is invalidated by setFollowSystemTheme', () async {
-      final manager = NyThemeManager.instance;
+      final NyThemeManager manager = NyThemeManager.instance;
       manager.registerThemes([
         _theme('light', NyThemeType.light),
         _theme('dark', NyThemeType.dark),
@@ -104,7 +104,7 @@ void main() {
     });
 
     nyTest('is cleared by dispose', () async {
-      final manager = NyThemeManager.instance;
+      final NyThemeManager manager = NyThemeManager.instance;
       manager.registerThemes([
         _theme('light', NyThemeType.light),
       ], initialThemeId: 'light');

@@ -85,10 +85,11 @@ class _NyFormSliderState extends FieldBaseState<NyFormSlider> {
   double currentValue = 0.0;
 
   _NyFormSliderState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
+  @override
   FieldStyleSlider get style {
     return widget.field.style as FieldStyleSlider;
   }

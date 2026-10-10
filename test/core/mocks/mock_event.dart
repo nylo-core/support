@@ -4,8 +4,9 @@ import 'package:nylo_support/events/ny_events.dart';
 class MockEvent extends NyEvent {
   bool wasFired = false;
 
-  @override
-  final Map<dynamic, NyListener> listeners = {MockListener: MockListener()};
+  MockEvent() {
+    listeners[MockListener] = MockListener();
+  }
 }
 
 /// Mock listener for testing event registration
@@ -19,7 +20,7 @@ class MockListener extends NyListener {
   @override
   Future handle(Map? params) async {
     listenerCalled = true;
-    final nyEvent = getEvent();
+    final NyEvent? nyEvent = getEvent();
     if (nyEvent is MockEvent) {
       nyEvent.wasFired = true;
     }

@@ -79,7 +79,11 @@ void main() {
 
     nyGroup('fromJson', () {
       nyTest('decodes JSON to model using decoder', () async {
-        final json = {'id': 1, 'name': 'Jane', 'email': 'jane@test.com'};
+        final Map<String, Object> json = {
+          'id': 1,
+          'name': 'Jane',
+          'email': 'jane@test.com',
+        };
 
         final response = DefaultResponse<TestUser>.fromJson(
           json,
@@ -94,7 +98,9 @@ void main() {
       });
 
       nyTest('handles null decoder result', () async {
-        final decoders = {TestUser: (data) => null};
+        final Map<Type, Null Function(dynamic)> decoders = {
+          TestUser: (data) => null,
+        };
 
         final response = DefaultResponse<TestUser>.fromJson(
           {'id': 1},
@@ -106,7 +112,7 @@ void main() {
       });
 
       nyTest('decodes list from JSON', () async {
-        final json = [
+        final List<Map<String, Object>> json = [
           {'id': 1, 'title': 'First Post'},
           {'id': 2, 'title': 'Second Post'},
         ];
@@ -124,7 +130,7 @@ void main() {
       });
 
       nyTest('throws assertion error when decoder is missing', () async {
-        final json = {'id': 1, 'name': 'Test'};
+        final Map<String, Object> json = {'id': 1, 'name': 'Test'};
 
         expect(
           () => DefaultResponse<TestUser>.fromJson(
@@ -149,7 +155,7 @@ void main() {
       });
 
       nyTest('works with Map type', () async {
-        final mapData = {'key': 'value', 'count': 5};
+        final Map<String, Object> mapData = {'key': 'value', 'count': 5};
         final response = DefaultResponse<Map<String, dynamic>>(data: mapData);
 
         expect(response.data, isA<Map<String, dynamic>>());

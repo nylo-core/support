@@ -48,7 +48,7 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
   dynamic currentValue;
 
   _NyFormDateTimePickerState(super.field) {
-    stateName = this.field.stateKey;
+    stateName = field.stateKey;
   }
 
   /// Get the style from the field
@@ -73,8 +73,9 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
     if (value is DateTime) return value;
     if (value is String && value.isNotEmpty) {
       final DateTime? parsed = DateTime.tryParse(value);
-      if (parsed == null)
+      if (parsed == null) {
         dump("Field ${widget.field.key}: '$value' is not a date");
+      }
       return parsed;
     }
     return null;

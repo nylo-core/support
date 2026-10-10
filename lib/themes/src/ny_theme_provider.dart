@@ -80,7 +80,7 @@ class NyThemeProvider extends StatelessWidget {
     return ValueListenableBuilder<String>(
       valueListenable: NyThemeManager.instance.themeNotifier,
       builder: (context, themeId, _) {
-        final themeData = NyThemeManager.instance.themeData;
+        final ThemeData? themeData = NyThemeManager.instance.themeData;
 
         if (themeData == null) {
           // Return child without theme wrapper if no theme is set

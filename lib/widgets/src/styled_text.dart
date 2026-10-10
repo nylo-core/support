@@ -144,7 +144,7 @@ class _StyledTextState extends State<StyledText> {
 
   /// Dispose and forget every recognizer created by the previous build.
   void _disposeRecognizers() {
-    for (final recognizer in _recognizers) {
+    for (final TapGestureRecognizer recognizer in _recognizers) {
       recognizer.dispose();
     }
     _recognizers.clear();
@@ -194,9 +194,12 @@ class _StyledTextState extends State<StyledText> {
     }
 
     // Then check for pipe-separated keys
-    for (final entry in map.entries) {
+    for (final MapEntry<String, T> entry in map.entries) {
       if (entry.key.contains('|')) {
-        final keyParts = entry.key.split('|').map((e) => e.trim()).toList();
+        final List<String> keyParts = entry.key
+            .split('|')
+            .map((e) => e.trim())
+            .toList();
         if (keyParts.contains(placeholder)) {
           return entry.value;
         }
@@ -215,13 +218,15 @@ class _StyledTextState extends State<StyledText> {
     _disposeRecognizers();
 
     final spans = <TextSpan>[];
-    final currentText = widget.text!;
+    final String currentText = widget.text!;
     int lastEnd = 0;
 
-    for (final match in _placeholderPattern.allMatches(currentText)) {
+    for (final RegExpMatch match in _placeholderPattern.allMatches(
+      currentText,
+    )) {
       // Add text before the placeholder
       if (match.start > lastEnd) {
-        final beforeText = currentText.substring(lastEnd, match.start);
+        final String beforeText = currentText.substring(lastEnd, match.start);
         spans.add(
           TextSpan(
             text: beforeText,
@@ -232,8 +237,8 @@ class _StyledTextState extends State<StyledText> {
       }
 
       // Add the placeholder text with custom style and tap handler
-      final raw = match.group(1)!;
-      final colonIndex = raw.indexOf(':');
+      final String raw = match.group(1)!;
+      final int colonIndex = raw.indexOf(':');
       final String key;
       final String displayText;
       if (colonIndex != -1) {
@@ -243,9 +248,9 @@ class _StyledTextState extends State<StyledText> {
         key = raw;
         displayText = raw;
       }
-      final placeholderStyle =
+      final TextStyle? placeholderStyle =
           _lookupWithPipeKeys(widget.styles, key) ?? widget.style;
-      final tapCallback = _lookupWithPipeKeys(widget.onTap, key);
+      final VoidCallback? tapCallback = _lookupWithPipeKeys(widget.onTap, key);
 
       TapGestureRecognizer? recognizer;
       if (tapCallback != null) {
@@ -267,7 +272,7 @@ class _StyledTextState extends State<StyledText> {
 
     // Add remaining text after the last placeholder
     if (lastEnd < currentText.length) {
-      final remainingText = currentText.substring(lastEnd);
+      final String remainingText = currentText.substring(lastEnd);
       spans.add(
         TextSpan(
           text: remainingText,
@@ -282,7 +287,7 @@ class _StyledTextState extends State<StyledText> {
 
   List<TextSpan> _parseChildrenText() {
     final textSpans = <TextSpan>[];
-    for (final child in widget.children!) {
+    for (final Text child in widget.children!) {
       textSpans.add(
         TextSpan(
           text: child.data,

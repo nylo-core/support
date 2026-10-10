@@ -27,10 +27,10 @@ class NyStateTestHelpers {
   NyStateTestHelpers._();
 
   /// Track fired state updates for assertion purposes.
-  static final List<_FiredStateUpdate> _firedUpdates = [];
+  static final List<FiredStateUpdate> _firedUpdates = [];
 
   /// Track fired state actions for assertion purposes.
-  static final List<_FiredStateAction> _firedActions = [];
+  static final List<FiredStateAction> _firedActions = [];
 
   /// Reset all tracked state updates and actions.
   static void reset() {
@@ -39,31 +39,33 @@ class NyStateTestHelpers {
   }
 
   /// Get all fired updates for a given [stateName].
-  static List<_FiredStateUpdate> getUpdatesFor(String stateName) {
+  static List<FiredStateUpdate> getUpdatesFor(String stateName) {
     return _firedUpdates.where((u) => u.stateName == stateName).toList();
   }
 
   /// Get all fired actions for a given [stateName].
-  static List<_FiredStateAction> getActionsFor(String stateName) {
+  static List<FiredStateAction> getActionsFor(String stateName) {
     return _firedActions.where((a) => a.stateName == stateName).toList();
   }
 }
 
-class _FiredStateUpdate {
+/// A state update recorded by [NyStateTestHelpers].
+class FiredStateUpdate {
   final String stateName;
   final dynamic data;
   final DateTime timestamp;
 
-  _FiredStateUpdate(this.stateName, this.data) : timestamp = DateTime.now();
+  FiredStateUpdate(this.stateName, this.data) : timestamp = DateTime.now();
 }
 
-class _FiredStateAction {
+/// A state action recorded by [NyStateTestHelpers].
+class FiredStateAction {
   final String stateName;
   final String action;
   final dynamic data;
   final DateTime timestamp;
 
-  _FiredStateAction(this.stateName, this.action, this.data)
+  FiredStateAction(this.stateName, this.action, this.data)
     : timestamp = DateTime.now();
 }
 
@@ -79,7 +81,7 @@ class _FiredStateAction {
 /// expect(find.text('a'), findsOneWidget);
 /// ```
 void fireStateUpdate(String stateName, {dynamic data}) {
-  final eventBus = Backpack.instance.read<EventBus>("event_bus");
+  final EventBus? eventBus = Backpack.instance.read<EventBus>("event_bus");
   if (eventBus == null) {
     throw StateError(
       'EventBus not found in Backpack. '
@@ -87,7 +89,7 @@ void fireStateUpdate(String stateName, {dynamic data}) {
     );
   }
 
-  NyStateTestHelpers._firedUpdates.add(_FiredStateUpdate(stateName, data));
+  NyStateTestHelpers._firedUpdates.add(FiredStateUpdate(stateName, data));
   eventBus.fire(UpdateState(stateName: stateName, data: data));
 }
 
@@ -111,7 +113,7 @@ void fireStateAction(String stateName, String action, {dynamic data}) {
   }
   fireStateUpdate(stateName, data: actionData);
   NyStateTestHelpers._firedActions.add(
-    _FiredStateAction(stateName, action, data),
+    FiredStateAction(stateName, action, data),
   );
 }
 
@@ -126,7 +128,9 @@ void fireStateAction(String stateName, String action, {dynamic data}) {
 /// expectStateUpdated('MyWidget', times: 1);
 /// ```
 void expectStateUpdated(String stateName, {int? times}) {
-  final updates = NyStateTestHelpers.getUpdatesFor(stateName);
+  final List<FiredStateUpdate> updates = NyStateTestHelpers.getUpdatesFor(
+    stateName,
+  );
   if (times != null) {
     expect(
       updates.length,
@@ -154,7 +158,7 @@ void expectStateUpdated(String stateName, {int? times}) {
 /// expectStateAction('MyWidget', 'refresh-page');
 /// ```
 void expectStateAction(String stateName, String action, {int? times}) {
-  final actions = NyStateTestHelpers.getActionsFor(
+  final List<FiredStateAction> actions = NyStateTestHelpers.getActionsFor(
     stateName,
   ).where((a) => a.action == action).toList();
   if (times != null) {
@@ -187,11 +191,11 @@ void expectStateAction(String stateName, String action, {int? times}) {
 /// expectStateData(tester, find.byType(MyWidget), equals(42));
 /// ```
 void expectStateData(WidgetTester tester, Finder finder, dynamic matcher) {
-  final elements = finder.evaluate();
+  final FinderResult<Element> elements = finder.evaluate();
   if (elements.isEmpty) {
     fail('No widget found for finder: $finder');
   }
-  final element = elements.first;
+  final Element element = elements.first;
 
   if (element is StatefulElement && element.state is NyBaseState) {
     expect(

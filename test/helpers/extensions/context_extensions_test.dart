@@ -93,7 +93,7 @@ void main() {
     ) async {
       const probe = _DarkModeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_DarkModeProbeState>(
+      final _DarkModeProbeState state = tester.state<_DarkModeProbeState>(
         find.byType(_DarkModeProbe),
       );
       expect(state.buildCount, 1);
@@ -117,7 +117,7 @@ void main() {
     ) async {
       const probe = _DarkModeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_DarkModeProbeState>(
+      final _DarkModeProbeState state = tester.state<_DarkModeProbeState>(
         find.byType(_DarkModeProbe),
       );
       expect(state.buildCount, 1);
@@ -139,7 +139,7 @@ void main() {
     nyWidgetTest('rebuilds when platformBrightness changes', (tester) async {
       const probe = _DarkModeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_DarkModeProbeState>(
+      final _DarkModeProbeState state = tester.state<_DarkModeProbeState>(
         find.byType(_DarkModeProbe),
       );
       expect(state.buildCount, 1);
@@ -161,7 +161,7 @@ void main() {
     ) async {
       const probe = _NyColorProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_NyColorProbeState>(
+      final _NyColorProbeState state = tester.state<_NyColorProbeState>(
         find.byType(_NyColorProbe),
       );
       expect(state.buildCount, 1);
@@ -182,7 +182,7 @@ void main() {
     ) async {
       const probe = _NyColorProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_NyColorProbeState>(
+      final _NyColorProbeState state = tester.state<_NyColorProbeState>(
         find.byType(_NyColorProbe),
       );
       expect(state.lastColor, Colors.white);
@@ -200,7 +200,9 @@ void main() {
     nyWidgetTest('return the MediaQuery size', (tester) async {
       const probe = _SizeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_SizeProbeState>(find.byType(_SizeProbe));
+      final _SizeProbeState state = tester.state<_SizeProbeState>(
+        find.byType(_SizeProbe),
+      );
       expect(state.width, 400);
       expect(state.height, 800);
     });
@@ -208,7 +210,9 @@ void main() {
     nyWidgetTest('do not rebuild when only viewInsets change', (tester) async {
       const probe = _SizeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_SizeProbeState>(find.byType(_SizeProbe));
+      final _SizeProbeState state = tester.state<_SizeProbeState>(
+        find.byType(_SizeProbe),
+      );
       expect(state.buildCount, 1);
 
       await tester.pumpWidget(
@@ -224,7 +228,9 @@ void main() {
     nyWidgetTest('rebuild when the size changes', (tester) async {
       const probe = _SizeProbe();
       await tester.pumpWidget(_host(_light, probe));
-      final state = tester.state<_SizeProbeState>(find.byType(_SizeProbe));
+      final _SizeProbeState state = tester.state<_SizeProbeState>(
+        find.byType(_SizeProbe),
+      );
 
       await tester.pumpWidget(
         _host(_light.copyWith(size: const Size(300, 600)), probe),

@@ -193,7 +193,7 @@ void main() {
     nyTest('matches exact URL', () async {
       NyMockApi.respond('/users', {'users': []});
 
-      final response = NyMockApi.matchUrl('/users');
+      final MockResponse? response = NyMockApi.matchUrl('/users');
 
       expect(response, isNotNull);
       expect(response?.data['users'], []);
@@ -219,9 +219,18 @@ void main() {
       NyMockApi.respond('/users', {'method': 'GET'}, method: 'GET');
       NyMockApi.respond('/users', {'method': 'POST'}, method: 'POST');
 
-      final getResponse = NyMockApi.matchUrl('/users', method: 'GET');
-      final postResponse = NyMockApi.matchUrl('/users', method: 'POST');
-      final deleteResponse = NyMockApi.matchUrl('/users', method: 'DELETE');
+      final MockResponse? getResponse = NyMockApi.matchUrl(
+        '/users',
+        method: 'GET',
+      );
+      final MockResponse? postResponse = NyMockApi.matchUrl(
+        '/users',
+        method: 'POST',
+      );
+      final MockResponse? deleteResponse = NyMockApi.matchUrl(
+        '/users',
+        method: 'DELETE',
+      );
 
       expect(getResponse?.data['method'], 'GET');
       expect(postResponse?.data['method'], 'POST');
@@ -232,7 +241,7 @@ void main() {
       NyMockApi.respond('/users', {'version': 1});
       NyMockApi.respond('/users', {'version': 2});
 
-      final response = NyMockApi.matchUrl('/users');
+      final MockResponse? response = NyMockApi.matchUrl('/users');
 
       expect(response?.data['version'], 2);
     });
@@ -262,7 +271,7 @@ void main() {
     nyTest('recordCall stores call information', () async {
       NyMockApi.recordCall('/users', method: 'POST', data: {'name': 'John'});
 
-      final calls = NyMockApi.getCalls();
+      final List<ApiCallInfo> calls = NyMockApi.getCalls();
 
       expect(calls.length, 1);
       expect(calls.first.endpoint, '/users');
@@ -275,7 +284,7 @@ void main() {
       NyMockApi.recordCall('/posts', method: 'GET');
       NyMockApi.recordCall('/users/1', method: 'GET');
 
-      final userCalls = NyMockApi.getCallsFor('/users');
+      final List<ApiCallInfo> userCalls = NyMockApi.getCallsFor('/users');
 
       expect(userCalls.length, 2);
     });
@@ -316,7 +325,7 @@ void main() {
         return {'mocked': true};
       });
 
-      final handler = NyMockApi.getHandler<TestNyApiService>();
+      final MockApiHandler? handler = NyMockApi.getHandler<TestNyApiService>();
 
       expect(handler, isNotNull);
     });

@@ -66,7 +66,7 @@ void main() {
         final buffer = ScrollbackBuffer(recordBlanks: true);
         buffer.add('first');
         buffer.add('second');
-        final result = buffer.up('typing');
+        final String result = buffer.up('typing');
         expect(result, 'second');
       });
 
@@ -75,7 +75,7 @@ void main() {
         buffer.add('first');
         buffer.add('second');
         buffer.up('typing');
-        final result = buffer.up('typing');
+        final String result = buffer.up('typing');
         expect(result, 'first');
       });
 
@@ -83,7 +83,7 @@ void main() {
         final buffer = ScrollbackBuffer(recordBlanks: true);
         buffer.add('only');
         buffer.up('typing');
-        final result = buffer.up('typing');
+        final String result = buffer.up('typing');
         expect(result, 'only');
       });
 
@@ -105,7 +105,7 @@ void main() {
         final buffer = ScrollbackBuffer(recordBlanks: true);
         buffer.add('first');
         buffer.up('typing');
-        final result = buffer.down();
+        final String? result = buffer.down();
         expect(result, 'typing');
       });
 
@@ -115,7 +115,7 @@ void main() {
         buffer.add('second');
         buffer.up('typing'); // now at 'second'
         buffer.up('typing'); // now at 'first'
-        final result = buffer.down(); // back to 'second'
+        final String? result = buffer.down(); // back to 'second'
         expect(result, 'second');
       });
 

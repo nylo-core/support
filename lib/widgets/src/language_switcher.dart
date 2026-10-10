@@ -353,7 +353,7 @@ class LanguageSwitcher extends StatefulWidget {
       return _localeFlags[localeCode]!;
     }
     // Try base language code (e.g., 'en' from 'en_US')
-    final baseCode = localeCode.split('_').first;
+    final String baseCode = localeCode.split('_').first;
     if (_localeFlags.containsKey(baseCode)) {
       return _localeFlags[baseCode]!;
     }
@@ -376,7 +376,10 @@ class LanguageSwitcher extends StatefulWidget {
     bool useRootNavigator = false,
   }) async {
     // Capture navigator state before async operations
-    final navigator = Navigator.of(context, rootNavigator: useRootNavigator);
+    final NavigatorState navigator = Navigator.of(
+      context,
+      rootNavigator: useRootNavigator,
+    );
 
     List<Map<String, String>> list = await getLanguageList();
     Map<String, dynamic>? currentLang = await currentLanguage();
@@ -384,7 +387,7 @@ class LanguageSwitcher extends StatefulWidget {
     if (!context.mounted) return;
 
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final screenHeight = MediaQuery.of(context).size.height;
+    final double screenHeight = MediaQuery.of(context).size.height;
 
     return showModalBottomSheet(
       context: context,
@@ -392,16 +395,16 @@ class LanguageSwitcher extends StatefulWidget {
       useRootNavigator: useRootNavigator,
       backgroundColor: Colors.transparent,
       builder: (BuildContext modalContext) {
-        final effectiveBackgroundColor =
+        final Color effectiveBackgroundColor =
             backgroundColor ??
             (isDark ? const Color(0xFF1C1C1E) : Colors.white);
-        final effectiveHandleColor =
+        final Color effectiveHandleColor =
             handleColor ??
             (isDark ? Colors.grey.shade600 : Colors.grey.shade300);
-        final effectiveSelectedColor =
+        final Color effectiveSelectedColor =
             selectedColor ??
             (isDark ? const Color(0xFF2C2C2E) : const Color(0xFFF2F2F7));
-        final effectiveBorderRadius =
+        final BorderRadius effectiveBorderRadius =
             borderRadius ??
             const BorderRadius.vertical(top: Radius.circular(20));
 
@@ -463,16 +466,17 @@ class LanguageSwitcher extends StatefulWidget {
                     shrinkWrap: true,
                     itemCount: list.length,
                     itemBuilder: (context, index) {
-                      final meta = list[index];
-                      final data = meta.entries.firstOrNull;
+                      final Map<String, String> meta = list[index];
+                      final MapEntry<String, String>? data =
+                          meta.entries.firstOrNull;
                       if (data == null) return const SizedBox.shrink();
 
-                      final isSelected =
+                      final bool isSelected =
                           currentLang != null &&
                           currentLang.entries.isNotEmpty &&
                           data.key == currentLang.entries.first.key;
 
-                      final flagEmoji = getFlagEmoji(data.key);
+                      final String flagEmoji = getFlagEmoji(data.key);
 
                       return _LanguageListItem(
                         languageName: data.value,
@@ -1082,9 +1086,8 @@ class LanguageSwitcher extends StatefulWidget {
 
   /// Get the language data
   static Map<String, String>? getLanguageData(String localeCode) {
-    final data = _languageData.entries.firstWhereOrNull(
-      (element) => element.key == localeCode,
-    );
+    final MapEntry<String, String>? data = _languageData.entries
+        .firstWhereOrNull((element) => element.key == localeCode);
     if (data == null) {
       return null;
     }
@@ -1097,7 +1100,8 @@ class LanguageSwitcher extends StatefulWidget {
   }) async {
     List<Map<String, String>> list = [];
     try {
-      final assetManifest = await AssetManifest.loadFromAssetBundle(rootBundle);
+      final AssetManifest assetManifest =
+          await AssetManifest.loadFromAssetBundle(rootBundle);
       List<String> langFiles = assetManifest
           .listAssets()
           .where((String key) => key.contains("lang"))
@@ -1180,12 +1184,13 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
   @override
   Widget build(BuildContext context) {
     final isDark = Theme.of(context).brightness == Brightness.dark;
-    final selectedLang = selectedLanguage?.entries.firstOrNull?.key ?? "en";
-    final selectedName =
+    final String selectedLang =
+        selectedLanguage?.entries.firstOrNull?.key ?? "en";
+    final dynamic selectedName =
         selectedLanguage?.entries.firstOrNull?.value ??
         LanguageSwitcher.getLanguageData(selectedLang)?.values.first ??
         "English";
-    final flagEmoji = LanguageSwitcher.getFlagEmoji(selectedLang);
+    final String flagEmoji = LanguageSwitcher.getFlagEmoji(selectedLang);
 
     // If custom dropdownBuilder is provided, use the traditional dropdown
     if (widget.dropdownBuilder != null) {
@@ -1217,7 +1222,7 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
         minWidth: 200,
       ),
       itemBuilder: (context) => languages.map((Map<String, String> value) {
-        final item = value.entries.firstOrNull;
+        final MapEntry<String, String>? item = value.entries.firstOrNull;
         if (item == null) {
           return const PopupMenuItem<String>(
             value: '',
@@ -1225,7 +1230,7 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
             child: SizedBox.shrink(),
           );
         }
-        final itemFlag = LanguageSwitcher.getFlagEmoji(item.key);
+        final String itemFlag = LanguageSwitcher.getFlagEmoji(item.key);
         final isSelected = item.key == selectedLang;
 
         return PopupMenuItem<String>(
@@ -1377,7 +1382,7 @@ class _LanguageSwitcherState extends NyState<LanguageSwitcher> {
       items: languages.map<DropdownMenuItem<String>>((
         Map<String, String> value,
       ) {
-        final item = value.entries.firstOrNull;
+        final MapEntry<String, String>? item = value.entries.firstOrNull;
         if (item == null) {
           return const DropdownMenuItem<String>(value: '', child: SizedBox());
         }
@@ -1649,13 +1654,13 @@ class _PopupContentFade extends StatelessWidget {
   Widget build(BuildContext context) {
     if (fadeDuration == Duration.zero) return child;
 
-    final animation = ModalRoute.of(context)?.animation;
+    final Animation<double>? animation = ModalRoute.of(context)?.animation;
     if (animation == null) return child;
 
-    final totalMs =
+    final int totalMs =
         (popupDuration ?? const Duration(milliseconds: 300)).inMilliseconds;
-    final fadeMs = fadeDuration.inMilliseconds;
-    final intervalStart = (1.0 - fadeMs / totalMs).clamp(0.0, 0.9);
+    final int fadeMs = fadeDuration.inMilliseconds;
+    final double intervalStart = (1.0 - fadeMs / totalMs).clamp(0.0, 0.9);
 
     return AnimatedBuilder(
       animation: animation,

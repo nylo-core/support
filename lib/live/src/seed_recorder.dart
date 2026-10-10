@@ -16,9 +16,9 @@ import 'storage_snapshot.dart';
 class SeedRun {
   /// Creates a run of the seeder [name] in [direction] (`up` or `down`).
   ///
-  /// Everything added to the run is also added to [parent], so a seeder that
+  /// Everything added to the run is also added to [_parent], so a seeder that
   /// runs other seeders shows their changes too.
-  SeedRun(this.name, this.direction, {SeedRun? parent}) : _parent = parent;
+  SeedRun(this.name, this.direction, {this._parent});
 
   /// The seeder's name, e.g. `demo_user`.
   final String name;
@@ -408,7 +408,7 @@ class SeedRecorder {
     batch.records[name] = {
       'seededAt': DateTime.now().toUtc().toIso8601String(),
       'steps': steps,
-      if (source != null) 'source': source,
+      'source': ?source,
     };
     _memory[name] = backpackBefore;
     batch.dirty = true;

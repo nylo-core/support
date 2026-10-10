@@ -173,7 +173,7 @@ void main() {
 
     nyGroup('policy behavior combinations', () {
       nyTest('networkOnly: network only, no cache', () async {
-        final policy = CachePolicy.networkOnly;
+        final CachePolicy policy = CachePolicy.networkOnly;
 
         expect(policy.shouldTryCacheFirst, isFalse);
         expect(policy.shouldTryNetwork, isTrue);
@@ -183,7 +183,7 @@ void main() {
       });
 
       nyTest('cacheFirst: cache first, fallback to network', () async {
-        final policy = CachePolicy.cacheFirst;
+        final CachePolicy policy = CachePolicy.cacheFirst;
 
         expect(policy.shouldTryCacheFirst, isTrue);
         expect(policy.shouldTryNetwork, isTrue);
@@ -193,7 +193,7 @@ void main() {
       });
 
       nyTest('networkFirst: network first, fallback to cache', () async {
-        final policy = CachePolicy.networkFirst;
+        final CachePolicy policy = CachePolicy.networkFirst;
 
         expect(policy.shouldTryCacheFirst, isFalse);
         expect(policy.shouldTryNetwork, isTrue);
@@ -203,7 +203,7 @@ void main() {
       });
 
       nyTest('cacheOnly: cache only, no network', () async {
-        final policy = CachePolicy.cacheOnly;
+        final CachePolicy policy = CachePolicy.cacheOnly;
 
         expect(policy.shouldTryCacheFirst, isTrue);
         expect(policy.shouldTryNetwork, isFalse);
@@ -215,7 +215,7 @@ void main() {
       nyTest(
         'staleWhileRevalidate: cache first with background refresh',
         () async {
-          final policy = CachePolicy.staleWhileRevalidate;
+          final CachePolicy policy = CachePolicy.staleWhileRevalidate;
 
           expect(policy.shouldTryCacheFirst, isTrue);
           expect(policy.shouldTryNetwork, isTrue);

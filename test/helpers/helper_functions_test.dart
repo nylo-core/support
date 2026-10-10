@@ -26,7 +26,7 @@ void main() {
 
   nyGroup('nyHexColor', () {
     nyTest('should convert 6-digit hex to Color', () async {
-      final color = nyHexColor('FF5733');
+      final Color color = nyHexColor('FF5733');
 
       expect(color, isA<Color>());
       expect((color.r * 255).round(), 255);
@@ -35,7 +35,7 @@ void main() {
     });
 
     nyTest('should handle hex with hash prefix', () async {
-      final color = nyHexColor('#FF5733');
+      final Color color = nyHexColor('#FF5733');
 
       expect((color.r * 255).round(), 255);
       expect((color.g * 255).round(), 87);
@@ -43,7 +43,7 @@ void main() {
     });
 
     nyTest('should handle lowercase hex', () async {
-      final color = nyHexColor('ff5733');
+      final Color color = nyHexColor('ff5733');
 
       expect((color.r * 255).round(), 255);
       expect((color.g * 255).round(), 87);
@@ -51,7 +51,7 @@ void main() {
     });
 
     nyTest('should handle 8-digit hex with alpha', () async {
-      final color = nyHexColor('80FF5733');
+      final Color color = nyHexColor('80FF5733');
 
       expect((color.a * 255).round(), 128);
       expect((color.r * 255).round(), 255);
@@ -60,7 +60,7 @@ void main() {
     });
 
     nyTest('should convert white correctly', () async {
-      final color = nyHexColor('FFFFFF');
+      final Color color = nyHexColor('FFFFFF');
 
       expect((color.r * 255).round(), 255);
       expect((color.g * 255).round(), 255);
@@ -68,7 +68,7 @@ void main() {
     });
 
     nyTest('should convert black correctly', () async {
-      final color = nyHexColor('000000');
+      final Color color = nyHexColor('000000');
 
       expect((color.r * 255).round(), 0);
       expect((color.g * 255).round(), 0);
@@ -76,9 +76,9 @@ void main() {
     });
 
     nyTest('should convert primary colors correctly', () async {
-      final red = nyHexColor('FF0000');
-      final green = nyHexColor('00FF00');
-      final blue = nyHexColor('0000FF');
+      final Color red = nyHexColor('FF0000');
+      final Color green = nyHexColor('00FF00');
+      final Color blue = nyHexColor('0000FF');
 
       expect((red.r * 255).round(), 255);
       expect((red.g * 255).round(), 0);
@@ -100,7 +100,7 @@ void main() {
 
   nyGroup('match', () {
     nyTest('should match string value', () async {
-      final result = match<String>(
+      final String result = match<String>(
         'option1',
         () => {
           'option1': 'Result One',
@@ -113,13 +113,16 @@ void main() {
     });
 
     nyTest('should match int value', () async {
-      final result = match<String>(2, () => {1: 'One', 2: 'Two', 3: 'Three'});
+      final String result = match<String>(
+        2,
+        () => {1: 'One', 2: 'Two', 3: 'Three'},
+      );
 
       expect(result, 'Two');
     });
 
     nyTest('should match enum value', () async {
-      final result = match<String>(
+      final String result = match<String>(
         TestEnum.second,
         () => {
           TestEnum.first: 'First Value',
@@ -133,7 +136,7 @@ void main() {
 
     nyTest('should return defaultValue when no match found', () async {
       // match logs an error but returns defaultValue when provided
-      final result = match<String>(
+      final String result = match<String>(
         'existing_key',
         () => {'existing_key': 'Result One'},
         defaultValue: 'Default Result',
@@ -144,7 +147,7 @@ void main() {
 
     nyTest('should handle matching with defaultValue as fallback', () async {
       // When key matches, return the match
-      final result = match<String>(
+      final String result = match<String>(
         'option1',
         () => {'option1': 'Result One', 'option2': 'Result Two'},
         defaultValue: 'Default Result',
@@ -154,7 +157,7 @@ void main() {
     });
 
     nyTest('should return defaultValue for null input', () async {
-      final result = match<String>(
+      final String result = match<String>(
         null,
         () => {'option1': 'Result One'},
         defaultValue: 'Null Default',
@@ -164,7 +167,7 @@ void main() {
     });
 
     nyTest('should match bool keys', () async {
-      final result = match<String>(
+      final String result = match<String>(
         true,
         () => {true: 'Is True', false: 'Is False'},
       );
@@ -173,7 +176,7 @@ void main() {
     });
 
     nyTest('should return complex objects', () async {
-      final result = match<Map<String, dynamic>>(
+      final Map<String, dynamic> result = match<Map<String, dynamic>>(
         'user',
         () => {
           'user': {'name': 'John', 'age': 30},
@@ -185,7 +188,7 @@ void main() {
     });
 
     nyTest('should match first occurrence for duplicate keys', () async {
-      final result = match<String>(
+      final String result = match<String>(
         'key',
         () => {
           'key': 'First',
@@ -251,7 +254,7 @@ void main() {
   nyGroup('now', () {
     nyTest('should return current DateTime', () async {
       final before = DateTime.now();
-      final result = now();
+      final DateTime result = now();
       final after = DateTime.now();
 
       expect(result.isAfter(before) || result.isAtSameMomentAs(before), isTrue);
@@ -259,7 +262,7 @@ void main() {
     });
 
     nyTest('should return DateTime type', () async {
-      final result = now();
+      final DateTime result = now();
 
       expect(result, isA<DateTime>());
     });
@@ -267,9 +270,9 @@ void main() {
     nyTest(
       'should return different values when called at different times',
       () async {
-        final first = now();
+        final DateTime first = now();
         await Future.delayed(Duration(milliseconds: 10));
-        final second = now();
+        final DateTime second = now();
 
         expect(second.isAfter(first), isTrue);
       },
@@ -282,13 +285,13 @@ void main() {
 
   nyGroup('getImageAsset', () {
     nyTest('should return full image path with default path', () async {
-      final result = getImageAsset('logo.png');
+      final String result = getImageAsset('logo.png');
 
       expect(result, 'assets/images/logo.png');
     });
 
     nyTest('should return full image path with custom path', () async {
-      final result = getImageAsset('icon.png', path: '/icons');
+      final String result = getImageAsset('icon.png', path: '/icons');
 
       expect(result, 'assets/icons/icon.png');
     });
@@ -308,13 +311,13 @@ void main() {
 
   nyGroup('getAsset', () {
     nyTest('should return full asset path', () async {
-      final result = getAsset('videos/intro.mp4');
+      final String result = getAsset('videos/intro.mp4');
 
       expect(result, 'assets/videos/intro.mp4');
     });
 
     nyTest('should strip leading slash from asset path', () async {
-      final result = getAsset('/videos/intro.mp4');
+      final String result = getAsset('/videos/intro.mp4');
 
       expect(result, 'assets/videos/intro.mp4');
     });
@@ -326,7 +329,7 @@ void main() {
     });
 
     nyTest('should handle deeply nested paths', () async {
-      final result = getAsset('level1/level2/level3/file.txt');
+      final String result = getAsset('level1/level2/level3/file.txt');
 
       expect(result, 'assets/level1/level2/level3/file.txt');
     });
@@ -340,7 +343,7 @@ void main() {
     nyTest('should set SHOW_LOG flag in Backpack', () async {
       showNextLog();
 
-      final result = Backpack.instance.read<bool>('SHOW_LOG');
+      final bool? result = Backpack.instance.read<bool>('SHOW_LOG');
       expect(result, isTrue);
     });
   });
@@ -352,9 +355,9 @@ void main() {
   nyGroup('getAppTextTheme', () {
     nyTest('should return a TextTheme', () async {
       final appFont = TextStyle(fontFamily: 'CustomFont');
-      final baseTheme = Typography.material2021().black;
+      final TextTheme baseTheme = Typography.material2021().black;
 
-      final result = getAppTextTheme(appFont, baseTheme);
+      final TextTheme result = getAppTextTheme(appFont, baseTheme);
 
       expect(result, isA<TextTheme>());
     });
@@ -366,7 +369,7 @@ void main() {
         bodyMedium: TextStyle(fontSize: 14, color: Colors.black),
       );
 
-      final result = getAppTextTheme(appFont, baseTheme);
+      final TextTheme result = getAppTextTheme(appFont, baseTheme);
 
       // The result should have the base theme properties merged with app font
       expect(result.displayLarge?.fontSize, 96);
@@ -378,7 +381,7 @@ void main() {
       final appFont = TextStyle(fontFamily: 'CustomFont');
       final emptyTheme = TextTheme();
 
-      final result = getAppTextTheme(appFont, emptyTheme);
+      final TextTheme result = getAppTextTheme(appFont, emptyTheme);
 
       expect(result, isA<TextTheme>());
     });

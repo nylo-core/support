@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/metro/src/metro_service.dart';
 import 'package:nylo_support/metro/src/constants/strings.dart';
+import 'package:nylo_support/metro/src/models/metro_project_file.dart';
+import 'package:nylo_support/metro/src/models/ny_command.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 
 void main() {
@@ -8,13 +10,15 @@ void main() {
 
   nyGroup('MetroService.createMetroProjectFile', () {
     nyTest('should create from simple class name', () async {
-      final projectFile = MetroService.createMetroProjectFile('UserController');
+      final MetroProjectFile projectFile = MetroService.createMetroProjectFile(
+        'UserController',
+      );
       expect(projectFile.name, 'UserController');
       expect(projectFile.creationPath, isNull);
     });
 
     nyTest('should strip prefix', () async {
-      final projectFile = MetroService.createMetroProjectFile(
+      final MetroProjectFile projectFile = MetroService.createMetroProjectFile(
         'user_controller',
         prefix: '_controller',
       );
@@ -22,7 +26,7 @@ void main() {
     });
 
     nyTest('should extract creation path from slashes', () async {
-      final projectFile = MetroService.createMetroProjectFile(
+      final MetroProjectFile projectFile = MetroService.createMetroProjectFile(
         'admin/UserController',
       );
       expect(projectFile.name, 'UserController');
@@ -30,7 +34,7 @@ void main() {
     });
 
     nyTest('should handle deep creation path', () async {
-      final projectFile = MetroService.createMetroProjectFile(
+      final MetroProjectFile projectFile = MetroService.createMetroProjectFile(
         'admin/settings/UserController',
       );
       expect(projectFile.name, 'UserController');
@@ -40,7 +44,7 @@ void main() {
 
   nyGroup('MetroService.createPathForDartFile', () {
     nyTest('should create path with prefix', () async {
-      final path = MetroService.createPathForDartFile(
+      final String path = MetroService.createPathForDartFile(
         folderPath: 'lib/app/controllers',
         className: 'home',
         prefix: 'controller',
@@ -49,7 +53,7 @@ void main() {
     });
 
     nyTest('should create path without prefix', () async {
-      final path = MetroService.createPathForDartFile(
+      final String path = MetroService.createPathForDartFile(
         folderPath: 'lib/app/models',
         className: 'user',
       );
@@ -57,7 +61,7 @@ void main() {
     });
 
     nyTest('should create path with creation path', () async {
-      final path = MetroService.createPathForDartFile(
+      final String path = MetroService.createPathForDartFile(
         folderPath: 'lib/app/controllers',
         className: 'home',
         prefix: 'controller',
@@ -67,7 +71,7 @@ void main() {
     });
 
     nyTest('should handle PascalCase class name', () async {
-      final path = MetroService.createPathForDartFile(
+      final String path = MetroService.createPathForDartFile(
         folderPath: 'lib/app/models',
         className: 'UserProfile',
       );
@@ -77,12 +81,12 @@ void main() {
 
   nyGroup('MetroService.discoverCommands', () {
     nyTest('should return empty list for empty input', () async {
-      final commands = await MetroService.discoverCommands([]);
+      final List<NyCommand> commands = await MetroService.discoverCommands([]);
       expect(commands, isEmpty);
     });
 
     nyTest('should create commands from config', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'test', 'script': 'test.dart', 'category': 'app'},
       ]);
       expect(commands, hasLength(1));
@@ -91,7 +95,7 @@ void main() {
     });
 
     nyTest('should remove duplicate commands', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'test', 'script': 'test.dart', 'category': 'app'},
         {'name': 'test', 'script': 'test.dart', 'category': 'app'},
       ]);
@@ -99,7 +103,7 @@ void main() {
     });
 
     nyTest('should keep same-named commands in different categories', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'sync', 'script': 'a.dart', 'category': 'app'},
         {'name': 'sync', 'script': 'b.dart', 'category': 'demo'},
       ]);
@@ -107,7 +111,7 @@ void main() {
     });
 
     nyTest('should use the given default category and package', () async {
-      final commands = await MetroService.discoverCommands(
+      final List<NyCommand> commands = await MetroService.discoverCommands(
         [
           {'name': 'create', 'script': 'c.dart', 'description': 'Create one'},
         ],
@@ -120,7 +124,7 @@ void main() {
     });
 
     nyTest('should sort commands by category', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'zeta', 'script': 'z.dart', 'category': 'z'},
         {'name': 'alpha', 'script': 'a.dart', 'category': 'a'},
       ]);
@@ -129,7 +133,7 @@ void main() {
     });
 
     nyTest('should sort by name within same category', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'zeta', 'script': 'z.dart', 'category': 'app'},
         {'name': 'alpha', 'script': 'a.dart', 'category': 'app'},
       ]);
@@ -138,7 +142,7 @@ void main() {
     });
 
     nyTest('should default category to app', () async {
-      final commands = await MetroService.discoverCommands([
+      final List<NyCommand> commands = await MetroService.discoverCommands([
         {'name': 'test', 'script': 'test.dart'},
       ]);
       expect(commands.first.category, 'app');
@@ -165,22 +169,22 @@ void main() {
 
   nyGroup('IterableExtension.firstWhereOrNull', () {
     nyTest('should return matching element', () async {
-      final result = [1, 2, 3].firstWhereOrNull((e) => e == 2);
+      final int? result = [1, 2, 3].firstWhereOrNull((e) => e == 2);
       expect(result, 2);
     });
 
     nyTest('should return null when no match', () async {
-      final result = [1, 2, 3].firstWhereOrNull((e) => e == 99);
+      final int? result = [1, 2, 3].firstWhereOrNull((e) => e == 99);
       expect(result, isNull);
     });
 
     nyTest('should return first match', () async {
-      final result = [1, 2, 2, 3].firstWhereOrNull((e) => e == 2);
+      final int? result = [1, 2, 2, 3].firstWhereOrNull((e) => e == 2);
       expect(result, 2);
     });
 
     nyTest('should handle empty list', () async {
-      final result = <int>[].firstWhereOrNull((e) => e == 1);
+      final int? result = <int>[].firstWhereOrNull((e) => e == 1);
       expect(result, isNull);
     });
   });

@@ -7,7 +7,7 @@ import 'ny_state.dart';
 
 /// ButtonState is a stateful widget that manages the state of a button.
 class ButtonState extends StatefulWidget {
-  ButtonState({
+  const ButtonState({
     super.key,
     required this.child,
     this.onSubmit,

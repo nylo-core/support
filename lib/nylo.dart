@@ -515,7 +515,7 @@ class Nylo {
 
   /// Set API decoders
   void addApiDecoders(Map<Type, dynamic> apiDecoders) {
-    for (var apiDecoder in apiDecoders.entries) {
+    for (MapEntry<Type, dynamic> apiDecoder in apiDecoders.entries) {
       if (apiDecoder.value is NyApiService Function()) {
         _apiDecoders.addAll({apiDecoder.key: apiDecoder.value});
       }
@@ -581,7 +581,7 @@ class Nylo {
 
   /// Add Controllers to your Nylo project.
   void addControllers(Map<Type, dynamic> controllers) {
-    for (var controllerDecoder in controllers.entries) {
+    for (MapEntry<Type, dynamic> controllerDecoder in controllers.entries) {
       if (controllerDecoder.value is NyController Function()) {
         _controllerDecoders.addAll({
           controllerDecoder.key: controllerDecoder.value,
@@ -901,7 +901,8 @@ class Nylo {
   /// Get api decoders
   static Map<Type, NyApiService> apiDecoders() {
     Map<Type, NyApiService> apiDecoders = {};
-    for (var e in instance._apiDecoders.entries) {
+    for (MapEntry<Type, NyApiService Function()> e
+        in instance._apiDecoders.entries) {
       apiDecoders.addAll({e.key: e.value()});
     }
     apiDecoders.addAll(instance._singletonApiDecoders);

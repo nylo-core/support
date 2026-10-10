@@ -151,7 +151,7 @@ class CollectionView<T> extends StatefulWidget {
   const CollectionView({
     super.key,
     required this.builder,
-    required Function() data,
+    required Function() this.data,
     this.transform,
     this.empty,
     this.loadingStyle,
@@ -190,12 +190,11 @@ class CollectionView<T> extends StatefulWidget {
        beforeRefresh = null,
        afterRefresh = null,
        headerStyle = null,
-       footerLoadingIcon = null,
-       this.data = data;
+       footerLoadingIcon = null;
 
   const CollectionView.separated({
     super.key,
-    required Function() data,
+    required Function() this.data,
     required this.builder,
     required this.separatorBuilder,
     this.transform,
@@ -235,12 +234,11 @@ class CollectionView<T> extends StatefulWidget {
        beforeRefresh = null,
        afterRefresh = null,
        headerStyle = null,
-       footerLoadingIcon = null,
-       this.data = data;
+       footerLoadingIcon = null;
 
   const CollectionView.grid({
     super.key,
-    required Function() data,
+    required Function() this.data,
     required this.builder,
     this.crossAxisCount = 2,
     this.mainAxisSpacing = 1.0,
@@ -280,8 +278,7 @@ class CollectionView<T> extends StatefulWidget {
        beforeRefresh = null,
        afterRefresh = null,
        headerStyle = null,
-       footerLoadingIcon = null,
-       this.data = data;
+       footerLoadingIcon = null;
 
   /// Creates a pullable list view with pull-to-refresh and pagination support.
   ///
@@ -337,7 +334,7 @@ class CollectionView<T> extends StatefulWidget {
        crossAxisSpacing = null,
        isPullable = true,
        paginatedData = data,
-       this.data = null;
+       data = null;
 
   /// Creates a pullable separated list view with pull-to-refresh and pagination support.
   ///
@@ -392,7 +389,7 @@ class CollectionView<T> extends StatefulWidget {
        crossAxisSpacing = null,
        isPullable = true,
        paginatedData = data,
-       this.data = null;
+       data = null;
 
   /// Creates a pullable grid view with pull-to-refresh and pagination support.
   ///
@@ -447,7 +444,7 @@ class CollectionView<T> extends StatefulWidget {
        separatorBuilder = null,
        isPullable = true,
        paginatedData = data,
-       this.data = null;
+       data = null;
 
   /// Returns a [CollectionViewStateActions] instance for the given [stateName].
   static CollectionViewStateActions stateActions(String stateName) =>
@@ -551,7 +548,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       // Pullable mode - use paginatedData
       _refreshController.refreshCompleted(resetFooterState: true);
       if (widget.paginatedData is! Future Function(int)) {
-        final data = widget.paginatedData!(_iteration);
+        final dynamic data = widget.paginatedData!(_iteration);
         if (data == null) {
           _data = [];
           return;
@@ -560,7 +557,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       } else {
         awaitData(
           perform: () async {
-            final data = await widget.paginatedData!(_iteration);
+            final dynamic data = await widget.paginatedData!(_iteration);
             if (data == null) {
               _data = [];
               return;
@@ -572,7 +569,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     } else {
       // Regular mode - use data
       if (widget.data is! Future Function()) {
-        final data = widget.data!();
+        final dynamic data = widget.data!();
         if (data == null) {
           _data = [];
         } else {
@@ -583,7 +580,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
       }
       awaitData(
         perform: () async {
-          final data = await widget.data!();
+          final dynamic data = await widget.data!();
           if (data == null) {
             _data = [];
             return;
@@ -648,8 +645,9 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     'insertItem': (data) {
       if (data is! Map ||
           !data.containsKey('index') ||
-          !data.containsKey('item'))
+          !data.containsKey('item')) {
         return;
+      }
       int index = (data['index'] as int).clamp(0, _data.length);
       _data.insert(index, data['item']);
       setState(() {});
@@ -657,8 +655,9 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
     'updateItemAtIndex': (data) {
       if (data is! Map ||
           !data.containsKey('index') ||
-          !data.containsKey('item'))
+          !data.containsKey('item')) {
         return;
+      }
       int index = data['index'];
       if (index < 0 || index >= _data.length) return;
       _data[index] = data['item'];
@@ -689,7 +688,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
 
     List<T> resolved = _coerceToList(rawData);
     if (widget.afterRefresh != null) {
-      final after = widget.afterRefresh!(resolved);
+      final dynamic after = widget.afterRefresh!(resolved);
       if (after is List<T>) {
         resolved = after;
       } else if (after is List) {
@@ -825,7 +824,8 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
 
   @override
   Widget build(BuildContext context) {
-    final loadingWidget = widget.loadingStyle?.render() ?? Nylo.appLoader();
+    final Widget loadingWidget =
+        widget.loadingStyle?.render() ?? Nylo.appLoader();
 
     if (widget.isPullable) {
       return _buildPullableView(loadingWidget);
@@ -838,7 +838,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   Widget _buildRegularView(Widget loadingWidget) {
     if (widget.data is! Future Function()) {
       if (!_syncDataInitialized) {
-        final raw = widget.data!();
+        final dynamic raw = widget.data!();
         _data = raw == null ? [] : _coerceToList(raw);
         _syncDataInitialized = true;
       }
@@ -948,7 +948,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
         if (index == 0 && widget.header != null) {
           return widget.header!;
         }
-        final actualIndex = widget.header != null ? index - 1 : index;
+        final int actualIndex = widget.header != null ? index - 1 : index;
         return _buildChildWidget(context, _data[actualIndex], actualIndex);
       },
     );
@@ -979,7 +979,7 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
         if (index == 0 && widget.header != null) {
           return widget.header!;
         }
-        final actualIndex = widget.header != null ? index - 1 : index;
+        final int actualIndex = widget.header != null ? index - 1 : index;
         return _buildChildWidget(context, _data[actualIndex], actualIndex);
       },
       separatorBuilder: (context, index) {
@@ -995,9 +995,11 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
   }
 
   Widget _buildGridView() {
-    final crossAxisCount = widget.crossAxisCount ?? 2;
+    final int crossAxisCount = widget.crossAxisCount ?? 2;
 
-    final gridChildren = _data.asMap().entries.map((entry) {
+    final List<StaggeredGridTile> gridChildren = _data.asMap().entries.map((
+      entry,
+    ) {
       return StaggeredGridTile.fit(
         crossAxisCellCount: 1,
         child: _buildChildWidget(context, entry.value, entry.key),

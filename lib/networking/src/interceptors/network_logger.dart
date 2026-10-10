@@ -129,9 +129,9 @@ class NetworkLogger extends Interceptor {
 
   /// Byte count of a payload, when it is known without stringifying it.
   int? _payloadByteCount(dynamic data, Headers? headers) {
-    final contentLength = headers?.value('content-length');
+    final String? contentLength = headers?.value('content-length');
     if (contentLength != null) {
-      final parsed = int.tryParse(contentLength);
+      final int? parsed = int.tryParse(contentLength);
       if (parsed != null && parsed >= 0) return parsed;
     }
     if (data == null) return 0;
@@ -145,7 +145,7 @@ class NetworkLogger extends Interceptor {
   /// Byte-formatted when the byte count is known, otherwise a structural
   /// summary: `{n} items` for a list, `{n} keys` for a map.
   String _payloadLabel(dynamic data, Headers? headers) {
-    final bytes = _payloadByteCount(data, headers);
+    final int? bytes = _payloadByteCount(data, headers);
     if (bytes != null) return _formatSize(bytes);
     if (data is List) return '${data.length} items';
     if (data is Map) return '${data.length} keys';
@@ -162,7 +162,7 @@ class NetworkLogger extends Interceptor {
   @override
   void onRequest(RequestOptions options, RequestInterceptorHandler handler) {
     // Always generate unique request ID and timestamp for correlation
-    final requestId = _uuid.v4().substring(0, 8);
+    final String requestId = _uuid.v4().substring(0, 8);
     options.extra[_requestIdKey] = requestId;
     options.extra[_timeStampKey] = DateTime.timestamp().millisecondsSinceEpoch;
 
@@ -272,9 +272,9 @@ class NetworkLogger extends Interceptor {
       return;
     }
 
-    final requestId =
+    final String requestId =
         err.requestOptions.extra[_requestIdKey] as String? ?? 'unknown';
-    final triggerTime = err.requestOptions.extra[_timeStampKey];
+    final dynamic triggerTime = err.requestOptions.extra[_timeStampKey];
     int diff = 0;
     if (triggerTime is int) {
       diff = DateTime.timestamp().millisecondsSinceEpoch - triggerTime;
@@ -295,8 +295,8 @@ class NetworkLogger extends Interceptor {
     String requestId,
     int responseTime,
   ) {
-    final payloadData = err.response?.data;
-    final payloadHeaders = err.response?.headers;
+    final dynamic payloadData = err.response?.data;
+    final Headers? payloadHeaders = err.response?.headers;
     final Map<String, dynamic> logData = {
       'type': 'error',
       'requestId': requestId,
@@ -325,13 +325,13 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printPrettyError(DioException err, String requestId, int responseTime) {
-    final payloadSize = _payloadLabel(
+    final String payloadSize = _payloadLabel(
       err.response?.data,
       err.response?.headers,
     );
 
     if (logLevel == LogLevelType.minimal) {
-      final statusCode = err.response?.statusCode ?? 'N/A';
+      final Object statusCode = err.response?.statusCode ?? 'N/A';
       logPrint(
         _error(
           '✗ [${err.requestOptions.method}] ${err.requestOptions.uri} → $statusCode (${responseTime}ms) [$payloadSize] [ID: $requestId]',
@@ -341,7 +341,7 @@ class NetworkLogger extends Interceptor {
     }
 
     if (err.type == DioExceptionType.badResponse) {
-      final uri = err.response?.requestOptions.uri;
+      final Uri? uri = err.response?.requestOptions.uri;
       _printBoxed(
         header: _error(
           'DioError ║ Status: ${err.response?.statusCode} ${err.response?.statusMessage} ║ Time: $responseTime ms ║ Size: $payloadSize ║ ID: $requestId',
@@ -375,9 +375,9 @@ class NetworkLogger extends Interceptor {
       return;
     }
 
-    final requestId =
+    final String requestId =
         response.requestOptions.extra[_requestIdKey] as String? ?? 'unknown';
-    final triggerTime = response.requestOptions.extra[_timeStampKey];
+    final dynamic triggerTime = response.requestOptions.extra[_timeStampKey];
     int diff = 0;
     if (triggerTime is int) {
       diff = DateTime.timestamp().millisecondsSinceEpoch - triggerTime;
@@ -423,7 +423,7 @@ class NetworkLogger extends Interceptor {
       }
     }
 
-    final isSuccess =
+    final bool isSuccess =
         response.statusCode != null &&
         response.statusCode! >= 200 &&
         response.statusCode! < 300;
@@ -439,7 +439,7 @@ class NetworkLogger extends Interceptor {
     String requestId,
     int responseTime,
   ) {
-    final isSuccess =
+    final bool isSuccess =
         response.statusCode != null &&
         response.statusCode! >= 200 &&
         response.statusCode! < 300;
@@ -447,8 +447,10 @@ class NetworkLogger extends Interceptor {
 
     if (logLevel == LogLevelType.minimal) {
       final symbol = isSuccess ? '✓' : '⚠';
-      final colorFn = isSuccess ? _success : _warning;
-      final payloadSize = _payloadLabel(response.data, response.headers);
+      final String Function(String text) colorFn = isSuccess
+          ? _success
+          : _warning;
+      final String payloadSize = _payloadLabel(response.data, response.headers);
       logPrint(
         colorFn(
           '$symbol [${response.requestOptions.method}] ${response.requestOptions.uri} → $statusText (${responseTime}ms) [$payloadSize] [ID: $requestId]',
@@ -492,12 +494,14 @@ class NetworkLogger extends Interceptor {
     }
     if (value is List) {
       if (value.isEmpty) return '[]';
-      final items = value.map((e) => _serializeJson(e, indent + 1)).join(', ');
+      final String items = value
+          .map((e) => _serializeJson(e, indent + 1))
+          .join(', ');
       return '[$items]';
     }
     if (value is Map) {
       if (value.isEmpty) return '{}';
-      final items = value.entries
+      final String items = value.entries
           .map((e) => '"${e.key}": ${_serializeJson(e.value, indent + 1)}')
           .join(', ');
       return '{$items}';
@@ -536,9 +540,9 @@ class NetworkLogger extends Interceptor {
     String requestId,
     bool isSuccess,
   ) {
-    final uri = response.requestOptions.uri;
-    final method = response.requestOptions.method;
-    final payloadSize = _payloadLabel(response.data, response.headers);
+    final Uri uri = response.requestOptions.uri;
+    final String method = response.requestOptions.method;
+    final String payloadSize = _payloadLabel(response.data, response.headers);
     final header =
         'Response ║ $method ║ Status: ${response.statusCode} ${response.statusMessage} ║ Time: $responseTime ms ║ Size: $payloadSize ║ ID: $requestId';
     _printBoxed(
@@ -548,8 +552,8 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printRequestHeader(RequestOptions options, String requestId) {
-    final uri = options.uri;
-    final method = options.method;
+    final Uri uri = options.uri;
+    final String method = options.method;
     _printBoxed(
       header: _info('Request ║ $method ║ ID: $requestId'),
       text: uri.toString(),
@@ -572,7 +576,7 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printBlock(String msg) {
-    for (final chunk in _chunk(msg, maxWidth)) {
+    for (final String chunk in _chunk(msg, maxWidth)) {
       logPrint('║ $chunk');
     }
   }
@@ -590,7 +594,7 @@ class NetworkLogger extends Interceptor {
     final chunks = <String>[];
     final buffer = StringBuffer();
     var count = 0;
-    for (final grapheme in text.characters) {
+    for (final String grapheme in text.characters) {
       buffer.write(grapheme);
       if (++count >= width) {
         chunks.add(buffer.toString());
@@ -612,14 +616,14 @@ class NetworkLogger extends Interceptor {
   }) {
     var tabs = initialTab;
     final isRoot = tabs == kInitialTab;
-    final initialIndent = _indent(tabs);
+    final String initialIndent = _indent(tabs);
     tabs++;
 
     if (isRoot || isListItem) logPrint('║$initialIndent{');
 
-    final lastIndex = data.length - 1;
+    final int lastIndex = data.length - 1;
     var index = 0;
-    for (final entry in data.entries) {
+    for (final MapEntry<dynamic, dynamic> entry in data.entries) {
       final isLast = index == lastIndex;
       index++;
       final key = '"${entry.key}"';
@@ -643,11 +647,11 @@ class NetworkLogger extends Interceptor {
           logPrint('║${_indent(tabs)} ]${isLast ? '' : ','}');
         }
       } else {
-        final msg = value.toString().replaceAll('\n', '');
-        final indent = _indent(tabs);
-        final linWidth = maxWidth - indent.length;
+        final String msg = value.toString().replaceAll('\n', '');
+        final String indent = _indent(tabs);
+        final int linWidth = maxWidth - indent.length;
         if (msg.length + indent.length > linWidth) {
-          final chunks = _chunk(msg, linWidth);
+          final List<String> chunks = _chunk(msg, linWidth);
           for (var i = 0; i < chunks.length; ++i) {
             final multilineKey = i == 0 ? "$key:" : "";
             logPrint('║${_indent(tabs)} $multilineKey ${chunks[i]}');
@@ -663,7 +667,7 @@ class NetworkLogger extends Interceptor {
 
   void _printList(List list, {int tabs = kInitialTab}) {
     for (var i = 0; i < list.length; i++) {
-      final element = list[i];
+      final dynamic element = list[i];
       final isLast = i == list.length - 1;
       if (element is Map) {
         if (compact && _canFlattenMap(element)) {
@@ -683,7 +687,7 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printUint8List(Uint8List list, {int tabs = kInitialTab}) {
-    var chunks = [];
+    List<dynamic> chunks = [];
     for (var i = 0; i < list.length; i += chunkSize) {
       chunks.add(
         list.sublist(
@@ -698,7 +702,7 @@ class NetworkLogger extends Interceptor {
   }
 
   bool _canFlattenMap(Map map) {
-    for (final value in map.values) {
+    for (final Object? value in map.values) {
       if (value is Map || value is List) return false;
     }
     return _estimateLength(map, maxWidth) < maxWidth;
@@ -716,7 +720,7 @@ class NetworkLogger extends Interceptor {
   int _estimateLength(dynamic value, int budget) {
     if (value is Map) {
       var total = 2; // '{' + '}'
-      for (final entry in value.entries) {
+      for (final MapEntry<dynamic, dynamic> entry in value.entries) {
         total += _estimateLength(entry.key, budget - total) + 2; // ': '
         if (total > budget) return total;
         total += _estimateLength(entry.value, budget - total) + 2; // ', '
@@ -726,7 +730,7 @@ class NetworkLogger extends Interceptor {
     }
     if (value is List) {
       var total = 2; // '[' + ']'
-      for (final element in value) {
+      for (final Object? element in value) {
         total += _estimateLength(element, budget - total) + 2; // ', '
         if (total > budget) return total;
       }
@@ -740,7 +744,7 @@ class NetworkLogger extends Interceptor {
   void _printMapAsTable(Map? map, {String? header}) {
     if (map == null || map.isEmpty) return;
     logPrint('╔ $header ');
-    for (final entry in map.entries) {
+    for (final MapEntry<dynamic, dynamic> entry in map.entries) {
       _printKV(entry.key.toString(), entry.value);
     }
     _printLine('╚');

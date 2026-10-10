@@ -49,7 +49,9 @@ void main() {
       nyTest('addPayload returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addPayload('test-payload');
+        final LocalNotification result = notification.addPayload(
+          'test-payload',
+        );
 
         expect(result, isA<LocalNotification>());
         expect(result, same(notification));
@@ -58,7 +60,7 @@ void main() {
       nyTest('addId returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addId(123);
+        final LocalNotification result = notification.addId(123);
 
         expect(result, isA<LocalNotification>());
         expect(result, same(notification));
@@ -67,7 +69,7 @@ void main() {
       nyTest('addSubtitle returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addSubtitle('Subtitle');
+        final LocalNotification result = notification.addSubtitle('Subtitle');
 
         expect(result, isA<LocalNotification>());
         expect(result, same(notification));
@@ -76,7 +78,7 @@ void main() {
       nyTest('addBadgeNumber returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addBadgeNumber(5);
+        final LocalNotification result = notification.addBadgeNumber(5);
 
         expect(result, isA<LocalNotification>());
         expect(result, same(notification));
@@ -85,7 +87,7 @@ void main() {
       nyTest('addSound returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addSound('custom_sound');
+        final LocalNotification result = notification.addSound('custom_sound');
 
         expect(result, isA<LocalNotification>());
         expect(result, same(notification));
@@ -94,7 +96,7 @@ void main() {
       nyTest('addAttachment returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addAttachment(
+        final LocalNotification result = notification.addAttachment(
           'https://example.com/image.png',
           'image.png',
         );
@@ -108,7 +110,7 @@ void main() {
         () async {
           final notification = LocalNotification(title: 'Test', body: 'Body');
 
-          final result = notification.setAndroidConfig(
+          final LocalNotification result = notification.setAndroidConfig(
             const AndroidNotificationConfig(channelId: 'test'),
           );
 
@@ -120,7 +122,7 @@ void main() {
       nyTest('setIOSConfig returns LocalNotification for chaining', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.setIOSConfig(
+        final LocalNotification result = notification.setIOSConfig(
           const IOSNotificationConfig(presentAlert: true),
         );
 
@@ -129,15 +131,16 @@ void main() {
       });
 
       nyTest('supports method chaining', () async {
-        final notification = LocalNotification(title: 'Chained', body: 'Body')
-            .addPayload('payload')
-            .addId(456)
-            .addSubtitle('Subtitle')
-            .addBadgeNumber(10)
-            .addSound('sound')
-            .addAttachment('https://example.com/img.png', 'img.png')
-            .setAndroidConfig(const AndroidNotificationConfig())
-            .setIOSConfig(const IOSNotificationConfig());
+        final LocalNotification notification =
+            LocalNotification(title: 'Chained', body: 'Body')
+                .addPayload('payload')
+                .addId(456)
+                .addSubtitle('Subtitle')
+                .addBadgeNumber(10)
+                .addSound('sound')
+                .addAttachment('https://example.com/img.png', 'img.png')
+                .setAndroidConfig(const AndroidNotificationConfig())
+                .setIOSConfig(const IOSNotificationConfig());
 
         expect(notification, isA<LocalNotification>());
       });
@@ -147,7 +150,7 @@ void main() {
       nyTest('accepts showThumbnail parameter', () async {
         final notification = LocalNotification(title: 'Test', body: 'Body');
 
-        final result = notification.addAttachment(
+        final LocalNotification result = notification.addAttachment(
           'https://example.com/image.png',
           'image.png',
           showThumbnail: false,
@@ -157,10 +160,11 @@ void main() {
       });
 
       nyTest('can add multiple attachments', () async {
-        final notification = LocalNotification(title: 'Test', body: 'Body')
-            .addAttachment('https://example.com/image1.png', 'image1.png')
-            .addAttachment('https://example.com/image2.png', 'image2.png')
-            .addAttachment('https://example.com/image3.png', 'image3.png');
+        final LocalNotification notification =
+            LocalNotification(title: 'Test', body: 'Body')
+                .addAttachment('https://example.com/image1.png', 'image1.png')
+                .addAttachment('https://example.com/image2.png', 'image2.png')
+                .addAttachment('https://example.com/image3.png', 'image3.png');
 
         expect(notification, isA<LocalNotification>());
       });
@@ -204,7 +208,7 @@ void main() {
       nyTest('keeps exact modes when exact alarms are permitted', () async {
         mockCanScheduleExactNotifications(true);
 
-        for (final mode in [
+        for (final AndroidScheduleMode mode in [
           AndroidScheduleMode.exact,
           AndroidScheduleMode.exactAllowWhileIdle,
           AndroidScheduleMode.alarmClock,
@@ -248,7 +252,7 @@ void main() {
       nyTest('leaves inexact modes unchanged', () async {
         mockCanScheduleExactNotifications(false);
 
-        for (final mode in [
+        for (final AndroidScheduleMode mode in [
           AndroidScheduleMode.inexact,
           AndroidScheduleMode.inexactAllowWhileIdle,
         ]) {
@@ -263,13 +267,16 @@ void main() {
 
   nyGroup('localNotification helper function', () {
     nyTest('creates LocalNotification with title and body', () async {
-      final notification = localNotification('Hello', 'World');
+      final LocalNotification notification = localNotification(
+        'Hello',
+        'World',
+      );
 
       expect(notification, isA<LocalNotification>());
     });
 
     nyTest('supports method chaining', () async {
-      final notification = localNotification(
+      final LocalNotification notification = localNotification(
         'Hello',
         'World',
       ).addPayload('custom-data').addId(789);
@@ -281,7 +288,7 @@ void main() {
   nyGroup('pushNotification helper function (deprecated)', () {
     nyTest('creates LocalNotification with title and body', () async {
       // ignore: deprecated_member_use_from_same_package
-      final notification = pushNotification('Hello', 'World');
+      final LocalNotification notification = pushNotification('Hello', 'World');
 
       expect(notification, isA<LocalNotification>());
     });

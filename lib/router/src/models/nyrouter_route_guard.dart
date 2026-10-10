@@ -297,9 +297,11 @@ abstract class NyRouteGuard extends RouteGuard {
   /// Delegates to the new [onBefore] lifecycle method.
   @override
   Future<PageRequest?> onRequest(PageRequest pageRequest) async {
-    final routeContext = pageRequest.toRouteContext(routeName ?? '');
+    final RouteContext<dynamic> routeContext = pageRequest.toRouteContext(
+      routeName ?? '',
+    );
     setRouteContext(routeContext);
-    final result = await onBefore(routeContext);
+    final GuardResult result = await onBefore(routeContext);
 
     if (result == GuardResult.handled) {
       if (_redirectConfig != null) {
@@ -388,9 +390,9 @@ class GuardStack extends NyRouteGuard {
   Future<GuardResult> onBefore(RouteContext context) async {
     RouteContext currentContext = context;
 
-    for (final guard in guards) {
+    for (final NyRouteGuard guard in guards) {
       guard.setRouteContext(currentContext);
-      final result = await guard.onBefore(currentContext);
+      final GuardResult result = await guard.onBefore(currentContext);
 
       if (result == GuardResult.handled) {
         // Propagate redirect config if set
@@ -416,7 +418,7 @@ class GuardStack extends NyRouteGuard {
 
   @override
   Future<void> onAfter(RouteContext context) async {
-    for (final guard in guards) {
+    for (final NyRouteGuard guard in guards) {
       await guard.onAfter(context);
     }
   }
@@ -446,7 +448,7 @@ class ConditionalGuard extends NyRouteGuard {
       return next();
     }
     guard.setRouteContext(context);
-    final result = await guard.onBefore(context);
+    final GuardResult result = await guard.onBefore(context);
     if (guard.redirectConfig != null) {
       _redirectConfig = guard.redirectConfig;
     }

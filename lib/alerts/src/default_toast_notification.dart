@@ -12,34 +12,36 @@ class DefaultToastNotification extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    final colorScheme = theme.colorScheme;
+    final ThemeData theme = Theme.of(context);
+    final ColorScheme colorScheme = theme.colorScheme;
     final isDark = theme.brightness == Brightness.dark;
 
     // Apply default styling for success if not set
-    final icon =
+    final Widget icon =
         _toastMeta.icon ??
         const Icon(Icons.check, color: Colors.green, size: 20);
-    final iconBackgroundColor = _toastMeta.color ?? Colors.green.shade50;
-    final title =
+    final Color iconBackgroundColor = _toastMeta.color ?? Colors.green.shade50;
+    final String title =
         (_toastMeta.title.isEmpty ? 'nylo.toast.success' : _toastMeta.title)
             .tr();
 
     // Theme-derived colors
-    final backgroundColor = isDark ? colorScheme.surface : Colors.white;
-    final titleColor = isDark
+    final Color backgroundColor = isDark ? colorScheme.surface : Colors.white;
+    final Color titleColor = isDark
         ? Colors.white.withAlpha(204)
         : colorScheme.onSurface;
-    final descriptionColor = isDark
+    final Color descriptionColor = isDark
         ? Colors.white70
         : colorScheme.onSurface.withAlpha(153);
-    final dismissButtonBackground = isDark
+    final Color dismissButtonBackground = isDark
         ? Colors.white30
         : colorScheme.surfaceContainerHighest;
-    final dismissIconColor = isDark
+    final Color dismissIconColor = isDark
         ? Colors.white
         : colorScheme.onSurface.withAlpha(140);
-    final shadowColor = isDark ? Colors.black12 : Colors.grey.withAlpha(25);
+    final Color shadowColor = isDark
+        ? Colors.black12
+        : Colors.grey.withAlpha(25);
 
     return Semantics(
       label: '$title: ${_toastMeta.description}',

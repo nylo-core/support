@@ -46,7 +46,7 @@ void main() {
 
   nyGroup('lockRelease', () {
     nyWidgetTest('holds the lock until perform has finished', (tester) async {
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       final Completer<void> work = Completer<void>();
 
       final Future<void> released = state.lockRelease(
@@ -65,7 +65,7 @@ void main() {
     ) async {
       /// Only an Exception was caught, so anything else skipped the release
       /// and left the lock - and a ButtonState drawn from it - held for good.
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
 
       await expectLater(
         state.lockRelease(
@@ -78,7 +78,7 @@ void main() {
     });
 
     nyWidgetTest('logs an Exception and releases the lock', (tester) async {
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
 
       await state.lockRelease(
         'save',
@@ -89,7 +89,7 @@ void main() {
 
     nyWidgetTest('logs an Exception with its stack trace', (tester) async {
       /// Only `e.toString()` was logged, so where it failed was lost.
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       final List<NyLogEntry> entries = [];
       void listener(NyLogEntry entry) => entries.add(entry);
       NyLogger.addListener(listener);
@@ -110,7 +110,7 @@ void main() {
     ) async {
       /// An Exception was only ever logged, so a caller had no way to tell
       /// the user it failed or undo an optimistic change.
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       final Exception failure = Exception('save failed');
       Object? received;
       StackTrace? receivedStack;
@@ -133,7 +133,7 @@ void main() {
     });
 
     nyWidgetTest('lets onError run the same lock again', (tester) async {
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       int attempts = 0;
 
       Future<void> save() => state.lockRelease(
@@ -154,7 +154,7 @@ void main() {
     nyWidgetTest('still rethrows an Error, without calling onError', (
       tester,
     ) async {
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       bool onErrorCalled = false;
 
       await expectLater(
@@ -170,7 +170,7 @@ void main() {
     });
 
     nyWidgetTest('does not call onError when perform succeeds', (tester) async {
-      final state = await pumpProbe(tester);
+      final _LockProbeState state = await pumpProbe(tester);
       bool onErrorCalled = false;
 
       await state.lockRelease(

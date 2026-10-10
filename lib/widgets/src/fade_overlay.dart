@@ -70,10 +70,13 @@ class FadeOverlay extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Calculate gradient parameters based on strength
-    final fadeStart = 1.0 - (strength * 0.5); // 0.9 to 0.5
-    final alpha = (0.12 + (strength * 0.1)).clamp(0.0, 1.0); // 0.12 to 0.22
+    final double fadeStart = 1.0 - (strength * 0.5); // 0.9 to 0.5
+    final double alpha = (0.12 + (strength * 0.1)).clamp(
+      0.0,
+      1.0,
+    ); // 0.12 to 0.22
 
-    final colors = [
+    final List<Color> colors = [
       Colors.transparent,
       Colors.transparent,
       color.withAlpha((255 * alpha).round()),

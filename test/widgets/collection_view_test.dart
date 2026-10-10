@@ -199,8 +199,10 @@ void main() {
         expect(find.text('C'), findsOneWidget);
 
         // Spacing creates Padding widgets between items (not after last)
-        final paddings = tester.widgetList<Padding>(find.byType(Padding));
-        final spacingPaddings = paddings.where(
+        final Iterable<Padding> paddings = tester.widgetList<Padding>(
+          find.byType(Padding),
+        );
+        final Iterable<Padding> spacingPaddings = paddings.where(
           (p) => p.padding == const EdgeInsets.only(bottom: 12),
         );
         // A and B get bottom padding, C (last) does not
@@ -405,7 +407,9 @@ void main() {
 
     nyGroup('CollectionViewStateActions', () {
       nyTest('creates with state name', () async {
-        final actions = CollectionView.stateActions('my_list');
+        final CollectionViewStateActions actions = CollectionView.stateActions(
+          'my_list',
+        );
         expect(actions.state, 'my_list');
       });
     });
@@ -750,7 +754,7 @@ void main() {
           await tester.pumpAndSettle();
           expect(find.text('Item1-0'), findsOneWidget);
 
-          final refresher = tester.widget<SmartRefresher>(
+          final SmartRefresher refresher = tester.widget<SmartRefresher>(
             find.byType(SmartRefresher),
           );
           refresher.controller.requestRefresh();
@@ -793,7 +797,7 @@ void main() {
           expect(calls, ['fetch']);
           calls.clear();
 
-          final refresher = tester.widget<SmartRefresher>(
+          final SmartRefresher refresher = tester.widget<SmartRefresher>(
             find.byType(SmartRefresher),
           );
           refresher.controller.requestRefresh();
@@ -816,7 +820,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('raw'), findsOneWidget);
 
-        final refresher = tester.widget<SmartRefresher>(
+        final SmartRefresher refresher = tester.widget<SmartRefresher>(
           find.byType(SmartRefresher),
         );
         refresher.controller.requestRefresh();
@@ -842,7 +846,7 @@ void main() {
           expect(find.text('Initial'), findsOneWidget);
 
           returnNull = true;
-          final refresher = tester.widget<SmartRefresher>(
+          final SmartRefresher refresher = tester.widget<SmartRefresher>(
             find.byType(SmartRefresher),
           );
           refresher.controller.requestRefresh();
@@ -874,7 +878,7 @@ void main() {
         await tester.pumpAndSettle();
         expect(requestedPage, 1);
 
-        final refresher = tester.widget<SmartRefresher>(
+        final SmartRefresher refresher = tester.widget<SmartRefresher>(
           find.byType(SmartRefresher),
         );
         refresher.controller.requestLoading();
@@ -898,7 +902,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        final refresher = tester.widget<SmartRefresher>(
+        final SmartRefresher refresher = tester.widget<SmartRefresher>(
           find.byType(SmartRefresher),
         );
         refresher.controller.requestLoading();
@@ -920,7 +924,7 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        final refresher = tester.widget<SmartRefresher>(
+        final SmartRefresher refresher = tester.widget<SmartRefresher>(
           find.byType(SmartRefresher),
         );
         refresher.controller.requestLoading();
@@ -1189,7 +1193,7 @@ class _FilterableListState extends State<_FilterableList> {
   }
 
   void _onSearch() {
-    final query = widget.controller.text.toLowerCase();
+    final String query = widget.controller.text.toLowerCase();
     setState(() {
       _filteredItems = _allItems
           .where((item) => item.toLowerCase().contains(query))

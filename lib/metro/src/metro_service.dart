@@ -83,7 +83,7 @@ class MetroService {
           RegExp reg = RegExp(
             r'final Map<Type, dynamic> controllers = \{([^}]*)\};',
           );
-          final match = _getFirstRegexMatch(reg, file);
+          final String? match = _getFirstRegexMatch(reg, file);
           if (match == null) return file;
           String temp =
               """
@@ -100,7 +100,7 @@ final Map<Type, dynamic> controllers = {$match
           RegExp reg = RegExp(
             r'final Map<Type, BaseController Function\(\)> controllers = \{([^}]*)\};',
           );
-          final match = _getFirstRegexMatch(reg, file);
+          final String? match = _getFirstRegexMatch(reg, file);
           if (match == null) return file;
           String temp =
               """
@@ -114,7 +114,7 @@ final Map<Type, BaseController Function()> controllers = {$match
         RegExp reg = RegExp(
           r'final Map<Type, BaseController> controllers = \{([^}]*)\};',
         );
-        final match = _getFirstRegexMatch(reg, file);
+        final String? match = _getFirstRegexMatch(reg, file);
         if (match == null) return file;
         String temp =
             """
@@ -131,7 +131,7 @@ final Map<Type, BaseController> controllers = {$match
       value,
       onSuccess: () {
         final linkText = '${nameReCase.snakeCase}_controller';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Controller] $link created 🎉');
       },
     );
@@ -160,7 +160,7 @@ final Map<Type, BaseController> controllers = {$match
     String folder,
   ) async {
     if (creationPath != null) {
-      for (var segment in creationPath.split("/").toList()) {
+      for (String segment in creationPath.split("/").toList()) {
         await MetroService.makeDirectory("$folder/$segment");
         folder += '/$segment';
       }
@@ -213,7 +213,7 @@ final Map<Type, BaseController> controllers = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_page';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Page] $link created 🎉');
       },
     );
@@ -283,7 +283,7 @@ final Map<Type, BaseController> controllers = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_navigation_hub';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Navigation Hub] $link created 🎉');
       },
     );
@@ -323,21 +323,23 @@ final Map<Type, BaseController> controllers = {$match
   static Future<int> runProcess(String command) async {
     List<String> commands = command.split(" ");
 
-    final processArguments = commands.getRange(1, commands.length).toList();
+    final List<String> processArguments = commands
+        .getRange(1, commands.length)
+        .toList();
 
     // `ProcessStartMode.inheritStdio` hands the parent's stdin/stdout/stderr
     // file descriptors to the child directly. Previously this code wired the
     // streams up with `stdin.pipe(process.stdin)`, which left the parent's
     // stdin in a "consumed" state after the child exited and broke any
     // subsequent `readLineSync`-based prompt.
-    final process = await Process.start(
+    final Process process = await Process.start(
       commands.first,
       processArguments,
       runInShell: true,
       mode: ProcessStartMode.inheritStdio,
     );
 
-    final exitCode = await process.exitCode;
+    final int exitCode = await process.exitCode;
 
     if (exitCode != 0) {
       MetroConsole.writeInRed("Error: $exitCode");
@@ -353,7 +355,7 @@ final Map<Type, BaseController> controllers = {$match
     List<String> arguments, {
     String? workingDirectory,
   }) async {
-    final process = await Process.start(
+    final Process process = await Process.start(
       executable,
       arguments,
       runInShell: true,
@@ -426,8 +428,8 @@ final Map<Type, BaseController> controllers = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = nameReCase.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = nameReCase.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Model] $link created 🎉');
       },
     );
@@ -448,7 +450,7 @@ final Map<Type, BaseController> controllers = {$match
         RegExp reg = RegExp(
           r'final Map<Type, dynamic> modelDecoders = \{([^}]*)\};',
         );
-        final match = _getFirstRegexMatch(reg, file);
+        final String? match = _getFirstRegexMatch(reg, file);
         if (match == null) {
           return file;
         }
@@ -493,8 +495,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = nameReCase.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = nameReCase.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Stateless Widget] $link created 🎉');
       },
     );
@@ -526,8 +528,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Config] $link created 🎉');
       },
     );
@@ -566,8 +568,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () async {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Command] $link created 🎉');
       },
     );
@@ -631,8 +633,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Stateful Widget] $link created 🎉');
       },
     );
@@ -665,8 +667,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Journey Widget] $link created 🎉');
       },
     );
@@ -699,8 +701,8 @@ final Map<Type, dynamic> modelDecoders = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[State Managed Widget] $link created 🎉');
       },
     );
@@ -734,7 +736,7 @@ final Map<Type, dynamic> modelDecoders = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_interceptor';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Interceptor] $link created 🎉');
       },
     );
@@ -767,7 +769,7 @@ final Map<Type, dynamic> modelDecoders = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_provider';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Provider] $link created 🎉');
       },
     );
@@ -788,7 +790,7 @@ final Map<Type, dynamic> modelDecoders = {$match
         RegExp reg = RegExp(
           r'final Map<Type, NyProvider> providers = \{([^}]*)\};',
         );
-        final match = _getFirstRegexMatch(reg, file);
+        final String? match = _getFirstRegexMatch(reg, file);
         if (match == null) return file;
         String template =
             """
@@ -826,8 +828,8 @@ final Map<Type, NyProvider> providers = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Route Guard] $link created 🎉');
       },
     );
@@ -858,8 +860,8 @@ final Map<Type, NyProvider> providers = {$match
       filePath,
       value,
       onSuccess: () {
-        final linkText = name.snakeCase;
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String linkText = name.snakeCase;
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Form] $link created 🎉');
       },
     );
@@ -896,7 +898,7 @@ final Map<Type, NyProvider> providers = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_event';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Event] $link created 🎉');
       },
     );
@@ -912,7 +914,7 @@ final Map<Type, NyProvider> providers = {$match
         String eventName = "${name.pascalCase}Event";
 
         RegExp reg = RegExp(r'final Map<Type, NyEvent> events = \{([^}]*)\};');
-        final match = _getFirstRegexMatch(reg, file);
+        final String? match = _getFirstRegexMatch(reg, file);
         if (match == null) return file;
         String template =
             """final Map<Type, NyEvent> events = {$match
@@ -952,7 +954,7 @@ final Map<Type, NyProvider> providers = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_seeder';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[Seeder] $link created 🎉');
       },
     );
@@ -978,7 +980,7 @@ final Map<Type, NyProvider> providers = {$match
       value,
       onSuccess: () {
         final linkText = '${name.snakeCase}_api_service';
-        final link = MetroConsole.hyperlink(linkText, filePath);
+        final String link = MetroConsole.hyperlink(linkText, filePath);
         MetroConsole.writeInGreen('[API Service] $link created 🎉');
       },
     );
@@ -996,7 +998,7 @@ final Map<Type, NyProvider> providers = {$match
           RegExp reg = RegExp(
             r'final Map<Type, dynamic> apiDecoders = \{([^}]*)\};',
           );
-          final match = _getFirstRegexMatch(reg, file);
+          final String? match = _getFirstRegexMatch(reg, file);
           if (match == null) return file;
           String temp =
               """
@@ -1011,7 +1013,7 @@ final Map<Type, dynamic> apiDecoders = {$match
           RegExp reg = RegExp(
             r'final Map<Type, BaseApiService> apiDecoders = \{([^}]*)\};',
           );
-          final match = _getFirstRegexMatch(reg, file);
+          final String? match = _getFirstRegexMatch(reg, file);
           if (match == null) return file;
           String temp =
               """
@@ -1026,7 +1028,7 @@ final Map<Type, BaseApiService> apiDecoders = {$match
           RegExp reg = RegExp(
             r'final Map<Type, NyApiService> apiDecoders = \{([^}]*)\};',
           );
-          final match = _getFirstRegexMatch(reg, file);
+          final String? match = _getFirstRegexMatch(reg, file);
           if (match == null) return file;
           String temp =
               """
@@ -1133,7 +1135,7 @@ final Map<Type, NyApiService> apiDecoders = {$match
   }) async {
     String pubspecYaml = await MetroService.loadAsset('pubspec.yaml');
     for (var template in templates) {
-      for (var pluginRequired in template.pluginsRequired) {
+      for (String pluginRequired in template.pluginsRequired) {
         if ((!pubspecYaml.contains(pluginRequired))) {
           MetroConsole.writeInRed(
             "Your project is missing the $pluginRequired package in your pubspec.yaml file.",
@@ -1385,7 +1387,7 @@ final Map<Type, NyApiService> apiDecoders = {$match
         commandsDirectory.absolute.uri.resolve('commands.json'),
       );
       if (await configFile.exists()) {
-        final jsonStr = await configFile.readAsString();
+        final String jsonStr = await configFile.readAsString();
         final List<dynamic> commandConfigs = jsonDecode(jsonStr);
         return await discoverCommands(
           commandConfigs,
@@ -1461,7 +1463,7 @@ final Map<Type, NyApiService> apiDecoders = {$match
         }
 
         final List<dynamic> configs = [];
-        for (final dynamic config in decoded) {
+        for (final Object? config in decoded) {
           if (config is! Map ||
               config['name'] is! String ||
               config['script'] is! String) {
@@ -1655,7 +1657,7 @@ final Map<Type, NyApiService> apiDecoders = {$match
   /// Safely gets the first capture group from regex matches.
   /// Returns null if no matches found.
   static String? _getFirstRegexMatch(RegExp regex, String content) {
-    final matches = regex.allMatches(content).toList();
+    final List<RegExpMatch> matches = regex.allMatches(content).toList();
     if (matches.isEmpty) return null;
     return matches.first.group(1);
   }

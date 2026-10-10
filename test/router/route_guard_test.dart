@@ -12,7 +12,7 @@ void main() {
         final guard = _BasicRouteGuard();
         final request = PageRequest();
 
-        final result = await guard.onRequest(request);
+        final PageRequest? result = await guard.onRequest(request);
 
         expect(result, isNull);
       });
@@ -46,7 +46,7 @@ void main() {
 
     nyGroup('RouteContext', () {
       nyTest('should create with required routeName', () async {
-        final context = RouteContext(routeName: '/home');
+        final RouteContext<dynamic> context = RouteContext(routeName: '/home');
 
         expect(context.routeName, '/home');
         expect(context.data, isNull);
@@ -55,7 +55,7 @@ void main() {
       });
 
       nyTest('should create with all parameters', () async {
-        final context = RouteContext(
+        final RouteContext<Map<String, int>> context = RouteContext(
           routeName: '/profile',
           data: {'id': 123},
           queryParameters: {'tab': 'settings'},
@@ -74,7 +74,9 @@ void main() {
           data: {'original': true},
         );
 
-        final modified = original.withData({'new': 'data'});
+        final RouteContext<Map<String, String>> modified = original.withData({
+          'new': 'data',
+        });
 
         expect(modified.routeName, '/test');
         expect(modified.data, {'new': 'data'});
@@ -82,12 +84,14 @@ void main() {
       });
 
       nyTest('copyWith() should create copy with changed fields', () async {
-        final original = RouteContext(
+        final RouteContext<dynamic> original = RouteContext(
           routeName: '/test',
           queryParameters: {'a': '1'},
         );
 
-        final modified = original.copyWith(queryParameters: {'b': '2'});
+        final RouteContext<dynamic> modified = original.copyWith(
+          queryParameters: {'b': '2'},
+        );
 
         expect(modified.routeName, '/test');
         expect(modified.queryParameters, {'b': '2'});
@@ -199,7 +203,7 @@ void main() {
           final guard = _TestNyRouteGuard();
           guard.setRouteContext(RouteContext(routeName: '/protected'));
 
-          final result = guard.redirect('/login');
+          final GuardResult result = guard.redirect('/login');
 
           expect(result, GuardResult.handled);
           expect(guard.redirectConfig, isNotNull);
@@ -252,9 +256,9 @@ void main() {
     nyGroup('onBefore lifecycle', () {
       nyTest('should return next by default', () async {
         final guard = _TestNyRouteGuard();
-        final context = RouteContext(routeName: '/test');
+        final RouteContext<dynamic> context = RouteContext(routeName: '/test');
 
-        final result = await guard.onBefore(context);
+        final GuardResult result = await guard.onBefore(context);
 
         expect(result, GuardResult.next);
       });
@@ -263,7 +267,7 @@ void main() {
     nyGroup('onAfter lifecycle', () {
       nyTest('should complete without error by default', () async {
         final guard = _TestNyRouteGuard();
-        final context = RouteContext(routeName: '/test');
+        final RouteContext<dynamic> context = RouteContext(routeName: '/test');
 
         // Should not throw
         await guard.onAfter(context);
@@ -384,7 +388,7 @@ void main() {
           queryParameters: {'sort': 'asc'},
         );
 
-        final context = request.toRouteContext('/test');
+        final RouteContext<dynamic> context = request.toRouteContext('/test');
 
         expect(context.routeName, '/test');
         expect(context.data, {'id': 1});
@@ -428,7 +432,7 @@ void main() {
           navigationType: NavigationType.pushReplace,
         );
 
-        final routeData = RouteData.fromRedirectConfig(config);
+        final RouteData routeData = RouteData.fromRedirectConfig(config);
 
         expect(routeData.path, '/login');
         expect(routeData.data, {'returnTo': '/profile'});
@@ -498,23 +502,25 @@ void main() {
   nyGroup('Guard implementation scenarios', () {
     nyTest('should allow guard to return next to continue', () async {
       final guard = _AllowAllGuard();
-      final context = RouteContext(
+      final RouteContext<Map<String, String>> context = RouteContext(
         routeName: '/protected',
         data: {'user': 'authenticated'},
       );
 
       guard.setRouteContext(context);
-      final result = await guard.onBefore(context);
+      final GuardResult result = await guard.onBefore(context);
 
       expect(result, GuardResult.next);
     });
 
     nyTest('should allow guard to redirect', () async {
       final guard = _RedirectGuard();
-      final context = RouteContext(routeName: '/protected');
+      final RouteContext<dynamic> context = RouteContext(
+        routeName: '/protected',
+      );
 
       guard.setRouteContext(context);
-      final result = await guard.onBefore(context);
+      final GuardResult result = await guard.onBefore(context);
 
       expect(result, GuardResult.handled);
       expect(guard.redirectConfig, isNotNull);
@@ -523,7 +529,7 @@ void main() {
 
     nyTest('should allow guard to modify data', () async {
       final guard = _DataModifyingGuard();
-      final context = RouteContext(
+      final RouteContext<Map<String, bool>> context = RouteContext(
         routeName: '/test',
         data: {'original': true},
       );
@@ -538,10 +544,10 @@ void main() {
 
     nyTest('should allow guard to abort without redirect', () async {
       final guard = _AbortGuard();
-      final context = RouteContext(routeName: '/blocked');
+      final RouteContext<dynamic> context = RouteContext(routeName: '/blocked');
 
       guard.setRouteContext(context);
-      final result = await guard.onBefore(context);
+      final GuardResult result = await guard.onBefore(context);
 
       expect(result, GuardResult.handled);
       expect(guard.redirectConfig, isNull); // No redirect
@@ -557,13 +563,13 @@ void main() {
 
     nyTest('should use parameters in guard logic', () async {
       final adminGuard = _RoleGuard(['admin']);
-      final context = RouteContext(
+      final RouteContext<Map<String, String>> context = RouteContext(
         routeName: '/admin',
         data: {'userRole': 'user'},
       );
 
       adminGuard.setRouteContext(context);
-      final result = await adminGuard.onBefore(context);
+      final GuardResult result = await adminGuard.onBefore(context);
 
       expect(result, GuardResult.handled); // Redirected
       expect(adminGuard.redirectConfig!.path, '/unauthorized');
@@ -580,9 +586,9 @@ void main() {
         _TrackingGuard('third', executionOrder),
       ]);
 
-      final context = RouteContext(routeName: '/test');
+      final RouteContext<dynamic> context = RouteContext(routeName: '/test');
       stack.setRouteContext(context);
-      final result = await stack.onBefore(context);
+      final GuardResult result = await stack.onBefore(context);
 
       expect(result, GuardResult.handled);
       expect(executionOrder, ['first', 'second']);
@@ -592,7 +598,7 @@ void main() {
     nyTest('should pass modified data between guards', () async {
       final stack = GuardStack([_DataModifyingGuard(), _DataCheckingGuard()]);
 
-      final context = RouteContext(
+      final RouteContext<Map<String, bool>> context = RouteContext(
         routeName: '/test',
         data: {'original': true},
       );
@@ -607,7 +613,7 @@ void main() {
     nyTest('should propagate redirect config', () async {
       final stack = GuardStack([_AllowAllGuard(), _RedirectGuard()]);
 
-      final context = RouteContext(routeName: '/test');
+      final RouteContext<dynamic> context = RouteContext(routeName: '/test');
       stack.setRouteContext(context);
       await stack.onBefore(context);
 
@@ -623,9 +629,11 @@ void main() {
         guard: _RedirectGuard(),
       );
 
-      final context = RouteContext(routeName: '/admin/dashboard');
+      final RouteContext<dynamic> context = RouteContext(
+        routeName: '/admin/dashboard',
+      );
       guard.setRouteContext(context);
-      final result = await guard.onBefore(context);
+      final GuardResult result = await guard.onBefore(context);
 
       expect(result, GuardResult.handled);
       expect(guard.redirectConfig!.path, '/login');
@@ -637,9 +645,11 @@ void main() {
         guard: _RedirectGuard(),
       );
 
-      final context = RouteContext(routeName: '/public/page');
+      final RouteContext<dynamic> context = RouteContext(
+        routeName: '/public/page',
+      );
       guard.setRouteContext(context);
-      final result = await guard.onBefore(context);
+      final GuardResult result = await guard.onBefore(context);
 
       expect(result, GuardResult.next);
       expect(guard.redirectConfig, isNull);
@@ -654,7 +664,7 @@ void main() {
         queryParameters: {'page': '1'},
       );
 
-      final result = await guard.onRequest(request);
+      final PageRequest? result = await guard.onRequest(request);
 
       expect(result, isNotNull);
       expect(result!.isRedirect, isTrue);
@@ -684,7 +694,8 @@ class _RedirectGuard extends NyRouteGuard {
 class _DataModifyingGuard extends NyRouteGuard {
   @override
   Future<GuardResult> onBefore(RouteContext context) async {
-    final currentData = context.data as Map<String, dynamic>? ?? {};
+    final Map<String, dynamic> currentData =
+        context.data as Map<String, dynamic>? ?? {};
     setData({...currentData, 'modified': true});
     return next();
   }
@@ -702,7 +713,8 @@ class _RoleGuard extends ParameterizedGuard<List<String>> {
 
   @override
   Future<GuardResult> onBefore(RouteContext context) async {
-    final userRole = (context.data as Map<String, dynamic>?)?['userRole'];
+    final dynamic userRole =
+        (context.data as Map<String, dynamic>?)?['userRole'];
     if (!params.contains(userRole)) {
       return redirect('/unauthorized');
     }

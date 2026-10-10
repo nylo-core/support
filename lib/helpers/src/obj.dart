@@ -49,12 +49,12 @@ class Obj {
     if (key.isEmpty) return defaultValue;
     if (map.containsKey(key)) return map[key];
     dynamic current = map;
-    for (final segment in key.split('.')) {
+    for (final String segment in key.split('.')) {
       if (current is Map) {
         if (!current.containsKey(segment)) return defaultValue;
         current = current[segment];
       } else if (current is List) {
-        final idx = int.tryParse(segment);
+        final int? idx = int.tryParse(segment);
         if (idx == null || idx < 0 || idx >= current.length) {
           return defaultValue;
         }
@@ -71,11 +71,11 @@ class Obj {
     if (key.isEmpty) return false;
     if (map.containsKey(key)) return true;
     dynamic current = map;
-    for (final segment in key.split('.')) {
+    for (final String segment in key.split('.')) {
       if (current is Map && current.containsKey(segment)) {
         current = current[segment];
       } else if (current is List) {
-        final idx = int.tryParse(segment);
+        final int? idx = int.tryParse(segment);
         if (idx == null || idx < 0 || idx >= current.length) return false;
         current = current[idx];
       } else {
@@ -113,7 +113,7 @@ class Obj {
   /// Strings pass through; everything else is rendered with `toString()`.
   /// Returns [defaultValue] when the path is missing or the value is `null`.
   static String? getString(Map map, String key, [String? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     if (v == null) return defaultValue;
     if (v is String) return v;
     return v.toString();
@@ -125,7 +125,7 @@ class Obj {
   /// `bool`s map to `1`/`0`. Returns [defaultValue] on missing path or
   /// failed coercion.
   static int? getInt(Map map, String key, [int? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     if (v == null) return defaultValue;
     if (v is int) return v;
     if (v is double) return v.toInt();
@@ -140,7 +140,7 @@ class Obj {
   /// `bool`s map to `1.0`/`0.0`. Returns [defaultValue] on missing path
   /// or failed coercion.
   static double? getDouble(Map map, String key, [double? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     if (v == null) return defaultValue;
     if (v is double) return v;
     if (v is int) return v.toDouble();
@@ -155,7 +155,7 @@ class Obj {
   /// `'0'/'yes'/'no'/'on'/'off'` are recognized (case-insensitive, trimmed).
   /// Returns [defaultValue] on missing path or unrecognized value.
   static bool? getBool(Map map, String key, [bool? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     if (v == null) return defaultValue;
     if (v is bool) return v;
     if (v is num) return v != 0;
@@ -178,13 +178,13 @@ class Obj {
 
   /// Returns the value at [key] when it is a `List`, otherwise [defaultValue].
   static List? getList(Map map, String key, [List? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     return v is List ? v : defaultValue;
   }
 
   /// Returns the value at [key] when it is a `Map`, otherwise [defaultValue].
   static Map? getMap(Map map, String key, [Map? defaultValue]) {
-    final v = get(map, key);
+    final dynamic v = get(map, key);
     return v is Map ? v : defaultValue;
   }
 
@@ -201,12 +201,12 @@ class Obj {
   /// and the call becomes a no-op so that data isn't silently destroyed.
   static Map set(Map map, String key, dynamic value) {
     if (key.isEmpty) return map;
-    final segments = key.split('.');
+    final List<String> segments = key.split('.');
     dynamic current = map;
     for (var i = 0; i < segments.length - 1; i++) {
-      final s = segments[i];
+      final String s = segments[i];
       if (current is Map) {
-        final next = current[s];
+        final dynamic next = current[s];
         if (next is Map || next is List) {
           current = next;
         } else if (next == null) {
@@ -217,18 +217,18 @@ class Obj {
           return map;
         }
       } else if (current is List) {
-        final idx = int.tryParse(s);
+        final int? idx = int.tryParse(s);
         if (idx == null || idx < 0 || idx >= current.length) return map;
         current = current[idx];
       } else {
         return map;
       }
     }
-    final last = segments.last;
+    final String last = segments.last;
     if (current is Map) {
       current[last] = value;
     } else if (current is List) {
-      final idx = int.tryParse(last);
+      final int? idx = int.tryParse(last);
       if (idx != null && idx >= 0 && idx < current.length) {
         current[idx] = value;
       }
@@ -252,30 +252,30 @@ class Obj {
       map.remove(key);
       return map;
     }
-    final segments = key.split('.');
+    final List<String> segments = key.split('.');
     dynamic current = map;
     for (var i = 0; i < segments.length - 1; i++) {
-      final s = segments[i];
+      final String s = segments[i];
       if (current is Map) {
-        final next = current[s];
+        final dynamic next = current[s];
         if (next is Map || next is List) {
           current = next;
         } else {
           return map;
         }
       } else if (current is List) {
-        final idx = int.tryParse(s);
+        final int? idx = int.tryParse(s);
         if (idx == null || idx < 0 || idx >= current.length) return map;
         current = current[idx];
       } else {
         return map;
       }
     }
-    final last = segments.last;
+    final String last = segments.last;
     if (current is Map) {
       current.remove(last);
     } else if (current is List) {
-      final idx = int.tryParse(last);
+      final int? idx = int.tryParse(last);
       if (idx != null && idx >= 0 && idx < current.length) {
         current.removeAt(idx);
       }
@@ -285,7 +285,7 @@ class Obj {
 
   /// Returns the value at [key] and removes it from [map].
   static dynamic pull(Map map, String key, [dynamic defaultValue]) {
-    final value = get(map, key, defaultValue);
+    final dynamic value = get(map, key, defaultValue);
     forget(map, key);
     return value;
   }
@@ -302,7 +302,7 @@ class Obj {
 
   /// Returns a new map containing all entries except those whose keys are in [keys].
   static Map<K, V> except<K, V>(Map<K, V> map, Iterable<K> keys) {
-    final exclude = keys.toSet();
+    final Set<K> exclude = keys.toSet();
     return {
       for (final e in map.entries)
         if (!exclude.contains(e.key)) e.key: e.value,
@@ -444,7 +444,7 @@ class Obj {
     target.forEach((k, v) => result[k.toString()] = v);
     source.forEach((k, v) {
       final key = k.toString();
-      final existing = result[key];
+      final dynamic existing = result[key];
       if (existing is Map && v is Map) {
         result[key] = merge(existing, v);
       } else {
@@ -467,7 +467,7 @@ class Obj {
     if (identical(a, b)) return true;
     if (a is Map && b is Map) {
       if (a.length != b.length) return false;
-      for (final k in a.keys) {
+      for (final Object? k in a.keys) {
         if (!b.containsKey(k)) return false;
         if (!deepEquals(a[k], b[k])) return false;
       }
@@ -496,7 +496,7 @@ class Obj {
         value.forEach((k, v) => encode('$key[$k]', v));
       } else if (value is Iterable) {
         var i = 0;
-        for (final v in value) {
+        for (final Object? v in value) {
           encode('$key[${i++}]', v);
         }
       } else {

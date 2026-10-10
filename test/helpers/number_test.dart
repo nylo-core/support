@@ -59,7 +59,7 @@ void main() {
       expect(Number.currency(1234.56), '\$1,234.56');
     });
     nyTest('respects custom currency', () async {
-      final result = Number.currency(1234.56, currency: 'EUR');
+      final String result = Number.currency(1234.56, currency: 'EUR');
       expect(result, contains('1,234.56'));
     });
   });
@@ -353,13 +353,13 @@ void main() {
   nyGroup('Number.random', () {
     nyTest('produces values within range', () async {
       for (var i = 0; i < 100; i++) {
-        final v = Number.random(min: 5, max: 10);
+        final int v = Number.random(min: 5, max: 10);
         expect(v >= 5 && v <= 10, isTrue);
       }
     });
     nyTest('is deterministic with seed', () async {
-      final a = Number.random(min: 0, max: 1000, seed: 42);
-      final b = Number.random(min: 0, max: 1000, seed: 42);
+      final int a = Number.random(min: 0, max: 1000, seed: 42);
+      final int b = Number.random(min: 0, max: 1000, seed: 42);
       expect(a, b);
     });
     nyTest('default upper bound does not overflow', () async {
@@ -602,7 +602,7 @@ void _formatCacheTests() {
     nyTest('format reuses one NumberFormat per configuration', () async {
       Number.debugClearFormatCache();
       expect(Number.format(1234.5), '1,234.5');
-      final afterFirst = Number.debugFormatCacheSize;
+      final int afterFirst = Number.debugFormatCacheSize;
       expect(afterFirst, 1);
 
       // Same configuration many times: cache does not grow, output stable.

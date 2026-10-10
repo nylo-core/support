@@ -17,7 +17,7 @@ class NyFieldStatefulWidget extends StatefulWidget {
   /// [stateName] can be provided to override the default state identifier.
   /// [child] can be a State instance or a function that returns a State.
   NyFieldStatefulWidget({super.key, this.child, String? stateName})
-    : state = stateName ?? child.toString() {}
+    : state = stateName ?? child.toString();
 
   /// The state name identifier for this widget.
   ///
@@ -148,7 +148,7 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
   void didUpdateWidget(covariant T oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget is NyFieldStatefulWidget) {
-      final newField = (widget as NyFieldStatefulWidget).formField;
+      final Field? newField = (widget as NyFieldStatefulWidget).formField;
       if (newField != null) {
         field = newField;
       }
@@ -160,6 +160,7 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
   /// This method should return the primary UI widget for the field
   /// (e.g., TextField, DropdownButton, Checkbox). The default implementation
   /// returns an empty SizedBox.
+  @override
   Widget view(BuildContext context) {
     return const SizedBox.shrink();
   }
@@ -190,6 +191,7 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
   }
 
   /// When the theme is in [light] mode, return [light] function, else return [dark] function
+  @override
   // ignore: avoid_shadowing_type_parameters
   T whenTheme<T>({required T Function() light, T Function()? dark}) {
     bool isDarkModeEnabled = NyThemeManager.instance.isDark;

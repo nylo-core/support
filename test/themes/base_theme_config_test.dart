@@ -166,7 +166,7 @@ void main() {
       });
 
       nyTest('accepts very long id', () async {
-        final longId = 'a' * 1000;
+        final String longId = 'a' * 1000;
         final config = BaseThemeConfig<TestColors>(
           id: longId,
           theme: (c) => ThemeData.light(),
@@ -188,7 +188,7 @@ void main() {
           colors: colors,
         );
 
-        final themeData = config.themeData;
+        final ThemeData themeData = config.themeData;
 
         expect(themeData, isA<ThemeData>());
         expect(themeData.primaryColor, Colors.red);
@@ -239,7 +239,7 @@ void main() {
           colors: colors,
         );
 
-        final themeData = config.themeData;
+        final ThemeData themeData = config.themeData;
 
         expect(themeData.primaryColor, Colors.indigo);
         expect(themeData.scaffoldBackgroundColor, Colors.white);
@@ -283,8 +283,8 @@ void main() {
           colors: TestColors(primary: Colors.teal),
         );
 
-        final themeData1 = config.themeData;
-        final themeData2 = config.themeData;
+        final ThemeData themeData1 = config.themeData;
+        final ThemeData themeData2 = config.themeData;
 
         expect(themeData1.primaryColor, themeData2.primaryColor);
       });
@@ -374,7 +374,7 @@ void main() {
           ),
         );
 
-        final themeData = config.themeData;
+        final ThemeData themeData = config.themeData;
 
         expect(config.colors.primary, Colors.deepPurple);
         expect(config.colors.background, Colors.amber);
@@ -439,7 +439,7 @@ void main() {
           colors: TestColors(),
         );
 
-        final first = config.themeData;
+        final ThemeData first = config.themeData;
         config.themeData;
         config.themeData;
 
@@ -562,7 +562,7 @@ void main() {
           ),
         );
 
-        final themeData = config.themeData;
+        final ThemeData themeData = config.themeData;
         expect(themeData.primaryColor, Colors.blue);
         expect(themeData.scaffoldBackgroundColor, Colors.white);
         expect(themeData.textTheme.bodyLarge?.color, Colors.green);
@@ -632,7 +632,9 @@ void main() {
           ),
         ];
 
-        final found = configs.firstWhere((c) => c.id == 'dark');
+        final BaseThemeConfig<TestColors> found = configs.firstWhere(
+          (c) => c.id == 'dark',
+        );
         expect(found.type, NyThemeType.dark);
       });
     });

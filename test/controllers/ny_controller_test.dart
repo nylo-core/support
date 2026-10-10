@@ -334,7 +334,7 @@ void main() {
         );
 
         final event = mockEventBus.firedEvents.first as UpdateState;
-        final eventData = event.data['data'];
+        final dynamic eventData = event.data['data'];
 
         expect(eventData['rules'], {'name': 'required'});
         expect(eventData['messages'], {'name.required': 'Name is required'});
@@ -471,7 +471,8 @@ void main() {
         );
         final controller = TestNyController(request: request);
 
-        final result = controller.data<Map<String, dynamic>>();
+        final Map<String, dynamic>? result = controller
+            .data<Map<String, dynamic>>();
 
         expect(result, isNotNull);
         expect(result!['id'], 42);
@@ -484,7 +485,7 @@ void main() {
         );
         final controller = TestNyController(request: request);
 
-        final result = controller.queryParameters(key: 'sort');
+        final dynamic result = controller.queryParameters(key: 'sort');
 
         expect(result, 'desc');
       });

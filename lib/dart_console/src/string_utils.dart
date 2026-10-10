@@ -8,11 +8,11 @@ extension StringUtils on String {
       return '';
     }
 
-    final words = split(' ');
+    final List<String> words = split(' ');
     final textLine = StringBuffer(words.first);
     final outputText = StringBuffer();
 
-    for (final word in words.skip(1)) {
+    for (final String word in words.skip(1)) {
       if ((textLine.length + word.length) > wrapLength) {
         textLine.write('\n');
         outputText.write(textLine);
@@ -39,14 +39,14 @@ extension StringUtils on String {
         // By using ceil _and_ floor, we ensure that the target width is reached
         // even if the padding is uneven (e.g. a single character wrapped in a 4
         // character width should be wrapped as '··c·' rather than '··c··').
-        final leftPadding = ' ' * ((width - displayWidth) / 2).ceil();
-        final rightPadding = ' ' * ((width - displayWidth) / 2).floor();
+        final String leftPadding = ' ' * ((width - displayWidth) / 2).ceil();
+        final String rightPadding = ' ' * ((width - displayWidth) / 2).floor();
         return leftPadding + this + rightPadding;
       case TextAlignment.right:
-        final padding = ' ' * (width - displayWidth);
+        final String padding = ' ' * (width - displayWidth);
         return padding + this;
       case TextAlignment.left:
-        final padding = ' ' * (width - displayWidth);
+        final String padding = ' ' * (width - displayWidth);
         return this + padding;
     }
   }
@@ -82,8 +82,8 @@ extension StringUtils on String {
     const nineCodeUnit = 0x39;
 
     final buffer = StringBuffer();
-    for (var c in characters) {
-      final firstCodeUnit = c.codeUnits.first;
+    for (String c in characters) {
+      final int firstCodeUnit = c.codeUnits.first;
       if (c.codeUnits.length == 1 &&
           firstCodeUnit >= zeroCodeUnit &&
           firstCodeUnit <= nineCodeUnit) {

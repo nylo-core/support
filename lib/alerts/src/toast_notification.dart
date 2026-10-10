@@ -95,13 +95,13 @@ void showToastNotification(
   VoidCallback? onDismiss,
   VoidCallback? onShow,
 }) {
-  final registry = ToastNotificationRegistry.instance;
+  final ToastNotificationRegistry registry = ToastNotificationRegistry.instance;
 
   // Merge data map with title/description (explicit params win)
   final mergedData = <String, dynamic>{
-    if (data != null) ...data,
-    if (title != null) 'title': title,
-    if (description != null) 'description': description,
+    ...?data,
+    'title': ?title,
+    'description': ?description,
   };
 
   // Create base ToastMeta with user-provided overrides
@@ -121,7 +121,7 @@ void showToastNotification(
   );
 
   // Look up the widget factory from the registry
-  final factory = registry.resolve(id, mergedData);
+  final ToastStyleFactory? factory = registry.resolve(id, mergedData);
 
   Widget toastWidget;
   if (factory != null) {
@@ -136,12 +136,13 @@ void showToastNotification(
   toastMeta.onShow?.call();
 
   // Determine final animation (meta.animation > position-based default)
-  final styledAnimation = toastMeta.animation != null
+  final StyledToastAnimation styledAnimation = toastMeta.animation != null
       ? _toStyledAnimationFromType(toastMeta.animation!.type)
       : _toStyledAnimationFromPosition(toastMeta.position);
 
   // Determine reverse animation if provided
-  final reverseStyledAnimation = toastMeta.reverseAnimation != null
+  final StyledToastAnimation? reverseStyledAnimation =
+      toastMeta.reverseAnimation != null
       ? _toStyledAnimationFromType(toastMeta.reverseAnimation!.type)
       : null;
 

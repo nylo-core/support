@@ -86,7 +86,7 @@ class _ConnectiveState extends State<Connective> {
   }
 
   Future<void> _initConnectivity() async {
-    final results = await NyConnectivity.status();
+    final List<ConnectivityResult> results = await NyConnectivity.status();
     if (mounted) {
       setState(() {
         _results = results;
@@ -99,7 +99,7 @@ class _ConnectiveState extends State<Connective> {
   void _startListening() {
     _subscription = NyConnectivity.stream().listen((results) {
       if (mounted) {
-        final newState = _getPrimaryState(results);
+        final NyConnectivityState newState = _getPrimaryState(results);
         setState(() {
           _results = results;
           _state = newState;
@@ -215,12 +215,12 @@ class OfflineBanner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final bgColor = backgroundColor ?? Colors.red.shade700;
-    final txtColor = textColor ?? Colors.white;
+    final Color bgColor = backgroundColor ?? Colors.red.shade700;
+    final Color txtColor = textColor ?? Colors.white;
 
     return Connective.builder(
       builder: (context, state, results) {
-        final isOffline =
+        final bool isOffline =
             !results.contains(ConnectivityResult.wifi) &&
             !results.contains(ConnectivityResult.mobile) &&
             !results.contains(ConnectivityResult.ethernet);
@@ -286,7 +286,7 @@ extension ConnectiveExtension on Widget {
   Widget onlyOffline() {
     return Connective.builder(
       builder: (context, state, results) {
-        final hasInternet =
+        final bool hasInternet =
             results.contains(ConnectivityResult.wifi) ||
             results.contains(ConnectivityResult.mobile) ||
             results.contains(ConnectivityResult.ethernet);

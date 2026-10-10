@@ -57,7 +57,7 @@ void main() {
           await NyScheduler.taskOnce('match_test', () async => calls++);
           expect(calls, 1);
 
-          final raw = await FlutterSecureStorage().read(
+          final String? raw = await FlutterSecureStorage().read(
             key: NyScheduler.getKeyTaskOnce('match_test'),
           );
           expect(raw, 'true');

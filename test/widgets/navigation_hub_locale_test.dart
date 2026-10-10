@@ -128,7 +128,7 @@ void main() {
       await tester.pumpWidget(_app(const Locale('es'), hub));
       await _settle(tester);
 
-      final bar = tester.widget<BottomNavigationBar>(
+      final BottomNavigationBar bar = tester.widget<BottomNavigationBar>(
         find.byType(BottomNavigationBar),
       );
       expect(bar.currentIndex, 1);

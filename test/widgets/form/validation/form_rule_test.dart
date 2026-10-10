@@ -6,8 +6,7 @@ import 'package:nylo_support/widgets/ny_widgets.dart';
 class _TestFormRule extends FormRule {
   final bool returnValue;
 
-  _TestFormRule({String? rule, String? message, this.returnValue = true})
-    : super(rule: rule, message: message);
+  _TestFormRule({super.rule, super.message, this.returnValue = true});
 
   @override
   bool validate(dynamic data) => returnValue;

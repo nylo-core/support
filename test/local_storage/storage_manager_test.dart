@@ -9,7 +9,7 @@ void main() {
   nyGroup('StorageManager', () {
     nyGroup('storage', () {
       nyTest('should return FlutterSecureStorage instance', () async {
-        final storage = StorageManager.storage();
+        final FlutterSecureStorage storage = StorageManager.storage();
 
         expect(storage, isA<FlutterSecureStorage>());
       });
@@ -21,15 +21,15 @@ void main() {
           final customIosOptions = IOSOptions(accountName: 'test_app_account');
           StorageConfig.init(iosOptions: customIosOptions);
 
-          final storage = StorageManager.storage();
+          final FlutterSecureStorage storage = StorageManager.storage();
 
           expect(storage, isA<FlutterSecureStorage>());
         },
       );
 
       nyTest('should create new storage instances on each call', () async {
-        final storage1 = StorageManager.storage();
-        final storage2 = StorageManager.storage();
+        final FlutterSecureStorage storage1 = StorageManager.storage();
+        final FlutterSecureStorage storage2 = StorageManager.storage();
 
         // Each call creates a new instance
         expect(identical(storage1, storage2), isFalse);
@@ -41,7 +41,7 @@ void main() {
         StorageConfig.init(androidOptions: customAndroidOptions);
 
         // Storage should be created with updated config
-        final storage = StorageManager.storage();
+        final FlutterSecureStorage storage = StorageManager.storage();
 
         expect(storage, isA<FlutterSecureStorage>());
       });

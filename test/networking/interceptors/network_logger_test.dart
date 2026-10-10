@@ -162,8 +162,10 @@ void main() {
         logger.onRequest(options1, handler);
         logger.onRequest(options2, handler);
 
-        final requestId1 = options1.extra['_network_logger_request_id_'];
-        final requestId2 = options2.extra['_network_logger_request_id_'];
+        final dynamic requestId1 =
+            options1.extra['_network_logger_request_id_'];
+        final dynamic requestId2 =
+            options2.extra['_network_logger_request_id_'];
 
         expect(requestId1, isNotNull);
         expect(requestId2, isNotNull);
@@ -184,7 +186,7 @@ void main() {
         options.extra['_network_logger_timestamp_'] =
             DateTime.timestamp().millisecondsSinceEpoch;
 
-        final response = Response(
+        final Response<dynamic> response = Response(
           requestOptions: options,
           statusCode: 200,
           statusMessage: 'OK',
@@ -285,7 +287,7 @@ void main() {
         );
 
         final options = RequestOptions(path: '/test');
-        final response = Response(
+        final Response<Map<String, String>> response = Response(
           requestOptions: options,
           statusCode: 200,
           data: {'result': 'success'},
@@ -309,7 +311,7 @@ void main() {
           structuredOutput: true,
         );
 
-        final json = logger.toJson();
+        final Map<String, dynamic> json = logger.toJson();
 
         expect(json['logLevel'], 'minimal');
         expect(json['request'], false);
@@ -319,7 +321,7 @@ void main() {
       });
 
       test('fromJson should create correct logger', () {
-        final json = {
+        final Map<String, Object> json = {
           'logLevel': 'minimal',
           'request': false,
           'requestHeader': true,
@@ -355,7 +357,7 @@ void main() {
           structuredOutput: false,
         );
 
-        final copy = original.copyWith(
+        final NetworkLogger copy = original.copyWith(
           logLevel: LogLevelType.minimal,
           structuredOutput: true,
         );
@@ -372,7 +374,7 @@ void main() {
           maxWidth: 120,
         );
 
-        final copy = original.copyWith();
+        final NetworkLogger copy = original.copyWith();
 
         expect(copy.logLevel, LogLevelType.minimal);
         expect(copy.useColors, false);

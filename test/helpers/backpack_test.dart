@@ -23,8 +23,8 @@ void main() {
   nyGroup('Backpack', () {
     nyGroup('singleton instance', () {
       nyTest('should return the same instance', () async {
-        final instance1 = Backpack.instance;
-        final instance2 = Backpack.instance;
+        final Backpack instance1 = Backpack.instance;
+        final Backpack instance2 = Backpack.instance;
 
         expect(identical(instance1, instance2), isTrue);
       });
@@ -34,7 +34,7 @@ void main() {
       nyTest('should save and read a string value', () async {
         Backpack.instance.save('test_key', 'test_value');
 
-        final result = Backpack.instance.read<String>('test_key');
+        final String? result = Backpack.instance.read<String>('test_key');
 
         expect(result, 'test_value');
       });
@@ -42,7 +42,7 @@ void main() {
       nyTest('should save and read an int value', () async {
         Backpack.instance.save('int_key', 42);
 
-        final result = Backpack.instance.read<int>('int_key');
+        final int? result = Backpack.instance.read<int>('int_key');
 
         expect(result, 42);
       });
@@ -50,7 +50,7 @@ void main() {
       nyTest('should save and read a double value', () async {
         Backpack.instance.save('double_key', 3.14);
 
-        final result = Backpack.instance.read<double>('double_key');
+        final double? result = Backpack.instance.read<double>('double_key');
 
         expect(result, 3.14);
       });
@@ -58,7 +58,7 @@ void main() {
       nyTest('should save and read a bool value', () async {
         Backpack.instance.save('bool_key', true);
 
-        final result = Backpack.instance.read<bool>('bool_key');
+        final bool? result = Backpack.instance.read<bool>('bool_key');
 
         expect(result, isTrue);
       });
@@ -66,7 +66,7 @@ void main() {
       nyTest('should save and read a list', () async {
         Backpack.instance.save('list_key', [1, 2, 3]);
 
-        final result = Backpack.instance.read<List<int>>('list_key');
+        final List<int>? result = Backpack.instance.read<List<int>>('list_key');
 
         expect(result, [1, 2, 3]);
       });
@@ -74,13 +74,16 @@ void main() {
       nyTest('should save and read a map', () async {
         Backpack.instance.save('map_key', {'name': 'test', 'value': 123});
 
-        final result = Backpack.instance.read<Map<String, dynamic>>('map_key');
+        final Map<String, dynamic>? result = Backpack.instance
+            .read<Map<String, dynamic>>('map_key');
 
         expect(result, {'name': 'test', 'value': 123});
       });
 
       nyTest('should return null for nonexistent key', () async {
-        final result = Backpack.instance.read<String>('nonexistent_key');
+        final String? result = Backpack.instance.read<String>(
+          'nonexistent_key',
+        );
 
         expect(result, isNull);
       });
@@ -88,7 +91,7 @@ void main() {
       nyTest(
         'should return defaultValue for nonexistent key when provided',
         () async {
-          final result = Backpack.instance.read<String>(
+          final String? result = Backpack.instance.read<String>(
             'nonexistent_with_default',
             defaultValue: 'default',
           );
@@ -101,7 +104,7 @@ void main() {
         Backpack.instance.save('overwrite_key', 'original');
         Backpack.instance.save('overwrite_key', 'updated');
 
-        final result = Backpack.instance.read<String>('overwrite_key');
+        final String? result = Backpack.instance.read<String>('overwrite_key');
 
         expect(result, 'updated');
       });
@@ -111,13 +114,13 @@ void main() {
       nyTest('should return true for existing key', () async {
         Backpack.instance.save('exists_key', 'value');
 
-        final result = Backpack.instance.contains('exists_key');
+        final bool result = Backpack.instance.contains('exists_key');
 
         expect(result, isTrue);
       });
 
       nyTest('should return false for nonexistent key', () async {
-        final result = Backpack.instance.contains('does_not_exist_key');
+        final bool result = Backpack.instance.contains('does_not_exist_key');
 
         expect(result, isFalse);
       });
@@ -174,7 +177,9 @@ void main() {
 
           Backpack.instance.append('append_new', 'item1', append: true);
 
-          final result = Backpack.instance.read<List>('append_new');
+          final List<dynamic>? result = Backpack.instance.read<List>(
+            'append_new',
+          );
           expect(result, ['item1']);
         },
       );
@@ -184,7 +189,9 @@ void main() {
 
         Backpack.instance.append('append_existing', 'item2', append: true);
 
-        final result = Backpack.instance.read<List>('append_existing');
+        final List<dynamic>? result = Backpack.instance.read<List>(
+          'append_existing',
+        );
         expect(result, ['item1', 'item2']);
       });
 
@@ -193,7 +200,7 @@ void main() {
 
         Backpack.instance.append('append_replace', 'replaced', append: false);
 
-        final result = Backpack.instance.read<String>('append_replace');
+        final String? result = Backpack.instance.read<String>('append_replace');
         expect(result, 'replaced');
       });
 
@@ -225,7 +232,9 @@ void main() {
           limit: 3,
         );
 
-        final result = Backpack.instance.read<List>('append_limit');
+        final List<dynamic>? result = Backpack.instance.read<List>(
+          'append_limit',
+        );
         expect(result?.length, 3);
         expect(result, ['item2', 'item3', 'item4']);
       });
@@ -235,7 +244,7 @@ void main() {
       nyTest('should update session value', () async {
         Backpack.instance.sessionUpdate('test_session', 'key1', 'value1');
 
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'test_session',
           'key1',
         );
@@ -246,7 +255,7 @@ void main() {
       nyTest('should get session value', () async {
         Backpack.instance.sessionUpdate('get_session', 'mykey', 'myvalue');
 
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'get_session',
           'mykey',
         );
@@ -255,7 +264,7 @@ void main() {
       });
 
       nyTest('should return null for nonexistent session', () async {
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'nonexistent_session',
           'key',
         );
@@ -266,7 +275,7 @@ void main() {
       nyTest('should return null for nonexistent key in session', () async {
         Backpack.instance.sessionUpdate('partial_session', 'exists', 'value');
 
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'partial_session',
           'not_exists',
         );
@@ -279,7 +288,7 @@ void main() {
 
         Backpack.instance.sessionRemove('remove_session', 'to_remove');
 
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'remove_session',
           'to_remove',
         );
@@ -297,7 +306,7 @@ void main() {
 
         Backpack.instance.sessionFlush('flush_session');
 
-        final result = Backpack.instance.sessionGet<String>(
+        final String? result = Backpack.instance.sessionGet<String>(
           'flush_session',
           'key1',
         );
@@ -313,13 +322,17 @@ void main() {
         Backpack.instance.sessionUpdate('data_session', 'key1', 'value1');
         Backpack.instance.sessionUpdate('data_session', 'key2', 'value2');
 
-        final data = Backpack.instance.sessionData('data_session');
+        final Map<String, dynamic>? data = Backpack.instance.sessionData(
+          'data_session',
+        );
 
         expect(data, {'key1': 'value1', 'key2': 'value2'});
       });
 
       nyTest('should return null for nonexistent session data', () async {
-        final data = Backpack.instance.sessionData('nonexistent_data_session');
+        final Map<String, dynamic>? data = Backpack.instance.sessionData(
+          'nonexistent_data_session',
+        );
 
         expect(data, isNull);
       });
@@ -338,9 +351,8 @@ void main() {
           // Simulate what syncKeys does: store a raw Map in Backpack
           Backpack.instance.save('user_model', {'name': 'Alice', 'age': 30});
 
-          final result = Backpack.instance.read<_BackpackTestModel>(
-            'user_model',
-          );
+          final _BackpackTestModel? result = Backpack.instance
+              .read<_BackpackTestModel>('user_model');
 
           expect(result, isA<_BackpackTestModel>());
           expect(result?.name, 'Alice');
@@ -359,13 +371,11 @@ void main() {
           Backpack.instance.save('cached_model', {'name': 'Bob', 'age': 25});
 
           // First read deserializes
-          final first = Backpack.instance.read<_BackpackTestModel>(
-            'cached_model',
-          );
+          final _BackpackTestModel? first = Backpack.instance
+              .read<_BackpackTestModel>('cached_model');
           // Second read should return cached model instance
-          final second = Backpack.instance.read<_BackpackTestModel>(
-            'cached_model',
-          );
+          final _BackpackTestModel? second = Backpack.instance
+              .read<_BackpackTestModel>('cached_model');
 
           expect(identical(first, second), isTrue);
         },
@@ -374,7 +384,7 @@ void main() {
       nyTest('should return raw Map when T is dynamic', () async {
         Backpack.instance.save('raw_map', {'key': 'value'});
 
-        final result = Backpack.instance.read('raw_map');
+        final dynamic result = Backpack.instance.read('raw_map');
 
         expect(result, isA<Map>());
         expect(result['key'], 'value');
@@ -389,7 +399,7 @@ void main() {
           Backpack.instance.save('no_decoder_map', {'name': 'test'});
 
           // Reading with a type that has no decoder should not throw
-          final result = Backpack.instance.read('no_decoder_map');
+          final dynamic result = Backpack.instance.read('no_decoder_map');
 
           expect(result, isA<Map>());
         },
@@ -400,7 +410,9 @@ void main() {
       nyTest('should return false when nylo is not saved', () async {
         Backpack.instance.delete('check_nylo');
 
-        final result = Backpack.instance.isNyloInitialized(key: 'check_nylo');
+        final bool result = Backpack.instance.isNyloInitialized(
+          key: 'check_nylo',
+        );
 
         expect(result, isFalse);
       });
@@ -416,13 +428,13 @@ void main() {
       nyTest('should read value from backpack', () async {
         Backpack.instance.save('helper_read', 'helper_value');
 
-        final result = backpackRead<String>('helper_read');
+        final String? result = backpackRead<String>('helper_read');
 
         expect(result, 'helper_value');
       });
 
       nyTest('should return defaultValue when key not found', () async {
-        final result = backpackRead<String>(
+        final String? result = backpackRead<String>(
           'helper_not_found',
           defaultValue: 'default_helper',
         );
@@ -435,7 +447,7 @@ void main() {
       nyTest('should save value to backpack', () async {
         backpackSave('helper_save', 'saved_value');
 
-        final result = Backpack.instance.read<String>('helper_save');
+        final String? result = Backpack.instance.read<String>('helper_save');
         expect(result, 'saved_value');
       });
     });

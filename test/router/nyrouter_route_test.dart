@@ -158,7 +158,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.initialRoute();
+        final NyRouterRoute result = route.initialRoute();
 
         expect(result, same(route));
       });
@@ -204,7 +204,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.authenticatedRoute();
+        final NyRouterRoute result = route.authenticatedRoute();
 
         expect(result, same(route));
       });
@@ -228,7 +228,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.unknownRoute();
+        final NyRouterRoute result = route.unknownRoute();
 
         expect(result, same(route));
       });
@@ -270,7 +270,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.addRouteGuard(_TestRouteGuard());
+        final NyRouterRoute result = route.addRouteGuard(_TestRouteGuard());
 
         expect(result, same(route));
       });
@@ -321,7 +321,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.addRouteGuards([_TestRouteGuard()]);
+        final NyRouterRoute result = route.addRouteGuards([_TestRouteGuard()]);
 
         expect(result, same(route));
       });
@@ -356,7 +356,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.addPrefixToName('/api');
+        final NyRouterRoute result = route.addPrefixToName('/api');
 
         expect(result, same(route));
       });
@@ -392,7 +392,7 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.transition(PageTransitionType.scale);
+        final NyRouterRoute result = route.transition(PageTransitionType.scale);
 
         expect(result, same(route));
       });
@@ -425,7 +425,9 @@ void main() {
           view: (context) => const SizedBox(),
         );
 
-        final result = route.transitionSettings(const PageTransitionSettings());
+        final NyRouterRoute result = route.transitionSettings(
+          const PageTransitionSettings(),
+        );
 
         expect(result, same(route));
       });
@@ -496,7 +498,7 @@ void main() {
           view: (context) => const Text('Test Widget'),
         );
 
-        final widget = route.builder(capturedContext, null, null);
+        final Widget widget = route.builder(capturedContext, null, null);
 
         expect(widget, isA<Text>());
       });

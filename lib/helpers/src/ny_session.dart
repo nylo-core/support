@@ -70,7 +70,7 @@ class NySession {
 
   /// Sync from Storage
   Future syncFromStorage() async {
-    final sessionData = await NyStorage.readJson("${name}_session");
+    final dynamic sessionData = await NyStorage.readJson("${name}_session");
     if (sessionData == null) {
       return;
     }

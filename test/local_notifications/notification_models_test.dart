@@ -87,48 +87,52 @@ void main() {
 
     nyTest('addPayload should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addPayload('data');
+      final LocalNotification result = notification.addPayload('data');
       expect(result, same(notification));
     });
 
     nyTest('addId should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addId(42);
+      final LocalNotification result = notification.addId(42);
       expect(result, same(notification));
     });
 
     nyTest('addSubtitle should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addSubtitle('subtitle');
+      final LocalNotification result = notification.addSubtitle('subtitle');
       expect(result, same(notification));
     });
 
     nyTest('addBadgeNumber should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addBadgeNumber(5);
+      final LocalNotification result = notification.addBadgeNumber(5);
       expect(result, same(notification));
     });
 
     nyTest('addSound should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addSound('alert.wav');
+      final LocalNotification result = notification.addSound('alert.wav');
       expect(result, same(notification));
     });
 
     nyTest('addAttachment should return self for chaining', () async {
       final notification = LocalNotification(title: 'Test', body: 'Test');
-      final result = notification.addAttachment('url', 'file.png');
+      final LocalNotification result = notification.addAttachment(
+        'url',
+        'file.png',
+      );
       expect(result, same(notification));
     });
 
     nyTest('fluent API should support chaining', () async {
-      final notification = LocalNotification(title: 'Hello', body: 'World')
-          .addPayload('custom-data')
-          .addId(123)
-          .addSubtitle('sub')
-          .addBadgeNumber(3)
-          .addSound('ding.wav')
-          .addAttachment('https://example.com/img.png', 'img.png');
+      final LocalNotification notification =
+          LocalNotification(title: 'Hello', body: 'World')
+              .addPayload('custom-data')
+              .addId(123)
+              .addSubtitle('sub')
+              .addBadgeNumber(3)
+              .addSound('ding.wav')
+              .addAttachment('https://example.com/img.png', 'img.png');
       expect(notification, isA<LocalNotification>());
     });
   });
@@ -139,12 +143,15 @@ void main() {
 
   nyGroup('localNotification helper', () {
     nyTest('should create LocalNotification', () async {
-      final notification = localNotification('Hello', 'World');
+      final LocalNotification notification = localNotification(
+        'Hello',
+        'World',
+      );
       expect(notification, isA<LocalNotification>());
     });
 
     nyTest('should support chaining after creation', () async {
-      final notification = localNotification(
+      final LocalNotification notification = localNotification(
         'Title',
         'Body',
       ).addPayload('data').addId(1);

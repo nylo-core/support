@@ -328,7 +328,7 @@ void main() {
 
     nyGroup('cancel token management', () {
       nyTest('createCancelToken creates tracked token', () async {
-        final token = apiService.createCancelToken();
+        final CancelToken token = apiService.createCancelToken();
 
         expect(token, isA<CancelToken>());
         expect(apiService.activeRequestCount, 1);
@@ -336,7 +336,7 @@ void main() {
 
       nyTest('activeRequestCount tracks non-cancelled tokens', () async {
         apiService.createCancelToken();
-        final token2 = apiService.createCancelToken();
+        final CancelToken token2 = apiService.createCancelToken();
         apiService.createCancelToken();
 
         expect(apiService.activeRequestCount, 3);
@@ -347,9 +347,9 @@ void main() {
       });
 
       nyTest('cancelAllRequests cancels all tokens', () async {
-        final token1 = apiService.createCancelToken();
-        final token2 = apiService.createCancelToken();
-        final token3 = apiService.createCancelToken();
+        final CancelToken token1 = apiService.createCancelToken();
+        final CancelToken token2 = apiService.createCancelToken();
+        final CancelToken token3 = apiService.createCancelToken();
 
         apiService.cancelAllRequests('Test cancellation');
 
@@ -361,7 +361,7 @@ void main() {
 
       nyTest('removeCancelToken removes specific token', () async {
         apiService.createCancelToken();
-        final token2 = apiService.createCancelToken();
+        final CancelToken token2 = apiService.createCancelToken();
         apiService.createCancelToken();
 
         expect(apiService.activeRequestCount, 3);
@@ -442,7 +442,7 @@ void main() {
 
     nyGroup('shouldRefreshToken', () {
       nyTest('default returns false', () async {
-        final result = await apiService.shouldRefreshToken();
+        final bool result = await apiService.shouldRefreshToken();
 
         expect(result, isFalse);
       });
@@ -452,7 +452,7 @@ void main() {
       nyTest('default returns empty headers', () async {
         final headers = <String, dynamic>{};
 
-        final result = await apiService.setAuthHeaders(headers);
+        final RequestHeaders result = await apiService.setAuthHeaders(headers);
 
         expect(result, isEmpty);
       });
@@ -480,7 +480,7 @@ void main() {
         () async {
           NyResponse? received;
 
-          final response = await apiService.networkResponse(
+          final NyResponse<Object?> response = await apiService.networkResponse(
             request: deletePhoto,
             handleFailure: (response) {
               received = response;
@@ -500,7 +500,7 @@ void main() {
       nyTest(
         'an async callback that returns nothing gets the error response',
         () async {
-          final response = await apiService.networkResponse(
+          final NyResponse<Object?> response = await apiService.networkResponse(
             request: deletePhoto,
             handleFailure: (response) async {},
           );
@@ -510,7 +510,7 @@ void main() {
       );
 
       nyTest('network() returns the value the callback returns', () async {
-        final images = await apiService.network<List<String>>(
+        final List<String>? images = await apiService.network<List<String>>(
           request: deletePhoto,
           handleFailure: (response) => <String>['fallback.jpg'],
         );
@@ -527,7 +527,7 @@ void main() {
             rawData: null,
           );
 
-          final response = await apiService.networkResponse(
+          final NyResponse<Object?> response = await apiService.networkResponse(
             request: deletePhoto,
             handleFailure: (response) async => replacement,
           );
@@ -542,14 +542,14 @@ void main() {
     nyTest('matchUrl finds registered patterns', () async {
       NyMockApi.respond('/users/1', {'id': 1, 'name': 'Test'});
 
-      final response = NyMockApi.matchUrl('/users/1');
+      final MockResponse? response = NyMockApi.matchUrl('/users/1');
 
       expect(response, isNotNull);
       expect(response?.data['id'], 1);
     });
 
     nyTest('matchUrl returns null for unregistered patterns', () async {
-      final response = NyMockApi.matchUrl('/unknown');
+      final MockResponse? response = NyMockApi.matchUrl('/unknown');
 
       expect(response, isNull);
     });
@@ -582,7 +582,7 @@ void main() {
     });
 
     nyTest('createResponse creates mock Dio response', () async {
-      final response = NyMockApi.createResponse(
+      final Response<Map<String, int>> response = NyMockApi.createResponse(
         data: {'id': 1},
         statusCode: 201,
         statusMessage: 'Created',

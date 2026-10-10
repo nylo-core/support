@@ -15,8 +15,8 @@ void main() {
 
     nyGroup('singleton instance', () {
       nyTest('should return same instance', () async {
-        final instance1 = NyNavigator.instance;
-        final instance2 = NyNavigator.instance;
+        final NyNavigator instance1 = NyNavigator.instance;
+        final NyNavigator instance2 = NyNavigator.instance;
 
         expect(instance1, same(instance2));
       });

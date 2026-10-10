@@ -57,7 +57,7 @@ void main() {
           (faker) => TestUser(id: 2, name: 'Second', email: 'second@test.com'),
         );
 
-        final user = NyFactory.make<TestUser>();
+        final TestUser user = NyFactory.make<TestUser>();
         expect(user.id, equals(2));
       });
     });
@@ -71,7 +71,7 @@ void main() {
           },
         );
 
-        final data = NyFactory.make<Map<String, dynamic>>(
+        final Map<String, dynamic> data = NyFactory.make<Map<String, dynamic>>(
           overrides: {'id': 999, 'name': 'Custom Name'},
         );
 
@@ -90,7 +90,7 @@ void main() {
           ),
         );
 
-        final user = NyFactory.make<TestUser>();
+        final TestUser user = NyFactory.make<TestUser>();
 
         expect(user, isA<TestUser>());
         expect(user.id, greaterThan(0));
@@ -136,7 +136,7 @@ void main() {
           return user.copyWith(role: 'admin');
         });
 
-        final admin = NyFactory.make<TestUser>(states: ['admin']);
+        final TestUser admin = NyFactory.make<TestUser>(states: ['admin']);
 
         expect(admin.role, equals('admin'));
       });
@@ -158,7 +158,9 @@ void main() {
           return user.copyWith(name: 'John Doe');
         });
 
-        final user = NyFactory.make<TestUser>(states: ['admin', 'john']);
+        final TestUser user = NyFactory.make<TestUser>(
+          states: ['admin', 'john'],
+        );
 
         expect(user.role, equals('admin'));
         expect(user.name, equals('John Doe'));
@@ -175,7 +177,7 @@ void main() {
           ),
         );
 
-        final users = NyFactory.create<TestUser>(count: 5);
+        final List<TestUser> users = NyFactory.create<TestUser>(count: 5);
 
         expect(users.length, equals(5));
         expect(users, everyElement(isA<TestUser>()));
@@ -190,8 +192,8 @@ void main() {
           ),
         );
 
-        final users = NyFactory.create<TestUser>(count: 10);
-        final ids = users.map((u) => u.id).toSet();
+        final List<TestUser> users = NyFactory.create<TestUser>(count: 10);
+        final Set<int> ids = users.map((u) => u.id).toSet();
 
         // With random ids from 1-10000, 10 users should almost always have unique ids
         expect(ids.length, greaterThan(5));
@@ -210,7 +212,10 @@ void main() {
           return user.copyWith(role: 'admin');
         });
 
-        final admins = NyFactory.create<TestUser>(count: 3, states: ['admin']);
+        final List<TestUser> admins = NyFactory.create<TestUser>(
+          count: 3,
+          states: ['admin'],
+        );
 
         expect(admins.every((u) => u.role == 'admin'), isTrue);
       });
@@ -218,7 +223,7 @@ void main() {
 
     group('sequence()', () {
       test('creates instances with sequential data', () {
-        final users = NyFactory.sequence<TestUser>(
+        final List<TestUser> users = NyFactory.sequence<TestUser>(
           5,
           (i, faker) => TestUser(
             id: i + 1,
@@ -283,7 +288,7 @@ void main() {
         NyFactory.state<TestUser>('admin', (u, f) => u);
         NyFactory.state<TestUser>('verified', (u, f) => u);
 
-        final states = NyFactory.getStates<TestUser>();
+        final List<String> states = NyFactory.getStates<TestUser>();
 
         expect(states, containsAll(['admin', 'verified']));
       });
@@ -307,14 +312,14 @@ void main() {
       });
 
       test('name() returns a full name with space', () {
-        final name = faker.name();
+        final String name = faker.name();
         expect(name, contains(' '));
       });
     });
 
     group('email()', () {
       test('returns valid email format', () {
-        final email = faker.email();
+        final String email = faker.email();
         expect(email, contains('@'));
         expect(email, contains('.'));
       });
@@ -322,7 +327,7 @@ void main() {
 
     group('username()', () {
       test('returns username with number', () {
-        final username = faker.username();
+        final String username = faker.username();
         expect(username, isNotEmpty);
         expect(username, matches(RegExp(r'[a-z]+\d+')));
       });
@@ -336,7 +341,7 @@ void main() {
 
     group('phone()', () {
       test('returns formatted phone number', () {
-        final phone = faker.phone();
+        final String phone = faker.phone();
         expect(phone, matches(RegExp(r'\(\d{3}\) \d{3}-\d{4}')));
       });
     });
@@ -344,7 +349,7 @@ void main() {
     group('randomInt()', () {
       test('returns value within range', () {
         for (var i = 0; i < 100; i++) {
-          final value = faker.randomInt(10, 20);
+          final int value = faker.randomInt(10, 20);
           expect(value, greaterThanOrEqualTo(10));
           expect(value, lessThanOrEqualTo(20));
         }
@@ -358,7 +363,7 @@ void main() {
     group('randomDouble()', () {
       test('returns value within range', () {
         for (var i = 0; i < 100; i++) {
-          final value = faker.randomDouble(1.0, 10.0);
+          final double value = faker.randomDouble(1.0, 10.0);
           expect(value, greaterThanOrEqualTo(1.0));
           expect(value, lessThanOrEqualTo(10.0));
         }
@@ -378,7 +383,7 @@ void main() {
 
     group('uuid()', () {
       test('returns valid UUID format', () {
-        final uuid = faker.uuid();
+        final String uuid = faker.uuid();
         expect(
           uuid,
           matches(
@@ -403,7 +408,7 @@ void main() {
         // Use a small date range to avoid int overflow in milliseconds
         final start = DateTime(2025, 1, 1);
         final end = DateTime(2025, 1, 31);
-        final date = faker.date(start: start, end: end);
+        final DateTime date = faker.date(start: start, end: end);
 
         expect(date.isAfter(start.subtract(const Duration(days: 1))), isTrue);
         expect(date.isBefore(end.add(const Duration(days: 1))), isTrue);
@@ -412,7 +417,7 @@ void main() {
       test('returns date within week range', () {
         final start = DateTime(2025, 6, 1);
         final end = DateTime(2025, 6, 7);
-        final date = faker.date(start: start, end: end);
+        final DateTime date = faker.date(start: start, end: end);
 
         expect(date.year, equals(2025));
         expect(date.month, equals(6));
@@ -440,31 +445,31 @@ void main() {
 
     group('lorem()', () {
       test('returns specified number of words', () {
-        final text = faker.lorem(words: 5);
-        final wordCount = text.split(' ').length;
+        final String text = faker.lorem(words: 5);
+        final int wordCount = text.split(' ').length;
         expect(wordCount, equals(5));
       });
     });
 
     group('sentences()', () {
       test('returns specified number of sentences', () {
-        final text = faker.sentences(count: 3);
-        final sentenceCount = '.'.allMatches(text).length;
+        final String text = faker.sentences(count: 3);
+        final int sentenceCount = '.'.allMatches(text).length;
         expect(sentenceCount, equals(3));
       });
     });
 
     group('paragraphs()', () {
       test('returns specified number of paragraphs', () {
-        final text = faker.paragraphs(count: 2);
-        final paragraphCount = text.split('\n\n').length;
+        final String text = faker.paragraphs(count: 2);
+        final int paragraphCount = text.split('\n\n').length;
         expect(paragraphCount, equals(2));
       });
     });
 
     group('url()', () {
       test('returns valid URL format', () {
-        final url = faker.url();
+        final String url = faker.url();
         expect(url, startsWith('https://'));
         expect(url, contains('.'));
       });
@@ -472,7 +477,7 @@ void main() {
 
     group('imageUrl()', () {
       test('returns picsum URL with dimensions', () {
-        final url = faker.imageUrl(width: 300, height: 200);
+        final String url = faker.imageUrl(width: 300, height: 200);
         expect(url, contains('picsum.photos'));
         expect(url, contains('300'));
         expect(url, contains('200'));
@@ -481,14 +486,14 @@ void main() {
 
     group('hexColor()', () {
       test('returns valid hex color', () {
-        final color = faker.hexColor();
+        final String color = faker.hexColor();
         expect(color, matches(RegExp(r'^#[0-9a-f]{6}$')));
       });
     });
 
     group('address()', () {
       test('returns street address format', () {
-        final address = faker.address();
+        final String address = faker.address();
         expect(address, isNotEmpty);
         expect(address, matches(RegExp(r'^\d+ \w+ (St|Ave|Blvd|Dr|Ln|Way)$')));
       });
@@ -502,7 +507,7 @@ void main() {
 
     group('state()', () {
       test('returns a state abbreviation', () {
-        final state = faker.state();
+        final String state = faker.state();
         expect(state.length, equals(2));
         expect(state, equals(state.toUpperCase()));
       });
@@ -510,7 +515,7 @@ void main() {
 
     group('zipCode()', () {
       test('returns 5-digit zip code', () {
-        final zip = faker.zipCode();
+        final String zip = faker.zipCode();
         expect(zip.length, equals(5));
         expect(int.tryParse(zip), isNotNull);
       });
@@ -525,7 +530,7 @@ void main() {
     group('randomElement()', () {
       test('returns element from list', () {
         final list = ['a', 'b', 'c'];
-        final element = faker.randomElement(list);
+        final String element = faker.randomElement(list);
         expect(list, contains(element));
       });
     });
@@ -533,7 +538,7 @@ void main() {
     group('randomElements()', () {
       test('returns specified number of unique elements', () {
         final list = ['a', 'b', 'c', 'd', 'e'];
-        final elements = faker.randomElements(list, 3);
+        final List<String> elements = faker.randomElements(list, 3);
         expect(elements.length, equals(3));
         expect(elements.toSet().length, equals(3)); // All unique
       });
@@ -541,7 +546,7 @@ void main() {
 
     group('creditCardNumber()', () {
       test('returns valid length credit card number', () {
-        final number = faker.creditCardNumber();
+        final String number = faker.creditCardNumber();
         expect(number.length, inInclusiveRange(15, 16));
         expect(int.tryParse(number), isNotNull);
       });
@@ -549,11 +554,11 @@ void main() {
 
     group('ipAddress()', () {
       test('returns valid IP address format', () {
-        final ip = faker.ipAddress();
-        final parts = ip.split('.');
+        final String ip = faker.ipAddress();
+        final List<String> parts = ip.split('.');
         expect(parts.length, equals(4));
         for (final part in parts) {
-          final num = int.parse(part);
+          final int num = int.parse(part);
           expect(num, inInclusiveRange(0, 255));
         }
       });
@@ -561,15 +566,15 @@ void main() {
 
     group('macAddress()', () {
       test('returns valid MAC address format', () {
-        final mac = faker.macAddress();
+        final String mac = faker.macAddress();
         expect(mac, matches(RegExp(r'^([0-9A-F]{2}:){5}[0-9A-F]{2}$')));
       });
     });
 
     group('slug()', () {
       test('returns slug with hyphens', () {
-        final slug = faker.slug(words: 3);
-        final parts = slug.split('-');
+        final String slug = faker.slug(words: 3);
+        final List<String> parts = slug.split('-');
         expect(parts.length, equals(3));
         expect(slug, equals(slug.toLowerCase()));
       });

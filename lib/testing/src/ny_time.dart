@@ -82,7 +82,7 @@ class NyTime {
     DateTime time,
     Future<T> Function() callback,
   ) async {
-    final previous = _testNow;
+    final DateTime? previous = _testNow;
     _testNow = time;
     try {
       return await callback();
@@ -93,7 +93,7 @@ class NyTime {
 
   /// Synchronous version of [withFrozenTime].
   static T withFrozenTimeSync<T>(DateTime time, T Function() callback) {
-    final previous = _testNow;
+    final DateTime? previous = _testNow;
     _testNow = time;
     try {
       return callback();
@@ -107,37 +107,37 @@ class NyTime {
 
   /// Travel to start of current day.
   static void travelToStartOfDay() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, now.month, now.day);
   }
 
   /// Travel to end of current day.
   static void travelToEndOfDay() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, now.month, now.day, 23, 59, 59, 999);
   }
 
   /// Travel to start of current month.
   static void travelToStartOfMonth() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, now.month, 1);
   }
 
   /// Travel to end of current month.
   static void travelToEndOfMonth() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, now.month + 1, 0, 23, 59, 59, 999);
   }
 
   /// Travel to start of current year.
   static void travelToStartOfYear() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, 1, 1);
   }
 
   /// Travel to end of current year.
   static void travelToEndOfYear() {
-    final now = _testNow ?? DateTime.now();
+    final DateTime now = _testNow ?? DateTime.now();
     _testNow = DateTime(now.year, 12, 31, 23, 59, 59, 999);
   }
 }

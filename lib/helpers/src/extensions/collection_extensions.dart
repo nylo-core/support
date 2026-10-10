@@ -138,8 +138,8 @@ extension PaginateExt<T> on List<T> {
   /// print(secondPage.toList()); // Output: [4, 5, 6]
   /// ```
   Iterable<T> paginate({required int itemsPerPage, required int page}) sync* {
-    final startIndex = (page - 1) * itemsPerPage;
-    final endIndex = startIndex + itemsPerPage;
+    final int startIndex = (page - 1) * itemsPerPage;
+    final int endIndex = startIndex + itemsPerPage;
 
     for (int i = startIndex; i < endIndex && i < length; i++) {
       yield this[i];

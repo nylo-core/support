@@ -294,18 +294,18 @@ class FieldStyleTextField extends FieldStyle {
     this.cursorColor = Colors.black87,
     this.keyboardAppearance,
     this.scrollPadding = const EdgeInsets.all(20.0),
-    this.selectionControls = null,
+    this.selectionControls,
     this.dragStartBehavior = DragStartBehavior.start,
     this.onTap,
     this.onTapOutside,
-    InputDecoration? decoration,
+    this.decoration,
     this.clipBehavior = Clip.hardEdge,
     this.fillColor,
     this.filled = false,
     this.isDense = false,
     this.suffixIcon,
     this.enableInteractiveSelection = true,
-  }) : decoration = decoration;
+  });
 
   final String? labelText;
   final TextStyle? labelStyle;
@@ -427,8 +427,8 @@ class FieldStyleTextField extends FieldStyle {
   }
 
   static FieldStyleTextField password({bool passwordViewable = true}) {
-    FieldStyleTextField _base = base();
-    return _base.copyWith(
+    FieldStyleTextField baseStyle = base();
+    return baseStyle.copyWith(
       prefixIcon: const Icon(Icons.lock_rounded),
       filled: true,
       fillColor: Colors.grey.shade100,
@@ -463,8 +463,8 @@ class FieldStyleTextField extends FieldStyle {
   }
 
   static FieldStyleTextField emailAddress() {
-    FieldStyleTextField _base = base();
-    return _base.copyWith(
+    FieldStyleTextField baseStyle = base();
+    return baseStyle.copyWith(
       keyboardType: TextInputType.emailAddress,
       prefixIcon: const Icon(Icons.email_outlined),
       filled: true,
@@ -490,8 +490,8 @@ class FieldStyleTextField extends FieldStyle {
   }
 
   static FieldStyleTextField basic({FieldStyleTextField? field}) {
-    FieldStyleTextField _base = base();
-    return _base.copyWith(
+    FieldStyleTextField baseStyle = base();
+    return baseStyle.copyWith(
       filled: true,
       fillColor: field?.fillColor ?? Colors.grey.shade100,
       backgroundColor: field?.backgroundColor ?? Colors.grey.shade100,
@@ -1241,6 +1241,7 @@ class FieldStyleSlider extends FieldStyle {
     return value.toStringAsFixed(1);
   }
 
+  @override
   FieldStyleSlider copyWith({
     double? min,
     double? max,
@@ -1394,6 +1395,7 @@ class FieldStyleRangeSlider extends FieldStyle {
     return '${start.toStringAsFixed(1)} - ${end.toStringAsFixed(1)}';
   }
 
+  @override
   FieldStyleRangeSlider copyWith({
     double? min,
     double? max,

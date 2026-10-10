@@ -58,21 +58,21 @@ abstract class NyStatefulWidget<T extends BaseController>
   /// Returns data that's sent via the Navigator or [routeTo] method.
   // ignore: avoid_shadowing_type_parameters
   T? data<T>({dynamic defaultValue}) {
-    if (this.controller.request == null) return null;
-    return this.controller.request!.data(defaultValue: defaultValue);
+    if (controller.request == null) return null;
+    return controller.request!.data(defaultValue: defaultValue);
   }
 
   /// Returns query params
   dynamic queryParameters({String? key}) {
-    if (this.controller.request == null) {
+    if (controller.request == null) {
       return null;
     }
-    return this.controller.request!.queryParameters(key: key);
+    return controller.request!.queryParameters(key: key);
   }
 
   /// Check if the [queryParameters] contains a specific key.
   bool hasQueryParameter(String key) {
-    final queryParametersData = queryParameters();
+    final dynamic queryParametersData = queryParameters();
     if (queryParametersData == null) return false;
     if (queryParametersData is Map) {
       return queryParametersData.containsKey(key);

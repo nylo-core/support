@@ -153,7 +153,9 @@ void main() {
       expect(_CountingPage.initialised, 1);
       expect(_CountingPage.order, ['one']);
       // Slot count stays stable: three IndexedStack children.
-      final stack = tester.widget<IndexedStack>(find.byType(IndexedStack));
+      final IndexedStack stack = tester.widget<IndexedStack>(
+        find.byType(IndexedStack),
+      );
       expect(stack.children.length, 3);
 
       await tester.tap(find.text('Two'));
