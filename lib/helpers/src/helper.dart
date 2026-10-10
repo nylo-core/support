@@ -154,11 +154,13 @@ Future<dynamic> nyApi<T>({
   List<Type> events = const [],
 }) async {
   assert(
-    apiDecoders.containsKey(T),
+    apiDecoders.containsKey(T) || Nylo.hasApiDecoder<T>(),
     'Your bootstrap/decoders.dart is missing this class ${T.toString()} in apiDecoders.',
   );
 
-  dynamic apiService = apiDecoders[T];
+  dynamic apiService = apiDecoders.containsKey(T)
+      ? apiDecoders[T]
+      : Nylo.apiDecoder<T>();
 
   // add headers
   if (headers.isNotEmpty) {
@@ -344,7 +346,6 @@ Future api<T extends NyApiService>(
   List<Type> events = const [],
 }) async => await nyApi<T>(
   request: request,
-  apiDecoders: Nylo.apiDecoders(),
   headers: headers,
   bearerToken: bearerToken,
   baseUrl: baseUrl,

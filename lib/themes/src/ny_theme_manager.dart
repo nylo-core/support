@@ -92,10 +92,13 @@ class NyThemeManager with WidgetsBindingObserver {
   /// Get the preferred dark theme ID.
   String? get preferredDarkThemeId => _preferredDarkThemeId;
 
+  /// Cached result of [currentTheme].
+  BaseThemeConfig? _current;
+
   /// Get the current [BaseThemeConfig].
   BaseThemeConfig? get currentTheme {
     if (_themes.isEmpty || currentThemeId.isEmpty) return null;
-    return _themes.firstWhere(
+    return _current ??= _themes.firstWhere(
       (theme) => theme.id == currentThemeId,
       orElse: () => _themes.first,
     );
@@ -224,11 +227,18 @@ class NyThemeManager with WidgetsBindingObserver {
     // Add observer for system brightness changes
     WidgetsBinding.instance.addObserver(this);
 
-    // Load saved preferences
-    final savedThemeId = await _storage.readThemeId();
-    final savedFollowSystem = await _storage.readFollowSystem();
-    final savedPreferredLight = await _storage.readPreferredLightThemeId();
-    final savedPreferredDark = await _storage.readPreferredDarkThemeId();
+    // Load saved preferences concurrently (each is a platform-channel call)
+    final (
+      savedThemeId,
+      savedFollowSystem,
+      savedPreferredLight,
+      savedPreferredDark,
+    ) = await (
+      _storage.readThemeId(),
+      _storage.readFollowSystem(),
+      _storage.readPreferredLightThemeId(),
+      _storage.readPreferredDarkThemeId(),
+    ).wait;
 
     // Load preferred themes
     _preferredLightThemeId = savedPreferredLight;
@@ -274,6 +284,7 @@ class NyThemeManager with WidgetsBindingObserver {
   }) {
     _themes.clear();
     _themes.addAll(themes);
+    _current = null;
 
     if (_themes.isEmpty) {
       throw ArgumentError('At least one theme must be registered.');
@@ -433,6 +444,7 @@ class NyThemeManager with WidgetsBindingObserver {
     final isInitialSet = _themeNotifier.value.isEmpty;
     if (!isInitialSet && _themeNotifier.value == themeId) return;
 
+    _current = null;
     _themeNotifier.value = themeId;
 
     if (notify) {
@@ -456,6 +468,7 @@ class NyThemeManager with WidgetsBindingObserver {
     // Reinitialize resources so the singleton remains usable
     _themeStreamController = StreamController<String>.broadcast();
     _themeNotifier = ValueNotifier<String>('');
+    _current = null;
     _isInitialized = false;
   }
 }

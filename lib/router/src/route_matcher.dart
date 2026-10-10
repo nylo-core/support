@@ -6,6 +6,32 @@ class RouteMatcher {
 
   RouteMatcher(this.path);
 
+  static final RegExp _leadingSlashes = RegExp(r'^/+');
+  static final RegExp _trailingSlashes = RegExp(r'/+$');
+  static final RegExp _repeatedSlashes = RegExp(r'/+');
+
+  /// Compiled route patterns, keyed by the pattern exactly as registered.
+  ///
+  /// Normalising and splitting a pattern is a pure function of the pattern
+  /// string, so each distinct pattern is compiled once and reused across
+  /// every navigation.
+  static final Map<String, List<String>> _compiledPatterns = {};
+
+  /// Compile [pattern] ahead of time so the first navigation pays nothing.
+  ///
+  /// Called by [NyRouter] when a route is registered or updated.
+  static void precompile(String pattern) {
+    _segmentsFor(pattern);
+  }
+
+  /// Returns the normalised segments for [pattern], compiling on first use.
+  static List<String> _segmentsFor(String pattern) {
+    return _compiledPatterns.putIfAbsent(
+      pattern,
+      () => List<String>.unmodifiable(_normalizePath(pattern).split('/')),
+    );
+  }
+
   /// Find matching route and extract parameters
   RouteMatch? findMatch(Map<String, NyRouterRoute> routeMappings) {
     // Normalize the input path but keep leading slash
@@ -14,9 +40,7 @@ class RouteMatcher {
 
     // Try each registered route
     for (final entry in routeMappings.entries) {
-      final routePattern = _normalizePath(entry.key);
-      final route = entry.value;
-      final patternSegments = routePattern.split('/');
+      final patternSegments = _segmentsFor(entry.key);
 
       // Quick check for segment count (including empty segments from leading slash)
       if (pathSegments.length != patternSegments.length) {
@@ -53,7 +77,7 @@ class RouteMatcher {
       if (isMatch) {
         return RouteMatch(
           pattern: entry.key, // Keep original pattern
-          route: route,
+          route: entry.value,
           parameters: params,
         );
       }
@@ -67,20 +91,20 @@ class RouteMatcher {
   /// 2. Ensuring single leading slash
   /// 3. Removing trailing slash
   /// 4. Replacing multiple slashes with single slash
-  String _normalizePath(String input) {
+  static String _normalizePath(String input) {
     // Trim whitespace
     input = input.trim();
 
     // Ensure single leading slash
-    input = '/${input.replaceFirst(RegExp(r'^/+'), '')}';
+    input = '/${input.replaceFirst(_leadingSlashes, '')}';
 
     // Remove trailing slash if present (unless it's just '/')
     if (input.length > 1) {
-      input = input.replaceAll(RegExp(r'/+$'), '');
+      input = input.replaceAll(_trailingSlashes, '');
     }
 
     // Replace multiple slashes with single slash
-    input = input.replaceAll(RegExp(r'/+'), '/');
+    input = input.replaceAll(_repeatedSlashes, '/');
 
     return input;
   }

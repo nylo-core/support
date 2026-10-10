@@ -1,4 +1,6 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/local_storage/ny_local_storage.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/providers/ny_providers.dart';
@@ -10,6 +12,7 @@ EnvGetter mockEnv(Map<String, dynamic> values) =>
 
 void main() {
   NyTest.init();
+  _isAuthenticatedTests();
 
   setUp(() async {
     // Initialize Nylo for tests that need it
@@ -197,6 +200,134 @@ void main() {
     nyTest('should handle unicode session names', () async {
       final key = Auth.key('session_unicode');
       expect(key, isA<String>());
+    });
+  });
+}
+
+// =============================================================================
+// Auth.isAuthenticated (PERFORMANCE_AUDIT_ROUND2 HIGH 6)
+// =============================================================================
+
+/// Counts secure-storage channel calls by method, forwarding to the
+/// NyMockChannels in-memory store so behaviour is unchanged.
+class _StorageCallCounter {
+  static const _channel = MethodChannel(
+    'plugins.it_nomads.com/flutter_secure_storage',
+  );
+  final Map<String, int> calls = {};
+  final Map<String, String> store = {};
+
+  void install() {
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(_channel, (MethodCall call) async {
+          calls[call.method] = (calls[call.method] ?? 0) + 1;
+          final key = call.arguments is Map ? call.arguments['key'] : null;
+          switch (call.method) {
+            case 'read':
+              return store[key];
+            case 'write':
+              store[key] = call.arguments['value'] as String;
+              return null;
+            case 'delete':
+              store.remove(key);
+              return null;
+            case 'deleteAll':
+              store.clear();
+              return null;
+            case 'readAll':
+              return store;
+            case 'containsKey':
+              return store.containsKey(key);
+          }
+          return null;
+        });
+  }
+
+  void uninstall() {
+    // Restore the default Nylo test mocks.
+    NyMockChannels.setup();
+  }
+
+  int operator [](String method) => calls[method] ?? 0;
+}
+
+void _isAuthenticatedTests() {
+  nyGroup('Auth.isAuthenticated', () {
+    late _StorageCallCounter storage;
+
+    setUp(() {
+      storage = _StorageCallCounter()..install();
+      Backpack.instance.delete(Auth.key(null));
+      Backpack.instance.delete(Auth.key('device'));
+    });
+
+    tearDown(() {
+      storage.uninstall();
+    });
+
+    nyTest(
+      'answers from Backpack without a storage read after authenticate',
+      () async {
+        await Auth.authenticate(data: {'id': 1, 'name': 'Anthony'});
+        storage.calls.clear();
+
+        expect(await Auth.isAuthenticated(), isTrue);
+        expect(await Auth.isAuthenticated(), isTrue);
+
+        expect(storage['read'], 0, reason: 'auth key is already in Backpack');
+        expect(storage['containsKey'], 0);
+      },
+    );
+
+    nyTest(
+      'returns false from Backpack after logout without a storage read',
+      () async {
+        await Auth.authenticate(data: {'id': 1});
+        await Auth.logout();
+        storage.calls.clear();
+
+        // logout removes the key from Backpack, so this falls back to a
+        // containsKey probe (no value transfer) rather than a read + decode.
+        expect(await Auth.isAuthenticated(), isFalse);
+        expect(storage['read'], 0);
+        expect(storage['containsKey'], 1);
+      },
+    );
+
+    nyTest(
+      'treats a Backpack entry synced as null as unauthenticated',
+      () async {
+        // Nylo.syncKeys stores null for keys with no stored value.
+        Backpack.instance.save(Auth.key(null), null);
+        storage.calls.clear();
+
+        expect(await Auth.isAuthenticated(), isFalse);
+        expect(storage['read'], 0);
+        expect(storage['containsKey'], 0);
+      },
+    );
+
+    nyTest(
+      'falls back to a containsKey probe when not synced to Backpack',
+      () async {
+        // Stored directly, bypassing Backpack (e.g. written before boot sync).
+        await NyStorage.saveJson(Auth.key(null), {'id': 7});
+        Backpack.instance.delete(Auth.key(null));
+        storage.calls.clear();
+
+        expect(await Auth.isAuthenticated(), isTrue);
+        expect(storage['read'], 0, reason: 'must not decode the payload');
+        expect(storage['containsKey'], 1);
+      },
+    );
+
+    nyTest('sessions are independent', () async {
+      await Auth.authenticate(data: {'id': 1});
+      storage.calls.clear();
+
+      expect(await Auth.isAuthenticated(), isTrue);
+      expect(await Auth.isAuthenticated(session: 'device'), isFalse);
+      expect(storage['read'], 0);
     });
   });
 }

@@ -21,7 +21,7 @@ extension DarkModeExt on BuildContext {
   ///   do something here...
   /// }
   bool get isDeviceInDarkMode =>
-      MediaQuery.of(this).platformBrightness == Brightness.dark;
+      MediaQuery.platformBrightnessOf(this) == Brightness.dark;
 }
 
 extension NyContextExt on BuildContext {
@@ -42,12 +42,12 @@ extension NyContextExt on BuildContext {
 
   /// Get the width of the screen
   double widgetWidth() {
-    return mediaQuery().size.width;
+    return MediaQuery.sizeOf(this).width;
   }
 
   /// Get the height of the screen
   double widgetHeight() {
-    return mediaQuery().size.height;
+    return MediaQuery.sizeOf(this).height;
   }
 
   /// Check if the device is in dark mode

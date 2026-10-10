@@ -1,4 +1,7 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart' show kReleaseMode;
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import '/helpers/ny_helpers.dart' as ny_cache;
 import '/networking/ny_networking.dart';
@@ -233,8 +236,11 @@ class DioApiService {
   void init() {
     _api = Dio(baseOptions);
 
-    if (useInterceptors) {
-      _addInterceptors();
+    // Evaluate the [interceptors] getter once; subclasses build a fresh map
+    // (and fresh interceptor instances) on every access.
+    final resolvedInterceptors = interceptors;
+    if (resolvedInterceptors.isNotEmpty) {
+      _addInterceptors(resolvedInterceptors);
     }
 
     if (_initDio != null) {
@@ -281,6 +287,8 @@ class DioApiService {
         listFormat: _api.options.listFormat,
       ),
     );
+
+    requestDio.httpClientAdapter = _api.httpClientAdapter;
 
     // Share interceptors from the main Dio instance
     requestDio.interceptors.addAll(_api.interceptors);
@@ -393,7 +401,7 @@ class DioApiService {
         }
       }
       if (await shouldRefreshToken()) {
-        await refreshToken(Dio());
+        await refreshToken(_api);
       }
 
       if (bearerToken != null) {
@@ -472,8 +480,13 @@ class DioApiService {
       requestTime = "${stopwatch.elapsedMilliseconds}ms";
       // Cache the response if caching is enabled
       if (cacheKeyRequest != null && effectivePolicy.shouldTryNetwork) {
-        await _saveToCache(cacheKeyRequest, response!, cacheDurationRequest);
-        printDebug('Cached response: $cacheKeyRequest');
+        unawaited(
+          _saveToCache(
+            cacheKeyRequest,
+            response!,
+            cacheDurationRequest,
+          ).then((_) => printDebug('Cached response: $cacheKeyRequest')),
+        );
       }
 
       NyResponse<T> apiResponse = handleResponse<T>(
@@ -732,14 +745,15 @@ class DioApiService {
   }
 
   /// Adds all the [interceptors] to [dio].
-  void _addInterceptors() => _api.interceptors.addAll(interceptors.values);
+  /// Pass [resolved] to reuse an already-evaluated interceptor map.
+  void _addInterceptors([Map<Type, Interceptor>? resolved]) =>
+      _api.interceptors.addAll((resolved ?? interceptors).values);
 
   /// Perform a [Dio] request to update the users auth token.
   /// This method is called when [shouldRefreshToken] returns true.
   /// You can override this method to perform your own request.
-  /// The [dio] parameter is a new instance of [Dio].
-  /// You can use this to perform a request without affecting the
-  /// original [Dio] instance.
+  /// The [dio] parameter is this service's base [Dio] client, so the request
+  /// shares the configured base URL, headers, and connection pool.
   Future<void> refreshToken(Dio dio) async {}
 
   /// Check if the users auth token should be refreshed.
@@ -761,10 +775,19 @@ class DioApiService {
     return headers;
   }
 
+  /// Record a lightweight summary of the request in `NY_API_LOGS`.
+  /// Skipped in release builds; the full response body is never retained.
   void _recordApiResponse(NyResponse response, String requestTime) {
+    if (kReleaseMode) return;
+    final requestOptions = response.response?.requestOptions;
     Backpack.instance.append(
       'NY_API_LOGS',
-      {response: requestTime},
+      {
+        'method': requestOptions?.method,
+        'uri': requestOptions?.uri.toString(),
+        'statusCode': response.statusCode,
+        'requestTime': requestTime,
+      },
       append: true,
       limit: 100,
     );

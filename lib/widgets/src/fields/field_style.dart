@@ -388,7 +388,8 @@ class FieldStyleTextField extends FieldStyle {
     return FieldStyleTextField(
       labelText: '',
       labelStyle: const TextStyle(fontSize: 16.0, color: Colors.black87),
-      controller: TextEditingController(),
+      // No controller or focusNode: [InputField] creates and disposes its own,
+      // and its focus listener (inline validation) must see the node in use.
       obscureText: false,
       maxLines: 1,
       minLines: 1,
@@ -396,7 +397,6 @@ class FieldStyleTextField extends FieldStyle {
       autoFocus: false,
       textAlign: TextAlign.start,
       enableSuggestions: true,
-      focusNode: FocusNode(),
       hintText: '',
       hintStyle: const TextStyle(color: Colors.grey),
       dummyData: '',

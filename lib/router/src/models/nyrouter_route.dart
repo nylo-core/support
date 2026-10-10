@@ -57,7 +57,14 @@ class NyRouterRoute {
           args: arg,
           queryParameters: queryParameters,
         );
-        (widget.controller as NyController).routeGuards.addAll(_routeGuards);
+
+        final List<RouteGuard> merged = List<RouteGuard>.of(
+          widget.controller.routeGuards,
+        );
+        for (final RouteGuard guard in _routeGuards) {
+          if (!merged.any((g) => identical(g, guard))) merged.add(guard);
+        }
+        widget.controller.routeGuards = merged;
 
         widget.controller.construct(context);
         if (widget.state != null) {

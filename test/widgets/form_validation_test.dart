@@ -501,4 +501,21 @@ void main() {
       expect(errors?.first.message, 'The Name must not be empty.');
     });
   });
+
+  nyGroup('FormValidationResult.firstError', () {
+    nyTest('is null when every rule passes', () async {
+      final result = FormValidator.notEmpty().minLength(2).check('hello');
+      expect(result.firstError, isNull);
+      expect(result.getFirstErrorMessage(), isNull);
+      expect(result.getFirstErrorRule(), isNull);
+    });
+
+    nyTest('returns the first failing rule in rule order', () async {
+      final result = FormValidator.notEmpty().minLength(5).email().check('ab');
+      expect(result.firstError, isNotNull);
+      expect(result.firstError!.rule, same(result.getFirstErrorRule()));
+      expect(result.firstError!.rule, same(result.errorResponses.first.rule));
+      expect(result.getFirstErrorMessage(), contains('at least 5'));
+    });
+  });
 }

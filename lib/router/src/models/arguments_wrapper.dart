@@ -3,7 +3,9 @@ import 'dart:convert';
 import 'ny_argument.dart';
 import 'ny_page_transition_settings.dart';
 import 'ny_query_parameters.dart';
+import 'nyrouter_route.dart';
 import '../page_transition/page_transition.dart';
+import '../route_matcher.dart';
 
 class ArgumentsWrapper {
   NyArgument? baseArguments;
@@ -12,6 +14,9 @@ class ArgumentsWrapper {
   PageTransitionType? pageTransitionType;
   PageTransitionSettings? pageTransitionSettings;
   String? prefix;
+  NyRouterRoute? guardsEvaluatedFor;
+  String? resolvedForName;
+  RouteMatch? resolvedMatch;
 
   ArgumentsWrapper({
     this.baseArguments,

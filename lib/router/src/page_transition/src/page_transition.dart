@@ -182,10 +182,11 @@ class PageTransition<T> extends PageRouteBuilder<T> {
     Animation<double> secondaryAnimation,
     Widget child,
   ) {
-    final curvedAnimation = CurvedAnimation(parent: animation, curve: curve);
-    final curvedSecondaryAnimation = CurvedAnimation(
-      parent: secondaryAnimation,
-      curve: curve,
+    final Animation<double> curvedAnimation = animation.drive(
+      CurveTween(curve: curve),
+    );
+    final Animation<double> curvedSecondaryAnimation = secondaryAnimation.drive(
+      CurveTween(curve: curve),
     );
 
     switch (type) {
@@ -331,10 +332,7 @@ class PageTransition<T> extends PageRouteBuilder<T> {
                 """);
         return Align(
           alignment: alignment!,
-          child: SizeTransition(
-            sizeFactor: CurvedAnimation(parent: curvedAnimation, curve: curve),
-            child: child,
-          ),
+          child: SizeTransition(sizeFactor: curvedAnimation, child: child),
         );
 
       case PageTransitionType.rightToLeftWithFade:
@@ -581,38 +579,27 @@ class PageTransition<T> extends PageRouteBuilder<T> {
       case PageTransitionType.sharedAxisHorizontal:
 
         /// Creates a shared axis transition that slides and fades
-        /// horizontally, similar to Material Design shared axis pattern
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(
-                (1 - curvedAnimation.value) * MediaQuery.of(context).size.width,
-                0,
-              ),
-              child: Opacity(opacity: curvedAnimation.value, child: child),
-            );
-          },
-          child: child,
+        /// horizontally, similar to Material Design shared axis pattern.
+        /// The slide offset is a fraction of the page's own width.
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(1.0, 0.0),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: FadeTransition(opacity: curvedAnimation, child: child),
         );
 
       case PageTransitionType.sharedAxisVertical:
 
         /// Creates a shared axis transition that slides and fades
-        /// vertically, similar to Material Design shared axis pattern
-        return AnimatedBuilder(
-          animation: animation,
-          builder: (context, child) {
-            return Transform.translate(
-              offset: Offset(
-                0,
-                (1 - curvedAnimation.value) *
-                    MediaQuery.of(context).size.height,
-              ),
-              child: Opacity(opacity: curvedAnimation.value, child: child),
-            );
-          },
-          child: child,
+        /// vertically, similar to Material Design shared axis pattern.
+        /// The slide offset is a fraction of the page's own height.
+        return SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.0, 1.0),
+            end: Offset.zero,
+          ).animate(curvedAnimation),
+          child: FadeTransition(opacity: curvedAnimation, child: child),
         );
 
       case PageTransitionType.sharedAxisScale:

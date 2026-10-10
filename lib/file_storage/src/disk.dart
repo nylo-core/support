@@ -613,7 +613,10 @@ class Disk {
       (_) {},
       onError: (Object error) {
         if (NyEnvRegistry.isInitialized) {
-          NyLogger.debug('Pruning disk [$name] failed: $error');
+          NyLogger.debug(
+            'Pruning disk failed',
+            context: {'disk': name, 'error': error.toString()},
+          );
         }
       },
     );

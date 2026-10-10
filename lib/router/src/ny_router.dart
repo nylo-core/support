@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import '/nylo.dart';
 import '/helpers/ny_helpers.dart';
+import '/widgets/ny_widgets.dart';
 import 'errors/route_not_found.dart';
 import 'models/arguments_wrapper.dart';
 import 'models/ny_page_transition_settings.dart';
@@ -86,6 +87,7 @@ class NyRouter {
   /// Update the registered routes.
   void updateRegisteredRoutes(Map<String, NyRouterRoute> router) {
     _routeNameMappings = router;
+    _precompileRoutes(router.keys);
   }
 
   /// Get the unknown routes as a list.
@@ -94,6 +96,7 @@ class NyRouter {
   /// Set the registered routes.
   void setRegisteredRoutes(Map<String, NyRouterRoute> routes) {
     _routeNameMappings.addAll(routes);
+    _precompileRoutes(routes.keys);
   }
 
   /// Set the unknown routes.
@@ -103,7 +106,17 @@ class NyRouter {
 
   /// Set the registered routes.
   void setNyRoutes(NyRouter router) {
-    _routeNameMappings.addAll(router.getRegisteredRoutes());
+    final Map<String, NyRouterRoute> routes = router.getRegisteredRoutes();
+    _routeNameMappings.addAll(routes);
+    _precompileRoutes(routes.keys);
+  }
+
+  /// Compile route patterns once, at registration, so [RouteMatcher] reuses
+  /// the normalised segments on every navigation.
+  void _precompileRoutes(Iterable<String> patterns) {
+    for (final String pattern in patterns) {
+      RouteMatcher.precompile(pattern);
+    }
   }
 
   /// Checks if the route name mappings contain a route name.
@@ -145,6 +158,7 @@ class NyRouter {
   /// Updates a named [route].
   void updateRoute(NyRouterRoute route) {
     _routeNameMappings[route.name] = route;
+    RouteMatcher.precompile(route.name);
   }
 
   /// Group routes
@@ -349,6 +363,7 @@ class NyRouter {
       );
     }
     _routeNameMappings[route.name] = route;
+    RouteMatcher.precompile(route.name);
     NyNavigator.instance.router = this;
   }
 
@@ -538,12 +553,12 @@ class NyRouter {
       nyQueryParameters = NyQueryParameters(uriSettingName.queryParameters);
     }
 
-    bool checkRouteNamedArg = isRouteNamedArg(routeName);
-    if (!checkRouteNamedArg) {
+    final _RouteResolution resolution = _resolveRouteName(routeName);
+    if (resolution.route == null) {
       _checkAndThrowRouteNotFound(routeName, args, navigationType);
     }
 
-    final NyRouterRoute? targetRoute = _findRouteForName(routeName);
+    final NyRouterRoute? targetRoute = resolution.route;
 
     _log('Navigating to: $routeName (type: ${navigationType.name})');
 
@@ -615,6 +630,7 @@ class NyRouter {
       pageTransitionSettings,
       queryParameters: nyQueryParameters,
       originalRouteName: name,
+      resolution: resolution,
     );
 
     // Execute onAfter lifecycle for guards
@@ -637,27 +653,14 @@ class NyRouter {
     return navigationResult as T?;
   }
 
-  NyRouterRoute? _findRouteForName(String name) {
-    final String normalized = _normalizeRouteName(name);
-    if (_routeNameMappings.containsKey(normalized)) {
-      return _routeNameMappings[normalized];
+  /// Resolves [name] against the route table in a single pass.
+  _RouteResolution _resolveRouteName(String name) {
+    final NyRouterRoute? direct = _routeNameMappings[name];
+    if (direct != null) {
+      return _RouteResolution(route: direct);
     }
-    final RouteMatch? match = RouteMatcher(
-      normalized,
-    ).findMatch(_routeNameMappings);
-    return match?.route;
-  }
-
-  String _normalizeRouteName(String name) {
-    try {
-      final uri = Uri.parse(name);
-      if (uri.path.isNotEmpty) {
-        return uri.path;
-      }
-    } catch (_) {
-      return name;
-    }
-    return name;
+    final RouteMatch? match = RouteMatcher(name).findMatch(_routeNameMappings);
+    return _RouteResolution(route: match?.route, match: match);
   }
 
   /// Actual navigation is delegated by [navigate] method to this method.
@@ -683,6 +686,7 @@ class NyRouter {
     PageTransitionSettings? pageTransitionSettings, {
     NyQueryParameters? queryParameters,
     String? originalRouteName,
+    _RouteResolution? resolution,
   }) async {
     final argsWrapper = ArgumentsWrapper(
       baseArguments: args,
@@ -690,6 +694,7 @@ class NyRouter {
       queryParameters: queryParameters,
       pageTransitionSettings: pageTransitionSettings,
     );
+    argsWrapper.guardsEvaluatedFor = resolution?.route;
 
     String? pushName;
     Map<String, String> routePrefixes = NyNavigator.instance.prefixRoutes;
@@ -703,6 +708,11 @@ class NyRouter {
         argsWrapper.prefix = prefix;
         pushName = (routePrefixes[name]! + name);
       }
+    }
+
+    if (pushName == null && resolution != null) {
+      argsWrapper.resolvedForName = name;
+      argsWrapper.resolvedMatch = resolution.match;
     }
 
     switch (navigationType) {
@@ -771,30 +781,27 @@ class NyRouter {
     return _routeHistory;
   }
 
-  /// If the route is not registered throw an error
+  /// Throws for a route name that resolved to nothing.
   /// Make sure to use the correct name while calling navigate.
   void _checkAndThrowRouteNotFound(
     String name,
     NyArgument? args,
     NavigationType navigationType,
   ) {
-    if (!routeNameMappingsContains(name)) {
-      if (options.handleNameNotFoundUI) {
-        NyLogger.error(
-          "Page not found\n"
-          "[Route Name] $name\n"
-          "[ARGS] ${args.toString()}",
-        );
-        navigatorKey!.currentState!.push(
-          MaterialPageRoute(
-            builder: (BuildContext context) {
-              return const PageNotFound();
-            },
-          ),
-        );
-      }
-      throw RouteNotFoundError(name: name);
+    if (options.handleNameNotFoundUI) {
+      NyLogger.error(
+        "Page not found",
+        context: {"route_name": name, "args": args.toString()},
+      );
+      navigatorKey!.currentState!.push(
+        MaterialPageRoute(
+          builder: (BuildContext context) {
+            return const PageNotFound();
+          },
+        ),
+      );
     }
+    throw RouteNotFoundError(name: name);
   }
 
   /// Parses route settings into normalized components.
@@ -802,20 +809,7 @@ class NyRouter {
   /// whether the route is a named argument route.
   ({String routeName, ArgumentsWrapper arguments, bool isNamedArg})
   _parseRouteSettings(RouteSettings settings) {
-    Uri? uriSettingName;
-    bool routeNamedArg = isRouteNamedArg(settings.name!);
-    if (!routeNamedArg) {
-      try {
-        uriSettingName = Uri.parse(settings.name!);
-      } on FormatException catch (e) {
-        NyLogger.error(e.toString());
-      }
-    }
-
-    String routeName = settings.name!;
-    if (uriSettingName != null) {
-      routeName = uriSettingName.path;
-    }
+    final String settingsName = settings.name!;
 
     ArgumentsWrapper? argumentsWrapper;
     if (settings.arguments is ArgumentsWrapper) {
@@ -823,6 +817,35 @@ class NyRouter {
     } else {
       argumentsWrapper = ArgumentsWrapper();
       argumentsWrapper.baseArguments = NyArgument(settings.arguments);
+    }
+
+    // Reuse the resolution navigate() made for this exact name; otherwise
+    // resolve it here in a single scan of the route table.
+    RouteMatch? match;
+    bool routeNamedArg;
+    if (argumentsWrapper != null &&
+        argumentsWrapper.resolvedForName == settingsName) {
+      match = argumentsWrapper.resolvedMatch;
+      routeNamedArg = match != null;
+    } else if (_routeNameMappings.containsKey(settingsName)) {
+      routeNamedArg = false;
+    } else {
+      match = RouteMatcher(settingsName).findMatch(_routeNameMappings);
+      routeNamedArg = match != null;
+    }
+
+    Uri? uriSettingName;
+    if (!routeNamedArg) {
+      try {
+        uriSettingName = Uri.parse(settingsName);
+      } on FormatException catch (e) {
+        NyLogger.error(e.toString());
+      }
+    }
+
+    String routeName = settingsName;
+    if (uriSettingName != null) {
+      routeName = uriSettingName.path;
     }
 
     if (argumentsWrapper?.baseArguments?.data != null &&
@@ -840,9 +863,6 @@ class NyRouter {
     }
 
     if (routeNamedArg) {
-      final matcher = RouteMatcher(settings.name!);
-      final match = matcher.findMatch(_routeNameMappings);
-
       if (argumentsWrapper.queryParameters != null) {
         Map<String, String> mappedData = Map.from(
           argumentsWrapper.queryParameters!.data,
@@ -920,19 +940,17 @@ class NyRouter {
       return PageTransition(
         child: StatefulBuilder(
           builder: (BuildContext context, StateSetter setState) {
+            final Widget widget = _buildRouteWidget(
+              context,
+              route!,
+              baseArgs,
+              queryParameters,
+              argumentsWrapper,
+            );
             if (builder != null) {
-              Widget widget = route!.builder(
-                context,
-                baseArgs ?? route.defaultArgs,
-                queryParameters ?? route.queryParameters,
-              );
               return builder(context, widget);
             }
-            return route!.builder(
-              context,
-              baseArgs ?? route.defaultArgs,
-              queryParameters ?? route.queryParameters,
-            );
+            return widget;
           },
         ),
         type: pageTransitionType ?? PageTransitionType.rightToLeft,
@@ -954,6 +972,29 @@ class NyRouter {
         opaque: _getPageTransitionOpaque(route, argumentsWrapper),
       );
     };
+  }
+
+  /// Builds the page for [route] and, when [NyRouter.navigate] already ran
+  /// this route's guards, records them on the page's request so the page
+  /// skips only those.
+  Widget _buildRouteWidget(
+    BuildContext context,
+    NyRouterRoute route,
+    NyArgument? baseArgs,
+    NyQueryParameters? queryParameters,
+    ArgumentsWrapper argumentsWrapper,
+  ) {
+    final Widget widget = route.builder(
+      context,
+      baseArgs ?? route.defaultArgs,
+      queryParameters ?? route.queryParameters,
+    );
+    if (widget is NyStatefulWidget &&
+        identical(route, argumentsWrapper.guardsEvaluatedFor)) {
+      widget.controller.request?.routerEvaluatedGuards =
+          List<RouteGuard>.unmodifiable(route.getRouteGuards());
+    }
+    return widget;
   }
 
   /// Generates the [RouteFactory] for unknown routes.
@@ -1266,6 +1307,17 @@ class NyRouter {
     }
     return true;
   }
+}
+
+/// The outcome of resolving a route name against the route table.
+class _RouteResolution {
+  /// The route the name resolved to, or `null` when nothing matched.
+  final NyRouterRoute? route;
+
+  /// The parameterised match, or `null` when the name is a registered key.
+  final RouteMatch? match;
+
+  const _RouteResolution({this.route, this.match});
 }
 
 /// Builds the routes in the router.dart file

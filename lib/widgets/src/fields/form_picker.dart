@@ -366,79 +366,16 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                   ],
                 ).paddingOnly(bottom: 15),
                 Expanded(
-                  child: ListView(
-                    shrinkWrap: true,
-                    children: ListTile.divideTiles(
-                      context: context,
-                      color: dividerColor,
-                      tiles: values.options.map((item) {
-                        final listTileStyle = style.listTileStyle;
-                        final bool isSelected =
-                            currentValue != null &&
-                            item.value == currentValue.toString();
-
-                        void onTap() {
-                          if (widget.onChanged != null) {
-                            widget.onChanged!(item.value);
-                          }
-                          setState(() {
-                            currentValue = item.value;
-                            widget.field.restoreValue(item.value);
-                          });
-                          Navigator.pop(context);
-                        }
-
-                        if (listTileStyle?.builder != null) {
-                          return listTileStyle!.builder!(
-                            item,
-                            isSelected,
-                            onTap,
-                          );
-                        }
-
-                        final TextStyle effectiveStyle = isSelected
-                            ? (listTileStyle?.selectedTextStyle ??
-                                  listTileStyle?.textStyle ??
-                                  itemStyle)
-                            : (listTileStyle?.textStyle ?? itemStyle);
-
-                        Widget? leading;
-                        Widget? trailing;
-
-                        if (listTileStyle?.indicator ==
-                            PickerListTileIndicator.radio) {
-                          final Color radioColor =
-                              listTileStyle?.activeColor ??
-                              Theme.of(context).primaryColor;
-                          leading = Icon(
-                            isSelected
-                                ? Icons.radio_button_checked
-                                : Icons.radio_button_unchecked,
-                            color: isSelected ? radioColor : null,
-                          );
-                        } else if (listTileStyle?.indicator ==
-                            PickerListTileIndicator.checkmark) {
-                          if (isSelected) {
-                            final Color checkColor =
-                                listTileStyle?.activeColor ??
-                                Theme.of(context).primaryColor;
-                            trailing = Icon(Icons.check, color: checkColor);
-                          }
-                        }
-
-                        return ListTile(
-                          leading: leading,
-                          trailing: trailing,
-                          title: Text(item.label, style: effectiveStyle),
-                          contentPadding:
-                              listTileStyle?.contentPadding ?? EdgeInsets.zero,
-                          tileColor: isSelected
-                              ? listTileStyle?.selectedTileColor
-                              : listTileStyle?.tileColor,
-                          onTap: onTap,
-                        );
-                      }),
-                    ).toList(),
+                  child: ListView.separated(
+                    itemCount: values.length,
+                    separatorBuilder: (_, __) =>
+                        Divider(color: dividerColor, height: 1),
+                    itemBuilder: (BuildContext context, int index) =>
+                        _buildPickerTile(
+                          context,
+                          values[index]!,
+                          itemStyle: itemStyle,
+                        ),
                   ),
                 ),
               ],
@@ -446,6 +383,70 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
           ),
         );
       },
+    );
+  }
+
+  /// Build one row of the picker sheet for [item].
+  ///
+  /// Called lazily by [ListView.separated], so only the visible rows are
+  /// built when the sheet opens.
+  Widget _buildPickerTile(
+    BuildContext context,
+    FormOption item, {
+    required TextStyle itemStyle,
+  }) {
+    final listTileStyle = style.listTileStyle;
+    final bool isSelected =
+        currentValue != null && item.value == currentValue.toString();
+
+    void onTap() {
+      if (widget.onChanged != null) {
+        widget.onChanged!(item.value);
+      }
+      setState(() {
+        currentValue = item.value;
+        widget.field.restoreValue(item.value);
+      });
+      Navigator.pop(context);
+    }
+
+    if (listTileStyle?.builder != null) {
+      return listTileStyle!.builder!(item, isSelected, onTap);
+    }
+
+    final TextStyle effectiveStyle = isSelected
+        ? (listTileStyle?.selectedTextStyle ??
+              listTileStyle?.textStyle ??
+              itemStyle)
+        : (listTileStyle?.textStyle ?? itemStyle);
+
+    Widget? leading;
+    Widget? trailing;
+
+    if (listTileStyle?.indicator == PickerListTileIndicator.radio) {
+      final Color radioColor =
+          listTileStyle?.activeColor ?? Theme.of(context).primaryColor;
+      leading = Icon(
+        isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
+        color: isSelected ? radioColor : null,
+      );
+    } else if (listTileStyle?.indicator == PickerListTileIndicator.checkmark) {
+      if (isSelected) {
+        final Color checkColor =
+            listTileStyle?.activeColor ?? Theme.of(context).primaryColor;
+        trailing = Icon(Icons.check, color: checkColor);
+      }
+    }
+
+    return ListTile(
+      leading: leading,
+      trailing: trailing,
+      title: Text(item.label, style: effectiveStyle),
+      contentPadding: listTileStyle?.contentPadding ?? EdgeInsets.zero,
+      tileColor: isSelected
+          ? listTileStyle?.selectedTileColor
+          : listTileStyle?.tileColor,
+      onTap: onTap,
     );
   }
 }

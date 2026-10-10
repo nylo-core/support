@@ -4,6 +4,7 @@ import 'package:nylo_support/testing/ny_testing.dart';
 
 void main() {
   NyTest.init();
+  _formatCacheTests();
 
   // ===========================================================================
   // Defaults
@@ -588,6 +589,72 @@ void main() {
     nyTest('throws for empty', () async {
       expect(() => Number.min([]), throwsArgumentError);
       expect(() => Number.max([]), throwsArgumentError);
+    });
+  });
+}
+
+// =============================================================================
+// NumberFormat caching (PERFORMANCE_AUDIT_ROUND2 HIGH 8)
+// =============================================================================
+
+void _formatCacheTests() {
+  nyGroup('Number format cache', () {
+    nyTest('format reuses one NumberFormat per configuration', () async {
+      Number.debugClearFormatCache();
+      expect(Number.format(1234.5), '1,234.5');
+      final afterFirst = Number.debugFormatCacheSize;
+      expect(afterFirst, 1);
+
+      // Same configuration many times: cache does not grow, output stable.
+      for (var i = 0; i < 50; i++) {
+        expect(Number.format(1234.5), '1,234.5');
+      }
+      expect(Number.debugFormatCacheSize, afterFirst);
+
+      // A different precision is a different cached instance.
+      expect(Number.format(1234.5, precision: 2), '1,234.50');
+      expect(Number.debugFormatCacheSize, afterFirst + 1);
+    });
+
+    nyTest('currency, percentage and parsers are cached too', () async {
+      Number.debugClearFormatCache();
+      expect(Number.currency(9.99), '\$9.99');
+      expect(Number.currency(9.99), '\$9.99');
+      expect(Number.percentage(12.5, precision: 1), '12.5%');
+      expect(Number.percentage(12.5, precision: 1), '12.5%');
+      expect(Number.parseInt('1,234'), 1234);
+      expect(Number.parseFloat('1,234.5'), 1234.5);
+      expect(Number.parseInt('1,234'), 1234);
+      // currency + percentage + shared decimal parser = 3 entries.
+      expect(Number.debugFormatCacheSize, 3);
+    });
+
+    nyTest(
+      'useLocale and useCurrency clear the cache and change output',
+      () async {
+        Number.debugClearFormatCache();
+        expect(Number.format(1234.5), '1,234.5');
+        expect(Number.debugFormatCacheSize, 1);
+
+        Number.useLocale('de');
+        expect(Number.debugFormatCacheSize, 0);
+        expect(Number.format(1234.5), '1.234,5');
+
+        Number.useLocale('en_US');
+        Number.useCurrency('EUR');
+        expect(Number.debugFormatCacheSize, 0);
+        expect(Number.currency(9.99), '€9.99');
+        Number.useCurrency('USD');
+        Number.debugClearFormatCache();
+      },
+    );
+
+    nyTest('explicit locale argument is cached separately', () async {
+      Number.debugClearFormatCache();
+      expect(Number.format(1234.5), '1,234.5');
+      expect(Number.format(1234.5, locale: 'de'), '1.234,5');
+      expect(Number.format(1234.5), '1,234.5');
+      expect(Number.debugFormatCacheSize, 2);
     });
   });
 }

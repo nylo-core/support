@@ -428,7 +428,7 @@ void main() {
         expect(config.id, 'immutable_id');
       });
 
-      nyTest('themeData is computed on access', () async {
+      nyTest('themeData is built once and memoised', () async {
         var callCount = 0;
         final config = BaseThemeConfig<TestColors>(
           id: 'computed_theme',
@@ -439,11 +439,31 @@ void main() {
           colors: TestColors(),
         );
 
-        config.themeData;
+        final first = config.themeData;
         config.themeData;
         config.themeData;
 
-        expect(callCount, 3);
+        expect(callCount, 1);
+        expect(identical(config.themeData, first), isTrue);
+      });
+
+      nyTest('invalidateThemeData rebuilds on next access', () async {
+        var callCount = 0;
+        final config = BaseThemeConfig<TestColors>(
+          id: 'invalidated_theme',
+          theme: (c) {
+            callCount++;
+            return ThemeData.light();
+          },
+          colors: TestColors(),
+        );
+
+        config.themeData;
+        config.invalidateThemeData();
+        config.themeData;
+        config.themeData;
+
+        expect(callCount, 2);
       });
 
       nyTest('colors reference is maintained', () async {

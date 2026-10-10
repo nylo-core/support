@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:nylo_support/helpers/src/backpack.dart';
+import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/router/ny_router.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
+import 'package:nylo_support/widgets/ny_widgets.dart';
 
 void main() {
   NyTest.init();
@@ -497,6 +500,48 @@ void main() {
 
         expect(widget, isA<Text>());
       });
+
+      nyWidgetTest(
+        'merges route guards into the controller without growing or replacing',
+        (tester) async {
+          late BuildContext capturedContext;
+
+          await tester.pumpWidget(
+            MaterialApp(
+              home: Builder(
+                builder: (context) {
+                  capturedContext = context;
+                  return const SizedBox();
+                },
+              ),
+            ),
+          );
+
+          if (!Backpack.instance.isNyloInitialized()) {
+            Backpack.instance.save('nylo', Nylo());
+          }
+          final ownGuard = _TestRouteGuard();
+          final routeGuard = _TestRouteGuard();
+          // One widget instance stands in for a singleton controller that is
+          // reused across visits.
+          final page = _GuardedPage();
+          page.controller.routeGuards = [ownGuard];
+
+          final route = NyRouterRoute(
+            name: '/guarded',
+            view: (_) => page,
+            routeGuards: [routeGuard],
+          );
+
+          route.builder(capturedContext, null, null);
+          expect(page.controller.routeGuards, [ownGuard, routeGuard]);
+
+          // A second visit must neither append the route guard again nor
+          // drop the guard the controller declared on itself.
+          route.builder(capturedContext, null, null);
+          expect(page.controller.routeGuards, [ownGuard, routeGuard]);
+        },
+      );
     });
   });
 }
@@ -506,4 +551,13 @@ class _TestRouteGuard extends RouteGuard {
   Future<PageRequest?> onRequest(PageRequest pageRequest) async {
     return null;
   }
+}
+
+class _GuardedPage extends NyStatefulWidget {
+  _GuardedPage() : super(child: () => _GuardedPageState());
+}
+
+class _GuardedPageState extends NyPage<_GuardedPage> {
+  @override
+  Widget view(BuildContext context) => const SizedBox();
 }

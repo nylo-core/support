@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:intl/intl.dart';
 
 /// Static utility methods for working with numbers.
@@ -54,13 +55,38 @@ class Number {
   static String defaultLocale() => _defaultLocale;
 
   /// Sets the default locale used by formatting methods.
-  static void useLocale(String locale) => _defaultLocale = locale;
+  static void useLocale(String locale) {
+    _defaultLocale = locale;
+    _formatCache.clear();
+  }
 
   /// Returns the default currency code.
   static String defaultCurrency() => _defaultCurrency;
 
   /// Sets the default currency code.
-  static void useCurrency(String currency) => _defaultCurrency = currency;
+  static void useCurrency(String currency) {
+    _defaultCurrency = currency;
+    _formatCache.clear();
+  }
+
+  /// [NumberFormat] instances keyed by kind, locale and fraction settings.
+  static final Map<String, NumberFormat> _formatCache = {};
+
+  static NumberFormat _cachedFormat(
+    String key,
+    NumberFormat Function() build,
+  ) => _formatCache.putIfAbsent(key, build);
+
+  static NumberFormat _decimalParser(String locale) =>
+      _cachedFormat('parse|$locale', () => NumberFormat.decimalPattern(locale));
+
+  /// Number of cached [NumberFormat] instances. Exposed for tests.
+  @visibleForTesting
+  static int get debugFormatCacheSize => _formatCache.length;
+
+  /// Clears the cached [NumberFormat] instances. Exposed for tests.
+  @visibleForTesting
+  static void debugClearFormatCache() => _formatCache.clear();
 
   // ---------------------------------------------------------------------------
   // Formatting
@@ -73,17 +99,27 @@ class Number {
     int? precision,
     int? maxPrecision,
   }) {
-    final formatter = NumberFormat.decimalPattern(locale ?? _defaultLocale);
-    if (precision != null) formatter.minimumFractionDigits = precision;
-    formatter.maximumFractionDigits = maxPrecision ?? precision ?? 3;
+    final String loc = locale ?? _defaultLocale;
+    final int max = maxPrecision ?? precision ?? 3;
+    final NumberFormat formatter = _cachedFormat(
+      'dec|$loc|${precision ?? -1}|$max',
+      () {
+        final nf = NumberFormat.decimalPattern(loc);
+        if (precision != null) nf.minimumFractionDigits = precision;
+        nf.maximumFractionDigits = max;
+        return nf;
+      },
+    );
     return formatter.format(number);
   }
 
   /// Formats [number] as a currency value.
   static String currency(num number, {String? currency, String? locale}) {
-    final formatter = NumberFormat.simpleCurrency(
-      locale: locale ?? _defaultLocale,
-      name: currency ?? _defaultCurrency,
+    final String loc = locale ?? _defaultLocale;
+    final String name = currency ?? _defaultCurrency;
+    final NumberFormat formatter = _cachedFormat(
+      'cur|$loc|$name',
+      () => NumberFormat.simpleCurrency(locale: loc, name: name),
     );
     return formatter.format(number);
   }
@@ -96,9 +132,17 @@ class Number {
     int? maxPrecision,
     String? locale,
   }) {
-    final formatter = NumberFormat.percentPattern(locale ?? _defaultLocale);
-    formatter.minimumFractionDigits = precision;
-    formatter.maximumFractionDigits = maxPrecision ?? precision;
+    final String loc = locale ?? _defaultLocale;
+    final int max = maxPrecision ?? precision;
+    final NumberFormat formatter = _cachedFormat(
+      'pct|$loc|$precision|$max',
+      () {
+        final nf = NumberFormat.percentPattern(loc);
+        nf.minimumFractionDigits = precision;
+        nf.maximumFractionDigits = max;
+        return nf;
+      },
+    );
     return formatter.format(number / 100);
   }
 
@@ -299,9 +343,7 @@ class Number {
   /// Parses [value] as an int, locale-aware. Returns null on failure.
   static int? parseInt(String value, {String? locale}) {
     try {
-      final parsed = NumberFormat.decimalPattern(
-        locale ?? _defaultLocale,
-      ).parse(value);
+      final parsed = _decimalParser(locale ?? _defaultLocale).parse(value);
       return parsed.toInt();
     } catch (_) {
       return null;
@@ -311,9 +353,7 @@ class Number {
   /// Parses [value] as a double, locale-aware. Returns null on failure.
   static double? parseFloat(String value, {String? locale}) {
     try {
-      return NumberFormat.decimalPattern(
-        locale ?? _defaultLocale,
-      ).parse(value).toDouble();
+      return _decimalParser(locale ?? _defaultLocale).parse(value).toDouble();
     } catch (_) {
       return null;
     }

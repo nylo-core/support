@@ -132,25 +132,28 @@ class StyledText extends StatefulWidget {
 }
 
 class _StyledTextState extends State<StyledText> {
+  /// Matches `{{placeholder}}` tokens in a template string.
+  static final RegExp _placeholderPattern = RegExp(r'\{\{([^}]+)\}\}');
+
+  /// The recognizers backing the tappable spans of the most recent build.
   final List<TapGestureRecognizer> _recognizers = [];
 
-  @override
-  void dispose() {
+  /// Number of live [TapGestureRecognizer]s this state currently holds.
+  @visibleForTesting
+  int get debugRecognizerCount => _recognizers.length;
+
+  /// Dispose and forget every recognizer created by the previous build.
+  void _disposeRecognizers() {
     for (final recognizer in _recognizers) {
       recognizer.dispose();
     }
-    super.dispose();
+    _recognizers.clear();
   }
 
   @override
-  void didUpdateWidget(StyledText oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    if (oldWidget.text != widget.text || oldWidget.onTap != widget.onTap) {
-      for (final recognizer in _recognizers) {
-        recognizer.dispose();
-      }
-      _recognizers.clear();
-    }
+  void dispose() {
+    _disposeRecognizers();
+    super.dispose();
   }
 
   @override
@@ -209,12 +212,13 @@ class _StyledTextState extends State<StyledText> {
   }
 
   List<TextSpan> _parseTemplateText() {
+    _disposeRecognizers();
+
     final spans = <TextSpan>[];
     final currentText = widget.text!;
-    final regExp = RegExp(r'\{\{([^}]+)\}\}');
     int lastEnd = 0;
 
-    for (final match in regExp.allMatches(currentText)) {
+    for (final match in _placeholderPattern.allMatches(currentText)) {
       // Add text before the placeholder
       if (match.start > lastEnd) {
         final beforeText = currentText.substring(lastEnd, match.start);

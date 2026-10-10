@@ -8,7 +8,7 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter_timezone/flutter_timezone.dart';
 import '/controllers/ny_controllers.dart';
 import '/helpers/ny_helpers.dart';
-import 'package:timezone/data/latest_all.dart' as tz;
+import 'package:timezone/data/latest_10y.dart' as tz;
 import 'package:timezone/timezone.dart' as tz;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -102,14 +102,27 @@ class Nylo {
   Future<void> syncKeys(dynamic keys) async {
     Future<List<Object?>> Function() keysToSync = await keys();
     List finalKeys = await keysToSync();
+    if (finalKeys.isEmpty) return;
+
+    final List<Future> pending = [];
+    Map<String, String>? raw;
     for (var key in finalKeys) {
       if (key is Future Function(bool)) {
-        await key(true);
+        pending.add(key(true));
         continue;
       }
-      dynamic keyValue = await NyStorage.read(key);
+      if (key is! String) continue;
+      raw ??= await NyStorage.readAll();
+      final String? stored = raw[key];
+      dynamic keyValue = stored == null
+          ? null
+          : NyStorage.decodeRaw(
+              stored,
+              legacyRuntimeType: raw['${key}_runtime_type'],
+            );
       Backpack.instance.save(key, keyValue);
     }
+    if (pending.isNotEmpty) await Future.wait(pending);
   }
 
   /// Update the stack on the router.
@@ -720,13 +733,12 @@ class Nylo {
     NyEnvRegistry.register(getter: env);
 
     Intl.defaultLocale = getEnv('DEFAULT_LOCALE', defaultValue: 'en');
-    await initializeDateFormatting();
-
-    try {
-      await _configureLocalTimeZone();
-    } catch (e) {
-      // Timezone configuration failed, continue without it
-    }
+    await Future.wait([
+      initializeDateFormatting(),
+      _configureLocalTimeZone().catchError((_) {
+        // Timezone configuration failed, continue without it
+      }),
+    ]);
 
     Nylo nyloApp = Nylo();
 
@@ -734,16 +746,17 @@ class Nylo {
       nyloApp = await setup.setup();
     }
     nyloApp._appLifecycle = appLifecycle;
-    if (!isTestMode) {
-      try {
-        nyloApp._cache = await NyCache.getInstance();
-      } catch (e) {
-        // Cache initialization failed (e.g. path_provider native library issue)
-      }
-    }
-
-    // Initialize theme manager after themes are registered
-    await NyThemeManager.instance.init();
+    await Future.wait([
+      if (!isTestMode)
+        () async {
+          try {
+            nyloApp._cache = await NyCache.getInstance();
+          } catch (e) {
+            // Cache initialization failed (e.g. path_provider native library issue)
+          }
+        }(),
+      NyThemeManager.instance.init(),
+    ]);
 
     if (nyloApp._enableErrorStack == true) {
       await ErrorStack.init(
@@ -776,10 +789,12 @@ class Nylo {
     // Initialize services
     if (services != null && services.isNotEmpty) {
       // Resolve all FutureOr<Runnable> to Runnable instances
-      final List<Runnable> resolvedServices = [];
-      for (final serviceOrFuture in services) {
-        final Runnable resolvedService = await serviceOrFuture;
-        resolvedServices.add(resolvedService);
+      // Async factories are independent of each other, so resolve them in
+      // parallel; onInit/onReady/onAppReady below still run in list order.
+      final List<Runnable> resolvedServices = await Future.wait(
+        services.map((serviceOrFuture) async => await serviceOrFuture),
+      );
+      for (final resolvedService in resolvedServices) {
         // Register in the service registry by type
         Runnable.register(resolvedService);
       }
@@ -893,12 +908,17 @@ class Nylo {
     return apiDecoders;
   }
 
+  /// Whether an API decoder is registered for [T].
+  static bool hasApiDecoder<T>() =>
+      instance._singletonApiDecoders.containsKey(T) ||
+      instance._apiDecoders.containsKey(T);
+
   /// Get a API Decoder
   static NyApiService apiDecoder<T>() {
-    Map<Type, NyApiService> decoders = apiDecoders();
-    if (decoders.containsKey(T)) {
-      return decoders[T]!;
-    }
+    final NyApiService? singleton = instance._singletonApiDecoders[T];
+    if (singleton != null) return singleton;
+    final NyApiService Function()? factory = instance._apiDecoders[T];
+    if (factory != null) return factory();
     throw Exception("ApiService not found");
   }
 

@@ -127,13 +127,29 @@ class NetworkLogger extends Interceptor {
   /// Get info color (cyan)
   String _info(String text) => _colorize(text, _AnsiColors.brightCyan);
 
-  /// Calculate payload size in bytes from response data
-  int _calculatePayloadSize(dynamic data) {
+  /// Byte count of a payload, when it is known without stringifying it.
+  int? _payloadByteCount(dynamic data, Headers? headers) {
+    final contentLength = headers?.value('content-length');
+    if (contentLength != null) {
+      final parsed = int.tryParse(contentLength);
+      if (parsed != null && parsed >= 0) return parsed;
+    }
     if (data == null) return 0;
     if (data is Uint8List) return data.length;
     if (data is String) return data.length;
-    // For other types (Map, List), convert to string representation
-    return data.toString().length;
+    return null;
+  }
+
+  /// Human-readable payload label that never stringifies a `Map` or `List`.
+  ///
+  /// Byte-formatted when the byte count is known, otherwise a structural
+  /// summary: `{n} items` for a list, `{n} keys` for a map.
+  String _payloadLabel(dynamic data, Headers? headers) {
+    final bytes = _payloadByteCount(data, headers);
+    if (bytes != null) return _formatSize(bytes);
+    if (data is List) return '${data.length} items';
+    if (data is Map) return '${data.length} keys';
+    return '?';
   }
 
   /// Format bytes to human-readable size (B, KB, MB)
@@ -279,7 +295,8 @@ class NetworkLogger extends Interceptor {
     String requestId,
     int responseTime,
   ) {
-    final payloadSizeBytes = _calculatePayloadSize(err.response?.data);
+    final payloadData = err.response?.data;
+    final payloadHeaders = err.response?.headers;
     final Map<String, dynamic> logData = {
       'type': 'error',
       'requestId': requestId,
@@ -287,8 +304,8 @@ class NetworkLogger extends Interceptor {
       'method': err.requestOptions.method,
       'uri': err.requestOptions.uri.toString(),
       'responseTimeMs': responseTime,
-      'payloadSizeBytes': payloadSizeBytes,
-      'payloadSize': _formatSize(payloadSizeBytes),
+      'payloadSizeBytes': _payloadByteCount(payloadData, payloadHeaders),
+      'payloadSize': _payloadLabel(payloadData, payloadHeaders),
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -308,7 +325,10 @@ class NetworkLogger extends Interceptor {
   }
 
   void _printPrettyError(DioException err, String requestId, int responseTime) {
-    final payloadSize = _formatSize(_calculatePayloadSize(err.response?.data));
+    final payloadSize = _payloadLabel(
+      err.response?.data,
+      err.response?.headers,
+    );
 
     if (logLevel == LogLevelType.minimal) {
       final statusCode = err.response?.statusCode ?? 'N/A';
@@ -377,7 +397,6 @@ class NetworkLogger extends Interceptor {
     String requestId,
     int responseTime,
   ) {
-    final payloadSizeBytes = _calculatePayloadSize(response.data);
     final Map<String, dynamic> logData = {
       'type': 'response',
       'requestId': requestId,
@@ -386,8 +405,8 @@ class NetworkLogger extends Interceptor {
       'statusCode': response.statusCode,
       'statusMessage': response.statusMessage,
       'responseTimeMs': responseTime,
-      'payloadSizeBytes': payloadSizeBytes,
-      'payloadSize': _formatSize(payloadSizeBytes),
+      'payloadSizeBytes': _payloadByteCount(response.data, response.headers),
+      'payloadSize': _payloadLabel(response.data, response.headers),
       'timestamp': DateTime.now().toIso8601String(),
     };
 
@@ -429,7 +448,7 @@ class NetworkLogger extends Interceptor {
     if (logLevel == LogLevelType.minimal) {
       final symbol = isSuccess ? '✓' : '⚠';
       final colorFn = isSuccess ? _success : _warning;
-      final payloadSize = _formatSize(_calculatePayloadSize(response.data));
+      final payloadSize = _payloadLabel(response.data, response.headers);
       logPrint(
         colorFn(
           '$symbol [${response.requestOptions.method}] ${response.requestOptions.uri} → $statusText (${responseTime}ms) [$payloadSize] [ID: $requestId]',
@@ -519,7 +538,7 @@ class NetworkLogger extends Interceptor {
   ) {
     final uri = response.requestOptions.uri;
     final method = response.requestOptions.method;
-    final payloadSize = _formatSize(_calculatePayloadSize(response.data));
+    final payloadSize = _payloadLabel(response.data, response.headers);
     final header =
         'Response ║ $method ║ Status: ${response.statusCode} ${response.statusMessage} ║ Time: $responseTime ms ║ Size: $payloadSize ║ ID: $requestId';
     _printBoxed(
@@ -598,10 +617,13 @@ class NetworkLogger extends Interceptor {
 
     if (isRoot || isListItem) logPrint('║$initialIndent{');
 
-    for (var index = 0; index < data.length; index++) {
-      final isLast = index == data.length - 1;
-      final key = '"${data.keys.elementAt(index)}"';
-      dynamic value = data[data.keys.elementAt(index)];
+    final lastIndex = data.length - 1;
+    var index = 0;
+    for (final entry in data.entries) {
+      final isLast = index == lastIndex;
+      index++;
+      final key = '"${entry.key}"';
+      dynamic value = entry.value;
       if (value is String) {
         value = '"${value.toString().replaceAll(RegExp(r'([\r\n])+'), " ")}"';
       }
@@ -676,14 +698,43 @@ class NetworkLogger extends Interceptor {
   }
 
   bool _canFlattenMap(Map map) {
-    return map.values
-            .where((dynamic val) => val is Map || val is List)
-            .isEmpty &&
-        map.toString().length < maxWidth;
+    for (final value in map.values) {
+      if (value is Map || value is List) return false;
+    }
+    return _estimateLength(map, maxWidth) < maxWidth;
   }
 
   bool _canFlattenList(List list) {
-    return list.length < 10 && list.toString().length < maxWidth;
+    return list.length < 10 && _estimateLength(list, maxWidth) < maxWidth;
+  }
+
+  /// Estimate `value.toString().length` without stringifying a whole
+  /// `Map`/`List`. Walks the structure the way Dart's default `toString`
+  /// renders it (`{k: v, ...}` / `[a, b]`) and stops as soon as the running
+  /// total exceeds [budget], so the cost is bounded by [budget] rather than
+  /// by the payload size.
+  int _estimateLength(dynamic value, int budget) {
+    if (value is Map) {
+      var total = 2; // '{' + '}'
+      for (final entry in value.entries) {
+        total += _estimateLength(entry.key, budget - total) + 2; // ': '
+        if (total > budget) return total;
+        total += _estimateLength(entry.value, budget - total) + 2; // ', '
+        if (total > budget) return total;
+      }
+      return total;
+    }
+    if (value is List) {
+      var total = 2; // '[' + ']'
+      for (final element in value) {
+        total += _estimateLength(element, budget - total) + 2; // ', '
+        if (total > budget) return total;
+      }
+      return total;
+    }
+    if (value is String) return value.length;
+    if (value == null) return 4;
+    return value.toString().length;
   }
 
   void _printMapAsTable(Map? map, {String? header}) {

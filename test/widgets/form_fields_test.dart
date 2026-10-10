@@ -266,4 +266,59 @@ void main() {
       semantics.dispose();
     });
   });
+
+  nyGroup('Field.picker bottom sheet', () {
+    testWidgets('builds only the visible rows of a long list', (tester) async {
+      /// It used to build and lay out every option (and divider) eagerly in
+      /// the sheet's first frame, a visible stutter for ~250-item pickers.
+      final Map<String, String> options = {
+        for (int i = 0; i < 300; i++) 'c$i': 'Country $i',
+      };
+      final Field field = Field.picker(
+        "Country",
+        options: FormCollection.from(options),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NyFormPicker));
+      await tester.pumpAndSettle();
+
+      final int tiles = find.byType(ListTile).evaluate().length;
+      expect(tiles, greaterThan(0));
+      expect(tiles, lessThan(100));
+      expect(find.text('Country 0'), findsOneWidget);
+      expect(find.text('Country 299'), findsNothing);
+
+      await tester.tap(find.text('Country 3'));
+      await tester.pumpAndSettle();
+
+      expect(field.value, 'c3');
+      expect(find.byType(ListTile), findsNothing);
+      expect(find.text('Country 3'), findsOneWidget);
+    });
+
+    testWidgets('scrolls to the last option and selects it', (tester) async {
+      final Field field = Field.picker(
+        "Country",
+        options: FormCollection.from({
+          for (int i = 0; i < 300; i++) 'c$i': 'Country $i',
+        }),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(NyFormPicker));
+      await tester.pumpAndSettle();
+
+      await tester.scrollUntilVisible(
+        find.text('Country 299'),
+        400,
+        scrollable: find.byType(Scrollable).last,
+      );
+      await tester.tap(find.text('Country 299'));
+      await tester.pumpAndSettle();
+
+      expect(field.value, 'c299');
+    });
+  });
 }

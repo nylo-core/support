@@ -84,12 +84,19 @@ Future<Nylo> setupApplication(
       if (shouldLog && stopwatch != null) {
         stopwatch.stop();
         NyLogger.debug(
-          '[$providerName] setup in ${stopwatch.elapsedMilliseconds}ms',
+          'Provider setup completed',
+          context: {
+            'provider': providerName,
+            'duration_ms': stopwatch.elapsedMilliseconds,
+          },
         );
       }
     } catch (e, stackTrace) {
       if (shouldLog) {
-        NyLogger.error('[$providerName] failed to setup: $e');
+        NyLogger.error(
+          'Provider setup failed',
+          context: {'provider': providerName, 'error': e.toString()},
+        );
         NyLogger.error(stackTrace.toString());
       }
       rethrow;
@@ -129,12 +136,19 @@ Future<Nylo> bootFinished(
       if (shouldLog && stopwatch != null) {
         stopwatch.stop();
         NyLogger.debug(
-          '[$providerName] boot completed in ${stopwatch.elapsedMilliseconds}ms',
+          'Provider boot completed',
+          context: {
+            'provider': providerName,
+            'duration_ms': stopwatch.elapsedMilliseconds,
+          },
         );
       }
     } catch (e, stackTrace) {
       if (shouldLog) {
-        NyLogger.error('[$providerName] boot failed: $e');
+        NyLogger.error(
+          'Provider boot failed',
+          context: {'provider': providerName, 'error': e.toString()},
+        );
         NyLogger.error(stackTrace.toString());
       }
       if (throwOnError) rethrow;

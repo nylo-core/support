@@ -2,6 +2,7 @@ import 'package:error_stack/error_stack.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/widgets/ny_widgets.dart';
 import 'package:skeletonizer/skeletonizer.dart';
+import '/controllers/ny_controllers.dart';
 import '/nylo.dart';
 import '/router/ny_router.dart';
 import 'package:flutter/material.dart';
@@ -11,12 +12,26 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
   /// Base NyPage
   NyPage({super.name, super.path});
 
+  /// The controller's guards this page still has to run for the current
+  /// request. [NyRouter.navigate] runs the route's guards before pushing, so
+  /// those are skipped here; guards declared on the controller, and every
+  /// guard on a page reached through the raw [Navigator], run in [initState].
+  List<RouteGuard> get _pendingRouteGuards {
+    if (widget is! NyStatefulWidget) return const [];
+    final BaseController controller = (widget as NyStatefulWidget).controller;
+    final List<RouteGuard> evaluated =
+        controller.request?.routerEvaluatedGuards ?? const [];
+    if (evaluated.isEmpty) return controller.routeGuards;
+    return controller.routeGuards
+        .where((guard) => !evaluated.any((e) => identical(e, guard)))
+        .toList();
+  }
+
   /// Check if the widget should be loaded.
   @override
   bool get shouldLoadView {
-    if (widget is NyStatefulWidget &&
-        (widget as NyStatefulWidget).controller.routeGuards.isNotEmpty) {
-      return (widget as NyStatefulWidget).controller.routeGuards.isNotEmpty;
+    if (_pendingRouteGuards.isNotEmpty) {
+      return true;
     }
     return init is Future Function();
   }
@@ -68,28 +83,32 @@ abstract class NyPage<T extends StatefulWidget> extends NyBaseState<T>
           await _controller.construct(context);
         }
 
-        NyArgument? nyArgument = NyArgument(data());
-        PageRequest pageRequest = PageRequest(
-          context: context,
-          nyArgument: nyArgument,
-          queryParameters: queryParameters(),
-        );
-        bool routeGuardsPassed = true;
-        for (RouteGuard routeGuard
-            in (widget as NyStatefulWidget).controller.routeGuards) {
-          routeGuard.pageRequest = pageRequest;
-          PageRequest? pageRequestFromRouteGuard = await routeGuard.onRequest(
-            pageRequest,
+        // routeTo()/navigate() already ran the route's guards; this pass
+        // covers the rest.
+        final List<RouteGuard> pendingGuards = _pendingRouteGuards;
+        if (pendingGuards.isNotEmpty) {
+          NyArgument? nyArgument = NyArgument(data());
+          PageRequest pageRequest = PageRequest(
+            context: context,
+            nyArgument: nyArgument,
+            queryParameters: queryParameters(),
           );
-          if (pageRequestFromRouteGuard?.isRedirect == true) {
-            routeGuardsPassed = false;
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              pageRequestFromRouteGuard?.routeData?.routeToPage();
-            });
+          bool routeGuardsPassed = true;
+          for (RouteGuard routeGuard in pendingGuards) {
+            routeGuard.pageRequest = pageRequest;
+            PageRequest? pageRequestFromRouteGuard = await routeGuard.onRequest(
+              pageRequest,
+            );
+            if (pageRequestFromRouteGuard?.isRedirect == true) {
+              routeGuardsPassed = false;
+              WidgetsBinding.instance.addPostFrameCallback((_) {
+                pageRequestFromRouteGuard?.routeData?.routeToPage();
+              });
+            }
           }
-        }
-        if (!routeGuardsPassed) {
-          return;
+          if (!routeGuardsPassed) {
+            return;
+          }
         }
         await init();
         hasInitComplete = true;

@@ -110,7 +110,10 @@ class NyDeepLinkHandler {
       }
       _navigate(uri);
     } catch (e) {
-      NyLogger.error('Deep link handling failed for "$uri": $e');
+      NyLogger.error(
+        'Deep link handling failed',
+        context: {'uri': uri.toString(), 'error': e.toString()},
+      );
     }
   }
 

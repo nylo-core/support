@@ -102,16 +102,17 @@ class NyLocalization {
 
     _fallbackLanguageCode = languageCode;
 
-    _values = await _loadLanguageFile(
-      _locale!.languageCode,
-      fallbackLanguageCode: languageCode,
-    );
-
-    if (_locale!.languageCode != languageCode) {
-      _fallbackValues = await _loadLanguageFile(languageCode);
-    } else {
-      _fallbackValues = null;
-    }
+    // The active and fallback files are independent; load them concurrently.
+    final bool needsFallback = _locale!.languageCode != languageCode;
+    final results = await Future.wait([
+      _loadLanguageFile(
+        _locale!.languageCode,
+        fallbackLanguageCode: languageCode,
+      ),
+      if (needsFallback) _loadLanguageFile(languageCode),
+    ]);
+    _values = results[0];
+    _fallbackValues = needsFallback ? results[1] : null;
   }
 
   /// Loads a language JSON file from assets.
@@ -128,7 +129,11 @@ class NyLocalization {
       if (fallbackLanguageCode != null &&
           fallbackLanguageCode != languageCode) {
         NyLogger.error(
-          "Language file not found: $filePath. Loading fallback: $fallbackLanguageCode.",
+          "Language file not found, loading fallback",
+          context: {
+            "file_path": filePath,
+            "fallback_language": fallbackLanguageCode,
+          },
         );
         final fallbackPath = "$_assetsDir$fallbackLanguageCode.json";
         final content = await rootBundle.loadString(fallbackPath);

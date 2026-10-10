@@ -8,10 +8,16 @@ class NyRequest {
   NyArgument? _args;
   NyQueryParameters? _queryParameters;
 
+  /// The guards [NyRouter.navigate] already ran for this request.
+  ///
+  /// The page runs every other guard on its controller itself.
+  List<RouteGuard> routerEvaluatedGuards;
+
   NyRequest({
     this.currentRoute,
     NyArgument? args,
     NyQueryParameters? queryParameters,
+    this.routerEvaluatedGuards = const [],
   }) {
     _args = args;
     _queryParameters = queryParameters;

@@ -37,8 +37,13 @@ class BaseThemeConfig<T> {
     this.type = NyThemeType.light,
   });
 
+  ThemeData? _themeData;
+
   /// Get the [ThemeData] for this theme.
-  ThemeData get themeData => theme(colors);
+  ThemeData get themeData => _themeData ??= theme(colors);
+
+  /// Drop the memoised [ThemeData] so the next read rebuilds it from [colors].
+  void invalidateThemeData() => _themeData = null;
 }
 
 /// Enum representing the type of theme.

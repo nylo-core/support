@@ -81,23 +81,21 @@ class FormRulePassword extends FormRule {
     if (data == null) return false;
 
     if (strength == 2) {
-      /// - At least one uppercase letter
-      /// - At least one digit
-      /// - Minimum of 8 characters
-      /// - At least one special character
-      RegExp regExp = RegExp(
-        r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$',
-      );
-      return regExp.hasMatch(data.toString());
+      return _strength2.hasMatch(data.toString());
     }
-
-    /// This rule is used to validate a password with the following requirements:
-    /// - At least one uppercase letter
-    /// - At least one digit
-    /// - Minimum of 8 characters
-    RegExp regExp = RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$');
-    return regExp.hasMatch(data.toString());
+    return _strength1.hasMatch(data.toString());
   }
+
+  /// Strength 1:
+  /// - At least one uppercase letter
+  /// - At least one digit
+  /// - Minimum of 8 characters
+  static final RegExp _strength1 = RegExp(r'^(?=.*[A-Z])(?=.*\d).{8,}$');
+
+  /// Strength 2: strength 1 plus at least one special character.
+  static final RegExp _strength2 = RegExp(
+    r'^(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>]).{8,}$',
+  );
 }
 
 /// FormRuleEquals
@@ -506,13 +504,12 @@ class FormRulePhoneNumberUs extends FormRule {
     }
   }
 
+  static final RegExp _regExp = RegExp(
+    r'^\(?(\d{3})\)?[-\. ]?(\d{3})[-\. ]?(\d{4})( x\d{4})?$',
+  );
+
   @override
-  bool validate(data) {
-    RegExp regExp = RegExp(
-      r'^\(?(\d{3})\)?[-\. ]?(\d{3})[-\. ]?(\d{4})( x\d{4})?$',
-    );
-    return regExp.hasMatch(data.toString());
-  }
+  bool validate(data) => _regExp.hasMatch(data.toString());
 }
 
 class FormRulePhoneNumberUk extends FormRule {
@@ -528,14 +525,12 @@ class FormRulePhoneNumberUk extends FormRule {
     }
   }
 
-  @override
-  bool validate(data) {
-    RegExp regExp = RegExp(
-      r'^(((\+44\s?\d{4}|\(?0\d{4}\)?)\s?\d{3}\s?\d{3})|((\+44\s?\d{3}|\(?0\d{3}\)?)\s?\d{3}\s?\d{4})|((\+44\s?\d{2}|\(?0\d{2}\)?)\s?\d{4}\s?\d{4}))(\s?\#(\d{4}|\d{3}))?$',
-    );
+  static final RegExp _regExp = RegExp(
+    r'^(((\+44\s?\d{4}|\(?0\d{4}\)?)\s?\d{3}\s?\d{3})|((\+44\s?\d{3}|\(?0\d{3}\)?)\s?\d{3}\s?\d{4})|((\+44\s?\d{2}|\(?0\d{2}\)?)\s?\d{4}\s?\d{4}))(\s?\#(\d{4}|\d{3}))?$',
+  );
 
-    return regExp.hasMatch(data.toString());
-  }
+  @override
+  bool validate(data) => _regExp.hasMatch(data.toString());
 }
 
 class FormRuleUrl extends FormRule {
@@ -551,13 +546,13 @@ class FormRuleUrl extends FormRule {
     }
   }
 
+  /// Basic URL validation regex.
+  static final RegExp _regExp = RegExp(r'^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$');
+
   @override
   bool validate(data) {
     if (data is String) {
-      final regex = RegExp(
-        r'^(https?|ftp):\/\/[^\s/$.?#].[^\s]*$',
-      ); // Basic URL validation regex
-      return regex.hasMatch(data);
+      return _regExp.hasMatch(data);
     }
     return false;
   }
@@ -848,11 +843,12 @@ class FormRuleZipcodeUs extends FormRule {
     }
   }
 
+  static final RegExp _regExp = RegExp(
+    r'(^[0-9]{4}?[0-9]$|^[0-9]{4}?[0-9]-[0-9]{4}$)',
+  );
+
   @override
-  bool validate(data) {
-    RegExp regExp = RegExp(r'(^[0-9]{4}?[0-9]$|^[0-9]{4}?[0-9]-[0-9]{4}$)');
-    return regExp.hasMatch(data.toString());
-  }
+  bool validate(data) => _regExp.hasMatch(data.toString());
 }
 
 class FormRulePostcodeUk extends FormRule {
@@ -868,10 +864,12 @@ class FormRulePostcodeUk extends FormRule {
     }
   }
 
+  /// Covers all UK postcode formats: A9 9AA, A9A 9AA, A99 9AA, AA9 9AA,
+  /// AA9A 9AA, AA99 9AA.
+  static final RegExp _regExp = RegExp(
+    r'^([A-Za-z]{1,2}\d[A-Za-z\d]?)\s*(\d[A-Za-z]{2})$',
+  );
+
   @override
-  bool validate(data) {
-    // Covers all UK postcode formats: A9 9AA, A9A 9AA, A99 9AA, AA9 9AA, AA9A 9AA, AA99 9AA
-    RegExp regExp = RegExp(r'^([A-Za-z]{1,2}\d[A-Za-z\d]?)\s*(\d[A-Za-z]{2})$');
-    return regExp.hasMatch(data.toString());
-  }
+  bool validate(data) => _regExp.hasMatch(data.toString());
 }

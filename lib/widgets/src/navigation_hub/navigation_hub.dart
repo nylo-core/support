@@ -19,6 +19,28 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
   /// Whether to maintain the state of the page
   bool get maintainState => true;
 
+  /// Whether tabs are mounted lazily.
+  ///
+  /// When `false` (the default) every tab's [Navigator] and page is mounted on
+  /// the hub's first frame, so each tab's `init()` runs immediately.
+  ///
+  /// When `true`, a tab's [Navigator] and page are not mounted until the tab
+  /// is first selected. Once mounted the tab stays alive exactly as it does
+  /// today (its state is kept while [maintainState] is `true`). Only applies
+  /// to the bottom and top navigation layouts; a journey layout already only
+  /// mounts the current step.
+  ///
+  /// ```dart
+  /// @override
+  /// bool get lazyLoadTabs => true;
+  /// ```
+  bool get lazyLoadTabs => false;
+
+  /// The tab indexes that have been selected at least once.
+  ///
+  /// Used by [lazyLoadTabs] to decide which tabs have been mounted.
+  final Set<int> _visited = {};
+
   /// The layout of the navigation
   NavigationHubLayout? layout(BuildContext context) {
     return null;
@@ -119,9 +141,28 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       }
       reset[index] = false;
     }
+    _visited.add(index);
     setState(() {
       currentIndex = index;
     });
+  }
+
+  /// Build the child for a tab slot inside an [IndexedStack].
+  Widget _tabChild(MapEntry<int, NavigationTab> page) {
+    if (lazyLoadTabs) {
+      if (page.key == getCurrentIndex) {
+        _visited.add(page.key);
+      } else if (!_visited.contains(page.key)) {
+        return const SizedBox.shrink();
+      }
+    }
+    return Navigator(
+      key: getNavigationKey(page),
+      onGenerateRoute: (settings) => MaterialPageRoute(
+        builder: (context) => page.value.page ?? SizedBox.shrink(),
+        settings: settings,
+      ),
+    );
   }
 
   @override
@@ -141,6 +182,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
         {
           int index = data['tab-index'];
           currentIndex = index;
+          _visited.add(index);
           // Store current tab index for navigation helpers
           Backpack.instance.save('${stateName}_current_tab', index);
           break;
@@ -255,17 +297,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
       Widget body = maintainState
           ? IndexedStack(
               index: currentIndex,
-              children: [
-                for (var page in pages.entries)
-                  Navigator(
-                    key: getNavigationKey(page),
-                    onGenerateRoute: (settings) => MaterialPageRoute(
-                      builder: (context) =>
-                          page.value.page ?? SizedBox.shrink(),
-                      settings: settings,
-                    ),
-                  ),
-              ],
+              children: [for (var page in pages.entries) _tabChild(page)],
             )
           : Navigator(
               key: getNavigationKey(pages.entries.elementAt(getCurrentIndex)),
@@ -386,17 +418,7 @@ abstract class NavigationHub<T extends StatefulWidget> extends NyPage<T> {
           body: maintainState
               ? IndexedStack(
                   index: getCurrentIndex,
-                  children: [
-                    for (var page in pages.entries)
-                      Navigator(
-                        key: getNavigationKey(page),
-                        onGenerateRoute: (settings) => MaterialPageRoute(
-                          builder: (context) =>
-                              (page.value.page ?? SizedBox.shrink()),
-                          settings: settings,
-                        ),
-                      ),
-                  ],
+                  children: [for (var page in pages.entries) _tabChild(page)],
                 )
               : TabBarView(
                   physics: _layout?.physics,

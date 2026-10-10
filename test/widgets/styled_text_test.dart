@@ -289,5 +289,133 @@ void main() {
         expect(spans[5].style!.color, Colors.green);
       });
     });
+
+    nyGroup('recognizer lifecycle', () {
+      testWidgets('recognizer count stays bounded across parent rebuilds', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          const MaterialApp(home: _RebuildingStyledTextHost()),
+        );
+
+        final host = tester.state<_RebuildingStyledTextHostState>(
+          find.byType(_RebuildingStyledTextHost),
+        );
+        expect(_recognizerCount(tester), 2);
+
+        for (int i = 0; i < 20; i++) {
+          host.rebuild();
+          await tester.pump();
+        }
+
+        expect(host.buildCount, greaterThanOrEqualTo(21));
+        expect(_recognizerCount(tester), 2);
+      });
+
+      testWidgets('tapping a placeholder still fires after rebuilds', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          const MaterialApp(home: _RebuildingStyledTextHost()),
+        );
+
+        final host = tester.state<_RebuildingStyledTextHostState>(
+          find.byType(_RebuildingStyledTextHost),
+        );
+        for (int i = 0; i < 20; i++) {
+          host.rebuild();
+          await tester.pump();
+        }
+
+        final spans = _extractSpans(tester);
+        (spans[1].recognizer as TapGestureRecognizer).onTap!();
+        (spans[3].recognizer as TapGestureRecognizer).onTap!();
+        expect(host.termsTaps, 1);
+        expect(host.privacyTaps, 1);
+      });
+
+      testWidgets('recognizers are rebuilt when the onTap map changes', (
+        tester,
+      ) async {
+        int firstTaps = 0;
+        int secondTaps = 0;
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "See {{terms}}",
+              onTap: {"terms": () => firstTaps++},
+            ),
+          ),
+        );
+        expect(_recognizerCount(tester), 1);
+
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "See {{terms}}",
+              onTap: {"terms": () => secondTaps++},
+            ),
+          ),
+        );
+        expect(_recognizerCount(tester), 1);
+
+        final spans = _extractSpans(tester);
+        (spans[1].recognizer as TapGestureRecognizer).onTap!();
+        expect(firstTaps, 0);
+        expect(secondTaps, 1);
+      });
+
+      testWidgets('placeholders without onTap allocate no recognizers', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: StyledText.template(
+              "Hello {{name}} and {{app}}",
+              styles: {"*": TextStyle(color: Colors.blue)},
+            ),
+          ),
+        );
+        expect(_recognizerCount(tester), 0);
+      });
+    });
   });
+}
+
+/// Reads `debugRecognizerCount` from the private `_StyledTextState`.
+int _recognizerCount(WidgetTester tester) {
+  final dynamic state = tester.state(find.byType(StyledText));
+  return state.debugRecognizerCount as int;
+}
+
+/// A parent that rebuilds a [StyledText.template] with a STABLE `onTap` map
+/// (held in its own state) each time [rebuild] is called.
+class _RebuildingStyledTextHost extends StatefulWidget {
+  const _RebuildingStyledTextHost();
+
+  @override
+  State<_RebuildingStyledTextHost> createState() =>
+      _RebuildingStyledTextHostState();
+}
+
+class _RebuildingStyledTextHostState extends State<_RebuildingStyledTextHost> {
+  int buildCount = 0;
+  int termsTaps = 0;
+  int privacyTaps = 0;
+
+  late final Map<String, VoidCallback> _links = {
+    "terms": () => termsTaps++,
+    "privacy": () => privacyTaps++,
+  };
+
+  void rebuild() => setState(() {});
+
+  @override
+  Widget build(BuildContext context) {
+    buildCount++;
+    return StyledText.template(
+      "By continuing you accept the {{terms}} and {{privacy}}.",
+      onTap: _links,
+    );
+  }
 }

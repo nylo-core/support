@@ -92,8 +92,12 @@ class Auth {
   ///
   /// [session] specifies which auth session to check (default: 'default').
   static Future<bool> isAuthenticated({String? session}) async {
-    final data = await NyStorage.read(key(session));
-    return data != null;
+    final String authKey = key(session);
+    final Backpack backpack = Backpack.instance;
+    if (backpack.contains(authKey)) {
+      return backpack.read(authKey) != null;
+    }
+    return await NyStorage.manager().containsKey(key: authKey);
   }
 
   /// Get auth data for a session.

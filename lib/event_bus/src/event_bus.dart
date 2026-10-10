@@ -108,7 +108,13 @@ class EventBus implements IEventBus {
     // 3. Reset stream
     _lastEventSubject.add(EmptyEvent());
     if (allowLogging) {
-      NyLogger.debug(' ⚡️ [${event.timestamp}] $event');
+      NyLogger.debug(
+        ' ⚡️ Event fired',
+        context: {
+          'event': event.toString(),
+          'timestamp': event.timestamp.toIso8601String(),
+        },
+      );
     }
   }
 
@@ -178,7 +184,11 @@ class EventBus implements IEventBus {
       if (newEvent.runtimeType == event.runtimeType) {
         if (allowLogging) {
           NyLogger.debug(
-            ' 🟠 SKIP EVENT: ${newEvent.runtimeType} => ${event.runtimeType}',
+            ' 🟠 SKIP EVENT',
+            context: {
+              'mapped_event': newEvent.runtimeType.toString(),
+              'source_event': event.runtimeType.toString(),
+            },
           );
         }
         continue;

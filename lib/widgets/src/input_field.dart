@@ -8,6 +8,13 @@ import '/localization/ny_localization.dart';
 
 /// Nylo's Text Field Widget
 class InputField extends StatefulWidget {
+  /// Number of times any [InputField] has built, in debug mode only.
+  ///
+  /// Tests reset this and read it back to prove that typing does not rebuild
+  /// the field unless the shown validation error changes.
+  @visibleForTesting
+  static int debugBuildCount = 0;
+
   final String? labelText;
   final TextStyle? labelStyle;
   final TextEditingController controller;
@@ -1090,6 +1097,15 @@ class TextFieldStateActions extends FormStateActions {
 
 class _InputFieldState extends NyState<InputField> {
   final FocusNode _focus = FocusNode();
+
+  /// The focus node [_onFocusChange] is currently attached to. This is
+  /// [InputField.focusNode] when the caller supplied one, otherwise [_focus].
+  FocusNode? _listenedFocusNode;
+
+  /// The validation error currently shown under the field. It is recomputed
+  /// on each keystroke and focus change (see [_revalidate]) rather than on
+  /// every build, so [view] only reads it.
+  String? _errorText;
   bool? didChange = false;
   bool _obscured = false;
   bool _passedValidation = false;
@@ -1107,7 +1123,9 @@ class _InputFieldState extends NyState<InputField> {
   Map<String, Function> get stateActions => {
     "clear": () {
       widget.controller.clear();
-      setState(() {});
+      setState(() {
+        _errorText = _validate();
+      });
     },
     "setValue": (data) {
       final value = data["value"];
@@ -1121,13 +1139,15 @@ class _InputFieldState extends NyState<InputField> {
             .text;
       }
       widget.controller.text = text;
-      setState(() {});
+      setState(() {
+        _errorText = _validate();
+      });
     },
     "focus": (_) {
-      _focus.requestFocus();
+      _effectiveFocusNode.requestFocus();
     },
     "unfocus": (_) {
-      _focus.unfocus();
+      _effectiveFocusNode.unfocus();
     },
     "toggleObscure": (_) {
       _toggleObscured();
@@ -1140,7 +1160,7 @@ class _InputFieldState extends NyState<InputField> {
 
     // Initialize obscured state - true if password field or explicitly set
     _obscured = widget.obscureText || widget.passwordVisible == true;
-    _focus.addListener(_onFocusChange);
+    _attachFocusListener();
     // check if widget.inputFormatters has MaskTextInputFormatter
     maskTextInputFormatter = (widget.inputFormatters ?? []).firstWhereOrNull(
       (inputFormatter) => inputFormatter is MaskTextInputFormatter,
@@ -1159,28 +1179,60 @@ class _InputFieldState extends NyState<InputField> {
   }
 
   @override
+  void didUpdateWidget(covariant InputField oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (_effectiveFocusNode != _listenedFocusNode) {
+      _attachFocusListener();
+    }
+    _errorText = _validate();
+  }
+
+  @override
   void dispose() {
-    _focus.removeListener(_onFocusChange);
+    _listenedFocusNode?.removeListener(_onFocusChange);
+    _listenedFocusNode = null;
+
     _focus.dispose();
     super.dispose();
   }
 
+  /// The focus node driving this field: the caller's, or our own.
+  FocusNode get _effectiveFocusNode => widget.focusNode ?? _focus;
+
+  /// (Re)attach [_onFocusChange] to [_effectiveFocusNode].
+  void _attachFocusListener() {
+    _listenedFocusNode?.removeListener(_onFocusChange);
+    _listenedFocusNode = _effectiveFocusNode;
+    _listenedFocusNode!.addListener(_onFocusChange);
+  }
+
   /// handle focus change
   void _onFocusChange() {
-    if (_focus.hasFocus == true) {
+    if (_effectiveFocusNode.hasFocus == true) {
       didChange = !(widget.validateOnFocusChange ?? false);
     } else {
       didChange = true;
-      setState(() {});
+      _revalidate();
     }
+  }
+
+  /// Recompute [_errorText] and rebuild only if the shown error changed.
+  void _revalidate() {
+    final String? next = _validate();
+    if (next == _errorText && widget.decorator == null) return;
+    if (!mounted) return;
+    setState(() {
+      _errorText = next;
+    });
   }
 
   /// toggle obscured text
   void _toggleObscured() {
     setState(() {
       _obscured = !_obscured;
-      if (_focus.hasPrimaryFocus) return;
-      _focus.canRequestFocus = false;
+      final FocusNode focus = _effectiveFocusNode;
+      if (focus.hasPrimaryFocus) return;
+      focus.canRequestFocus = false;
     });
   }
 
@@ -1245,6 +1297,11 @@ class _InputFieldState extends NyState<InputField> {
 
   @override
   Widget view(BuildContext context) {
+    assert(() {
+      InputField.debugBuildCount++;
+      return true;
+    }());
+
     InputDecoration decoration = InputDecoration(
       labelText: widget.decoration?.labelText ?? widget.labelText?.tr(),
       labelStyle:
@@ -1352,8 +1409,6 @@ class _InputFieldState extends NyState<InputField> {
       );
     }
 
-    String? validate = _validate();
-
     if (widget.decorator?.decoration != null) {
       InputDecoration? baseDecoration = widget.decorator?.decoration!(
         controllerValue,
@@ -1386,12 +1441,7 @@ class _InputFieldState extends NyState<InputField> {
       }
     }
 
-    decoration = decoration.copyWith(errorText: validate);
-
-    Function(String value)? onChanged;
-    if (widget.onChanged != null) {
-      onChanged = widget.onChanged;
-    }
+    decoration = decoration.copyWith(errorText: _errorText);
 
     // TextField
     TextField textField = TextField(
@@ -1407,21 +1457,18 @@ class _InputFieldState extends NyState<InputField> {
       onTap: widget.onTap,
       textCapitalization: widget.textCapitalization,
       obscureText: _obscured,
-      focusNode: widget.focusNode ?? _focus,
+      focusNode: _effectiveFocusNode,
       autocorrect: widget.autocorrect,
       enableSuggestions: widget.enableSuggestions,
-      onChanged: onChanged != null
-          ? (String value) {
-              setState(() {});
-
-              if (maskTextInputFormatter != null) {
-                onChanged!(controllerValue);
-                return;
-              }
-
-              onChanged!(value);
-            }
-          : null,
+      onChanged: (String value) {
+        // Notify first so a bound [Field] holds the new value before the
+        // validator reads [controllerValue].
+        final Function(String value)? onChanged = widget.onChanged;
+        if (onChanged != null) {
+          onChanged(maskTextInputFormatter != null ? controllerValue : value);
+        }
+        _revalidate();
+      },
       textInputAction: widget.textInputAction,
       style: widget.style,
       strutStyle: widget.strutStyle,

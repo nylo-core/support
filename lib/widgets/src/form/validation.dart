@@ -543,6 +543,17 @@ class FormValidationResult {
   List<FormValidationError> get errorResponses =>
       responses.whereType<FormValidationError>().toList();
 
+  /// The first failed rule's response, or null when every rule passed.
+  ///
+  /// Unlike [errorResponses] this does not build a list, so it is safe to
+  /// call on every keystroke.
+  FormValidationError? get firstError {
+    for (final FormValidationResponse response in responses) {
+      if (response is FormValidationError) return response;
+    }
+    return null;
+  }
+
   /// Get the validated data from the validation responses
   List<dynamic> validatedData() {
     return responses.map((response) => response.data).toList();
@@ -550,20 +561,13 @@ class FormValidationResult {
 
   /// Get the error message for the validation failure.
   String? getFirstErrorMessage() {
-    if (errorResponses.isEmpty) {
-      return null;
-    }
-
-    return _formatMessage(errorResponses.first.rule);
+    final FormValidationError? error = firstError;
+    if (error == null) return null;
+    return _formatMessage(error.rule);
   }
 
   /// Get the first error rule from the validation responses.
-  FormRule? getFirstErrorRule() {
-    if (errorResponses.isEmpty) {
-      return null;
-    }
-    return errorResponses.first.rule;
-  }
+  FormRule? getFirstErrorRule() => firstError?.rule;
 
   /// Get all error rules from the validation responses.
   List<FormRule> getErrorRules() {
