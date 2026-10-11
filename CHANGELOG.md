@@ -1,3 +1,9 @@
+## [7.31.4] - 2026-10-11
+
+### Fixed
+
+* **`refreshToken` gets a new `Dio` again** - 7.31.3 passed `refreshToken` the service's own client, so the refresh request ran through the service's interceptors and carried its headers, including a bearer token set with `setBearerToken`. An interceptor that reacts to auth, such as one that refreshes on a 401, could then trigger itself. `refreshToken` once more receives a new `Dio`, separate from the service's client and its interceptors
+
 ## [7.31.3] - 2026-10-11
 
 ### Added
