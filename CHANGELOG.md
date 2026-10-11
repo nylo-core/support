@@ -1,3 +1,25 @@
+## [7.31.3] - 2026-10-11
+
+### Added
+
+* **`Nylo.hasApiDecoder<T>()`** - Whether an API service is registered for `T`, as a singleton or a factory. `api<T>()` now also finds services registered as singletons
+* **`FormValidationResult.firstError`** - The first failing rule's `FormValidationError`, found without building the full error list, so it is cheap to call on every keystroke
+* **`BaseThemeConfig.invalidateThemeData()`** - `themeData` is now built once and cached; call this after changing a theme's colors to rebuild it
+
+### Changed
+
+* **Faster boot** - Date formatting and the local time zone, theme setup and saved theme preferences, a language file and its fallback, and async service factories now load in parallel. `onInit`, `onReady` and `onAppReady` still run in list order. `syncKeys` reads storage once instead of once per key, and runs its callbacks together
+* **Faster navigation** - Route patterns are compiled once when they are registered, and a route resolved for a push is reused when its page is built. Route guards attached to a route are added to its controller once
+* **Faster formatting and validation** - `Number` reuses its `NumberFormat`s per locale, currency and precision (`useLocale` and `useCurrency` clear them), and validation rules compile their patterns once
+* **Lighter network logging** - `NetworkLogger` reports payload size from the `Content-Length` header, or as `n items` / `n keys` for a list or map, instead of stringifying the body; `payloadSizeBytes` is `null` when the size is unknown. Deciding whether to pretty-print a body inline stops early instead of stringifying it. `NY_API_LOGS` keeps a summary of each request (method, URI, status code and time) instead of the whole response, and is skipped in release builds
+* **Cached responses return sooner** - Writing a response to the cache no longer delays returning it
+* **`refreshToken` gets the service's `Dio`** - The `dio` passed to `refreshToken` is now the service's own client, so the refresh request shares its base URL, headers and connection pool
+* **Smoother page transitions** - The slide-and-fade transitions use `SlideTransition` and `FadeTransition`, so they animate without rebuilding the page each frame
+* **Picker lists build lazily** - `Field.picker`'s option list builds only the visible options
+* **Smaller time zone data** - Local notifications load the time zone database for the last and next ten years, which is quicker to initialize
+* **Structured logs** - Event, provider, deep link, route, language file and disk log messages carry their details as `context` instead of inside the message text
+* **Lint package** - The package now lints with `vibe_check` instead of `flutter_lints`
+
 ## [7.31.2] - 2026-09-30
 
 ### Fixed
