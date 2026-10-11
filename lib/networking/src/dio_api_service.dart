@@ -402,7 +402,7 @@ class DioApiService {
         }
       }
       if (await shouldRefreshToken()) {
-        await refreshToken(_api);
+        await refreshToken(Dio());
       }
 
       if (bearerToken != null) {
@@ -757,8 +757,9 @@ class DioApiService {
   /// Perform a [Dio] request to update the users auth token.
   /// This method is called when [shouldRefreshToken] returns true.
   /// You can override this method to perform your own request.
-  /// The [dio] parameter is this service's base [Dio] client, so the request
-  /// shares the configured base URL, headers, and connection pool.
+  /// The [dio] parameter is a new instance of [Dio].
+  /// You can use this to perform a request without affecting the
+  /// original [Dio] instance.
   Future<void> refreshToken(Dio dio) async {}
 
   /// Check if the users auth token should be refreshed.

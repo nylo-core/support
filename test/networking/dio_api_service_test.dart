@@ -48,6 +48,25 @@ class TestApiServiceWithRetry extends DioApiService {
   Duration get retryDelay => const Duration(milliseconds: 100);
 }
 
+/// Test API service that refreshes its token before every request
+class TestApiServiceWithRefresh extends DioApiService {
+  TestApiServiceWithRefresh() : super();
+
+  Dio? refreshDio;
+
+  @override
+  String get baseUrl => 'https://api.example.com';
+
+  @override
+  Map<Type, Interceptor> get interceptors => {LogInterceptor: LogInterceptor()};
+
+  @override
+  Future<bool> shouldRefreshToken() async => true;
+
+  @override
+  Future<void> refreshToken(Dio dio) async => refreshDio = dio;
+}
+
 /// Test user model for decoding tests
 class TestUser {
   final int id;
@@ -591,6 +610,28 @@ void main() {
       expect(response.data, {'id': 1});
       expect(response.statusCode, 201);
       expect(response.statusMessage, 'Created');
+    });
+  });
+
+  nyGroup('refreshToken', () {
+    nyTest('gets a new Dio without the service interceptors', () async {
+      final service = TestApiServiceWithRefresh();
+      service.setBearerToken('expired');
+
+      await service.network(
+        request: (Dio dio) {
+          dio.httpClientAdapter = FakeStatusAdapter(200, {'ok': true});
+          return dio.get('/users');
+        },
+      );
+
+      expect(service.refreshDio, isNotNull);
+      expect(service.refreshDio, isNot(same(service.dio)));
+      expect(
+        service.refreshDio!.interceptors.whereType<LogInterceptor>(),
+        isEmpty,
+      );
+      expect(service.refreshDio!.options.headers['Authorization'], isNull);
     });
   });
 }
