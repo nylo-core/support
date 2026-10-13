@@ -1,3 +1,31 @@
+## [7.32.0] - 2026-10-13
+
+### Added
+
+* **Playbooks** - `Playbook` lists the steps of a user journey (`tap`, `longPress`, `type`, `scrollTo`, `see`, `dontSee`, `waitFor`, `waitForPage`, `visit`, `back`, `pause`, `step`, `scene`), and the running app performs them on itself with a visible finger and a step caption. Touches go through `GestureBinding.handlePointerEvent` and typing through `EditableTextState`, so buttons, gestures, input formatters and `onChanged` see the same events as from a person. A plain string target is matched the way a person reads the screen: visible text, then a field's hint or label, a tooltip, a semantics label, a `ValueKey`, then text containing it. `Find` gives precise targets (`Find.icon`, `Find.type<T>()`, `Find.key`, `Find.field` for `NyForm` fields, `.inside()`, `.at()`). A tap is refused, not passed through, when something like a dialog barrier covers its target
+* **`play()`** - Runs another playbook as a step, by instance or registered name, with its own `setUp` and `tearDown`. Data flows down (the child's defaults, then the parent's data, then `play(..., data:)`), the run's speed is inherited unless `speed:` is given, results nest in the report, a failing child fails the step, and cycles are refused with the chain named (`Playbook cycle: a → b → a`)
+* **`PlaybookSpeed`** - `instant`, `fast`, `natural` and `slow`, and `.times(n)` for a custom pace
+* **`showFinger` and `caption`** - Override `showFinger => false` on a playbook to run its steps without the finger, which comes back for a playbook it plays that leaves it on. `caption` puts the step caption at the top, the bottom or hides it. `--no-overlay` or `run(overlay: false)` hides both for a run
+* **`PlaybookReport`** - Each step's status and time, nested for `play()` and `scene()`, with the text on screen when a step fails. `toString()` reads like Metro's output
+* **Running playbooks from Metro** - `Nylo.addPlaybooks` / `getPlaybooks` and `configure(playbooks:)`, and the live commands `playbooks.list`, `playbooks.run` and `playbooks.stop`. A run returns its id straight away and streams each step as a `nylo.playbook` event, so it can outlast a command's timeout. `status` lists the playbooks. Nylo Live protocol 9
+* **`PLAYBOOK_ON_BOOT`** - Comma-separated playbook names in `.env` to play once the app is on screen, at `PLAYBOOK_SPEED`, in debug and profile builds
+* **Release builds** - Playbooks don't run in release builds: `Playbook.run()` throws `UnsupportedError`, `addPlaybooks` is ignored, Nylo Live and `PLAYBOOK_ON_BOOT` are off, and Metro's generated registry is empty. `Playbook.isAvailable` says whether this build can run them
+* **Testing** - `NyTesterClock(tester)` runs a playbook in a widget test on the tester's clock, so a natural-speed journey takes about a second. `preparePlaybookBinding(binding)` lets a playbook's touches through in integration tests, and `expectPlaybookPassed(report)` fails with the report
+* **`FieldStylePicker.decoration` and `prefixIcon`** - Replace the picker's `InputDecoration`, the same way `FieldStyleDateTimePicker.decoration` does for a date field, or just add an icon before the label. A custom decoration keeps the field's label, the dropdown icon and `prefixIcon` where it gives none of its own
+
+### Changed
+
+* **`NyFormPicker` lays out like a text field** - The picker is now an `InputDecorator`: "Select Category" sits as the label until an option is chosen, then floats above it as "Category", with the dropdown icon as the suffix. Defaults move closer to the other fields (16pt text, 13pt padding, 12pt corner radius), and the picker grows to fit its label and choice above `containerHeight`
+
+### Deprecated
+
+* **`FieldStylePicker.placeholderGap`, `widthBreakpoint`, `placeholderAlignment` and `selectedValuePadding`** - The picker lays out like a text field, so they no longer apply. They will be removed in 8.0
+
+### Fixed
+
+* **A saved language that isn't a locale code is dropped** - `NyLocalization` no longer loads a locale like `_v` from a stored value that isn't a language (such as a storage envelope). It logs the value and clears it, and the app starts in its default language
+* **`NyLogger` before Nylo starts** - Logging before `Nylo` is initialized no longer throws while checking whether to show the date and time
+
 ## [7.31.4] - 2026-10-11
 
 ### Fixed

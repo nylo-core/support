@@ -150,30 +150,20 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
 
   @override
   Widget view(BuildContext context) {
-    final double widthBreakpoint = style.widthBreakpoint;
+    final bool isEmpty = currentValue == null;
 
     final TextStyle selectedValueStyle =
         style.selectedValueTextStyle ??
         TextStyle(
-          color: color(light: Colors.black87, dark: Colors.white),
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
-        );
-
-    final TextStyle fieldNameStyle =
-        style.fieldNameTextStyle ??
-        TextStyle(
-          fontSize: 10,
-          color: color(light: Colors.black54, dark: Colors.white),
-          fontWeight: FontWeight.bold,
+          color: color(light: Colors.black, dark: Colors.white),
+          fontSize: 16,
         );
 
     final TextStyle placeholderStyle =
         style.placeholderTextStyle ??
         TextStyle(
-          color: color(light: Colors.black54, dark: Colors.white),
-          fontSize: 13,
-          fontWeight: FontWeight.bold,
+          color: color(light: Colors.black, dark: Colors.white),
+          fontSize: 16,
         );
 
     final Color containerColor =
@@ -196,71 +186,86 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
     final String placeholderPrefix =
         (style.placeholderPrefix ?? "nylo.form_picker.select").tr();
 
-    return LayoutBuilder(
-      builder: (layoutContext, constraints) {
-        double width = constraints.maxWidth;
-        Widget container = Container(
-          constraints: BoxConstraints(minHeight: style.containerHeight),
-          alignment: Alignment.center,
-          padding: style.containerPadding,
-          decoration: BoxDecoration(
-            color: containerColor,
-            borderRadius: style.containerBorderRadius,
-          ),
-          child: currentValue != null
-              ? SizedBox(
-                  width: double.infinity,
-                  child: Column(
-                    crossAxisAlignment: style.selectedValueAlignment != null
-                        ? style.selectedValueAlignment!.x < 0
-                              ? CrossAxisAlignment.start
-                              : style.selectedValueAlignment!.x > 0
-                              ? CrossAxisAlignment.end
-                              : CrossAxisAlignment.center
-                        : CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        widget.field.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: fieldNameStyle,
-                      ),
-                      SizedBox(height: 2),
-                      Text(
-                        getOptions().getLabelByValue(currentValue.toString()) ??
-                            currentValue.toString(),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: selectedValueStyle,
-                      ),
-                    ],
-                  ),
-                )
-              : Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment:
-                      style.placeholderAlignment ?? MainAxisAlignment.center,
-                  children: [
-                    Flexible(
-                      child: Text(
-                        "$placeholderPrefix ${widget.field.name}",
-                        textAlign: width < widthBreakpoint
-                            ? TextAlign.left
-                            : TextAlign.center,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: placeholderStyle,
-                      ),
-                    ),
-                    Icon(style.dropdownIcon, color: iconColor),
-                  ],
-                ).withGap(style.placeholderGap),
-        ).onTap(() => _selectValue(context));
+    // Before a choice: "Select Category". After: "Category", floated above it.
+    final String labelText = isEmpty
+        ? "$placeholderPrefix ${widget.field.name}"
+        : widget.field.name;
 
-        return container;
-      },
+    final OutlineInputBorder border = OutlineInputBorder(
+      borderRadius: style.containerBorderRadius,
+      borderSide: const BorderSide(color: Colors.transparent),
     );
+
+    final InputDecoration decoration = _decoration(
+      labelText: labelText,
+      dropdownIcon: Icon(style.dropdownIcon, color: iconColor),
+      fallback: InputDecoration(
+        labelText: labelText,
+        labelStyle: placeholderStyle,
+        floatingLabelStyle: style.fieldNameTextStyle,
+        filled: true,
+        fillColor: containerColor,
+        isDense: true,
+        contentPadding: style.containerPadding,
+        border: border,
+        enabledBorder: border,
+        focusedBorder: border,
+      ),
+    );
+
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: style.containerHeight),
+      child: InputDecorator(
+        decoration: decoration,
+        isEmpty: isEmpty,
+        textAlignVertical: TextAlignVertical.center,
+        child: isEmpty
+            ? null
+            : Text(
+                getOptions().getLabelByValue(currentValue.toString()) ??
+                    currentValue.toString(),
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                textAlign: _selectedValueTextAlign(),
+                style: selectedValueStyle,
+              ),
+      ),
+    ).onTap(() => _selectValue(context));
+  }
+
+  /// The style's own [FieldStylePicker.decoration] when it has one, keeping
+  /// the field's label, the dropdown icon and the prefix icon where it gives
+  /// none of its own, otherwise [fallback].
+  InputDecoration _decoration({
+    required String labelText,
+    required Widget dropdownIcon,
+    required InputDecoration fallback,
+  }) {
+    final InputDecoration? custom = style.decoration;
+    if (custom == null) {
+      return fallback.copyWith(
+        prefixIcon: style.prefixIcon,
+        suffixIcon: dropdownIcon,
+      );
+    }
+    final bool hasLabelOrHint =
+        custom.labelText != null ||
+        custom.label != null ||
+        custom.hintText != null ||
+        custom.hint != null;
+    return custom.copyWith(
+      labelText: hasLabelOrHint ? custom.labelText : labelText,
+      prefixIcon: custom.prefixIcon ?? style.prefixIcon,
+      suffixIcon: custom.suffixIcon ?? dropdownIcon,
+    );
+  }
+
+  /// [FieldStylePicker.selectedValueAlignment] as a [TextAlign].
+  TextAlign _selectedValueTextAlign() {
+    final double x = style.selectedValueAlignment?.x ?? -1;
+    if (x < 0) return TextAlign.start;
+    if (x > 0) return TextAlign.end;
+    return TextAlign.center;
   }
 
   /// Get the list of options from the field

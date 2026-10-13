@@ -317,7 +317,8 @@ class NyLogger {
     String contextSuffix = _formatContext(context);
     try {
       String logMessage;
-      if (Nylo.instance.shouldShowDateTimeInLogs()) {
+      if (Backpack.instance.isNyloInitialized() &&
+          Nylo.instance.shouldShowDateTimeInLogs()) {
         String dateTimeFormatted = nowToDateTime;
         logMessage =
             '[$dateTimeFormatted] ${type != null ? "[$type] " : ""}$interpolatedMessage$contextSuffix';

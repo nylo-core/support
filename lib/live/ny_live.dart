@@ -1,7 +1,7 @@
 /// Nylo Live: run commands inside your running app from Metro.
 ///
 /// Built-in commands (`metro live:run route`, `metro live:run storage`, ...),
-/// your own [LiveCommand]s from `lib/app/commands/` and your [Seeder]s from
+/// your own [LiveCommand]s from `lib/app/commands/`, your [Seeder]s from
 /// `lib/app/seeders/` are exposed to Metro as Dart VM service extensions while
 /// the app runs in debug or profile mode. Release builds never register them.
 library;

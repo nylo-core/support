@@ -25,6 +25,7 @@ import 'localization/ny_localization.dart';
 import '/events/ny_events.dart' show NyEvent;
 import '/file_storage/ny_file_storage.dart' show DiskConfig, FileStorage;
 import '/live/ny_live.dart' show NyLive, LiveCommand, Seeder;
+import '/playbook/ny_playbook.dart' show Playbook, PlaybookRunner;
 
 class Nylo {
   /// Flag to indicate if the app is running in test mode.
@@ -73,6 +74,7 @@ class Nylo {
   Map<AppLifecycleState, Function()>? _appLifecycle;
   final Map<String, LiveCommand Function()> _liveCommands = {};
   final Map<String, Seeder Function()> _seeders = {};
+  final Map<String, Playbook Function()> _playbooks = {};
   bool _useLive = true;
 
   /// Get the cache instance
@@ -471,6 +473,26 @@ class Nylo {
   /// The seeders registered with [addSeeders].
   Map<String, Seeder Function()> getSeeders() => Map.unmodifiable(_seeders);
 
+  /// Register playbooks that `metro live:run playbook <name>` runs inside
+  /// the app.
+  ///
+  /// Keys are the names you run them by. Ignored in release builds, where
+  /// playbooks don't run.
+  ///
+  /// ```dart
+  /// nylo.addPlaybooks({
+  ///   'sign_up_to_dashboard': SignUpToDashboardPlaybook.new,
+  /// });
+  /// ```
+  void addPlaybooks(Map<String, Playbook Function()> playbooks) {
+    if (!Playbook.isAvailable) return;
+    _playbooks.addAll(playbooks);
+  }
+
+  /// The playbooks registered with [addPlaybooks].
+  Map<String, Playbook Function()> getPlaybooks() =>
+      Map.unmodifiable(_playbooks);
+
   /// Add [disks] for [FileStorage] and `disk()`, on top of the defaults
   /// (`local`, `documents`, `cache`, `temp` and `assets`); a disk with the
   /// same name as a default replaces it. [defaultDisk] names the disk used
@@ -825,6 +847,9 @@ class Nylo {
     if (setup != null) {
       await setup.boot(nyloApp);
     }
+
+    // PLAYBOOK_ON_BOOT in .env runs playbooks once the app is on screen.
+    if (!kReleaseMode && !isTestMode) PlaybookRunner.startOnBoot();
 
     return nyloApp;
   }
@@ -1217,6 +1242,7 @@ class Nylo {
     // Live commands (metro live:*)
     Map<String, LiveCommand Function()>? liveCommands,
     Map<String, Seeder Function()>? seeders,
+    Map<String, Playbook Function()>? playbooks,
     bool? useLive,
 
     // Localization
@@ -1305,6 +1331,7 @@ class Nylo {
     // Live commands
     if (liveCommands != null) addLiveCommands(liveCommands);
     if (seeders != null) addSeeders(seeders);
+    if (playbooks != null) addPlaybooks(playbooks);
     if (useLive != null) this.useLive(useLive);
   }
 

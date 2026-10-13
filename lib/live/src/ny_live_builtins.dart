@@ -10,6 +10,7 @@ import '/helpers/ny_helpers.dart';
 import '/local_storage/ny_local_storage.dart';
 import '/localization/ny_localization.dart';
 import '/nylo.dart';
+import '/playbook/ny_playbook.dart';
 import '/router/ny_router.dart';
 import '/themes/ny_themes.dart';
 import 'ny_live.dart';
@@ -56,6 +57,9 @@ final Map<String, NyLiveHandler> nyLiveBuiltIns = {
   'commands.run': _commandsRun,
   'seeders.list': _seedersList,
   'seeders.run': _seedersRun,
+  'playbooks.list': _playbooksList,
+  'playbooks.run': _playbooksRun,
+  'playbooks.stop': _playbooksStop,
 };
 
 // ---------------------------------------------------------------------------
@@ -79,6 +83,7 @@ Future<Object?> _status(Map<String, dynamic> args) async => {
   'authenticated': await _isAuthenticated(),
   'commands': NyLive.commandNames,
   'seeders': NyLive.seederNames,
+  'playbooks': NyLive.playbookNames,
 };
 
 // ---------------------------------------------------------------------------
@@ -725,6 +730,62 @@ Future<Object?> _seedersRun(Map<String, dynamic> args) async {
     'runs': [for (final SeedRun run in runs) run.toJson()],
     'failed': runs.any((SeedRun run) => run.failed),
   };
+}
+
+// ---------------------------------------------------------------------------
+// Playbooks
+// ---------------------------------------------------------------------------
+
+Future<Object?> _playbooksList(Map<String, dynamic> args) async => {
+  'playbooks': PlaybookRunner.list(),
+  'running': PlaybookRunner.activeRunId,
+};
+
+Future<Object?> _playbooksRun(Map<String, dynamic> args) async {
+  final dynamic names = args['names'];
+  if (names is! List ||
+      names.isEmpty ||
+      names.any((dynamic name) => name is! String || name.isEmpty)) {
+    throw const LiveException.invalidParams(
+      '"names" must be a list of playbook names.',
+    );
+  }
+  final String? speedName = _optionalString(args, 'speed');
+  final PlaybookSpeed? speed = speedName == null
+      ? null
+      : PlaybookSpeed.named(speedName);
+  if (speedName != null && speed == null) {
+    throw LiveException.invalidParams(
+      '"speed" must be ${PlaybookSpeed.presets.keys.join(', ')}, not '
+      '"$speedName".',
+    );
+  }
+  final dynamic data = args['data'];
+  if (data != null && data is! Map) {
+    throw const LiveException.invalidParams('"data" must be a JSON object.');
+  }
+  final dynamic overlay = args['overlay'] ?? true;
+  final dynamic loop = args['loop'] ?? false;
+  if (overlay is! bool || loop is! bool) {
+    throw const LiveException.invalidParams(
+      '"overlay" and "loop" must be true or false.',
+    );
+  }
+
+  final String runId = PlaybookRunner.start(
+    names.cast<String>(),
+    speed: speed,
+    data: data == null ? null : Map<String, dynamic>.from(data),
+    overlay: overlay,
+    loop: loop,
+  );
+  return {'runId': runId, 'names': names};
+}
+
+Future<Object?> _playbooksStop(Map<String, dynamic> args) async {
+  final String? runId = _optionalString(args, 'runId');
+  final String? active = PlaybookRunner.activeRunId;
+  return {'stopped': PlaybookRunner.stop(runId), 'runId': runId ?? active};
 }
 
 // ---------------------------------------------------------------------------

@@ -95,6 +95,9 @@ export 'src/mocks/ny_mock_channels.dart';
 export 'src/mocks/ny_mock_route_guard.dart';
 export 'src/mocks/ny_test_cache.dart';
 
+// Playbooks
+export 'src/ny_playbook_testing.dart';
+
 // File storage fakes
 export 'src/fake_disk.dart';
 export 'src/disk_driver_contract.dart';

@@ -800,6 +800,10 @@ class PickerListTileStyle {
   final Color? selectedTileColor;
 }
 
+const String _pickerLayoutDeprecation =
+    'The picker lays out like a text field, so this no longer applies. '
+    'Will be removed in 8.0.';
+
 /// FieldStylePicker is used to define the style for a picker field.
 ///
 /// Style configuration for picker fields that display selection options in a modal.
@@ -811,12 +815,14 @@ class FieldStylePicker extends FieldStyle {
   FieldStylePicker({
     this.bottomModalSheetStyle,
     this.listTileStyle,
+    this.decoration,
+    this.prefixIcon,
     this.containerHeight = 50.0,
     this.containerPadding = const EdgeInsets.symmetric(
-      horizontal: 10,
-      vertical: 4,
+      horizontal: 13,
+      vertical: 13,
     ),
-    this.containerBorderRadius = const BorderRadius.all(Radius.circular(8)),
+    this.containerBorderRadius = const BorderRadius.all(Radius.circular(12)),
     this.containerColor,
     this.selectedValueTextStyle,
     this.fieldNameTextStyle,
@@ -834,10 +840,11 @@ class FieldStylePicker extends FieldStyle {
       horizontal: 20,
     ),
     this.bottomSheetDividerColor,
-    this.placeholderGap = 10.0,
-    this.widthBreakpoint = 200.0,
-    this.placeholderAlignment,
+    @Deprecated(_pickerLayoutDeprecation) this.placeholderGap = 10.0,
+    @Deprecated(_pickerLayoutDeprecation) this.widthBreakpoint = 200.0,
+    @Deprecated(_pickerLayoutDeprecation) this.placeholderAlignment,
     this.selectedValueAlignment = Alignment.centerLeft,
+    @Deprecated(_pickerLayoutDeprecation)
     this.selectedValuePadding = const EdgeInsets.only(top: 10),
     super.headerSpacing,
     super.footerSpacing,
@@ -848,25 +855,39 @@ class FieldStylePicker extends FieldStyle {
   /// Style for individual list tiles in the picker bottom sheet.
   final PickerListTileStyle? listTileStyle;
 
-  /// Height of the picker container
+  /// Replaces the picker's [InputDecoration], the same way
+  /// `FieldStyleDateTimePicker.decoration` does for a date field.
+  ///
+  /// It keeps the field's label when it gives none (no label, no hint), the
+  /// [dropdownIcon] when it has no suffix icon, and [prefixIcon] when it has
+  /// no prefix icon.
+  final InputDecoration? decoration;
+
+  /// Widget shown before the label, like a text field's `prefixIcon`.
+  ///
+  /// e.g. `FieldStylePicker(prefixIcon: Icon(Icons.category_outlined))`
+  final Widget? prefixIcon;
+
+  /// Minimum height of the picker; it grows to fit its label and choice
   final double containerHeight;
 
-  /// Padding inside the picker container
+  /// Padding inside the picker, used as its `contentPadding`
   final EdgeInsets containerPadding;
 
-  /// Border radius of the picker container
+  /// Border radius of the picker
   final BorderRadius containerBorderRadius;
 
-  /// Background color of the picker container (light/dark)
+  /// Background color of the picker (light/dark)
   final NyColor? containerColor;
 
-  /// Text style for the selected value display
+  /// Text style for the chosen option
   final TextStyle? selectedValueTextStyle;
 
-  /// Text style for the field name label
+  /// Text style for the field name once it floats above a chosen option
   final TextStyle? fieldNameTextStyle;
 
-  /// Text style for the placeholder text
+  /// Text style for the label, "Select" and the field name, before an option
+  /// is chosen
   final TextStyle? placeholderTextStyle;
 
   /// Prefix text for the placeholder (default "Select")
@@ -891,29 +912,33 @@ class FieldStylePicker extends FieldStyle {
   final NyColor? bottomSheetDividerColor;
 
   /// Gap between placeholder text and dropdown icon
+  @Deprecated(_pickerLayoutDeprecation)
   final double placeholderGap;
 
   /// Width breakpoint for switching between compact and full layout
+  @Deprecated(_pickerLayoutDeprecation)
   final double widthBreakpoint;
 
   /// Alignment of the placeholder/selected-value row
+  @Deprecated(_pickerLayoutDeprecation)
   final MainAxisAlignment? placeholderAlignment;
 
-  /// Alignment of the selected value text within the picker container.
+  /// Horizontal alignment of the chosen option's text.
   ///
-  /// When set, overrides the default alignment behavior (left for compact, center for full layout).
-  /// Use values like [Alignment.centerLeft], [Alignment.center], or [Alignment.centerRight].
+  /// Use values like [Alignment.centerLeft], [Alignment.center], or
+  /// [Alignment.centerRight].
   final Alignment? selectedValueAlignment;
 
   /// Padding around the selected value text.
-  ///
-  /// Useful when [selectedValueAlignment] is set to avoid overlapping with the field name label.
+  @Deprecated(_pickerLayoutDeprecation)
   final EdgeInsets? selectedValuePadding;
 
   @override
   FieldStylePicker copyWith({
     BottomModalSheetStyle? bottomModalSheetStyle,
     PickerListTileStyle? listTileStyle,
+    InputDecoration? decoration,
+    Widget? prefixIcon,
     double? containerHeight,
     EdgeInsets? containerPadding,
     BorderRadius? containerBorderRadius,
@@ -928,11 +953,12 @@ class FieldStylePicker extends FieldStyle {
     BorderRadius? bottomSheetBorderRadius,
     EdgeInsets? bottomSheetPadding,
     NyColor? bottomSheetDividerColor,
-    double? placeholderGap,
-    double? widthBreakpoint,
+    @Deprecated(_pickerLayoutDeprecation) double? placeholderGap,
+    @Deprecated(_pickerLayoutDeprecation) double? widthBreakpoint,
+    @Deprecated(_pickerLayoutDeprecation)
     MainAxisAlignment? placeholderAlignment,
     Alignment? selectedValueAlignment,
-    EdgeInsets? selectedValuePadding,
+    @Deprecated(_pickerLayoutDeprecation) EdgeInsets? selectedValuePadding,
     double? headerSpacing,
     double? footerSpacing,
   }) {
@@ -940,6 +966,8 @@ class FieldStylePicker extends FieldStyle {
       bottomModalSheetStyle:
           bottomModalSheetStyle ?? this.bottomModalSheetStyle,
       listTileStyle: listTileStyle ?? this.listTileStyle,
+      decoration: decoration ?? this.decoration,
+      prefixIcon: prefixIcon ?? this.prefixIcon,
       containerHeight: containerHeight ?? this.containerHeight,
       containerPadding: containerPadding ?? this.containerPadding,
       containerBorderRadius:

@@ -34,7 +34,9 @@ class NyLive {
   /// 6: saving a Backpack value (`backpack.set`).
   /// 7: the signed-in sessions (`auth.show`).
   /// 8: deep links (`deeplink.show` and `deeplink.open`).
-  static const int protocolVersion = 8;
+  /// 9: playbooks (`playbooks.list`, `playbooks.run`, `playbooks.stop` and
+  ///    `nylo.playbook` events).
+  static const int protocolVersion = 9;
 
   /// Prefix of every service extension Nylo registers.
   static const String extensionPrefix = 'ext.nylo.';
@@ -57,6 +59,7 @@ class NyLive {
     'state.data',
     'commands.list',
     'seeders.list',
+    'playbooks.list',
   };
 
   /// Overrides the debug-build check in tests.
@@ -92,6 +95,10 @@ class NyLive {
 
   /// The names of the registered seeders.
   static List<String> get seederNames => seeders.keys.toList();
+
+  /// The names of the registered playbooks.
+  static List<String> get playbookNames =>
+      Nylo.isInitialized() ? Nylo.instance.getPlaybooks().keys.toList() : [];
 
   /// Registers the service extensions, route observer and log listener.
   ///

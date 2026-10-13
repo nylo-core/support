@@ -224,13 +224,14 @@ void main() {
     nyTest('describes the running app', () async {
       final Map status = (await NyLive.dispatch('status')) as Map;
 
-      expect(status['protocol'], 8);
+      expect(status['protocol'], 9);
       expect(status['app'], 'Live Test');
       expect(status['env'], 'testing');
       expect(status['mode'], 'debug');
       expect(status['platform'], isA<String>());
       expect(status['authenticated'], isFalse);
       expect(status['commands'], ['demo:seed', 'demo:broken']);
+      expect(status['playbooks'], isEmpty);
       expect(status['stack'], isA<List>());
       expect(() => jsonEncode(status), returnsNormally);
     });

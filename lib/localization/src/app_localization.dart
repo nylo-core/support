@@ -96,8 +96,17 @@ class NyLocalization {
     if (!Nylo.isTestMode) {
       final Map<String, dynamic>? savedLanguage =
           await LanguageSwitcher.currentLanguage();
-      if (savedLanguage != null) {
-        _locale = Locale(savedLanguage.entries.first.key);
+      final String? savedCode = savedLanguage?.keys.firstOrNull;
+      if (savedCode != null && _isLocaleCode(savedCode)) {
+        _locale = Locale(savedCode);
+      } else if (savedLanguage != null) {
+        // The stored value isn't a language (e.g. a storage envelope), so
+        // drop it rather than loading a locale like "_v".
+        NyLogger.error(
+          'Ignoring saved language, it is not a locale code',
+          context: {'saved_language': savedLanguage},
+        );
+        await LanguageSwitcher.clearLanguage();
       }
     }
 
@@ -115,6 +124,10 @@ class NyLocalization {
     _values = results[0];
     _fallbackValues = needsFallback ? results[1] : null;
   }
+
+  /// Whether [code] looks like a locale code, e.g. `en`, `pt_BR`, `zh-Hant`.
+  static bool _isLocaleCode(String code) =>
+      RegExp(r'^[a-zA-Z]{2,3}([_-][a-zA-Z0-9]{2,8})*$').hasMatch(code);
 
   /// Loads a language JSON file from assets.
   /// Falls back to [fallbackLanguageCode] if the primary file is not found.

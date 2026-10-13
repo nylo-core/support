@@ -162,6 +162,94 @@ void main() {
       final Size size = tester.getSize(find.byType(NyFormPicker));
       expect(size.height, greaterThanOrEqualTo(50));
     });
+
+    /// #308: the picker lays out like the text fields beside it.
+    testWidgets('shows a prefixIcon', (tester) async {
+      final Field field = Field.picker(
+        "Reason",
+        options: FormCollection.from({"billing": "Billing"}),
+        style: FieldStylePicker(prefixIcon: const Icon(Icons.phone)),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      expect(find.byIcon(Icons.phone), findsOneWidget);
+    });
+
+    testWidgets('shows its label and choice at 16pt', (tester) async {
+      final Field field = Field.picker(
+        "Reason",
+        value: "billing",
+        options: FormCollection.from({"billing": "Billing"}),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      final Text choice = tester.widget<Text>(find.text("Billing"));
+      expect(choice.style?.fontSize, 16);
+      final InputDecorator decorator = tester.widget<InputDecorator>(
+        find.byType(InputDecorator),
+      );
+      expect(decorator.decoration.labelStyle?.fontSize, 16);
+    });
+
+    testWidgets('floats its label above a choice, like a text field', (
+      tester,
+    ) async {
+      final Field field = Field.picker(
+        "Reason",
+        options: FormCollection.from({"billing": "Billing"}),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      InputDecorator decorator() =>
+          tester.widget<InputDecorator>(find.byType(InputDecorator));
+      expect(decorator().isEmpty, isTrue);
+      expect(find.text("Select Reason"), findsOneWidget);
+
+      field.setValue("billing");
+      await tester.pumpAndSettle();
+
+      expect(decorator().isEmpty, isFalse);
+      expect(decorator().decoration.labelText, "Reason");
+      expect(find.text("Billing"), findsOneWidget);
+    });
+
+    testWidgets('keeps the dropdown icon at the end once chosen', (
+      tester,
+    ) async {
+      final Field field = Field.picker(
+        "Reason",
+        value: "billing",
+        options: FormCollection.from({"billing": "Billing"}),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      final Rect picker = tester.getRect(find.byType(NyFormPicker));
+      final Rect icon = tester.getRect(find.byIcon(Icons.arrow_drop_down));
+      expect(picker.right - icon.right, lessThan(24));
+    });
+
+    testWidgets('keeps its label and icons under a custom decoration', (
+      tester,
+    ) async {
+      final Field field = Field.picker(
+        "Reason",
+        options: FormCollection.from({"billing": "Billing"}),
+        style: FieldStylePicker(
+          decoration: const InputDecoration(filled: true),
+          prefixIcon: const Icon(Icons.phone),
+        ),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      expect(find.text("Select Reason"), findsOneWidget);
+      expect(find.byIcon(Icons.phone), findsOneWidget);
+      expect(find.byIcon(Icons.arrow_drop_down), findsOneWidget);
+    });
   });
 
   nyGroup('Field.chips in dark mode', () {
