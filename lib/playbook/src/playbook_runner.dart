@@ -56,14 +56,17 @@ abstract final class PlaybookRunner {
   /// Starts the playbooks [names] back to back and returns the run's id.
   ///
   /// [speed] overrides each playbook's own, and [data] is shared by all of
-  /// them. With [loop], the list repeats until [stop]. Throws a
-  /// [LiveException] when a name is unknown or a playbook is running.
+  /// them. With [loop], the list repeats until [stop]. A [countdown] counts
+  /// that many seconds down on screen first, so there's time to start a
+  /// screen recording. Throws a [LiveException] when a name is unknown or a
+  /// playbook is running.
   static String start(
     List<String> names, {
     PlaybookSpeed? speed,
     Map<String, dynamic>? data,
     bool overlay = true,
     bool loop = false,
+    int countdown = 0,
     PlaybookClock? clock,
   }) {
     if (_runId != null || Playbook.isRunning) {
@@ -95,6 +98,7 @@ abstract final class PlaybookRunner {
       data: data,
       overlay: overlay,
       loop: loop,
+      countdown: countdown,
       clock: clock,
     );
     return runId;
@@ -115,6 +119,7 @@ abstract final class PlaybookRunner {
     Map<String, dynamic>? data,
     required bool overlay,
     required bool loop,
+    required int countdown,
     PlaybookClock? clock,
   }) async {
     final Stopwatch stopwatch = Stopwatch()..start();
@@ -139,6 +144,13 @@ abstract final class PlaybookRunner {
         overlay: overlay,
         caption: PlaybookRegistry.find(names.first)!.caption,
       );
+      for (int left = countdown; left > 0; left--) {
+        if (session.stopRequested) break;
+        session.overlay?.countdown.value = left;
+        emit({'event': 'countdown', 'left': left});
+        await session.clock.wait(const Duration(seconds: 1));
+      }
+      session.overlay?.countdown.value = null;
       do {
         iteration++;
         for (final String name in names) {

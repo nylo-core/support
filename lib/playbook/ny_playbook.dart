@@ -1,8 +1,8 @@
 /// Playbooks: user journeys your app performs on itself.
 ///
 /// A [Playbook] lists the taps, typing, scrolling and page changes of a
-/// journey. The app performs it with a visible finger at a natural, fast or
-/// slow pace, from Metro (`metro live:run playbook <name>`), on boot
+/// journey. The app performs it at a natural, fast or slow pace, optionally
+/// with a visible finger and step captions, from Metro (`metro live:run playbook <name>`), on boot
 /// (`PLAYBOOK_ON_BOOT`), or in a widget or integration test.
 library;
 

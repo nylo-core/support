@@ -1,6 +1,8 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/live/ny_live.dart';
+import 'package:nylo_support/live/src/ny_live_builtins.dart'
+    show simulatorIdFromPath;
 import 'package:nylo_support/nylo.dart';
 import 'package:nylo_support/playbook/ny_playbook.dart';
 import 'package:nylo_support/testing/src/ny_playbook_testing.dart';
@@ -132,6 +134,43 @@ void main() {
     );
   });
 
+  testWidgets('a countdown is shown and reported before the first step', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const PlaybookTestApp());
+
+    // Each event is emitted after the previous second was pumped, so the
+    // screen still shows the number before it.
+    final List<String?> shown = [];
+    NyLive.onEmit = (String kind, Map<String, Object?> data) {
+      if (kind != 'playbook') return;
+      events.add(data);
+      if (data['event'] == 'countdown' || data['event'] == 'start') {
+        shown.add(
+          [
+            '1',
+            '2',
+          ].where((n) => find.text(n).evaluate().isNotEmpty).firstOrNull,
+        );
+      }
+    };
+    PlaybookRunner.start(
+      ['sign_up_to_dashboard', 'log_out'],
+      speed: PlaybookSpeed.instant,
+      countdown: 2,
+      clock: NyTesterClock(tester),
+    );
+    await PlaybookRunner.done;
+
+    expect(kinds().take(3), ['countdown', 'countdown', 'start']);
+    expect(events[0]['left'], 2);
+    expect(events[1]['left'], 1);
+    expect(shown.take(3), [null, '2', '1']);
+    await tester.pump();
+    expect(find.text('1'), findsNothing);
+    expect(events.last['passed'], isTrue);
+  });
+
   testWidgets('loop repeats until stopped', (WidgetTester tester) async {
     await tester.pumpWidget(const PlaybookTestApp());
 
@@ -167,7 +206,20 @@ void main() {
 
     final Object? status = await NyLive.dispatch('status');
     expect((status as Map)['playbooks'], contains('log_out'));
-    expect(status['protocol'], 9);
+    expect(status['protocol'], 10);
+    expect(status.containsKey('simulator'), isFalse);
+    expect(
+      simulatorIdFromPath(
+        '/Users/a/Library/Developer/CoreSimulator/Devices/'
+        '5C3B43A5-2149-445F-8D80-6F72B766D4D4/data/Containers/Data/'
+        'Application/1A9/tmp',
+      ),
+      '5C3B43A5-2149-445F-8D80-6F72B766D4D4',
+    );
+    expect(
+      simulatorIdFromPath('/private/var/mobile/Containers/Data/x/tmp'),
+      isNull,
+    );
 
     final Map list = (await NyLive.dispatch('playbooks.list')) as Map;
     final Map signUp = (list['playbooks'] as List).firstWhere(
@@ -199,6 +251,19 @@ void main() {
         'speed': 'warp',
       }),
       throwsA(isA<LiveException>()),
+    );
+    await expectLater(
+      NyLive.dispatch('playbooks.run', {
+        'names': ['log_out'],
+        'countdown': 11,
+      }),
+      throwsA(
+        isA<LiveException>().having(
+          (LiveException e) => e.message,
+          'message',
+          contains('"countdown" must be a whole number of seconds'),
+        ),
+      ),
     );
     expect(await NyLive.dispatch('playbooks.stop'), {
       'stopped': false,

@@ -135,16 +135,26 @@ PlaybookStep _recordFinger(String label) =>
       _HiddenFinger.seen.add('$label ${_fingerShown()}');
     });
 
+class _Inline extends Playbook {
+  _Inline(this._steps);
+
+  final List<PlaybookStep> _steps;
+
+  @override
+  List<PlaybookStep> get steps => _steps;
+}
+
 class _ShownFinger extends Playbook {
+  @override
+  bool get showFinger => true;
+
   @override
   List<PlaybookStep> get steps => [_recordFinger('child')];
 }
 
+// Hidden by default.
 class _HiddenFinger extends Playbook {
   static final List<String> seen = [];
-
-  @override
-  bool get showFinger => false;
 
   @override
   List<PlaybookStep> get steps => [
@@ -230,7 +240,30 @@ void main() {
     expect(report.toString(), contains('(skipped)'));
   });
 
-  testWidgets('showFinger hides the finger for that playbook only', (
+  testWidgets('a playbook shows no finger or caption unless it asks', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(const PlaybookTestApp());
+    final List<bool> shown = [];
+
+    final PlaybookReport report = await _run(
+      tester,
+      _Inline([
+        PlaybookStep('Look', (PlaybookActor actor) async {
+          await actor.tap('Nylo');
+          await actor.settle();
+          shown
+            ..add(_fingerShown())
+            ..add(find.textContaining('1/1 · Look').evaluate().isNotEmpty);
+        }),
+      ]),
+    );
+
+    expectPlaybookPassed(report);
+    expect(shown, [false, false]);
+  });
+
+  testWidgets('showFinger shows the finger for that playbook only', (
     WidgetTester tester,
   ) async {
     await tester.pumpWidget(const PlaybookTestApp());

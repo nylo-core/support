@@ -224,7 +224,7 @@ void main() {
     nyTest('describes the running app', () async {
       final Map status = (await NyLive.dispatch('status')) as Map;
 
-      expect(status['protocol'], 9);
+      expect(status['protocol'], 10);
       expect(status['app'], 'Live Test');
       expect(status['env'], 'testing');
       expect(status['mode'], 'debug');

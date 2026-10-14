@@ -1,3 +1,15 @@
+## [7.33.0] - 2026-10-14
+
+### Added
+
+* **Playbook countdown** - `playbooks.run` takes `countdown` (0–10 seconds). The overlay counts down on screen before the first step, so there's time to start a screen recording, and each second is streamed as a `countdown` event
+* **Simulator in `status`** - On the iOS Simulator, `status` reports the simulator's UDID as `simulator`, read from the app's sandbox path because a Flutter iOS app has an empty `Platform.environment`. Metro uses it to record the right simulator
+* Nylo Live protocol 10
+
+### Changed
+
+* **Playbooks hide the finger and step captions by default** - `Playbook.showFinger` is now `false` and `Playbook.caption` is `PlaybookCaption.hidden`. Override `showFinger => true` and `caption => PlaybookCaption.bottom` (or `.top`) to show them
+
 ## [7.32.0] - 2026-10-13
 
 ### Added

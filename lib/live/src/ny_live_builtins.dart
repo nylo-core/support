@@ -1,5 +1,5 @@
 import 'dart:async';
-import 'dart:io' show Platform;
+import 'dart:io' show Directory, Platform;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -73,6 +73,7 @@ Future<Object?> _status(Map<String, dynamic> args) async => {
   'mode': NyLive.isDebugBuild ? 'debug' : 'profile',
   'platform': kIsWeb ? 'web' : defaultTargetPlatform.name.toLowerCase(),
   'osVersion': kIsWeb ? null : Platform.operatingSystemVersion,
+  'simulator': ?_simulatorId(),
   'route': Nylo.getCurrentRouteName(),
   'stack': _stack(),
   'locale': _orNull(() => NyLocalization.instance.locale.languageCode),
@@ -85,6 +86,27 @@ Future<Object?> _status(Map<String, dynamic> args) async => {
   'seeders': NyLive.seederNames,
   'playbooks': NyLive.playbookNames,
 };
+
+/// The iOS Simulator's UDID, which Metro records the screen of, or null on
+/// any other device.
+String? _simulatorId() {
+  if (kIsWeb || !Platform.isIOS) return null;
+  try {
+    // A Flutter app on iOS gets an empty Platform.environment, but its
+    // sandbox lives in the simulator's folder.
+    return simulatorIdFromPath(Directory.systemTemp.path);
+  } catch (_) {
+    return null;
+  }
+}
+
+/// The simulator UDID in an app sandbox [path], such as
+/// `.../CoreSimulator/Devices/<UDID>/data/...`, or null when it isn't in a
+/// simulator.
+@visibleForTesting
+String? simulatorIdFromPath(String path) => RegExp(
+  r'/CoreSimulator/Devices/([0-9A-Fa-f-]{36})/',
+).firstMatch(path)?.group(1);
 
 // ---------------------------------------------------------------------------
 // Routing
@@ -771,6 +793,12 @@ Future<Object?> _playbooksRun(Map<String, dynamic> args) async {
       '"overlay" and "loop" must be true or false.',
     );
   }
+  final dynamic countdown = args['countdown'] ?? 0;
+  if (countdown is! int || countdown < 0 || countdown > 10) {
+    throw const LiveException.invalidParams(
+      '"countdown" must be a whole number of seconds from 0 to 10.',
+    );
+  }
 
   final String runId = PlaybookRunner.start(
     names.cast<String>(),
@@ -778,6 +806,7 @@ Future<Object?> _playbooksRun(Map<String, dynamic> args) async {
     data: data == null ? null : Map<String, dynamic>.from(data),
     overlay: overlay,
     loop: loop,
+    countdown: countdown,
   );
   return {'runId': runId, 'names': names};
 }

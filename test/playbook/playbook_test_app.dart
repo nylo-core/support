@@ -247,6 +247,10 @@ class LogOutPlaybook extends Playbook {
 }
 
 class BrokenPlaybook extends Playbook {
+  // Shows its caption, so tests can check finders skip it.
+  @override
+  PlaybookCaption get caption => PlaybookCaption.bottom;
+
   @override
   List<PlaybookStep> get steps => [tap('Does not exist'), tap('Get started')];
 }

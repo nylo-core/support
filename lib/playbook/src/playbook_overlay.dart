@@ -10,10 +10,10 @@ enum PlaybookCaption {
   /// Along the top of the screen, under the status bar.
   top,
 
-  /// Along the bottom of the screen. The default.
+  /// Along the bottom of the screen.
   bottom,
 
-  /// No caption; the finger still shows.
+  /// No caption. The default.
   hidden,
 }
 
@@ -23,7 +23,7 @@ enum PlaybookCaption {
 /// the app, and inside a [PlaybookOverlayScope], so finders skip it.
 class PlaybookOverlay {
   /// Creates an overlay showing captions at [caption].
-  PlaybookOverlay({this.caption = PlaybookCaption.bottom});
+  PlaybookOverlay({this.caption = PlaybookCaption.hidden});
 
   /// Where captions are shown.
   PlaybookCaption caption;
@@ -38,7 +38,11 @@ class PlaybookOverlay {
   final ValueNotifier<String?> text = ValueNotifier<String?>(null);
 
   /// Whether the finger is drawn. It still moves while hidden.
-  final ValueNotifier<bool> showFinger = ValueNotifier<bool>(true);
+  final ValueNotifier<bool> showFinger = ValueNotifier<bool>(false);
+
+  /// The seconds left before the run starts, or null when it isn't counting
+  /// down.
+  final ValueNotifier<int?> countdown = ValueNotifier<int?>(null);
 
   OverlayEntry? _entry;
   OverlayState? _overlay;
@@ -87,6 +91,7 @@ class PlaybookOverlay {
     pressed.dispose();
     text.dispose();
     showFinger.dispose();
+    countdown.dispose();
   }
 
   static OverlayState? _findOverlay() {
@@ -147,6 +152,11 @@ class PlaybookOverlay {
                 );
               },
             ),
+          ValueListenableBuilder<int?>(
+            valueListenable: countdown,
+            builder: (BuildContext context, int? left, Widget? child) =>
+                left == null ? const SizedBox.shrink() : _Countdown(left: left),
+          ),
         ],
       ),
     ),
@@ -174,6 +184,34 @@ class _Finger extends StatelessWidget {
           color: _color.withValues(alpha: pressed ? 0.45 : 0.18),
           border: Border.all(color: _color, width: 3),
           boxShadow: const [BoxShadow(color: Color(0x33000000), blurRadius: 6)],
+        ),
+      ),
+    ),
+  );
+}
+
+class _Countdown extends StatelessWidget {
+  const _Countdown({required this.left});
+
+  final int left;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    child: Container(
+      width: 112,
+      height: 112,
+      alignment: Alignment.center,
+      decoration: const BoxDecoration(
+        shape: BoxShape.circle,
+        color: Color(0xE6202124),
+      ),
+      child: Text(
+        '$left',
+        style: const TextStyle(
+          color: Color(0xFFFFFFFF),
+          fontSize: 52,
+          fontWeight: FontWeight.w600,
+          decoration: TextDecoration.none,
         ),
       ),
     ),

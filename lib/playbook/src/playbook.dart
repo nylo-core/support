@@ -15,7 +15,8 @@ import 'playbook_speed.dart';
 import 'playbook_step.dart';
 
 /// A user journey your app performs on itself: taps, typing, scrolling and
-/// page changes, at a natural, fast or slow pace, with a visible finger.
+/// page changes, at a natural, fast or slow pace. Override [showFinger] and
+/// [caption] to show a finger and a caption for each step.
 ///
 /// Playbooks run in debug and profile builds only. In a release build
 /// [run] throws and nothing can be registered, so a journey can't drive a
@@ -73,14 +74,18 @@ abstract class Playbook {
   /// playbook that plays this one wins.
   PlaybookSpeed get speed => PlaybookSpeed.natural;
 
-  /// Where the step caption is shown.
-  PlaybookCaption get caption => PlaybookCaption.bottom;
-
-  /// Whether the finger is drawn while this playbook's steps run.
+  /// Where each step's caption is shown: nowhere by default.
   ///
-  /// Taps and swipes still happen without it. A playbook played by this one
-  /// uses its own setting, and this one's comes back when it finishes.
-  bool get showFinger => true;
+  /// Override it with [PlaybookCaption.bottom] or [PlaybookCaption.top] to
+  /// show what each step is doing, e.g. for a tutorial.
+  PlaybookCaption get caption => PlaybookCaption.hidden;
+
+  /// Whether a finger is drawn where this playbook's steps touch the
+  /// screen. False by default.
+  ///
+  /// Taps and swipes happen either way. A playbook played by this one uses
+  /// its own setting, and this one's comes back when it finishes.
+  bool get showFinger => false;
 
   /// The data the steps start with. A run can override any of it.
   Map<String, dynamic> get defaults => const {};
@@ -163,7 +168,7 @@ abstract class Playbook {
   static Future<PlaybookSession> open({
     PlaybookClock? clock,
     bool overlay = true,
-    PlaybookCaption caption = PlaybookCaption.bottom,
+    PlaybookCaption caption = PlaybookCaption.hidden,
   }) async {
     if (!isAvailable) {
       throw UnsupportedError('Playbooks don\'t run in release builds.');

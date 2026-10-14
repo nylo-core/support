@@ -36,7 +36,9 @@ class NyLive {
   /// 8: deep links (`deeplink.show` and `deeplink.open`).
   /// 9: playbooks (`playbooks.list`, `playbooks.run`, `playbooks.stop` and
   ///    `nylo.playbook` events).
-  static const int protocolVersion = 9;
+  /// 10: recording playbooks (`simulator` in `status`, and `countdown` in
+  ///     `playbooks.run`).
+  static const int protocolVersion = 10;
 
   /// Prefix of every service extension Nylo registers.
   static const String extensionPrefix = 'ext.nylo.';
