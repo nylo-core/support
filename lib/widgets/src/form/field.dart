@@ -251,7 +251,8 @@ class Field {
   FormValidationResult? validate() {
     validator?.setAttribute(name);
     if (validator != null) {
-      return validator!.check(_value);
+      validator!.setData(_value);
+      return validator!.check();
     }
     return null;
   }

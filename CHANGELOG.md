@@ -1,3 +1,13 @@
+## [7.33.1] - 2026-10-17
+
+### Fixed
+
+* **Clearing a picker** - Tapping "Clear" on `NyFormPicker` now calls the field's `onChanged` with `null`, and a field cleared back to `null` is validated as empty, so `FormValidator.notEmpty()` fails again after the choice is removed ([#311](https://github.com/nylo-core/nylo/issues/311))
+
+### Changed
+
+* Updated `flutter_local_notifications` to ^22.3.2, `timezone` to ^0.11.2 and `flutter_timezone` to ^5.1.1
+
 ## [7.33.0] - 2026-10-14
 
 ### Added

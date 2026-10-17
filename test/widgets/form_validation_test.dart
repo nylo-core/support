@@ -558,6 +558,20 @@ void main() {
         'The Name must not be empty.',
       );
     });
+
+    nyTest('a field cleared back to null fails validation again', () async {
+      // https://github.com/nylo-core/nylo/issues/311
+      final field = Field.picker(
+        'Reason',
+        validator: FormValidator.notEmpty(),
+        options: FormCollection.fromArray(['Info', 'Other']),
+      );
+      field.restoreValue('Info');
+      expect(field.validate()?.isValid, isTrue);
+
+      field.restoreValue(null);
+      expect(field.validate()?.isValid, isFalse);
+    });
   });
 
   // ===========================================================================

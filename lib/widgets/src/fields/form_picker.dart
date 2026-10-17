@@ -362,6 +362,9 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
                       "nylo.form_picker.clear".tr(),
                       style: clearButtonStyle,
                     ).onTap(() {
+                      if (widget.onChanged != null) {
+                        widget.onChanged!(null);
+                      }
                       setState(() {
                         currentValue = null;
                         widget.field.restoreValue(null);

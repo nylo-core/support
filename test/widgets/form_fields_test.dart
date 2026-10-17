@@ -408,5 +408,35 @@ void main() {
 
       expect(field.value, 'c299');
     });
+
+    testWidgets('Clear empties the value so notEmpty fails again', (
+      tester,
+    ) async {
+      // https://github.com/nylo-core/nylo/issues/311
+      final List<dynamic> changes = [];
+      final Field field = Field.picker(
+        "Reason",
+        validator: FormValidator.notEmpty(),
+        options: FormCollection.fromArray(['Info', 'Other']),
+        onChanged: changes.add,
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byType(NyFormPicker));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Info'));
+      await tester.pumpAndSettle();
+      expect(field.validate()?.isValid, isTrue);
+
+      await tester.tap(find.byType(NyFormPicker));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Clear'));
+      await tester.pumpAndSettle();
+
+      expect(field.value, isNull);
+      expect(field.validate()?.isValid, isFalse);
+      expect(changes, ['Info', null]);
+    });
   });
 }
