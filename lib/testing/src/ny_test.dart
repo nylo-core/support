@@ -78,6 +78,13 @@ class NyTest {
       NyWidgetTest.configure();
     }
 
+    // Forms and state actions talk over the event bus, which an app adds when
+    // its providers boot. A test that only calls setupApplication would have
+    // none, and a form's submit button would reach no form.
+    if (Backpack.instance.read('event_bus') == null) {
+      Nylo().addEventBus();
+    }
+
     _initialized = true;
 
     if (autoReset) {

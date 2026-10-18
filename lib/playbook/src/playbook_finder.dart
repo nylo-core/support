@@ -31,7 +31,12 @@ abstract final class Find {
   static PlaybookFinder byType(Type type) => _TypeFinder(type);
 
   /// An `Icon` showing [icon].
-  static PlaybookFinder icon(IconData icon) => _IconFinder(icon);
+  ///
+  /// Give it a [label] to name it in captions and reports:
+  /// `Find.icon(Icons.shopping_bag_outlined, label: 'bag')` reads
+  /// `Tap the bag icon` instead of `Tap icon f37d`.
+  static PlaybookFinder icon(IconData icon, {String? label}) =>
+      _IconFinder(icon, label: label);
 
   /// The widget a `Tooltip` with [message] wraps, like an `IconButton`.
   static PlaybookFinder tooltip(String message) => _TooltipFinder(message);
@@ -349,12 +354,15 @@ class _TypeFinder extends PlaybookFinder {
 }
 
 class _IconFinder extends PlaybookFinder {
-  const _IconFinder(this.icon);
+  const _IconFinder(this.icon, {this.label});
 
   final IconData icon;
+  final String? label;
 
   @override
-  String get description => 'icon ${icon.codePoint.toRadixString(16)}';
+  String get description => label == null
+      ? 'icon ${icon.codePoint.toRadixString(16)}'
+      : 'the $label icon';
 
   @override
   List<Element> find(PlaybookTree tree) => [

@@ -502,6 +502,14 @@ void main() {
       expect(() => Find.target(42), throwsArgumentError);
     });
 
+    test('Find.icon reads as its label when it has one', () {
+      expect(Find.icon(Icons.add).description, 'icon e047');
+      expect(
+        Find.icon(Icons.shopping_bag_outlined, label: 'bag').description,
+        'the bag icon',
+      );
+    });
+
     test('Find.field targets a NyForm field by its key', () {
       expect(Find.field('emailAddress').description, 'field "emailAddress"');
     });
