@@ -340,4 +340,294 @@ void main() {
       );
     });
   });
+
+  nyGroup('InputField multi-line prefix icon', () {
+    /// The rendered icon: with [PrefixIconAlignment.top] the decorator also
+    /// holds an invisible copy, which is not hit-testable.
+    Finder visibleIcon(IconData icon) => find.byIcon(icon).hitTestable();
+
+    Rect iconRectWithin(WidgetTester tester, IconData icon, Finder field) {
+      return tester.getRect(visibleIcon(icon)).shift(-tester.getTopLeft(field));
+    }
+
+    testWidgets('a textarea floats its label in line with single-line fields', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              InputField(
+                controller: TextEditingController(text: 'Anthony'),
+                labelText: 'Name',
+                prefixIcon: const Icon(Icons.person),
+              ),
+              InputField(
+                controller: TextEditingController(text: 'Hello'),
+                labelText: 'Bio',
+                maxLines: 5,
+                minLines: 3,
+                prefixIcon: const Icon(Icons.notes),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(find.text('Bio')).dx,
+        tester.getTopLeft(find.text('Name')).dx,
+      );
+    });
+
+    testWidgets('a textarea without a prefix icon keeps its label on top', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(InputField(controller: TextEditingController(), maxLines: 5)),
+      );
+
+      final TextField field = tester.widget(find.byType(TextField));
+      expect(field.decoration!.alignLabelWithHint, isTrue);
+    });
+
+    testWidgets('an explicit alignLabelWithHint is kept', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            maxLines: 5,
+            prefixIcon: const Icon(Icons.notes),
+            decoration: const InputDecoration(alignLabelWithHint: true),
+          ),
+        ),
+      );
+
+      final TextField field = tester.widget(find.byType(TextField));
+      expect(field.decoration!.alignLabelWithHint, isTrue);
+    });
+
+    testWidgets('the prefix icon is centered by default', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            maxLines: 5,
+            minLines: 5,
+            prefixIcon: const Icon(Icons.notes),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getCenter(visibleIcon(Icons.notes)).dy,
+        tester.getCenter(find.byType(TextField)).dy,
+      );
+    });
+
+    testWidgets(
+      'PrefixIconAlignment.top places the icon where a single-line field does',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            InputField(
+              controller: TextEditingController(),
+              labelText: 'Name',
+              prefixIcon: const Icon(Icons.notes),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final Rect singleLine = iconRectWithin(
+          tester,
+          Icons.notes,
+          find.byType(TextField),
+        );
+
+        await tester.pumpWidget(
+          _app(
+            InputField(
+              key: UniqueKey(),
+              controller: TextEditingController(),
+              labelText: 'Bio',
+              maxLines: 5,
+              minLines: 5,
+              prefixIcon: const Icon(Icons.notes),
+              prefixIconAlignment: PrefixIconAlignment.top,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          tester.getSize(find.byType(TextField)).height,
+          greaterThan(singleLine.height * 2),
+        );
+        expect(
+          iconRectWithin(tester, Icons.notes, find.byType(TextField)),
+          singleLine,
+        );
+      },
+    );
+
+    testWidgets('PrefixIconAlignment.top keeps the themed icon color', (
+      tester,
+    ) async {
+      Color? iconColor() => tester
+          .widget<RichText>(
+            find.descendant(
+              of: visibleIcon(Icons.notes),
+              matching: find.byType(RichText),
+            ),
+          )
+          .text
+          .style
+          ?.color;
+
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            prefixIcon: const Icon(Icons.notes),
+            decoration: const InputDecoration(prefixIconColor: Colors.teal),
+          ),
+        ),
+      );
+      final Color? singleLine = iconColor();
+
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            key: UniqueKey(),
+            controller: TextEditingController(),
+            maxLines: 5,
+            prefixIcon: const Icon(Icons.notes),
+            prefixIconAlignment: PrefixIconAlignment.top,
+            decoration: const InputDecoration(prefixIconColor: Colors.teal),
+          ),
+        ),
+      );
+
+      expect(singleLine, isNotNull);
+      expect(iconColor(), singleLine);
+    });
+
+    testWidgets('PrefixIconAlignment.top keeps the floating label aligned', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              InputField(
+                controller: TextEditingController(text: 'Anthony'),
+                labelText: 'Name',
+                prefixIcon: const Icon(Icons.person),
+              ),
+              InputField(
+                controller: TextEditingController(text: 'Hello'),
+                labelText: 'Bio',
+                maxLines: 5,
+                prefixIcon: const Icon(Icons.notes),
+                prefixIconAlignment: PrefixIconAlignment.top,
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(find.text('Bio')).dx,
+        tester.getTopLeft(find.text('Name')).dx,
+      );
+    });
+
+    testWidgets('PrefixIconAlignment.top sits at the start edge in RTL', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: InputField(
+              controller: TextEditingController(),
+              maxLines: 5,
+              prefixIcon: const Icon(Icons.notes),
+              prefixIconAlignment: PrefixIconAlignment.top,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopRight(visibleIcon(Icons.notes)).dx,
+        tester.getTopRight(find.byType(TextField)).dx,
+      );
+    });
+
+    testWidgets('tapping a top-aligned icon focuses the field', (tester) async {
+      final FocusNode node = FocusNode();
+      addTearDown(node.dispose);
+
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            focusNode: node,
+            maxLines: 5,
+            prefixIcon: const Icon(Icons.notes),
+            prefixIconAlignment: PrefixIconAlignment.top,
+          ),
+        ),
+      );
+      await tester.tap(visibleIcon(Icons.notes));
+      await tester.pumpAndSettle();
+
+      expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('PrefixIconAlignment.top leaves single-line fields alone', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            prefixIcon: const Icon(Icons.notes),
+            prefixIconAlignment: PrefixIconAlignment.top,
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.notes), findsOneWidget);
+    });
+
+    testWidgets('Field.textArea takes prefixIconAlignment from its style', (
+      tester,
+    ) async {
+      final Field field = Field.textArea(
+        "bio",
+        label: "Bio",
+        style: FieldStyleTextField(
+          maxLines: 5,
+          minLines: 5,
+          prefixIcon: const Icon(Icons.notes),
+          prefixIconAlignment: PrefixIconAlignment.top,
+        ),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      final InputField input = tester.widget(find.byType(InputField));
+      expect(input.prefixIconAlignment, PrefixIconAlignment.top);
+      expect(
+        tester.getTopLeft(visibleIcon(Icons.notes)).dy,
+        lessThan(tester.getCenter(find.byType(TextField)).dy - 24),
+      );
+    });
+  });
 }

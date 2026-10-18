@@ -6,6 +6,15 @@ import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 import '/widgets/ny_widgets.dart';
 import '/localization/ny_localization.dart';
 
+/// Vertical position of an [InputField]'s prefix icon in a multi-line field.
+enum PrefixIconAlignment {
+  /// Centered on the field's height (Flutter's default).
+  center,
+
+  /// Lined up with the first line of text.
+  top,
+}
+
 /// Nylo's Text Field Widget
 class InputField extends StatefulWidget {
   /// Number of times any [InputField] has built, in debug mode only.
@@ -90,6 +99,13 @@ class InputField extends StatefulWidget {
   final Function(FormValidationResult handleError)? handleValidationError;
   final bool? passwordVisible;
   final Widget? prefixIcon;
+
+  /// Where [prefixIcon] sits vertically in a multi-line field.
+  ///
+  /// Use [PrefixIconAlignment.top] to line the icon up with the first line
+  /// of text in a text area, e.g.
+  /// `InputField(maxLines: 5, prefixIcon: Icon(Icons.notes), prefixIconAlignment: PrefixIconAlignment.top)`
+  final PrefixIconAlignment prefixIconAlignment;
   final Widget? suffixIcon;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
@@ -171,6 +187,7 @@ class InputField extends StatefulWidget {
     this.passwordVisible,
     this.passwordViewable,
     this.prefixIcon,
+    this.prefixIconAlignment = PrefixIconAlignment.center,
     this.suffixIcon,
     this.backgroundColor,
     this.borderRadius,
@@ -252,6 +269,7 @@ class InputField extends StatefulWidget {
     Iterable<String>? autofillHints = const <String>[],
     Clip clipBehavior = Clip.hardEdge,
     Widget? prefixIcon,
+    PrefixIconAlignment prefixIconAlignment = PrefixIconAlignment.center,
     Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
@@ -329,6 +347,7 @@ class InputField extends StatefulWidget {
          autofillHints: autofillHints,
          clipBehavior: clipBehavior,
          prefixIcon: prefixIcon,
+         prefixIconAlignment: prefixIconAlignment,
          suffixIcon: suffixIcon,
          backgroundColor: backgroundColor,
          borderRadius: borderRadius,
@@ -425,6 +444,8 @@ class InputField extends StatefulWidget {
          passwordVisible: style?.passwordVisible,
          passwordViewable: style?.passwordViewable,
          prefixIcon: style?.prefixIcon,
+         prefixIconAlignment:
+             style?.prefixIconAlignment ?? PrefixIconAlignment.center,
          suffixIcon: style?.suffixIcon,
          backgroundColor: style?.backgroundColor,
          borderRadius: style?.borderRadius,
@@ -819,6 +840,7 @@ class InputField extends StatefulWidget {
     Function(String handleError)? handleValidationError,
     bool? passwordVisible,
     Widget? prefixIcon,
+    PrefixIconAlignment? prefixIconAlignment,
     Widget? suffixIcon,
     Color? backgroundColor,
     BorderRadius? borderRadius,
@@ -896,6 +918,7 @@ class InputField extends StatefulWidget {
       clipBehavior: clipBehavior ?? this.clipBehavior,
       passwordVisible: passwordVisible ?? this.passwordVisible,
       prefixIcon: prefixIcon ?? this.prefixIcon,
+      prefixIconAlignment: prefixIconAlignment ?? this.prefixIconAlignment,
       suffixIcon: suffixIcon ?? this.suffixIcon,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
@@ -1023,6 +1046,7 @@ class InputField extends StatefulWidget {
       clipBehavior: clipBehavior,
       passwordVisible: passwordVisible,
       prefixIcon: prefixIcon,
+      prefixIconAlignment: prefixIconAlignment,
       suffixIcon: suffixIcon,
       backgroundColor: backgroundColor,
       borderRadius: borderRadius,
@@ -1353,9 +1377,15 @@ class _InputFieldState extends NyState<InputField> {
             borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
             borderSide: const BorderSide(width: 0, style: BorderStyle.none),
           ),
+      // Flutter only floats the label back over a prefix icon, in line with
+      // other fields, when alignLabelWithHint is off.
       alignLabelWithHint:
           widget.decoration?.alignLabelWithHint ??
-          ((widget.maxLines != null && widget.maxLines! > 1) ? true : null),
+          ((widget.maxLines != null &&
+                  widget.maxLines! > 1 &&
+                  widget.prefixIcon == null)
+              ? true
+              : null),
     );
 
     if (widget.backgroundColor != null) {
@@ -1448,8 +1478,29 @@ class _InputFieldState extends NyState<InputField> {
 
     decoration = decoration.copyWith(errorText: _errorText);
 
+    // Flutter always centers a prefix icon on the field's height. To pin it to
+    // the first line, the decorator gets an invisible copy, so text, label and
+    // border gap lay out as usual, and the real icon is drawn over the top.
+    final Widget? topPrefixIcon =
+        widget.prefixIconAlignment == PrefixIconAlignment.top &&
+            widget.maxLines != 1 &&
+            decoration.icon == null
+        ? decoration.prefixIcon
+        : null;
+    if (topPrefixIcon != null) {
+      decoration = decoration.copyWith(
+        prefixIcon: Visibility(
+          visible: false,
+          maintainSize: true,
+          maintainAnimation: true,
+          maintainState: true,
+          child: topPrefixIcon,
+        ),
+      );
+    }
+
     // TextField
-    TextField textField = TextField(
+    Widget textField = TextField(
       key: widget.key,
       decoration: decoration,
       controller: widget.controller,
@@ -1514,6 +1565,19 @@ class _InputFieldState extends NyState<InputField> {
       enableInteractiveSelection: widget.enableInteractiveSelection,
     );
 
+    if (topPrefixIcon != null) {
+      textField = Stack(
+        children: [
+          textField,
+          PositionedDirectional(
+            start: 0,
+            top: 0,
+            child: _topPrefixIcon(decoration, topPrefixIcon),
+          ),
+        ],
+      );
+    }
+
     if (widget.header != null || widget.footer != null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -1531,5 +1595,56 @@ class _InputFieldState extends NyState<InputField> {
       );
     }
     return textField;
+  }
+
+  /// [icon] for [PrefixIconAlignment.top], themed the way [InputDecorator]
+  /// themes a prefix icon by rendering it in an otherwise empty decorator.
+  ///
+  /// The decorator is one line of text tall, so the icon sits where it would
+  /// in a single-line field. Tapping it focuses the field, as tapping a
+  /// centered prefix icon does.
+  Widget _topPrefixIcon(InputDecoration decoration, Widget icon) {
+    final ThemeData theme = Theme.of(context);
+    final EdgeInsets padding =
+        decoration.contentPadding?.resolve(Directionality.of(context)) ??
+        EdgeInsets.zero;
+    final TextStyle textStyle =
+        (theme.useMaterial3
+                ? theme.textTheme.bodyLarge
+                : theme.textTheme.titleMedium)!
+            .merge(widget.style);
+
+    return GestureDetector(
+      onTap: decoration.enabled ? _effectiveFocusNode.requestFocus : null,
+      child: ListenableBuilder(
+        listenable: _effectiveFocusNode,
+        // A decorator needs a bounded width; size it to the icon alone.
+        builder: (context, _) => IntrinsicWidth(
+          child: InputDecorator(
+            isFocused: _effectiveFocusNode.hasFocus,
+            decoration: InputDecoration(
+              prefixIcon: icon,
+              prefixIconColor: decoration.prefixIconColor,
+              prefixIconConstraints: decoration.prefixIconConstraints,
+              isDense: decoration.isDense,
+              enabled: decoration.enabled,
+              contentPadding: EdgeInsets.only(
+                top: padding.top,
+                bottom: padding.bottom,
+              ),
+              constraints: const BoxConstraints(),
+              filled: false,
+              border: InputBorder.none,
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+              disabledBorder: InputBorder.none,
+              errorBorder: InputBorder.none,
+              focusedErrorBorder: InputBorder.none,
+            ),
+            child: Text('', style: textStyle, strutStyle: widget.strutStyle),
+          ),
+        ),
+      ),
+    );
   }
 }

@@ -236,6 +236,7 @@ class FieldStyleTextField extends FieldStyle {
     this.handleValidationError,
     this.passwordVisible,
     this.prefixIcon,
+    this.prefixIconAlignment,
     this.backgroundColor,
     this.borderRadius,
     this.border,
@@ -361,6 +362,11 @@ class FieldStyleTextField extends FieldStyle {
   final Function(FormValidationResult handleError)? handleValidationError;
   final bool? passwordVisible;
   final Widget? prefixIcon;
+
+  /// Where [prefixIcon] sits vertically in a multi-line field.
+  ///
+  /// e.g. `FieldStyleTextField(maxLines: 5, prefixIconAlignment: PrefixIconAlignment.top)`
+  final PrefixIconAlignment? prefixIconAlignment;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
   final InputBorder? border;
@@ -579,6 +585,7 @@ class FieldStyleTextField extends FieldStyle {
     bool? passwordVisible,
     String? type,
     Widget? prefixIcon,
+    PrefixIconAlignment? prefixIconAlignment,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -661,6 +668,7 @@ class FieldStyleTextField extends FieldStyle {
           enableInteractiveSelection ?? this.enableInteractiveSelection,
       passwordVisible: passwordVisible ?? this.passwordVisible,
       prefixIcon: prefixIcon ?? this.prefixIcon,
+      prefixIconAlignment: prefixIconAlignment ?? this.prefixIconAlignment,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
       border: border ?? this.border,
