@@ -1,3 +1,13 @@
+## [7.35.0] - 2026-10-18
+
+### Added
+
+* **Labelled icon finders** - `Find.icon` takes an optional `label` that names the icon in captions and reports, so `Find.icon(Icons.shopping_bag_outlined, label: 'bag')` reads "Tap the bag icon" instead of "Tap icon f37d"
+
+### Fixed
+
+* **Forms in widget tests** - `NyTest.init` adds an event bus when the app has none, so a form's submit button reaches its form in a test that only calls `setupApplication`
+
 ## [7.34.0] - 2026-10-18
 
 ### Added
