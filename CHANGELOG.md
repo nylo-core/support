@@ -1,3 +1,13 @@
+## [7.36.0] - 2026-10-19
+
+### Added
+
+* **`NyController.check()`** - controllers validate their own fields the way pages do: `check((validate) { validate.that(email.text, label: "Email").email(); }, onSuccess: submit)` runs in the controller, needs no page state and returns the `FormValidationResponseBag`
+
+### Changed
+
+* **Bumped `app_links` from `^7.2.1` to `^7.2.2`, `connectivity_plus` from `^7.3.1` to `^7.3.2`, and `url_launcher` from `^6.3.2` to `^6.3.3`** - routine compatibility refreshes
+
 ## [7.35.0] - 2026-10-18
 
 ### Added

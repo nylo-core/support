@@ -1,6 +1,6 @@
 name: nylo_support
 description: Support library for the Nylo framework. This library supports routing, widgets, localization, cli, storage and more.
-version: 7.35.0
+version: 7.36.0
 homepage: https://nylo.dev
 repository: https://github.com/nylo-core/support/tree/7.x
 issue_tracker: https://github.com/nylo-core/support/issues
@@ -40,9 +40,9 @@ dependencies:
   mask_text_input_formatter: ^2.9.0
   uuid: ^4.6.0
   characters: ^1.4.1
-  connectivity_plus: ^7.3.1
-  url_launcher: ^6.3.2
-  app_links: ^7.2.1
+  connectivity_plus: ^7.3.2
+  url_launcher: ^6.3.3
+  app_links: ^7.2.2
   cross_file: ^0.3.5+5
   mime: ^2.1.0
   crypto: ^3.0.7

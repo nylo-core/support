@@ -1,5 +1,6 @@
 import 'controller.dart';
 import '/helpers/ny_helpers.dart';
+import '/widgets/src/form/validation.dart';
 
 /// Base NyController
 class NyController extends BaseController {
@@ -125,6 +126,47 @@ class NyController extends BaseController {
       "onFailure": onFailure,
       "lockRelease": lockRelease,
     });
+  }
+
+  /// Check data against validation rules from the controller.
+  ///
+  /// Works the same as `check()` in a page: the callback receives a list
+  /// of validators, `.that()` adds one for a value and returns it so rules
+  /// can be chained, and every validator is checked once the callback
+  /// returns. The results come back as a [FormValidationResponseBag].
+  ///
+  /// ```dart
+  /// check((validate) {
+  ///   validate.that(email.text, label: "Email").email();
+  ///   validate.that(password.text, label: "Password").notEmpty();
+  /// }, onSuccess: () {
+  ///   submit();
+  /// }, onValidationError: (bag) {
+  ///   showToastDanger(description: bag.firstErrorMessage ?? '');
+  /// });
+  /// ```
+  ///
+  /// Unlike [validate], this runs here rather than in the page, so it
+  /// works without a [state] and the controller keeps the result.
+  FormValidationResponseBag check(
+    Function(List<FormValidator>) validate, {
+    Function()? onSuccess,
+    Function(FormValidationResponseBag)? onValidationError,
+  }) {
+    List<FormValidator> allValidators = [];
+    validate(allValidators);
+
+    FormValidationResponseBag bag = [
+      for (FormValidator validator in allValidators) validator.check(),
+    ];
+
+    if (onValidationError != null && !bag.isValid) {
+      onValidationError(bag);
+    }
+    if (onSuccess != null && bag.isValid) {
+      onSuccess();
+    }
+    return bag;
   }
 
   /// Update the language in the application

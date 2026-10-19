@@ -463,6 +463,72 @@ void main() {
       });
     });
 
+    nyGroup('check()', () {
+      nyTest(
+        'returns a valid bag and calls onSuccess when rules pass',
+        () async {
+          final controller = TestNyController();
+          bool succeeded = false;
+          FormValidationResponseBag? failedBag;
+
+          final FormValidationResponseBag bag = controller.check(
+            (validate) {
+              validate.that('anthony@nylo.dev', label: 'Email').email();
+              validate.that('Anthony', label: 'Name').notEmpty().capitalized();
+            },
+            onSuccess: () {
+              succeeded = true;
+            },
+            onValidationError: (bag) {
+              failedBag = bag;
+            },
+          );
+
+          expect(bag.isValid, true);
+          expect(bag, hasLength(2));
+          expect(succeeded, true);
+          expect(failedBag, isNull);
+        },
+      );
+
+      nyTest('calls onValidationError with the labelled failure', () async {
+        final controller = TestNyController();
+        bool succeeded = false;
+        FormValidationResponseBag? failedBag;
+
+        final FormValidationResponseBag bag = controller.check(
+          (validate) {
+            validate.that('not-an-email', label: 'Email').email();
+            validate.that('17', label: 'Age').numeric().minValue(18);
+          },
+          onSuccess: () {
+            succeeded = true;
+          },
+          onValidationError: (bag) {
+            failedBag = bag;
+          },
+        );
+
+        expect(bag.isValid, false);
+        expect(succeeded, false);
+        expect(failedBag, same(bag));
+        expect(bag.validationErrors, hasLength(2));
+        expect(bag.firstErrorMessage, contains('Email'));
+      });
+
+      nyTest('works without a page state and fires no events', () async {
+        final controller = TestNyController();
+        controller.state = null;
+
+        final FormValidationResponseBag bag = controller.check((validate) {
+          validate.that('', label: 'Name').notEmpty();
+        });
+
+        expect(bag.isValid, false);
+        expect(mockEventBus.firedEvents, isEmpty);
+      });
+    });
+
     nyGroup('inheritance from BaseController', () {
       nyTest('inherits data() method', () async {
         final request = NyRequest(
