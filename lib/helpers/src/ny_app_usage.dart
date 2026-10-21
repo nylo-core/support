@@ -78,7 +78,10 @@ class NyAppUsage {
         count++;
         await writeValue("launch_count", count.toString());
       } on PlatformException catch (e) {
-        NyLogger.error('App launch not recorded: ${e.message}');
+        NyLogger.error(
+          'App launch not recorded',
+          context: {'error': e.message},
+        );
       }
     });
   }

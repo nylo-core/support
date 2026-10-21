@@ -224,7 +224,10 @@ abstract final class PlaybookRunner {
             if (name.trim().isNotEmpty) name.trim(),
         ], speed: speed);
       } on LiveException catch (e) {
-        NyLogger.error('[Playbook] PLAYBOOK_ON_BOOT: ${e.message}');
+        NyLogger.error(
+          '[Playbook] PLAYBOOK_ON_BOOT could not start',
+          context: {'error': e.message},
+        );
       }
     }());
   }

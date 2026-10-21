@@ -17,6 +17,10 @@ void main() {
   late NyRouter router;
 
   setUp(() {
+    NyEnvRegistry.register(
+      getter: (String key, {dynamic defaultValue}) => defaultValue,
+      containsKey: (String key) => false,
+    );
     Backpack.instance.save('nylo', Nylo());
     router = NyRouter();
     NyNavigator.instance.router = router;

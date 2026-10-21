@@ -86,7 +86,10 @@ class NyDeepLinkHandler {
     _subscription = _appLinks.uriLinkStream.listen(
       handle,
       onError: (Object error) {
-        NyLogger.error('Deep link stream error: $error');
+        NyLogger.error(
+          'Deep link stream error',
+          context: {'error': error.toString()},
+        );
       },
     );
   }

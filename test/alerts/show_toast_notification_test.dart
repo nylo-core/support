@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/alerts/ny_alerts.dart';
+import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 
 void main() {
@@ -8,6 +9,10 @@ void main() {
 
   nyGroup('showToastNotification', () {
     nySetUp(() {
+      NyEnvRegistry.register(
+        getter: (String key, {dynamic defaultValue}) => defaultValue,
+        containsKey: (String key) => false,
+      );
       ToastNotificationRegistry.instance.clear();
     });
 

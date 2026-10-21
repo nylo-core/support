@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '/localization/ny_localization.dart';
+import '/router/ny_router.dart';
 import '/themes/ny_themes.dart';
 
 /// A unified widget that combines theme management and localization.
@@ -102,6 +103,7 @@ class NyApp extends StatefulWidget {
         debugShowCheckedModeBanner: debugShowCheckedModeBanner,
         darkTheme: NyThemeManager.instance.darkTheme?.themeData,
         initialRoute: initialRoute,
+        onGenerateInitialRoutes: NyRouter.previewInitialRoutes(onGenerateRoute),
         onGenerateRoute: onGenerateRoute,
         onUnknownRoute: onUnknownRoute,
         theme: themeData,

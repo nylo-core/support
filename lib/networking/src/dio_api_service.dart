@@ -531,7 +531,7 @@ class DioApiService {
       if (shouldRetry == true && nyRetries > 0) {
         for (var i = 0; i < nyRetries; i++) {
           await Future.delayed(nyRetryDelay);
-          NyLogger.debug("[${i + 1}] Retrying request...");
+          NyLogger.debug("Retrying request...", context: {'attempt': i + 1});
           dynamic response = await networkResponse(
             request: request,
             handleSuccess: handleSuccess,
@@ -629,7 +629,7 @@ class DioApiService {
 
     if (!skipMorph) {
       if (T.toString() != 'dynamic') {
-        morphedData = _morphJsonResponse<T>(response.data);
+        morphedData = _morphJsonResponse<T>(response.data, response);
       } else {
         morphedData = response.data as T?;
       }
@@ -687,9 +687,29 @@ class DioApiService {
 
     return NyResponse<T>(
       response: response,
-      data: null,
+      data: dioException.response == null
+          ? null
+          : _morphErrorResponse<T>(response),
       rawData: response.data,
     );
+  }
+
+  /// Decodes an error [response] body when the decoder for [T] asks for
+  /// error bodies, such as a [OneOf]. Other decoders get null, so a model's
+  /// `fromJson` never sees a validation error.
+  T? _morphErrorResponse<T>(Response response) {
+    if (T.toString() == 'dynamic') return null;
+    dynamic decoder = findDecoder(T, decoders ?? {});
+    if (decoder is! NyDecoder || !decoder.decodesErrors) return null;
+    try {
+      return _morphJsonResponse<T>(response.data, response);
+    } on Object catch (e) {
+      NyLogger.error(
+        'Could not decode the error response',
+        context: {'type': '$T', 'error': e.toString()},
+      );
+      return null;
+    }
   }
 
   /// Creates a generic error response from any Exception
@@ -711,11 +731,13 @@ class DioApiService {
   }
 
   /// Morphs json into Object using 'bootstrap/decoders.dart'.
-  dynamic _morphJsonResponse<T>(dynamic json) {
+  /// [response] is passed to decoders that read it, such as [OneOf].
+  dynamic _morphJsonResponse<T>(dynamic json, Response response) {
     DefaultResponse defaultResponse = DefaultResponse<T>.fromJson(
       json,
       decoders ?? {},
       type: T,
+      response: NyResponse(response: response, data: null, rawData: json),
     );
     return defaultResponse.data;
   }
@@ -726,7 +748,7 @@ class DioApiService {
     T? morphedData;
 
     if (T.toString() != 'dynamic') {
-      morphedData = _morphJsonResponse<T>(response.data);
+      morphedData = _morphJsonResponse<T>(response.data, response);
     } else {
       morphedData = response.data as T?;
     }

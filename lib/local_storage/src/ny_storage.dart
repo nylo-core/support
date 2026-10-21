@@ -74,7 +74,8 @@ class NyStorage {
       await _write(key, jsonEncode(envelope));
     } on NoSuchMethodError catch (_) {
       NyLogger.error(
-        '[NyStorage.save] ${object.runtimeType.toString()} model needs to implement the toJson() method.',
+        '[NyStorage.save] Model needs to implement the toJson() method.',
+        context: {'model': object.runtimeType.toString()},
       );
     }
   }
@@ -99,7 +100,8 @@ class NyStorage {
     } on Exception catch (e) {
       NyLogger.error(e.toString());
       NyLogger.error(
-        '[NyStorage.saveJson] Failed to save $object to local storage. Please ensure that the object is a valid JSON object.',
+        '[NyStorage.saveJson] Failed to save to local storage. Please ensure that the object is a valid JSON object.',
+        context: {'object': '$object'},
       );
     }
   }
@@ -575,7 +577,8 @@ class NyStorage {
       await _write(key, jsonEncode(envelope));
     } on NoSuchMethodError catch (_) {
       NyLogger.error(
-        '[NyStorage.saveWithExpiry] ${object.runtimeType.toString()} model needs to implement the toJson() method.',
+        '[NyStorage.saveWithExpiry] Model needs to implement the toJson() method.',
+        context: {'model': object.runtimeType.toString()},
       );
     }
   }

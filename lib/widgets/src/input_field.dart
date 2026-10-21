@@ -7,6 +7,8 @@ import '/widgets/ny_widgets.dart';
 import '/localization/ny_localization.dart';
 
 /// Vertical position of an [InputField]'s prefix icon in a multi-line field.
+///
+/// [SuffixIconAlignment] places the suffix icon the same way.
 enum PrefixIconAlignment {
   /// Centered on the field's height (Flutter's default).
   center,
@@ -14,6 +16,9 @@ enum PrefixIconAlignment {
   /// Lined up with the first line of text.
   top,
 }
+
+/// Vertical position of an [InputField]'s suffix icon in a multi-line field.
+typedef SuffixIconAlignment = PrefixIconAlignment;
 
 /// Nylo's Text Field Widget
 class InputField extends StatefulWidget {
@@ -107,6 +112,13 @@ class InputField extends StatefulWidget {
   /// `InputField(maxLines: 5, prefixIcon: Icon(Icons.notes), prefixIconAlignment: PrefixIconAlignment.top)`
   final PrefixIconAlignment prefixIconAlignment;
   final Widget? suffixIcon;
+
+  /// Where [suffixIcon] sits vertically in a multi-line field.
+  ///
+  /// Use [SuffixIconAlignment.top] to line the icon up with the first line
+  /// of text in a text area, e.g.
+  /// `InputField(maxLines: 5, suffixIcon: Icon(Icons.send), suffixIconAlignment: SuffixIconAlignment.top)`
+  final SuffixIconAlignment suffixIconAlignment;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
   final InputBorder? border;
@@ -189,6 +201,7 @@ class InputField extends StatefulWidget {
     this.prefixIcon,
     this.prefixIconAlignment = PrefixIconAlignment.center,
     this.suffixIcon,
+    this.suffixIconAlignment = SuffixIconAlignment.center,
     this.backgroundColor,
     this.borderRadius,
     this.border,
@@ -271,6 +284,7 @@ class InputField extends StatefulWidget {
     Widget? prefixIcon,
     PrefixIconAlignment prefixIconAlignment = PrefixIconAlignment.center,
     Widget? suffixIcon,
+    SuffixIconAlignment suffixIconAlignment = SuffixIconAlignment.center,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -349,6 +363,7 @@ class InputField extends StatefulWidget {
          prefixIcon: prefixIcon,
          prefixIconAlignment: prefixIconAlignment,
          suffixIcon: suffixIcon,
+         suffixIconAlignment: suffixIconAlignment,
          backgroundColor: backgroundColor,
          borderRadius: borderRadius,
          border: border,
@@ -447,6 +462,8 @@ class InputField extends StatefulWidget {
          prefixIconAlignment:
              style?.prefixIconAlignment ?? PrefixIconAlignment.center,
          suffixIcon: style?.suffixIcon,
+         suffixIconAlignment:
+             style?.suffixIconAlignment ?? SuffixIconAlignment.center,
          backgroundColor: style?.backgroundColor,
          borderRadius: style?.borderRadius,
          border: style?.border,
@@ -842,6 +859,7 @@ class InputField extends StatefulWidget {
     Widget? prefixIcon,
     PrefixIconAlignment? prefixIconAlignment,
     Widget? suffixIcon,
+    SuffixIconAlignment? suffixIconAlignment,
     Color? backgroundColor,
     BorderRadius? borderRadius,
     InputBorder? border,
@@ -920,6 +938,7 @@ class InputField extends StatefulWidget {
       prefixIcon: prefixIcon ?? this.prefixIcon,
       prefixIconAlignment: prefixIconAlignment ?? this.prefixIconAlignment,
       suffixIcon: suffixIcon ?? this.suffixIcon,
+      suffixIconAlignment: suffixIconAlignment ?? this.suffixIconAlignment,
       backgroundColor: backgroundColor ?? this.backgroundColor,
       borderRadius: borderRadius ?? this.borderRadius,
       border: border ?? this.border,
@@ -1048,6 +1067,7 @@ class InputField extends StatefulWidget {
       prefixIcon: prefixIcon,
       prefixIconAlignment: prefixIconAlignment,
       suffixIcon: suffixIcon,
+      suffixIconAlignment: suffixIconAlignment,
       backgroundColor: backgroundColor,
       borderRadius: borderRadius,
       border: border,
@@ -1478,23 +1498,44 @@ class _InputFieldState extends NyState<InputField> {
 
     decoration = decoration.copyWith(errorText: _errorText);
 
-    // Flutter always centers a prefix icon on the field's height. To pin it to
-    // the first line, the decorator gets an invisible copy, so text, label and
-    // border gap lay out as usual, and the real icon is drawn over the top.
+    // Flutter always centers prefix and suffix icons on the field's height. To
+    // pin one to the first line, the decorator gets an invisible copy, so
+    // text, label and border gap lay out as usual, and the real icon is drawn
+    // over the top.
+    final bool multiLine = widget.maxLines != 1;
     final Widget? topPrefixIcon =
         widget.prefixIconAlignment == PrefixIconAlignment.top &&
-            widget.maxLines != 1 &&
+            multiLine &&
             decoration.icon == null
         ? decoration.prefixIcon
         : null;
+    final Widget? topSuffixIcon =
+        widget.suffixIconAlignment == SuffixIconAlignment.top && multiLine
+        ? decoration.suffixIcon
+        : null;
     if (topPrefixIcon != null) {
+      decoration = decoration.copyWith(prefixIcon: _hidden(topPrefixIcon));
+    }
+    if (topSuffixIcon != null) {
+      decoration = decoration.copyWith(suffixIcon: _hidden(topSuffixIcon));
+    }
+
+    // A label beside a top-aligned prefix icon rests on the first line too.
+    // Flutter only rests it there with alignLabelWithHint, which floats it out
+    // of line with other fields, so a one-line copy of the decorator draws the
+    // label. The field keeps its own label, transparent, for the border gap
+    // and semantics.
+    final Widget? topLabel =
+        topPrefixIcon != null &&
+            decoration.alignLabelWithHint != true &&
+            (decoration.labelText != null || decoration.label != null)
+        ? _topLabel(decoration)
+        : null;
+    if (topLabel != null) {
       decoration = decoration.copyWith(
-        prefixIcon: Visibility(
-          visible: false,
-          maintainSize: true,
-          maintainAnimation: true,
-          maintainState: true,
-          child: topPrefixIcon,
+        labelStyle: _transparent(decoration.labelStyle),
+        floatingLabelStyle: _transparent(
+          decoration.floatingLabelStyle ?? decoration.labelStyle,
         ),
       );
     }
@@ -1565,15 +1606,26 @@ class _InputFieldState extends NyState<InputField> {
       enableInteractiveSelection: widget.enableInteractiveSelection,
     );
 
-    if (topPrefixIcon != null) {
+    if (topPrefixIcon != null || topSuffixIcon != null) {
       textField = Stack(
+        // An outlined field floats its label over its top edge.
+        clipBehavior: Clip.none,
         children: [
           textField,
-          PositionedDirectional(
-            start: 0,
-            top: 0,
-            child: _topPrefixIcon(decoration, topPrefixIcon),
-          ),
+          if (topLabel != null)
+            Positioned(top: 0, left: 0, right: 0, child: topLabel),
+          if (topPrefixIcon != null)
+            PositionedDirectional(
+              start: 0,
+              top: 0,
+              child: _topIcon(decoration, prefixIcon: topPrefixIcon),
+            ),
+          if (topSuffixIcon != null)
+            PositionedDirectional(
+              end: 0,
+              top: 0,
+              child: _topIcon(decoration, suffixIcon: topSuffixIcon),
+            ),
         ],
       );
     }
@@ -1597,22 +1649,55 @@ class _InputFieldState extends NyState<InputField> {
     return textField;
   }
 
-  /// [icon] for [PrefixIconAlignment.top], themed the way [InputDecorator]
-  /// themes a prefix icon by rendering it in an otherwise empty decorator.
+  /// [child] laid out at its size, but not shown or hit-testable.
+  static Widget _hidden(Widget child) => Visibility(
+    visible: false,
+    maintainSize: true,
+    maintainAnimation: true,
+    maintainState: true,
+    child: child,
+  );
+
+  /// [style] drawn transparent, keeping its size and its response to the
+  /// field's state.
+  static TextStyle _transparent(TextStyle? style) {
+    return WidgetStateTextStyle.resolveWith((Set<WidgetState> states) {
+      final TextStyle resolved =
+          WidgetStateProperty.resolveAs<TextStyle?>(style, states) ??
+          const TextStyle();
+      return resolved.foreground == null
+          ? resolved.copyWith(color: Colors.transparent)
+          : resolved.copyWith(foreground: Paint()..color = Colors.transparent);
+    });
+  }
+
+  /// The style [TextField] gives its text, which sets a line's height.
+  TextStyle get _textStyle {
+    final ThemeData theme = Theme.of(context);
+    return (theme.useMaterial3
+            ? theme.textTheme.bodyLarge
+            : theme.textTheme.titleMedium)!
+        .merge(widget.style);
+  }
+
+  bool _hasError(InputDecoration decoration) =>
+      decoration.errorText != null || decoration.error != null;
+
+  /// [prefixIcon] or [suffixIcon] for [PrefixIconAlignment.top], themed the
+  /// way [InputDecorator] themes it by rendering it in an otherwise empty
+  /// decorator.
   ///
   /// The decorator is one line of text tall, so the icon sits where it would
   /// in a single-line field. Tapping it focuses the field, as tapping a
-  /// centered prefix icon does.
-  Widget _topPrefixIcon(InputDecoration decoration, Widget icon) {
-    final ThemeData theme = Theme.of(context);
+  /// centered icon does.
+  Widget _topIcon(
+    InputDecoration decoration, {
+    Widget? prefixIcon,
+    Widget? suffixIcon,
+  }) {
     final EdgeInsets padding =
         decoration.contentPadding?.resolve(Directionality.of(context)) ??
         EdgeInsets.zero;
-    final TextStyle textStyle =
-        (theme.useMaterial3
-                ? theme.textTheme.bodyLarge
-                : theme.textTheme.titleMedium)!
-            .merge(widget.style);
 
     return GestureDetector(
       onTap: decoration.enabled ? _effectiveFocusNode.requestFocus : null,
@@ -1623,11 +1708,16 @@ class _InputFieldState extends NyState<InputField> {
           child: InputDecorator(
             isFocused: _effectiveFocusNode.hasFocus,
             decoration: InputDecoration(
-              prefixIcon: icon,
+              prefixIcon: prefixIcon,
               prefixIconColor: decoration.prefixIconColor,
               prefixIconConstraints: decoration.prefixIconConstraints,
+              suffixIcon: suffixIcon,
+              suffixIconColor: decoration.suffixIconColor,
+              suffixIconConstraints: decoration.suffixIconConstraints,
               isDense: decoration.isDense,
               enabled: decoration.enabled,
+              // Themes the icon in the error colour, as the field does.
+              error: _hasError(decoration) ? const SizedBox.shrink() : null,
               contentPadding: EdgeInsets.only(
                 top: padding.top,
                 bottom: padding.bottom,
@@ -1641,10 +1731,120 @@ class _InputFieldState extends NyState<InputField> {
               errorBorder: InputBorder.none,
               focusedErrorBorder: InputBorder.none,
             ),
-            child: Text('', style: textStyle, strutStyle: widget.strutStyle),
+            child: Text('', style: _textStyle, strutStyle: widget.strutStyle),
           ),
         ),
       ),
+    );
+  }
+
+  /// The label of a field with a top-aligned prefix icon, drawn by a
+  /// one-line copy of the field's decorator.
+  ///
+  /// It rests on the first line, where a single-line field's label does, and
+  /// floats to the same place as the field's own label, since the copy has
+  /// the same width, icons, padding and kind of border.
+  Widget _topLabel(InputDecoration decoration) {
+    InputBorder? clear(InputBorder? border) => border?.copyWith(
+      borderSide: border.borderSide.copyWith(color: Colors.transparent),
+    );
+    final InputDecorationThemeData theme = Theme.of(
+      context,
+    ).inputDecorationTheme;
+    final InputBorder border =
+        clear(decoration.border ?? theme.border) ??
+        const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.transparent),
+        );
+    final TextAlign textAlign = widget.textAlign ?? TextAlign.left;
+
+    return IgnorePointer(
+      child: ExcludeSemantics(
+        child: ListenableBuilder(
+          listenable: Listenable.merge([
+            _effectiveFocusNode,
+            widget.controller,
+          ]),
+          builder: (context, _) => InputDecorator(
+            isFocused: _effectiveFocusNode.hasFocus,
+            isEmpty: widget.controller.text.isEmpty,
+            baseStyle: _textStyle,
+            textAlign: textAlign,
+            decoration: InputDecoration(
+              label:
+                  decoration.label ??
+                  _LabelText(decoration.labelText!, textAlign: textAlign),
+              labelStyle: decoration.labelStyle,
+              floatingLabelStyle: decoration.floatingLabelStyle,
+              floatingLabelBehavior: decoration.floatingLabelBehavior,
+              floatingLabelAlignment: decoration.floatingLabelAlignment,
+              prefixIcon: decoration.prefixIcon,
+              prefixIconConstraints: decoration.prefixIconConstraints,
+              suffixIcon: decoration.suffixIcon == null
+                  ? null
+                  : _hidden(decoration.suffixIcon!),
+              suffixIconConstraints: decoration.suffixIconConstraints,
+              isDense: decoration.isDense,
+              enabled: widget.enabled ?? decoration.enabled,
+              // Colours the label for an error without repeating its text.
+              error: _hasError(decoration) ? const SizedBox.shrink() : null,
+              errorStyle: decoration.errorStyle,
+              contentPadding: decoration.contentPadding,
+              constraints: const BoxConstraints(),
+              filled: false,
+              border: border,
+              enabledBorder:
+                  clear(decoration.enabledBorder ?? theme.enabledBorder) ??
+                  border,
+              focusedBorder:
+                  clear(decoration.focusedBorder ?? theme.focusedBorder) ??
+                  border,
+              disabledBorder:
+                  clear(decoration.disabledBorder ?? theme.disabledBorder) ??
+                  border,
+              errorBorder:
+                  clear(decoration.errorBorder ?? theme.errorBorder) ?? border,
+              focusedErrorBorder:
+                  clear(
+                    decoration.focusedErrorBorder ?? theme.focusedErrorBorder,
+                  ) ??
+                  border,
+            ),
+            child: Text('', style: _textStyle, strutStyle: widget.strutStyle),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A label drawn the way [InputDecorator] draws [InputDecoration.labelText].
+///
+/// Built on [RichText] so `find.text` still finds the field's own label once.
+class _LabelText extends StatelessWidget {
+  const _LabelText(this.text, {required this.textAlign});
+
+  final String text;
+  final TextAlign textAlign;
+
+  @override
+  Widget build(BuildContext context) {
+    final DefaultTextStyle defaultStyle = DefaultTextStyle.of(context);
+    TextStyle style = defaultStyle.style;
+    if (MediaQuery.boldTextOf(context)) {
+      style = style.merge(const TextStyle(fontWeight: FontWeight.bold));
+    }
+    return RichText(
+      text: TextSpan(text: text, style: style),
+      textAlign: textAlign,
+      softWrap: defaultStyle.softWrap,
+      overflow: TextOverflow.ellipsis,
+      maxLines: defaultStyle.maxLines,
+      textScaler: MediaQuery.textScalerOf(context),
+      textWidthBasis: defaultStyle.textWidthBasis,
+      textHeightBehavior:
+          defaultStyle.textHeightBehavior ??
+          DefaultTextHeightBehavior.maybeOf(context),
     );
   }
 }

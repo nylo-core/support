@@ -196,7 +196,8 @@ class LocalNotification {
     if (canScheduleExact) return androidScheduleMode;
 
     NyLogger.warning(
-      'Exact alarms are not permitted, scheduling with ${inexactMode.name} instead',
+      'Exact alarms are not permitted, scheduling inexactly instead',
+      context: {'mode': inexactMode.name},
     );
     return inexactMode;
   }

@@ -10,7 +10,8 @@ Map<String, dynamic>? objectToJson(dynamic object) {
   } on NoSuchMethodError catch (e) {
     NyLogger.debug(e.toString());
     NyLogger.error(
-      '[NyStorage.store] ${object.runtimeType.toString()} model needs to implement the toJson() method.',
+      '[NyStorage.store] Model needs to implement the toJson() method.',
+      context: {'model': object.runtimeType.toString()},
     );
   }
   return null;

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
@@ -164,6 +165,10 @@ class NyRouter {
   /// Group routes
   /// [settings] is a function that returns a map of settings.
   /// [router] is a function that returns a router.
+  ///
+  /// A `'transition_type'` setting applies to the routes in the group that
+  /// don't set their own transition. An unknown route declared in the group
+  /// is registered too.
   /// Example:
   /// ```dart
   /// group(() {
@@ -227,15 +232,18 @@ class NyRouter {
         NyNavigator.instance.prefixRoutes[key] = prefix;
         route.addPrefixToName(prefix);
       }
-      if (transition != null) {
-        route.transition(transition);
+      _applyDefaultTransition(route, transition, pageTransitionSettings);
+    });
+
+    nyRouter.getUnknownRoutes().forEach((key, NyRouterRoute route) {
+      if (routeGuards.isNotEmpty) {
+        route.addRouteGuards(routeGuards);
       }
-      if (pageTransitionSettings != null) {
-        route.pageTransitionSettings = pageTransitionSettings;
-      }
+      _applyDefaultTransition(route, transition, pageTransitionSettings);
     });
 
     setNyRoutes(nyRouter);
+    setUnknownRoutes(nyRouter.getUnknownRoutes());
 
     assert(
       _routeNameMappings.entries
@@ -244,6 +252,40 @@ class NyRouter {
           1,
       'Your project has more than one initial route defined, please check your router file.',
     );
+  }
+
+  /// Gives [route] the [type] and [settings] when it has no transition of
+  /// its own. A route that set a transition when it was added keeps it, so a
+  /// [group] or [nyRoutes] default only fills the gaps.
+  static void _applyDefaultTransition(
+    NyRouterRoute route,
+    PageTransitionType? type,
+    PageTransitionSettings? settings,
+  ) {
+    if (route.getTransitionType != null || route.pageTransitionType != null) {
+      return;
+    }
+    if (type != null) {
+      route.pageTransitionType = type;
+    }
+    if (settings != null) {
+      route.pageTransitionSettings ??= settings;
+    }
+  }
+
+  /// Applies [transitionType] to every route, including the unknown route,
+  /// that was added without a transition of its own.
+  void applyDefaultTransition(TransitionType transitionType) {
+    for (final NyRouterRoute route in [
+      ..._routeNameMappings.values,
+      ..._routeUnknownMappings.values,
+    ]) {
+      _applyDefaultTransition(
+        route,
+        transitionType.pageTransitionType,
+        transitionType.pageTransitionSettings,
+      );
+    }
   }
 
   /// Add a new route with a [RouteView].
@@ -349,7 +391,8 @@ class NyRouter {
     if (unknownRoute == true) {
       if (_routeUnknownMappings.containsKey(route.name)) {
         NyLogger.info(
-          "'${route.name}' has already been registered before. Overriding it!",
+          "Route has already been registered before. Overriding it!",
+          context: {'route': route.name},
         );
       }
 
@@ -359,7 +402,8 @@ class NyRouter {
     }
     if (_routeNameMappings.containsKey(route.name)) {
       NyLogger.info(
-        "'${route.name}' has already been registered before. Overriding it!",
+        "Route has already been registered before. Overriding it!",
+        context: {'route': route.name},
       );
     }
     _routeNameMappings[route.name] = route;
@@ -385,6 +429,8 @@ class NyRouter {
 
   /// Retrieves the initial route name from your router.
   String getInitialRouteName() {
+    NyNavigator.instance.router._applyPreviewDefines();
+
     // Check for preview routes FIRST (highest priority)
     List<MapEntry<String, NyRouterRoute>> previewRoutes = NyNavigator
         .instance
@@ -434,6 +480,8 @@ class NyRouter {
 
   /// Find the initial route.
   static String getInitialRoute() {
+    NyNavigator.instance.router._applyPreviewDefines();
+
     // Check for preview routes FIRST (highest priority)
     List<MapEntry<String, NyRouterRoute>> previewRoutes = NyNavigator
         .instance
@@ -989,8 +1037,8 @@ class NyRouter {
   ) {
     final Widget widget = route.builder(
       context,
-      baseArgs ?? route.defaultArgs,
-      queryParameters ?? route.queryParameters,
+      _routeArgs(route, baseArgs),
+      _routeQueryParameters(route, queryParameters),
     );
     if (widget is NyStatefulWidget &&
         identical(route, argumentsWrapper.guardsEvaluatedFor)) {
@@ -998,6 +1046,121 @@ class NyRouter {
           List<RouteGuard>.unmodifiable(route.getRouteGuards());
     }
     return widget;
+  }
+
+  /// The arguments [route] is built with. A page opened without data gets
+  /// the route's preview data, when it has some.
+  static NyArgument? _routeArgs(NyRouterRoute route, NyArgument? baseArgs) {
+    if (baseArgs?.data == null && route.previewArgs != null) {
+      return route.previewArgs;
+    }
+    return baseArgs ?? route.defaultArgs;
+  }
+
+  /// The query parameters [route] is built with. A page opened without
+  /// query parameters gets the route's preview query parameters, when it has
+  /// some.
+  static NyQueryParameters? _routeQueryParameters(
+    NyRouterRoute route,
+    NyQueryParameters? queryParameters,
+  ) {
+    return queryParameters ??
+        route.previewQueryParameters ??
+        route.queryParameters;
+  }
+
+  /// Builds the first routes when the preview route has a
+  /// [NyRouterRoute.previewStack]: the stack routes, then the preview route
+  /// on top, so the back button works.
+  ///
+  /// Returns null when there is nothing to stack, so the app keeps Flutter's
+  /// default behaviour. `NyApp.materialApp` passes this to
+  /// `onGenerateInitialRoutes` for you. In your own `MaterialApp`:
+  /// ```dart
+  /// onGenerateInitialRoutes: NyRouter.previewInitialRoutes(onGenerateRoute),
+  /// ```
+  static InitialRouteListFactory? previewInitialRoutes(
+    RouteFactory? onGenerateRoute,
+  ) {
+    if (onGenerateRoute == null) return null;
+    NyRouterRoute? preview = NyNavigator
+        .instance
+        .router
+        ._routeNameMappings
+        .values
+        .where((route) => route.getPreviewRoute())
+        .firstOrNull;
+    if (preview == null || preview.previewStack.isEmpty) return null;
+
+    return (String initialRoute) {
+      List<String> names = initialRoute == preview.name
+          ? [...preview.previewStack, preview.name]
+          : [initialRoute];
+      return names
+          .map((name) => onGenerateRoute(RouteSettings(name: name)))
+          .whereType<Route<dynamic>>()
+          .toList();
+    };
+  }
+
+  /// Whether the `PREVIEW_ROUTE` dart-define has been read.
+  bool _previewDefinesApplied = false;
+
+  /// Applies the preview chosen with dart-defines, so a page can be
+  /// previewed without editing the router:
+  /// ```
+  /// flutter run --dart-define=PREVIEW_ROUTE=/product?tab=reviews \
+  ///   --dart-define=PREVIEW_DATA='{"id":1}' \
+  ///   --dart-define=PREVIEW_STACK=/home
+  /// ```
+  /// Runs once, before the initial route is chosen. Release builds ignore it.
+  void _applyPreviewDefines() {
+    if (_previewDefinesApplied) return;
+    _previewDefinesApplied = true;
+    const String route = String.fromEnvironment('PREVIEW_ROUTE');
+    if (route.isEmpty) return;
+    applyPreview(
+      route,
+      data: const String.fromEnvironment('PREVIEW_DATA'),
+      stack: const String.fromEnvironment('PREVIEW_STACK'),
+    );
+  }
+
+  /// Makes [route] the preview route, as `PREVIEW_ROUTE` does.
+  ///
+  /// [route] may include a query string. [data] is decoded as JSON when it
+  /// can be, and passed as a string otherwise. [stack] is a comma-separated
+  /// list of routes to open underneath.
+  @visibleForTesting
+  void applyPreview(String route, {String data = '', String stack = ''}) {
+    Uri uri = Uri.parse(route);
+    NyRouterRoute? nyRoute = _routeNameMappings[uri.path];
+    if (nyRoute == null) {
+      NyLogger.warning(
+        'PREVIEW_ROUTE is not a registered route.',
+        context: {'route': uri.path},
+      );
+      return;
+    }
+
+    dynamic previewData;
+    if (data.isNotEmpty) {
+      try {
+        previewData = jsonDecode(data);
+      } on FormatException {
+        previewData = data;
+      }
+    }
+
+    nyRoute.previewRoute(
+      data: previewData,
+      queryParameters: uri.queryParameters.isEmpty ? null : uri.queryParameters,
+      stack: stack
+          .split(',')
+          .map((name) => name.trim())
+          .where((name) => name.isNotEmpty)
+          .toList(),
+    );
   }
 
   /// Generates the [RouteFactory] for unknown routes.
@@ -1047,15 +1210,15 @@ class NyRouter {
             if (builder != null) {
               Widget widget = originalRoute.builder(
                 context,
-                baseArgs ?? originalRoute.defaultArgs,
-                queryParameters ?? originalRoute.queryParameters,
+                _routeArgs(originalRoute, baseArgs),
+                _routeQueryParameters(originalRoute, queryParameters),
               );
               return builder(context, widget);
             }
             return originalRoute.builder(
               context,
-              baseArgs ?? originalRoute.defaultArgs,
-              queryParameters ?? originalRoute.queryParameters,
+              _routeArgs(originalRoute, baseArgs),
+              _routeQueryParameters(originalRoute, queryParameters),
             );
           },
         ),
@@ -1325,9 +1488,28 @@ class _RouteResolution {
 }
 
 /// Builds the routes in the router.dart file
-NyRouter nyRoutes(Function(NyRouter router) build) {
+///
+/// [transitionType] sets the page transition for every route that doesn't
+/// set its own, so it replaces passing the same `transitionType:` to each
+/// route.
+///
+/// Usage:
+/// ```dart
+/// NyRouter appRouter() => nyRoutes((router) {
+///   router.add(HomePage.path).initialRoute();
+///   router.add(SettingsPage.path, transitionType: TransitionType.fade());
+/// }, transitionType: TransitionType.bottomToTop());
+/// ```
+NyRouter nyRoutes(
+  Function(NyRouter router) build, {
+  TransitionType? transitionType,
+}) {
   NyRouter nyRouter = NyRouter();
   build(nyRouter);
+
+  if (transitionType != null) {
+    nyRouter.applyDefaultTransition(transitionType);
+  }
 
   return nyRouter;
 }

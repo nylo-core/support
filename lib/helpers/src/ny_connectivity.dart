@@ -35,7 +35,10 @@ class NyConnectivity {
     try {
       return await _connectivity.checkConnectivity();
     } catch (e) {
-      NyLogger.error('Failed to check connectivity: $e');
+      NyLogger.error(
+        'Failed to check connectivity',
+        context: {'error': e.toString()},
+      );
       return [ConnectivityResult.none];
     }
   }

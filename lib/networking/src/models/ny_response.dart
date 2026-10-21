@@ -141,6 +141,29 @@ class NyResponse<T> {
     return data!;
   }
 
+  /// Get the data as an [X], or null if it is something else.
+  ///
+  /// An `is` check doesn't narrow a field like [data], so use this to read
+  /// one shape of a [OneOf] response.
+  ///
+  /// Example:
+  /// ```dart
+  /// final failed = response.dataAs<ValidationError>();
+  /// if (failed != null) form.setErrors(failed.errors);
+  /// ```
+  X? dataAs<X>() {
+    final T? d = data;
+    return d is X ? d : null;
+  }
+
+  /// Whether the data is an [X].
+  ///
+  /// Example:
+  /// ```dart
+  /// if (response.dataIs<TwoFactorRequired>()) { ... }
+  /// ```
+  bool dataIs<X>() => data is X;
+
   /// Get the data or return a fallback value if data is null.
   ///
   /// Example:

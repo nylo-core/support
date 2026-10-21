@@ -1,4 +1,4 @@
-import 'package:flutter/foundation.dart';
+import '/helpers/ny_helpers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
@@ -591,11 +591,10 @@ class ToastNotificationRegistry {
       return _styles[id];
     }
 
-    if (kDebugMode) {
-      debugPrint(
-        'ToastNotificationRegistry: Style "$id" not found. Falling back to "success".',
-      );
-    }
+    NyLogger.warning(
+      'ToastNotificationRegistry: Style not found. Falling back to "success".',
+      context: {'style': id},
+    );
 
     return _styles['success'];
   }

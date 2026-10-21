@@ -73,12 +73,15 @@ Future<bool> openUrl(
     );
 
     if (!result) {
-      NyLogger.error('openUrl: Failed to launch URL: $url');
+      NyLogger.error('openUrl: Failed to launch URL', context: {'url': url});
     }
 
     return result;
   } catch (e) {
-    NyLogger.error('openUrl: Error launching URL: $e');
+    NyLogger.error(
+      'openUrl: Error launching URL',
+      context: {'error': e.toString()},
+    );
     return false;
   }
 }
@@ -100,7 +103,10 @@ Future<bool> canOpenUrl(String url) async {
     final Uri uri = Uri.parse(url);
     return await canLaunchUrl(uri);
   } catch (e) {
-    NyLogger.error('canOpenUrl: Error checking URL: $e');
+    NyLogger.error(
+      'canOpenUrl: Error checking URL',
+      context: {'error': e.toString()},
+    );
     return false;
   }
 }

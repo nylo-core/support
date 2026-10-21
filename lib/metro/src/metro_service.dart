@@ -447,22 +447,16 @@ final Map<Type, BaseController> controllers = {$match
       createTemplate: (file) {
         String modelName = nameReCase.pascalCase;
 
-        RegExp reg = RegExp(
-          r'final Map<Type, dynamic> modelDecoders = \{([^}]*)\};',
-        );
-        final String? match = _getFirstRegexMatch(reg, file);
-        if (match == null) {
-          return file;
+        if (usesDecodersList(file)) {
+          return addToDecodersList(file, '  Decode($modelName.fromJson),\n') ??
+              file;
         }
-        String template =
-            """
-final Map<Type, dynamic> modelDecoders = {$match
+        return addToModelDecoders(file, """
   List<$modelName>: (data) => List.from(data).map((json) => $modelName.fromJson(json)).toList(),
 
   $modelName: (data) => $modelName.fromJson(data),
-};""";
-
-        return file.replaceFirst(reg, template);
+""") ??
+            file;
       },
     );
   }
@@ -1652,6 +1646,98 @@ final Map<Type, NyApiService> apiDecoders = {$match
       '$package:$executable',
       ...args,
     ], workingDirectory: workingDirectory);
+  }
+
+  /// Adds [entries] to the end of the `modelDecoders` map in [file].
+  ///
+  /// The map's closing brace is found by counting braces, so entries that
+  /// contain their own `{ }`, such as a `OneOf.byKey` map, don't cut the
+  /// map short. Returns null when the map can't be found.
+  static String? addToModelDecoders(String file, String entries) {
+    const String declaration = 'final Map<Type, dynamic> modelDecoders = {';
+    int start = file.indexOf(declaration);
+    if (start == -1) return null;
+
+    int open = start + declaration.length - 1;
+    int? close = _closingBrace(file, open);
+    if (close == null) return null;
+
+    return file.replaceRange(close, close, '\n$entries');
+  }
+
+  /// Matches `modelDecoders = decoders([`, the list form of decoders.dart.
+  static final RegExp _decodersList = RegExp(
+    r'modelDecoders\s*=\s*decoders\(\s*\[',
+  );
+
+  /// Whether [file] declares `modelDecoders` with `decoders([...])`.
+  static bool usesDecodersList(String file) => _decodersList.hasMatch(file);
+
+  /// Adds [entries] to the end of the `decoders([...])` list in [file].
+  ///
+  /// Returns null when the list can't be found.
+  static String? addToDecodersList(String file, String entries) {
+    RegExpMatch? match = _decodersList.firstMatch(file);
+    if (match == null) return null;
+
+    int open = match.end - 1;
+    int? close = _closingBrace(file, open, openChar: '[', closeChar: ']');
+    if (close == null) return null;
+
+    List<String> lines = file
+        .substring(open + 1, close)
+        .trimRight()
+        .split('\n');
+    // The last line of code, skipping comments, decides whether a comma is
+    // needed. It goes straight after that code, or on its own line when the
+    // code ends in a comment it would land inside.
+    int lastCode = lines.lastIndexWhere((line) {
+      String code = line.trim();
+      return code.isNotEmpty && !code.startsWith('//');
+    });
+    if (lastCode != -1) {
+      String code = lines[lastCode].trimRight();
+      if (code.contains('//')) {
+        if (!code.endsWith(',')) lines.add(',');
+      } else if (!code.endsWith(',')) {
+        lines[lastCode] = '$code,';
+      }
+    }
+    return file.replaceRange(open + 1, close, '${lines.join('\n')}\n$entries');
+  }
+
+  /// The index of the `}` that closes the `{` at [open] in [source], or null.
+  /// Pass [openChar] and [closeChar] to match other brackets, such as `[`.
+  ///
+  /// Brackets inside strings and `//` comments are ignored.
+  static int? _closingBrace(
+    String source,
+    int open, {
+    String openChar = '{',
+    String closeChar = '}',
+  }) {
+    int depth = 0;
+    for (int i = open; i < source.length; i++) {
+      String char = source[i];
+      if (char == '/' && source.startsWith('//', i)) {
+        int end = source.indexOf('\n', i);
+        if (end == -1) return null;
+        i = end;
+      } else if (char == "'" || char == '"') {
+        int j = i + 1;
+        while (j < source.length && source[j] != char) {
+          if (source[j] == '\\') j++;
+          j++;
+        }
+        i = j;
+      } else if (char == openChar) {
+        depth++;
+      } else if (char == closeChar) {
+        depth--;
+        if (depth == 0) return i;
+      }
+    }
+    return null;
   }
 
   /// Safely gets the first capture group from regex matches.

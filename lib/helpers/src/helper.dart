@@ -70,6 +70,9 @@ TextTheme getAppTextTheme(TextStyle appThemeFont, TextTheme textTheme) {
 }
 
 /// Return an object from your modelDecoders using [data].
+///
+/// Decodes the same way API responses do, so a [OneOf] or other [NyDecoder]
+/// in your modelDecoders works here too.
 T dataToModel<T>({required dynamic data, Map<Type, dynamic>? modelDecoders}) {
   assert(
     T != dynamic,
@@ -77,18 +80,18 @@ T dataToModel<T>({required dynamic data, Map<Type, dynamic>? modelDecoders}) {
   );
   if (modelDecoders != null && (modelDecoders.isNotEmpty)) {
     assert(
-      modelDecoders.containsKey(T),
+      findDecoder(T, modelDecoders) != null,
       "ModelDecoders not found for Type: $T",
     );
-    return modelDecoders[T](data);
+    return decodeWithDecoders(data, modelDecoders, type: T);
   }
   Nylo nylo = Backpack.instance.nylo();
   Map<Type, dynamic> nyloModelDecoders = nylo.getModelDecoders();
   assert(
-    nyloModelDecoders.containsKey(T),
+    findDecoder(T, nyloModelDecoders) != null,
     "Your modelDecoders variable inside bootstrap/decoders.dart must contain a decoder for Type: $T",
   );
-  return nyloModelDecoders[T](data);
+  return decodeWithDecoders(data, nyloModelDecoders, type: T);
 }
 
 /// Returns the translation value from the [key] you provide.
@@ -307,7 +310,10 @@ T match<T>(
     return valuesMeta[value] as T;
   }
 
-  NyLogger.error('The value "$value" does not match any values provided');
+  NyLogger.error(
+    'The value does not match any values provided',
+    context: {'value': '$value'},
+  );
   if (defaultValue != null) {
     return defaultValue;
   }

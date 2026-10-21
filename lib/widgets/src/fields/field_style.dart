@@ -305,6 +305,7 @@ class FieldStyleTextField extends FieldStyle {
     this.filled = false,
     this.isDense = false,
     this.suffixIcon,
+    this.suffixIconAlignment,
     this.enableInteractiveSelection = true,
   });
 
@@ -388,6 +389,11 @@ class FieldStyleTextField extends FieldStyle {
   final Color? fillColor;
   final bool? isDense;
   final Widget? suffixIcon;
+
+  /// Where [suffixIcon] sits vertically in a multi-line field.
+  ///
+  /// e.g. `FieldStyleTextField(maxLines: 5, suffixIconAlignment: SuffixIconAlignment.top)`
+  final SuffixIconAlignment? suffixIconAlignment;
   final bool enableInteractiveSelection;
 
   static FieldStyleTextField base() {
@@ -609,6 +615,7 @@ class FieldStyleTextField extends FieldStyle {
     Color? fillColor,
     bool? isDense,
     Widget? suffixIcon,
+    SuffixIconAlignment? suffixIconAlignment,
   }) {
     return FieldStyleTextField(
       labelText: labelText ?? this.labelText,
@@ -691,6 +698,7 @@ class FieldStyleTextField extends FieldStyle {
       filled: filled ?? this.filled,
       isDense: isDense ?? this.isDense,
       suffixIcon: suffixIcon ?? this.suffixIcon,
+      suffixIconAlignment: suffixIconAlignment ?? this.suffixIconAlignment,
     );
   }
 

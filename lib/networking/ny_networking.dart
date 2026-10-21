@@ -1,4 +1,5 @@
 export '/networking/src/models/default_response.dart';
+export '/networking/src/models/ny_decoder.dart';
 export '/networking/src/models/ny_response.dart';
 export '/networking/src/models/cache_policy.dart';
 export '/networking/src/dio_api_service.dart';

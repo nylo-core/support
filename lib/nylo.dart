@@ -804,7 +804,10 @@ class Nylo {
         nyloApp._deepLinkHandler!.listen();
       } catch (e) {
         // Unsupported platform or plugin failure; continue without deep links.
-        NyLogger.error('Deep link initialization failed: $e');
+        NyLogger.error(
+          'Deep link initialization failed',
+          context: {'error': e.toString()},
+        );
       }
     }
 

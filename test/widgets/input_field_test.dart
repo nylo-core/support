@@ -630,4 +630,360 @@ void main() {
       );
     });
   });
+
+  nyGroup('InputField multi-line label beside a top-aligned prefix icon', () {
+    /// The label as drawn: the textarea's own label is kept, transparent,
+    /// under the one that shows.
+    Finder shownLabel(String text) => find.byWidgetPredicate(
+      (widget) =>
+          widget is RichText &&
+          widget.text.toPlainText() == text &&
+          widget.text.style?.color != Colors.transparent,
+    );
+
+    Offset labelWithin(WidgetTester tester, String text, Finder field) {
+      return tester.getTopLeft(shownLabel(text)) - tester.getTopLeft(field);
+    }
+
+    /// Shows [error] under the field, as a failed validation does.
+    DecoratorTextField failing(String error) => DecoratorTextField(
+      decoration: (_, decoration) => decoration.copyWith(errorText: error),
+    );
+
+    Widget textarea({
+      Key? key,
+      String text = '',
+      InputDecoration? decoration,
+      DecoratorTextField? decorator,
+      FocusNode? focusNode,
+    }) {
+      return InputField(
+        key: key,
+        controller: TextEditingController(text: text),
+        focusNode: focusNode,
+        labelText: 'Bio',
+        maxLines: 5,
+        minLines: 5,
+        prefixIcon: const Icon(Icons.notes),
+        prefixIconAlignment: PrefixIconAlignment.top,
+        decoration: decoration,
+        decorator: decorator,
+      );
+    }
+
+    testWidgets('the label rests where a single-line field rests it', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            labelText: 'Bio',
+            prefixIcon: const Icon(Icons.notes),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final Offset singleLine = labelWithin(
+        tester,
+        'Bio',
+        find.byType(TextField),
+      );
+
+      await tester.pumpWidget(_app(textarea(key: UniqueKey())));
+      await tester.pumpAndSettle();
+
+      expect(shownLabel('Bio'), findsOneWidget);
+      expect(
+        labelWithin(tester, 'Bio', find.byType(TextField)),
+        offsetMoreOrLessEquals(singleLine),
+      );
+    });
+
+    testWidgets('the label floats where a single-line field floats it', (
+      tester,
+    ) async {
+      final Key name = UniqueKey();
+      final Key bio = UniqueKey();
+      await tester.pumpWidget(
+        _app(
+          Column(
+            children: [
+              InputField(
+                key: name,
+                controller: TextEditingController(text: 'Anthony'),
+                labelText: 'Name',
+                prefixIcon: const Icon(Icons.person),
+              ),
+              textarea(key: bio, text: 'Hello'),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      Finder field(Key key) => find.descendant(
+        of: find.byKey(key),
+        matching: find.byType(TextField),
+      );
+      expect(
+        labelWithin(tester, 'Bio', field(bio)),
+        offsetMoreOrLessEquals(labelWithin(tester, 'Name', field(name))),
+      );
+    });
+
+    testWidgets('the label floats on focus and rests again when left empty', (
+      tester,
+    ) async {
+      final FocusNode node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(_app(textarea(focusNode: node)));
+      await tester.pumpAndSettle();
+      final Offset resting = tester.getTopLeft(shownLabel('Bio'));
+
+      node.requestFocus();
+      await tester.pump();
+      expect(
+        tester.getTopLeft(shownLabel('Bio')),
+        offsetMoreOrLessEquals(resting),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getTopLeft(shownLabel('Bio')).dy, lessThan(resting.dy));
+
+      node.unfocus();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getTopLeft(shownLabel('Bio')),
+        offsetMoreOrLessEquals(resting),
+      );
+    });
+
+    testWidgets('find.text finds the label and error once', (tester) async {
+      await tester.pumpWidget(_app(textarea(decorator: failing('Needed'))));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bio'), findsOneWidget);
+      expect(find.text('Needed'), findsOneWidget);
+    });
+
+    testWidgets('a state-aware labelStyle sees the error', (tester) async {
+      final TextStyle labelStyle = WidgetStateTextStyle.resolveWith(
+        (states) => TextStyle(
+          color: states.contains(WidgetState.error) ? Colors.red : Colors.blue,
+        ),
+      );
+      Color? labelColor() =>
+          tester.widget<RichText>(shownLabel('Bio')).text.style?.color;
+
+      await tester.pumpWidget(
+        _app(textarea(decoration: InputDecoration(labelStyle: labelStyle))),
+      );
+      await tester.pumpAndSettle();
+      expect(labelColor(), Colors.blue);
+
+      await tester.pumpWidget(
+        _app(
+          textarea(
+            key: UniqueKey(),
+            decoration: InputDecoration(labelStyle: labelStyle),
+            decorator: failing('Needed'),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(labelColor(), Colors.red);
+    });
+
+    testWidgets('alignLabelWithHint: true keeps a single label', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          textarea(decoration: const InputDecoration(alignLabelWithHint: true)),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(find.text('Bio', findRichText: true), findsOneWidget);
+      expect(shownLabel('Bio'), findsOneWidget);
+    });
+  });
+
+  nyGroup('InputField multi-line suffix icon', () {
+    Finder visibleIcon(IconData icon) => find.byIcon(icon).hitTestable();
+
+    Rect iconRectWithin(WidgetTester tester, IconData icon, Finder field) {
+      return tester.getRect(visibleIcon(icon)).shift(-tester.getTopLeft(field));
+    }
+
+    testWidgets('the suffix icon is centered by default', (tester) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            maxLines: 5,
+            minLines: 5,
+            suffixIcon: const Icon(Icons.send),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getCenter(visibleIcon(Icons.send)).dy,
+        tester.getCenter(find.byType(TextField)).dy,
+      );
+    });
+
+    testWidgets(
+      'SuffixIconAlignment.top places the icon where a single-line field does',
+      (tester) async {
+        await tester.pumpWidget(
+          _app(
+            InputField(
+              controller: TextEditingController(),
+              labelText: 'Name',
+              suffixIcon: const Icon(Icons.send),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        final Rect singleLine = iconRectWithin(
+          tester,
+          Icons.send,
+          find.byType(TextField),
+        );
+
+        await tester.pumpWidget(
+          _app(
+            InputField(
+              key: UniqueKey(),
+              controller: TextEditingController(),
+              labelText: 'Message',
+              maxLines: 5,
+              minLines: 5,
+              suffixIcon: const Icon(Icons.send),
+              suffixIconAlignment: SuffixIconAlignment.top,
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+
+        expect(
+          iconRectWithin(tester, Icons.send, find.byType(TextField)),
+          singleLine,
+        );
+      },
+    );
+
+    testWidgets('top-aligned prefix and suffix icons share the first line', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            labelText: 'Message',
+            maxLines: 5,
+            minLines: 5,
+            prefixIcon: const Icon(Icons.notes),
+            prefixIconAlignment: PrefixIconAlignment.top,
+            suffixIcon: const Icon(Icons.send),
+            suffixIconAlignment: SuffixIconAlignment.top,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getCenter(visibleIcon(Icons.send)).dy,
+        tester.getCenter(visibleIcon(Icons.notes)).dy,
+      );
+    });
+
+    testWidgets('a top-aligned suffix button still takes taps', (tester) async {
+      bool tapped = false;
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            maxLines: 5,
+            suffixIcon: IconButton(
+              icon: const Icon(Icons.send),
+              onPressed: () => tapped = true,
+            ),
+            suffixIconAlignment: SuffixIconAlignment.top,
+          ),
+        ),
+      );
+      await tester.tap(visibleIcon(Icons.send));
+      await tester.pumpAndSettle();
+
+      expect(tapped, isTrue);
+    });
+
+    testWidgets('SuffixIconAlignment.top sits at the end edge in RTL', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          Directionality(
+            textDirection: TextDirection.rtl,
+            child: InputField(
+              controller: TextEditingController(),
+              maxLines: 5,
+              suffixIcon: const Icon(Icons.send),
+              suffixIconAlignment: SuffixIconAlignment.top,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+
+      expect(
+        tester.getTopLeft(visibleIcon(Icons.send)).dx,
+        tester.getTopLeft(find.byType(TextField)).dx,
+      );
+    });
+
+    testWidgets('SuffixIconAlignment.top leaves single-line fields alone', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        _app(
+          InputField(
+            controller: TextEditingController(),
+            suffixIcon: const Icon(Icons.send),
+            suffixIconAlignment: SuffixIconAlignment.top,
+          ),
+        ),
+      );
+
+      expect(find.byIcon(Icons.send), findsOneWidget);
+    });
+
+    testWidgets('Field.textArea takes suffixIconAlignment from its style', (
+      tester,
+    ) async {
+      final Field field = Field.textArea(
+        "message",
+        label: "Message",
+        style: FieldStyleTextField(
+          maxLines: 5,
+          minLines: 5,
+          suffixIcon: const Icon(Icons.send),
+          suffixIconAlignment: SuffixIconAlignment.top,
+        ),
+      );
+      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpAndSettle();
+
+      final InputField input = tester.widget(find.byType(InputField));
+      expect(input.suffixIconAlignment, SuffixIconAlignment.top);
+      expect(
+        tester.getTopLeft(visibleIcon(Icons.send)).dy,
+        lessThan(tester.getCenter(find.byType(TextField)).dy - 24),
+      );
+    });
+  });
 }

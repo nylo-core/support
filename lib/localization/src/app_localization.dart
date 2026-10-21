@@ -166,7 +166,10 @@ class NyLocalization {
     // Without loaded values, only the built-in defaults can answer
     if (_values == null) {
       if (_debugMissingKeys) {
-        NyLogger.debug("Missing translation key (not initialized): $key");
+        NyLogger.debug(
+          "Missing translation key (not initialized)",
+          context: {'key': key},
+        );
       }
       final String? defaultValue = _getDefault(key);
       if (defaultValue == null) return key;
@@ -196,7 +199,7 @@ class NyLocalization {
 
     // Log missing key in debug mode
     if (_debugMissingKeys && isMissing) {
-      NyLogger.debug("Missing translation key: $key");
+      NyLogger.debug("Missing translation key", context: {'key': key});
     }
 
     // Nylo's own keys fall back to their built-in English defaults
@@ -306,7 +309,10 @@ class NyLocalization {
         _fallbackValues = null;
       }
     } catch (e) {
-      NyLogger.error("Failed to load language: $language");
+      NyLogger.error(
+        "Failed to load language",
+        context: {'language': language},
+      );
       return;
     }
 
@@ -333,7 +339,10 @@ class NyLocalization {
         _fallbackValues = null;
       }
     } catch (e) {
-      NyLogger.error("Failed to load locale: ${locale.languageCode}");
+      NyLogger.error(
+        "Failed to load locale",
+        context: {'locale': locale.languageCode},
+      );
     }
   }
 
