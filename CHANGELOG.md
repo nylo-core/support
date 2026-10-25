@@ -1,7 +1,17 @@
-## [Unreleased]
+## [7.37.0] - 2026-10-25
 
 ### Added
 
+* **Screenshots** - `Screenshot.capture()` takes a PNG of the app's screen, dialogs and sheets included, and `Screenshot.area('receipt')` captures one `ScreenshotArea`. `shot.store('order-1042.png', disk: 'public')` saves it, and `shot.forStore(ScreenshotStore.ios69, frame: true, caption: 'Checkout in one tap')` sizes it for an App Store or Google Play listing. Captures work in every build mode, so they can power features like sharing a receipt
+* **Playbook screenshots** - a `screenshot('cart')` step captures the screen during a playbook run, and `screenshot('cart', locales: ['en', 'es'], themes: ['light', 'dark'])` captures it once per locale and theme, switching in place so the page and its state stay put. `run(onScreenshot:, screenshots: PlaybookScreenshots.all)` collects them from code, and `metro live:run playbook <name>` saves them under `screenshots/<playbook>/`
+* **`NyDecoder`, `Decode` and `OneOf`** - typed decoders for `modelDecoders`. `decoders([Decode(User.fromJson), ...])` builds the map and decodes `List<User>` with no extra entry, and `OneOf<LoginResult>.byKey('status', {...})` decodes a response that can take more than one shape, by a body field, by status code, or by your own function, including 4xx/5xx bodies. Closure decoders keep working as before
+* **`NyResponse.dataAs<X>()` and `dataIs<X>()`** - read one shape of a `OneOf` response: `response.dataAs<ValidationError>()` returns it or null
+* **`FormFieldStyle`** - sets how every form field is drawn: `filled` (the default), `outlined`, `underlined`, or `grouped`, which puts consecutive text, picker, date and switch fields in one card with the label beside the value. Set it app-wide with `Nylo.configure(formFieldStyle:)`, per form with `NyFormWidget.fieldStyle`, or per field with `style:`
+* **`NyFieldColors`** - a theme extension holding the colors form fields are drawn with. Fields follow the app's theme by default, using `colorScheme.primary` as the accent; add `NyFieldColors.fromTheme(Brightness.dark, accent: ...)` to a theme's `extensions` to choose them yourself
+* **`previewRoute(data:, queryParameters:, stack:)`** - opens a route at launch with the data and query parameters it needs, and `stack` opens routes underneath it so the back button works. Release builds ignore it
+* **`NyApp.refreshLocale()` and `NyThemeManager.showTheme()`** - show another locale or theme in place, keeping the page, its state and the navigation stack, without saving the choice
+* **Structured log context** - Nylo's own errors and debug logs pass their details as `NyLogger` context, so the message stays readable and the values are listed beside it
+* **`FieldStyleRadio(subtitleStyle:)`** - styles a radio option's description, merged over the default, so `FieldStyleRadio(subtitleStyle: TextStyle(color: Colors.teal))` recolors it and keeps its size
 * **`FieldStyleRadio(subtitleStyle:)`** - styles a radio option's description, merged over the default, so `FieldStyleRadio(subtitleStyle: TextStyle(color: Colors.teal))` recolors it and keeps its size
 * **`toTimeAgoString(pattern:, locale:)`** - `pattern` sets the date format used once a date is past the relative window, and `locale` formats in a language other than the app's, so `date.toTimeAgoString(locale: 'fr', pattern: "d MMM yyyy 'à' HH:mm")` shows `4 déc. 2025 à 15:47` ([#312](https://github.com/nylo-core/nylo/issues/312))
 
@@ -13,6 +23,8 @@
 * **Prefixes in grouped rows** - a grouped text field, picker or date picker keeps a prefix that isn't a plain `Icon`, so `Field.currency(separateSymbol: true)` shows its symbol and a `prefixIcon` button, like a country code picker, stays. A plain icon still makes way for the row's label
 * **Grouped picker arrow** - the arrow on a grouped picker ends on the row's inset, in line with the values in the rows around it
 * **Card corners** - outlined and grouped cards draw their border over the rows inside, so a selected radio option or a pressed row keeps the border on the card's rounded corners
+* **Themed text follows the theme** - text styled from the theme, such as `Text("Hello").titleLarge()`, looks its style up each time it builds, so it follows a change of theme while its page is open
+* **Router group transitions** - a `'transition_type'` set on a route group applies to the routes in it that don't set their own, and a route that sets its own transition keeps it
 * **`StyledText` text color** - `StyledText` and `StyledText.template` take the app's text style the way `Text` does, so `StyledText.template("Hello, {{World}}", style: TextStyle(fontSize: 100))` draws "Hello," in the theme's text color
 
 ## [7.36.0] - 2026-10-19
