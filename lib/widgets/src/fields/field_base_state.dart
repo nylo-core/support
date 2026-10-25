@@ -95,11 +95,10 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
     return FieldStyle();
   }
 
-  /// Creates a WidgetStateProperty for colors with theme-aware fallbacks.
+  /// Creates a WidgetStateProperty for colors.
   ///
-  /// Converts a color to a WidgetStateProperty that adapts to the current theme.
-  /// In light mode, uses the provided color; in dark mode, defaults to black.
-  /// Returns null if no color is provided.
+  /// Converts a color to a WidgetStateProperty that gives it in every state
+  /// and theme. Returns null if no color is provided.
   ///
   /// [colorMetaData] is the base color to use for light theme.
   /// [defaultValue] is an optional fallback color (currently unused).
@@ -110,8 +109,7 @@ abstract class FieldBaseState<T extends StatefulWidget> extends NyState<T> {
     if (colorMetaData == null) {
       return null;
     }
-    Color? thumbColorMetaData = color(light: colorMetaData, dark: Colors.black);
-    return WidgetStateProperty.all(thumbColorMetaData);
+    return WidgetStateProperty.all(colorMetaData);
   }
 
   /// Creates a WidgetStateProperty for generic widget properties.

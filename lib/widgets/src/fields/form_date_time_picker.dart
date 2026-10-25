@@ -114,27 +114,27 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
 
   @override
   Widget view(BuildContext context) {
-    return DateTimeFormField(
+    final NyFieldColors colors = NyFieldColors.of(context);
+    final InputDecoration? custom = _customDecoration();
+    final FormFieldStyle formStyle = FormFieldStyle.of(context);
+    final InputDecoration box = formStyle.decoration(
+      colors,
+      hasError: false,
+      disabled: false,
+    );
+
+    final Widget field = DateTimeFormField(
       decoration:
-          _customDecoration() ??
-          InputDecoration(
-            fillColor: color(
-              light: Colors.grey.shade100,
-              dark: surfaceColorDark,
-            ),
-            border: InputBorder.none,
-            filled: true,
-            suffixIconColor: color(light: Colors.black, dark: Colors.white),
-            labelText: widget.field.name,
-            labelStyle: TextStyle(
-              fontSize: 16,
-              color: color(light: Colors.grey, dark: Colors.white),
-            ),
-            isDense: true,
-            focusedBorder: const OutlineInputBorder(
-              borderRadius: BorderRadius.all(Radius.circular(12)),
-              borderSide: BorderSide(color: Colors.transparent),
-            ),
+          custom ??
+          box.copyWith(
+            // A grouped row's label stands in for a plain icon.
+            prefixIcon: formStyle.isGrouped && style.prefixIcon is Icon
+                ? null
+                : style.prefixIcon,
+            prefixIconColor: colors.icon,
+            suffixIconColor: colors.icon,
+            hintStyle: TextStyle(fontSize: 16, color: colors.placeholder),
+            errorStyle: TextStyle(fontSize: 13, color: colors.error),
           ),
       dateFormat: style.dateFormat ?? DateFormat('yyyy-MM-dd'),
       mode: style.mode,
@@ -155,26 +155,33 @@ class _NyFormDateTimePickerState extends FieldBaseState<NyFormDateTimePicker> {
           style.cupertinoDatePickerOptions ??
           CupertinoDatePickerOptions(
             style: CupertinoDatePickerOptionsStyle(
-              modalTitle: TextStyle(
-                color: color(light: Colors.black, dark: Colors.white),
-              ),
+              modalTitle: TextStyle(color: colors.text),
             ),
           ),
       canClear: style.canClear,
       clearIconData: style.clearIconData,
       hideDefaultSuffixIcon: style.hideDefaultSuffixIcon,
       padding: style.padding ?? EdgeInsets.zero,
-      style:
-          style.style ??
-          TextStyle(
-            fontSize: 16,
-            color: color(light: Colors.black, dark: Colors.white),
-          ),
+      style: style.style ?? TextStyle(fontSize: 16, color: colors.text),
       onChanged: (DateTime? value) {
         // Track what's on screen, so a later setValue compares against it.
         currentValue = value;
         widget.onChanged?.call(value);
       },
+    );
+
+    if (custom != null) return field;
+    if (formStyle.isGrouped) {
+      return FormFieldGroupRow(label: widget.field.name, child: field);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(widget.field.name, style: colors.labelStyle),
+        SizedBox(height: formStyle.labelGap),
+        field,
+      ],
     );
   }
 }

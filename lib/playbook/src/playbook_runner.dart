@@ -5,8 +5,10 @@ import 'package:flutter/widgets.dart';
 import '/helpers/ny_helpers.dart';
 import '/live/src/live_exception.dart';
 import '/live/src/ny_live.dart';
+import '/screenshot/ny_screenshot.dart';
 import 'playbook.dart';
 import 'playbook_actor.dart';
+import 'playbook_camera.dart';
 import 'playbook_clock.dart';
 import 'playbook_registry.dart';
 import 'playbook_report.dart';
@@ -28,6 +30,28 @@ abstract final class PlaybookRunner {
 
   /// Completes when the run in progress ends, or straight away.
   static Future<void> get done => _running ?? Future<void>.value();
+
+  /// How long a `screenshot()` step waits for Metro before the
+  /// app captures the screen itself.
+  static Duration nativeTimeout = const Duration(seconds: 15);
+
+  /// The native captures waiting for Metro, by run id and shot id.
+  static final Map<String, Completer<void>> _native = {};
+
+  /// Tells the run [runId] that Metro has captured the shot [id], or with
+  /// [error], why it couldn't.
+  ///
+  /// Returns false when the step has stopped waiting.
+  static bool nativeTaken(String runId, String id, {String? error}) {
+    final Completer<void>? waiting = _native.remove('$runId/$id');
+    if (waiting == null || waiting.isCompleted) return false;
+    if (error == null) {
+      waiting.complete();
+    } else {
+      waiting.completeError(StateError(error));
+    }
+    return true;
+  }
 
   /// Each registered playbook's name, description, speed and step titles.
   static List<Map<String, Object?>> list() => [
@@ -58,8 +82,14 @@ abstract final class PlaybookRunner {
   /// [speed] overrides each playbook's own, and [data] is shared by all of
   /// them. With [loop], the list repeats until [stop]. A [countdown] counts
   /// that many seconds down on screen first, so there's time to start a
-  /// screen recording. Throws a [LiveException] when a name is unknown or a
-  /// playbook is running.
+  /// screen recording. [screenshots] chooses the screens captured for Metro
+  /// to collect, at [pixelRatio] relative to the device, and [matrix] is the
+  /// locale and theme Metro switched to for this pass of `--locales` /
+  /// `--themes`. [store], [frame] and [background] convert step and marked
+  /// screenshots for a store listing. [native] says Metro can capture the
+  /// whole screen for `screenshot()` steps; see [nativeTaken].
+  /// Throws a [LiveException] when a name is unknown or a playbook is
+  /// running.
   static String start(
     List<String> names, {
     PlaybookSpeed? speed,
@@ -67,6 +97,13 @@ abstract final class PlaybookRunner {
     bool overlay = true,
     bool loop = false,
     int countdown = 0,
+    PlaybookScreenshots screenshots = PlaybookScreenshots.off,
+    double pixelRatio = 1.0,
+    ({String? locale, String? theme})? matrix,
+    ScreenshotStore? store,
+    bool frame = false,
+    Color? background,
+    bool native = false,
     PlaybookClock? clock,
   }) {
     if (_runId != null || Playbook.isRunning) {
@@ -99,6 +136,13 @@ abstract final class PlaybookRunner {
       overlay: overlay,
       loop: loop,
       countdown: countdown,
+      screenshots: screenshots,
+      pixelRatio: pixelRatio,
+      matrix: matrix,
+      store: store,
+      frame: frame,
+      background: background,
+      native: native,
       clock: clock,
     );
     return runId;
@@ -120,6 +164,13 @@ abstract final class PlaybookRunner {
     required bool overlay,
     required bool loop,
     required int countdown,
+    required PlaybookScreenshots screenshots,
+    required double pixelRatio,
+    ({String? locale, String? theme})? matrix,
+    ScreenshotStore? store,
+    required bool frame,
+    Color? background,
+    required bool native,
     PlaybookClock? clock,
   }) async {
     final Stopwatch stopwatch = Stopwatch()..start();
@@ -133,6 +184,36 @@ abstract final class PlaybookRunner {
       });
     }
 
+    // Asks Metro for the shot and waits for nativeTaken.
+    Future<void> askNative({
+      required String id,
+      required String name,
+      String? locale,
+      String? theme,
+    }) async {
+      final String key = '$runId/$id';
+      final Completer<void> waiting = Completer<void>();
+      _native[key] = waiting;
+      emit({
+        'event': 'native',
+        'id': id,
+        'name': name,
+        'locale': ?locale,
+        'theme': ?theme,
+      });
+      try {
+        await waiting.future.timeout(
+          nativeTimeout,
+          onTimeout: () => throw StateError(
+            'Metro didn\'t capture the screen within '
+            '${nativeTimeout.inSeconds}s',
+          ),
+        );
+      } finally {
+        _native.remove(key);
+      }
+    }
+
     bool passed = true;
     bool stopped = false;
     int runs = 0;
@@ -143,6 +224,17 @@ abstract final class PlaybookRunner {
         clock: clock,
         overlay: overlay,
         caption: PlaybookRegistry.find(names.first)!.caption,
+        camera: screenshots == PlaybookScreenshots.off
+            ? null
+            : PlaybookCamera(
+                mode: screenshots,
+                pixelRatio: pixelRatio,
+                matrix: matrix,
+                store: store,
+                frame: frame,
+                background: background,
+                native: native ? askNative : null,
+              ),
       );
       for (int left = countdown; left > 0; left--) {
         if (session.stopRequested) break;
@@ -180,6 +272,7 @@ abstract final class PlaybookRunner {
       error = e is PlaybookFailure ? e.message : '$e';
       NyLogger.error('[Playbook] $error');
     } finally {
+      _native.removeWhere((String key, _) => key.startsWith('$runId/'));
       if (session != null) Playbook.close(session);
       _runId = null;
       _running = null;

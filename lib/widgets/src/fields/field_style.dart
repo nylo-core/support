@@ -49,6 +49,7 @@ class FieldStyleDateTimePicker extends FieldStyle {
     this.pickerPlatform = DateTimeFieldPickerPlatform.adaptive,
     this.canClear = true,
     this.clearIconData = Icons.clear,
+    this.prefixIcon,
   });
 
   TextStyle? style;
@@ -72,6 +73,9 @@ class FieldStyleDateTimePicker extends FieldStyle {
   bool canClear;
   IconData clearIconData;
 
+  /// An icon before the date, e.g. `Icon(Icons.calendar_today_outlined)`.
+  Widget? prefixIcon;
+
   @override
   FieldStyleDateTimePicker copyWith({
     TextStyle? style,
@@ -93,6 +97,7 @@ class FieldStyleDateTimePicker extends FieldStyle {
     DateTimeFieldPickerPlatform? pickerPlatform,
     bool? canClear,
     IconData? clearIconData,
+    Widget? prefixIcon,
     double? footerSpacing,
     double? headerSpacing,
   }) {
@@ -121,6 +126,7 @@ class FieldStyleDateTimePicker extends FieldStyle {
       pickerPlatform: pickerPlatform ?? this.pickerPlatform,
       canClear: canClear ?? this.canClear,
       clearIconData: clearIconData ?? this.clearIconData,
+      prefixIcon: prefixIcon ?? this.prefixIcon,
     );
   }
 }
@@ -136,31 +142,68 @@ class FieldStyleChip extends FieldStyle {
     this.selectedColor,
     super.headerSpacing = 5.0,
     super.footerSpacing = 5.0,
-    this.shape = const RoundedRectangleBorder(
-      borderRadius: BorderRadius.all(Radius.circular(8)),
-    ),
-    this.unselectedSide = const BorderSide(color: Color(0xffbfbbc5), width: 1),
-    this.selectedSide = const BorderSide(color: Color(0xffbfbbc5), width: 1),
-    this.labelStyle = const TextStyle(
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
-    ),
-    this.unselectedTextStyle = const TextStyle(
-      fontWeight: FontWeight.bold,
-      color: Colors.black,
-    ),
-    this.selectedTextStyle = const TextStyle(
-      fontWeight: FontWeight.bold,
-      color: Colors.white,
-    ),
-    this.padding = const EdgeInsets.all(8.0),
+    this.shape = defaultShape,
+    this.unselectedSide = defaultUnselectedSide,
+    this.selectedSide = defaultSelectedSide,
+    this.labelStyle = defaultLabelStyle,
+    this.unselectedTextStyle = defaultUnselectedTextStyle,
+    this.selectedTextStyle = defaultSelectedTextStyle,
+    this.padding = defaultPadding,
     this.runSpacing = 8.0,
     this.spacing = 8.0,
-    this.checkmarkColor = Colors.white,
+    this.checkmarkColor = defaultCheckmarkColor,
     this.materialTapTargetSize = MaterialTapTargetSize.shrinkWrap,
     this.shadowColor = Colors.transparent,
     this.surfaceTintColor = Colors.transparent,
+    this.showTitle = true,
   });
+
+  /// Whether the field's name is shown above the chips.
+  bool showTitle;
+
+  /// The chip shape when none is given: fully rounded. Left as is, chips
+  /// take the theme's [NyFieldColors]; the same goes for the other
+  /// `default…` values below.
+  static const OutlinedBorder defaultShape = StadiumBorder();
+
+  /// The border of an unselected chip when none is given.
+  static const BorderSide defaultUnselectedSide = BorderSide(
+    color: Color(0xffbfbbc5),
+    width: 1,
+  );
+
+  /// The border of a selected chip when none is given.
+  static const BorderSide defaultSelectedSide = BorderSide(
+    color: Color(0xffbfbbc5),
+    width: 1,
+  );
+
+  /// The label style when none is given.
+  static const TextStyle defaultLabelStyle = TextStyle(
+    fontWeight: FontWeight.w500,
+    color: Colors.black,
+  );
+
+  /// The text style of an unselected chip when none is given.
+  static const TextStyle defaultUnselectedTextStyle = TextStyle(
+    fontWeight: FontWeight.w500,
+    color: Colors.black,
+  );
+
+  /// The text style of a selected chip when none is given.
+  static const TextStyle defaultSelectedTextStyle = TextStyle(
+    fontWeight: FontWeight.w500,
+    color: Colors.white,
+  );
+
+  /// The padding inside a chip when none is given.
+  static const EdgeInsets defaultPadding = EdgeInsets.symmetric(
+    horizontal: 6,
+    vertical: 6,
+  );
+
+  /// The checkmark color when none is given.
+  static const Color defaultCheckmarkColor = Colors.white;
 
   Color? backgroundColor;
   Color? selectedColor;
@@ -188,6 +231,7 @@ class FieldStyleRadio extends FieldStyle {
   FieldStyleRadio({
     this.titleStyle,
     this.listTileStyle,
+    this.subtitleStyle,
     this.hideTitle,
     this.selectedColor,
     this.tileColor,
@@ -206,6 +250,9 @@ class FieldStyleRadio extends FieldStyle {
 
   TextStyle? titleStyle;
   TextStyle? listTileStyle;
+
+  /// The style of an option's description, merged over the default.
+  TextStyle? subtitleStyle;
   bool? hideTitle;
   NyColor? selectedColor;
   NyColor? tileColor;
@@ -256,6 +303,7 @@ class FieldStyleTextField extends FieldStyle {
     this.decorator,
     this.labelText,
     this.labelStyle,
+    this.labelPosition,
     this.controller,
     this.obscureText = false,
     this.maxLines,
@@ -292,7 +340,7 @@ class FieldStyleTextField extends FieldStyle {
     this.cursorWidth = 2.0,
     this.cursorHeight,
     this.cursorRadius = const Radius.circular(2.0),
-    this.cursorColor = Colors.black87,
+    this.cursorColor,
     this.keyboardAppearance,
     this.scrollPadding = const EdgeInsets.all(20.0),
     this.selectionControls,
@@ -311,6 +359,10 @@ class FieldStyleTextField extends FieldStyle {
 
   final String? labelText;
   final TextStyle? labelStyle;
+
+  /// Where the field's name is shown: above it (the default) or floating
+  /// inside it.
+  final FieldLabelPosition? labelPosition;
   final TextEditingController? controller;
   final bool obscureText;
   final int? maxLines, minLines;
@@ -396,10 +448,11 @@ class FieldStyleTextField extends FieldStyle {
   final SuffixIconAlignment? suffixIconAlignment;
   final bool enableInteractiveSelection;
 
+  /// A plain text field. Colors, borders and padding come from the theme's
+  /// [NyFieldColors].
   static FieldStyleTextField base() {
     return FieldStyleTextField(
       labelText: '',
-      labelStyle: const TextStyle(fontSize: 16.0, color: Colors.black87),
       // No controller or focusNode: [InputField] creates and disposes its own,
       // and its focus listener (inline validation) must see the node in use.
       obscureText: false,
@@ -410,41 +463,21 @@ class FieldStyleTextField extends FieldStyle {
       textAlign: TextAlign.start,
       enableSuggestions: true,
       hintText: '',
-      hintStyle: const TextStyle(color: Colors.grey),
       dummyData: '',
       onChanged: null,
       textInputAction: TextInputAction.done,
-      style: const TextStyle(fontSize: 16.0, color: Colors.black87),
+      style: const TextStyle(fontSize: 16.0),
       filled: true,
-      fillColor: Colors.grey.shade100,
       isDense: true,
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      enabledBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      contentPadding: const EdgeInsetsDirectional.symmetric(
-        vertical: 13,
-        horizontal: 13,
-      ),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(width: 0, style: BorderStyle.none),
-      ),
       decoration: InputDecoration(),
     );
   }
 
+  /// A password field with a lock icon, its text hidden.
   static FieldStyleTextField password({bool passwordViewable = true}) {
     FieldStyleTextField baseStyle = base();
     return baseStyle.copyWith(
-      prefixIcon: const Icon(Icons.lock_rounded),
-      filled: true,
-      fillColor: Colors.grey.shade100,
-      isDense: true,
+      prefixIcon: const Icon(Icons.lock_outline_rounded),
       suffixIcon: passwordViewable
           ? IconButton(
               icon: Icon(
@@ -453,82 +486,30 @@ class FieldStyleTextField extends FieldStyle {
               onPressed: () {},
             )
           : null,
-      contentPadding: const EdgeInsetsDirectional.symmetric(
-        vertical: 14,
-        horizontal: 14,
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      enabledBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      border: OutlineInputBorder(
-        borderSide: BorderSide.none,
-        borderRadius: BorderRadius.circular(12),
-      ),
       obscureText: true,
       obscuringCharacter: '*',
     );
   }
 
+  /// An email field with a mail icon and the email keyboard.
   static FieldStyleTextField emailAddress() {
     FieldStyleTextField baseStyle = base();
     return baseStyle.copyWith(
       keyboardType: TextInputType.emailAddress,
       prefixIcon: const Icon(Icons.email_outlined),
-      filled: true,
-      fillColor: Colors.grey.shade100,
-      isDense: true,
-      contentPadding: const EdgeInsetsDirectional.symmetric(
-        vertical: 14,
-        horizontal: 14,
-      ),
-      focusedBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      enabledBorder: const OutlineInputBorder(
-        borderRadius: BorderRadius.all(Radius.circular(12)),
-        borderSide: BorderSide(color: Colors.transparent),
-      ),
-      border: OutlineInputBorder(
-        borderSide: BorderSide.none,
-        borderRadius: BorderRadius.circular(12),
-      ),
     );
   }
 
+  /// [base], with [field]'s colors, borders and padding where it has them.
   static FieldStyleTextField basic({FieldStyleTextField? field}) {
     FieldStyleTextField baseStyle = base();
     return baseStyle.copyWith(
-      filled: true,
-      fillColor: field?.fillColor ?? Colors.grey.shade100,
-      backgroundColor: field?.backgroundColor ?? Colors.grey.shade100,
-      isDense: true,
-      focusedBorder:
-          field?.focusedBorder ??
-          const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: Colors.transparent),
-          ),
-      enabledBorder:
-          field?.enabledBorder ??
-          const OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
-            borderSide: BorderSide(color: Colors.transparent),
-          ),
-      contentPadding:
-          field?.contentPadding ??
-          const EdgeInsetsDirectional.symmetric(vertical: 13, horizontal: 13),
-      border:
-          field?.border ??
-          OutlineInputBorder(
-            borderRadius: field?.borderRadius ?? BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 0, style: BorderStyle.none),
-          ),
+      fillColor: field?.fillColor,
+      backgroundColor: field?.backgroundColor,
+      focusedBorder: field?.focusedBorder,
+      enabledBorder: field?.enabledBorder,
+      contentPadding: field?.contentPadding,
+      border: field?.border,
     );
   }
 
@@ -536,6 +517,7 @@ class FieldStyleTextField extends FieldStyle {
   FieldStyleTextField copyWith({
     String? labelText,
     TextStyle? labelStyle,
+    FieldLabelPosition? labelPosition,
     TextEditingController? controller,
     bool? obscureText,
     int? maxLines,
@@ -620,6 +602,7 @@ class FieldStyleTextField extends FieldStyle {
     return FieldStyleTextField(
       labelText: labelText ?? this.labelText,
       labelStyle: labelStyle ?? this.labelStyle,
+      labelPosition: labelPosition ?? this.labelPosition,
       controller: controller ?? this.controller,
       obscureText: obscureText ?? this.obscureText,
       maxLines: maxLines ?? this.maxLines,

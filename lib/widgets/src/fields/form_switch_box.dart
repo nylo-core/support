@@ -122,25 +122,22 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
+    final FormFieldStyle formStyle = FormFieldStyle.of(context);
+    final bool styled = style.shape == null && style.tileColor == null;
+    final bool inGroup = formStyle.isGrouped && FormFieldGroup.isIn(context);
     Widget? title = style.title;
 
-    title ??= Text(
-      widget.field.name,
-      style:
-          style.titleTextStyle ??
-          TextStyle(
-            color: color(light: Colors.black, dark: Colors.white),
-          ),
-    );
+    final TextStyle titleStyle =
+        style.titleTextStyle ??
+        TextStyle(
+          color: colors.text,
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        );
+    title ??= Text(widget.field.name, style: titleStyle);
     if (title is Text && (title.data == null || title.data!.isEmpty)) {
-      title = Text(
-        widget.field.name,
-        style:
-            style.titleTextStyle ??
-            TextStyle(
-              color: color(light: Colors.black, dark: Colors.white),
-            ),
-      );
+      title = Text(widget.field.name, style: titleStyle);
     }
 
     Color? overlayColorMetaData = style.overlayColor;
@@ -150,7 +147,10 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
     }
 
     return SwitchListTile.adaptive(
-      title: title,
+      title: DefaultTextStyle.merge(
+        style: TextStyle(color: colors.text),
+        child: title,
+      ),
       value: currentValue,
       onChanged: (value) {
         setState(() {
@@ -161,10 +161,7 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
         });
       },
       controlAffinity: style.controlAffinity,
-      activeThumbColor: color(
-        light: style.activeThumbColor ?? Theme.of(context).primaryColor,
-        dark: Colors.black,
-      ),
+      activeThumbColor: style.activeThumbColor ?? colors.onAccent,
       hoverColor: style.hoverColor,
       overlayColor: overlayColor,
       splashRadius: style.splashRadius,
@@ -172,14 +169,26 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
       visualDensity: style.visualDensity,
       focusNode: style.focusNode,
       autofocus: style.autofocus,
-      shape: style.shape,
-      tileColor: style.tileColor,
-      subtitle: style.subtitle,
+      // Drawn like the form's other fields, unless the style shapes or
+      // colors it.
+      shape:
+          style.shape ?? (styled ? _shape(formStyle, colors, inGroup) : null),
+      tileColor:
+          style.tileColor ??
+          (formStyle.look == FormFieldLook.filled ||
+                  (formStyle.isGrouped && !inGroup)
+              ? colors.fill
+              : Colors.transparent),
+      subtitle: _subtitle(style.subtitle, colors),
       isThreeLine: style.isThreeLine,
       dense: style.dense,
       secondary: style.secondary,
       selected: style.selected,
-      contentPadding: style.contentPadding,
+      contentPadding:
+          style.contentPadding ??
+          (formStyle.look == FormFieldLook.underlined
+              ? const EdgeInsetsDirectional.only(start: 2)
+              : null),
       selectedTileColor: style.selectedTileColor,
       onFocusChange: style.onFocusChange,
       enableFeedback: style.enableFeedback,
@@ -189,13 +198,55 @@ class _NyFormSwitchBoxState extends FieldBaseState<NyFormSwitchBox> {
       onInactiveThumbImageError: style.onInactiveThumbImageError,
       thumbColor: getWidgetStatePropertyColor(style.thumbColor),
       trackColor: getWidgetStatePropertyColor(style.trackColor),
-      trackOutlineColor: getWidgetStatePropertyColor(style.trackOutlineColor),
+      trackOutlineColor:
+          getWidgetStatePropertyColor(style.trackOutlineColor) ??
+          WidgetStateProperty.resolveWith(
+            (Set<WidgetState> states) => states.contains(WidgetState.selected)
+                ? (style.activeTrackColor ?? colors.accent)
+                : colors.controlOff,
+          ),
       thumbIcon: getWidgetStateProperty<Icon>(style.thumbIcon),
-      activeTrackColor: style.activeTrackColor,
-      inactiveThumbColor: style.inactiveThumbColor,
-      inactiveTrackColor: style.inactiveTrackColor,
+      activeTrackColor: style.activeTrackColor ?? colors.accent,
+      inactiveThumbColor: style.inactiveThumbColor ?? colors.controlOff,
+      inactiveTrackColor: style.inactiveTrackColor ?? colors.fill,
       dragStartBehavior: style.dragStartBehavior,
       mouseCursor: style.mouseCursor,
+    );
+  }
+
+  /// The switch row's outline for [formStyle]: a card, a line under it, or
+  /// nothing inside a group's card.
+  static ShapeBorder? _shape(
+    FormFieldStyle formStyle,
+    NyFieldColors colors,
+    bool inGroup,
+  ) {
+    final BorderRadius corners = BorderRadius.all(
+      Radius.circular(formStyle.radius),
+    );
+    return switch (formStyle.look) {
+      FormFieldLook.underlined => Border(
+        bottom: BorderSide(color: colors.controlOff),
+      ),
+      FormFieldLook.outlined => RoundedRectangleBorder(
+        borderRadius: corners,
+        side: BorderSide(color: colors.controlOff),
+      ),
+      FormFieldLook.grouped when inGroup => null,
+      _ => RoundedRectangleBorder(
+        borderRadius: corners,
+        side: BorderSide(color: colors.border),
+      ),
+    };
+  }
+
+  /// [subtitle] in the theme's secondary text color, so it reads whatever
+  /// the color scheme's `onSurface` is.
+  static Widget? _subtitle(Widget? subtitle, NyFieldColors colors) {
+    if (subtitle == null) return null;
+    return DefaultTextStyle.merge(
+      style: TextStyle(color: colors.placeholder, fontSize: 13),
+      child: subtitle,
     );
   }
 }

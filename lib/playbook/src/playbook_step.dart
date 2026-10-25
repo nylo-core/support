@@ -28,8 +28,10 @@ class PlaybookStep {
 /// A step made of other steps, like `scene()` and `play()`, whose results
 /// nest under it in the report.
 class PlaybookGroupStep extends PlaybookStep {
-  /// Creates a group step called [title] that runs [group].
-  PlaybookGroupStep(String title, this.group) : super(title, _noAction);
+  /// Creates a group step called [title] that runs [group]. [steps] lists
+  /// the steps it runs when they're known up front, like a `scene()`'s.
+  PlaybookGroupStep(String title, this.group, {this.steps})
+    : super(title, _noAction);
 
   /// Runs the nested steps and returns their results.
   ///
@@ -39,6 +41,10 @@ class PlaybookGroupStep extends PlaybookStep {
     PlaybookStepContext context,
   )
   group;
+
+  /// The steps [group] runs, or null when they're only known once it runs,
+  /// like another playbook's.
+  final List<PlaybookStep>? steps;
 
   static Future<void> _noAction(PlaybookActor actor) async {}
 }
@@ -53,6 +59,7 @@ class PlaybookStepContext {
     this.depth = 0,
     this.caption = '',
     this.emit,
+    this.everyStep = true,
   });
 
   /// The name of the playbook the steps belong to.
@@ -70,6 +77,10 @@ class PlaybookStepContext {
   /// Receives the run's events.
   final void Function(Map<String, Object?> event)? emit;
 
+  /// Whether a run capturing screenshots in `auto` mode captures every step:
+  /// false when the playbook has `screenshot()` steps.
+  final bool everyStep;
+
   /// The context for steps nested in the step at [index] of [total] called
   /// [title], belonging to [playbook] with [path].
   PlaybookStepContext nested({
@@ -84,5 +95,6 @@ class PlaybookStepContext {
     depth: depth + 1,
     caption: '$caption$index/$total · $title › ',
     emit: emit,
+    everyStep: everyStep,
   );
 }

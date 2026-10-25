@@ -23,6 +23,8 @@ export 'src/ny_base_modal.dart';
 
 // Fields
 export 'src/fields/field_base_state.dart';
+export 'src/fields/field_colors.dart';
+export 'src/fields/form_field_style.dart';
 export 'src/fields/field_style.dart';
 export 'src/fields/form_picker.dart';
 export 'src/fields/form_chips.dart';

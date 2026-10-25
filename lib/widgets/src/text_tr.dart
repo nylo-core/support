@@ -49,7 +49,8 @@ class TextTr extends Text {
     super.locale,
     super.semanticsLabel,
     this.arguments,
-  }) : super(data.tr(arguments: arguments));
+  }) : _select = null,
+       super(data.tr(arguments: arguments));
 
   /// Optional arguments for string interpolation in the translated text.
   ///
@@ -57,9 +58,33 @@ class TextTr extends Text {
   /// `arguments: {'name': 'John'}` to produce `"Hello, John!"`.
   final Map<String, String>? arguments;
 
+  /// Picks the theme's text style for a named constructor such as
+  /// [TextTr.titleLarge], or null.
+  final TextStyle? Function(TextTheme theme)? _select;
+
+  /// Looks the theme's style up as it builds, so the text follows the theme
+  /// it's shown in, including a change of theme while its page is open.
+  @override
+  Widget build(BuildContext context) {
+    final TextStyle? Function(TextTheme theme)? select = _select;
+    if (select == null) return super.build(context);
+    return Text(
+      data!,
+      style: select(Theme.of(context).textTheme),
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      maxLines: maxLines,
+      semanticsLabel: semanticsLabel,
+    ).build(context);
+  }
+
   /// Creates a [TextTr] with [displayLarge] text style.
   TextTr.displayLarge(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.displayLarge),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -75,7 +100,8 @@ class TextTr extends Text {
     super.key,
     super.textAlign,
     this.arguments,
-  }) : super(
+  }) : _select = ((TextTheme theme) => theme.headlineLarge),
+       super(
          data.tr(arguments: arguments),
          style: NyThemeManager
              .instance
@@ -87,7 +113,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [bodyLarge] text style.
   TextTr.bodyLarge(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.bodyLarge),
+      super(
         data.tr(arguments: arguments),
         style:
             NyThemeManager.instance.currentTheme?.themeData.textTheme.bodyLarge,
@@ -95,7 +122,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [labelLarge] text style.
   TextTr.labelLarge(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.labelLarge),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -111,7 +139,8 @@ class TextTr extends Text {
     super.key,
     super.textAlign,
     this.arguments,
-  }) : super(
+  }) : _select = ((TextTheme theme) => theme.displayMedium),
+       super(
          data.tr(arguments: arguments),
          style: NyThemeManager
              .instance
@@ -123,7 +152,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [displaySmall] text style.
   TextTr.displaySmall(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.displaySmall),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -139,7 +169,8 @@ class TextTr extends Text {
     super.key,
     super.textAlign,
     this.arguments,
-  }) : super(
+  }) : _select = ((TextTheme theme) => theme.headlineMedium),
+       super(
          data.tr(arguments: arguments),
          style: NyThemeManager
              .instance
@@ -155,7 +186,8 @@ class TextTr extends Text {
     super.key,
     super.textAlign,
     this.arguments,
-  }) : super(
+  }) : _select = ((TextTheme theme) => theme.headlineSmall),
+       super(
          data.tr(arguments: arguments),
          style: NyThemeManager
              .instance
@@ -167,7 +199,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [titleLarge] text style.
   TextTr.titleLarge(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.titleLarge),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -179,7 +212,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [titleMedium] text style.
   TextTr.titleMedium(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.titleMedium),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -191,7 +225,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [titleSmall] text style.
   TextTr.titleSmall(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.titleSmall),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -203,7 +238,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [bodyMedium] text style.
   TextTr.bodyMedium(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.bodyMedium),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -215,7 +251,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [bodySmall] text style.
   TextTr.bodySmall(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.bodySmall),
+      super(
         data.tr(arguments: arguments),
         style:
             NyThemeManager.instance.currentTheme?.themeData.textTheme.bodySmall,
@@ -223,7 +260,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [labelMedium] text style.
   TextTr.labelMedium(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.labelMedium),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance
@@ -235,7 +273,8 @@ class TextTr extends Text {
 
   /// Creates a [TextTr] with [labelSmall] text style.
   TextTr.labelSmall(String data, {super.key, super.textAlign, this.arguments})
-    : super(
+    : _select = ((TextTheme theme) => theme.labelSmall),
+      super(
         data.tr(arguments: arguments),
         style: NyThemeManager
             .instance

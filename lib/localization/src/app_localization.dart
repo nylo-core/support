@@ -67,6 +67,10 @@ class NyLocalization {
   String? _fallbackLanguageCode;
   bool _debugMissingKeys = false;
 
+  /// The folder the language files are loaded from, e.g. `lang/`, or null
+  /// before [init].
+  String? get assetsDirectory => _assetsDir;
+
   /// Enable or disable debug logging for missing translation keys
   void setDebugMissingKeys(bool enabled) {
     _debugMissingKeys = enabled;

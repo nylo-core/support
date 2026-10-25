@@ -1,3 +1,20 @@
+## [Unreleased]
+
+### Added
+
+* **`FieldStyleRadio(subtitleStyle:)`** - styles a radio option's description, merged over the default, so `FieldStyleRadio(subtitleStyle: TextStyle(color: Colors.teal))` recolors it and keeps its size
+* **`toTimeAgoString(pattern:, locale:)`** - `pattern` sets the date format used once a date is past the relative window, and `locale` formats in a language other than the app's, so `date.toTimeAgoString(locale: 'fr', pattern: "d MMM yyyy 'à' HH:mm")` shows `4 déc. 2025 à 15:47` ([#312](https://github.com/nylo-core/nylo/issues/312))
+
+### Fixed
+
+* **Form field spacing** - `NyFormWidget(mainAxisSpacing:)` sets the vertical gap between fields, and `crossAxisSpacing` sets the gap between fields that share a row. Forms that set `crossAxisSpacing` to space fields vertically now pass `mainAxisSpacing` instead
+* **Grouped form rows** - a label that wraps keeps the row's inset under it, a counter or error under a grouped text field keeps the same inset, and a hidden field leaves the card around it whole
+* **Grouped labels sit beside their field** - each label takes its own width, up to 40% of the row, with a 16pt gap before the field, so `Bio` sits next to its text
+* **Prefixes in grouped rows** - a grouped text field, picker or date picker keeps a prefix that isn't a plain `Icon`, so `Field.currency(separateSymbol: true)` shows its symbol and a `prefixIcon` button, like a country code picker, stays. A plain icon still makes way for the row's label
+* **Grouped picker arrow** - the arrow on a grouped picker ends on the row's inset, in line with the values in the rows around it
+* **Card corners** - outlined and grouped cards draw their border over the rows inside, so a selected radio option or a pressed row keeps the border on the card's rounded corners
+* **`StyledText` text color** - `StyledText` and `StyledText.template` take the app's text style the way `Text` does, so `StyledText.template("Hello, {{World}}", style: TextStyle(fontSize: 100))` draws "Hello," in the theme's text color
+
 ## [7.36.0] - 2026-10-19
 
 ### Added

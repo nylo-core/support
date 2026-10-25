@@ -17,6 +17,15 @@ enum PrefixIconAlignment {
   top,
 }
 
+/// Where an [InputField] shows its label.
+enum FieldLabelPosition {
+  /// Above the field, in the theme's label color. The default.
+  above,
+
+  /// Inside the field, floating to its top edge once it has text.
+  floating,
+}
+
 /// Vertical position of an [InputField]'s suffix icon in a multi-line field.
 typedef SuffixIconAlignment = PrefixIconAlignment;
 
@@ -31,6 +40,10 @@ class InputField extends StatefulWidget {
 
   final String? labelText;
   final TextStyle? labelStyle;
+
+  /// Where [labelText] is shown: above the field, or floating inside it.
+  /// Null takes the [FormFieldStyle]'s.
+  final FieldLabelPosition? labelPosition;
   final TextEditingController controller;
   final bool obscureText;
   final int? maxLines, minLines;
@@ -144,6 +157,7 @@ class InputField extends StatefulWidget {
     super.key,
     required this.controller,
     this.labelText,
+    this.labelPosition,
     this.obscureText = false,
     this.autoFocus = false,
     this.keyboardType = TextInputType.text,
@@ -471,6 +485,7 @@ class InputField extends StatefulWidget {
          enabledBorder: style?.enabledBorder,
          contentPadding: style?.contentPadding,
          labelStyle: style?.labelStyle,
+         labelPosition: style?.labelPosition,
          header: style?.header,
          footer: style?.footer,
          clearable: style?.clearable,
@@ -800,6 +815,7 @@ class InputField extends StatefulWidget {
   InputField copyWith({
     String? labelText,
     TextStyle? labelStyle,
+    FieldLabelPosition? labelPosition,
     TextEditingController? controller,
     bool? obscureText,
     int? maxLines,
@@ -880,6 +896,7 @@ class InputField extends StatefulWidget {
     return InputField(
       labelText: labelText ?? this.labelText,
       labelStyle: labelStyle ?? this.labelStyle,
+      labelPosition: labelPosition ?? this.labelPosition,
       controller: controller ?? this.controller,
       obscureText: obscureText ?? this.obscureText,
       maxLines: maxLines ?? this.maxLines,
@@ -1351,52 +1368,90 @@ class _InputFieldState extends NyState<InputField> {
       return true;
     }());
 
+    final NyFieldColors colors = NyFieldColors.of(context);
+    final bool disabled = widget.enabled == false;
+    final bool hasError = _errorText != null;
+    final FormFieldStyle formStyle = FormFieldStyle.of(context);
+    final bool ownLabel =
+        widget.decoration?.labelText != null ||
+        widget.decoration?.label != null;
+    final String? label =
+        widget.labelText != null && widget.labelText!.isNotEmpty
+        ? widget.labelText!.tr()
+        : null;
+    // A grouped field shows its label beside it; otherwise it goes above,
+    // unless the field's own decoration brings one or asks for a floating
+    // one.
+    final String? groupLabel = formStyle.isGrouped && !ownLabel ? label : null;
+    final String? aboveLabel =
+        groupLabel == null &&
+            (widget.labelPosition ?? formStyle.labelPosition) ==
+                FieldLabelPosition.above &&
+            !ownLabel
+        ? label
+        : null;
+    final bool showLabelInside = groupLabel == null && aboveLabel == null;
+    final InputDecoration box = formStyle.decoration(
+      colors,
+      hasError: hasError,
+      disabled: disabled,
+      radius: widget.borderRadius,
+    );
+
     InputDecoration decoration = InputDecoration(
-      labelText: widget.decoration?.labelText ?? widget.labelText?.tr(),
+      labelText:
+          widget.decoration?.labelText ??
+          (showLabelInside ? widget.labelText?.tr() : null),
       labelStyle:
           widget.decoration?.labelStyle ??
           widget.labelStyle ??
-          const TextStyle(fontSize: 16, color: Colors.black),
+          TextStyle(fontSize: 16, color: colors.placeholder),
+      floatingLabelStyle:
+          widget.decoration?.floatingLabelStyle ??
+          (widget.labelStyle == null
+              ? TextStyle(color: hasError ? colors.error : colors.label)
+              : null),
       hintText: widget.decoration?.hintText ?? widget.hintText,
-      hintStyle: widget.decoration?.hintStyle ?? widget.hintStyle,
+      hintStyle:
+          widget.decoration?.hintStyle ??
+          widget.hintStyle ??
+          TextStyle(color: colors.placeholder),
       errorStyle:
-          widget.decoration?.errorStyle ?? const TextStyle(fontSize: 12),
+          widget.decoration?.errorStyle ??
+          TextStyle(fontSize: 13, color: colors.error),
       errorMaxLines: widget.decoration?.errorMaxLines ?? 2,
-      filled: widget.decoration?.filled ?? true,
+      counterStyle:
+          widget.decoration?.counterStyle ??
+          TextStyle(fontSize: 12, color: colors.placeholder),
+      filled: widget.decoration?.filled ?? box.filled,
       fillColor:
           widget.decoration?.fillColor ??
           widget.backgroundColor ??
-          Colors.grey.shade100,
+          box.fillColor,
+      prefixIconColor:
+          widget.decoration?.prefixIconColor ??
+          (disabled ? colors.disabledText : colors.icon),
+      suffixIconColor:
+          widget.decoration?.suffixIconColor ??
+          (disabled ? colors.disabledText : colors.icon),
       isDense: widget.decoration?.isDense ?? true,
       focusedBorder:
           widget.decoration?.focusedBorder ??
           widget.focusedBorder ??
-          OutlineInputBorder(
-            borderRadius:
-                widget.borderRadius ??
-                const BorderRadius.all(Radius.circular(12)),
-            borderSide: const BorderSide(color: Colors.transparent),
-          ),
+          box.focusedBorder,
       enabledBorder:
           widget.decoration?.enabledBorder ??
           widget.enabledBorder ??
-          OutlineInputBorder(
-            borderRadius:
-                widget.borderRadius ??
-                const BorderRadius.all(Radius.circular(12)),
-            borderSide: const BorderSide(color: Colors.transparent),
-          ),
+          box.enabledBorder,
+      disabledBorder: widget.decoration?.disabledBorder ?? box.disabledBorder,
+      errorBorder: widget.decoration?.errorBorder ?? box.errorBorder,
+      focusedErrorBorder:
+          widget.decoration?.focusedErrorBorder ?? box.focusedErrorBorder,
       contentPadding:
           widget.decoration?.contentPadding ??
           widget.contentPadding ??
-          const EdgeInsetsDirectional.symmetric(vertical: 13, horizontal: 13),
-      border:
-          widget.decoration?.border ??
-          widget.border ??
-          OutlineInputBorder(
-            borderRadius: widget.borderRadius ?? BorderRadius.circular(12),
-            borderSide: const BorderSide(width: 0, style: BorderStyle.none),
-          ),
+          box.contentPadding,
+      border: widget.decoration?.border ?? widget.border ?? box.border,
       // Flutter only floats the label back over a prefix icon, in line with
       // other fields, when alignLabelWithHint is off.
       alignLabelWithHint:
@@ -1432,7 +1487,10 @@ class _InputFieldState extends NyState<InputField> {
       );
     }
 
-    if (widget.prefixIcon != null) {
+    // A grouped row's label stands in for a plain icon. Other prefixes,
+    // like a currency symbol or a country code button, stay.
+    if (widget.prefixIcon != null &&
+        (groupLabel == null || widget.prefixIcon is! Icon)) {
       decoration = decoration.copyWith(
         prefixIcon: widget.prefixIcon,
         prefixIconConstraints: widget.decoration?.prefixIconConstraints,
@@ -1446,7 +1504,7 @@ class _InputFieldState extends NyState<InputField> {
       );
     }
 
-    if (widget.labelText != null) {
+    if (widget.labelText != null && showLabelInside) {
       decoration = decoration.copyWith(labelText: widget.labelText!.tr());
     }
 
@@ -1545,7 +1603,8 @@ class _InputFieldState extends NyState<InputField> {
       key: widget.key,
       decoration: decoration,
       controller: widget.controller,
-      keyboardAppearance: widget.keyboardAppearance ?? Brightness.light,
+      keyboardAppearance:
+          widget.keyboardAppearance ?? Theme.of(context).brightness,
       autofocus: widget.autoFocus,
       textAlign: widget.textAlign ?? TextAlign.left,
       maxLines: widget.maxLines,
@@ -1567,7 +1626,11 @@ class _InputFieldState extends NyState<InputField> {
         _revalidate();
       },
       textInputAction: widget.textInputAction,
-      style: widget.style,
+      style: (widget.style ?? const TextStyle()).copyWith(
+        color:
+            widget.style?.color ??
+            (disabled ? colors.disabledText : colors.text),
+      ),
       strutStyle: widget.strutStyle,
       textAlignVertical:
           widget.textAlignVertical ??
@@ -1593,7 +1656,7 @@ class _InputFieldState extends NyState<InputField> {
       cursorHeight: widget.cursorHeight,
       onTapOutside: widget.onTapOutside,
       cursorRadius: widget.cursorRadius,
-      cursorColor: widget.cursorColor,
+      cursorColor: widget.cursorColor ?? colors.accent,
       scrollPadding: widget.scrollPadding,
       dragStartBehavior: widget.dragStartBehavior,
       selectionControls: widget.selectionControls,
@@ -1626,6 +1689,32 @@ class _InputFieldState extends NyState<InputField> {
               top: 0,
               child: _topIcon(decoration, suffixIcon: topSuffixIcon),
             ),
+        ],
+      );
+    }
+
+    if (groupLabel != null) {
+      // A counter or error under the field keeps the row's inset below it.
+      final bool hasSubtext = hasError || widget.maxLength != null;
+      textField = FormFieldGroupRow(
+        label: groupLabel,
+        hasError: hasError,
+        alignTop: true,
+        child: hasSubtext
+            ? Padding(
+                padding: EdgeInsets.only(bottom: formStyle.dense ? 11 : 15),
+                child: textField,
+              )
+            : textField,
+      );
+    } else if (aboveLabel != null) {
+      textField = Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(aboveLabel, style: colors.labelStyle.merge(widget.labelStyle)),
+          SizedBox(height: formStyle.labelGap),
+          textField,
         ],
       );
     }

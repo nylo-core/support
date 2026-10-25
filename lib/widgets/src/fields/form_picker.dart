@@ -150,71 +150,69 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
     final bool isEmpty = currentValue == null;
 
     final TextStyle selectedValueStyle =
         style.selectedValueTextStyle ??
-        TextStyle(
-          color: color(light: Colors.black, dark: Colors.white),
-          fontSize: 16,
-        );
+        TextStyle(color: colors.text, fontSize: 16);
 
     final TextStyle placeholderStyle =
         style.placeholderTextStyle ??
-        TextStyle(
-          color: color(light: Colors.black, dark: Colors.white),
-          fontSize: 16,
-        );
+        TextStyle(color: colors.placeholder, fontSize: 16);
 
     final Color containerColor =
-        findColorFromMeta(
-          style.containerColor,
-          defaultColor: color(
-            light: Colors.grey.shade100,
-            dark: surfaceColorDark,
-          ),
-        ) ??
-        Colors.grey.shade100;
+        findColorFromMeta(style.containerColor) ?? colors.fill;
 
     final Color iconColor =
-        findColorFromMeta(
-          style.dropdownIconColor,
-          defaultColor: color(light: Colors.grey.shade800, dark: Colors.white),
-        ) ??
-        Colors.grey.shade800;
+        findColorFromMeta(style.dropdownIconColor) ?? colors.icon;
 
     final String placeholderPrefix =
         (style.placeholderPrefix ?? "nylo.form_picker.select").tr();
 
-    // Before a choice: "Select Category". After: "Category", floated above it.
-    final String labelText = isEmpty
-        ? "$placeholderPrefix ${widget.field.name}"
-        : widget.field.name;
+    // The field's name sits above it, with "Select Category" inside until
+    // there's a choice.
+    final String placeholder = "$placeholderPrefix ${widget.field.name}";
+    final String labelText = isEmpty ? placeholder : widget.field.name;
 
-    final OutlineInputBorder border = OutlineInputBorder(
-      borderRadius: style.containerBorderRadius,
-      borderSide: const BorderSide(color: Colors.transparent),
+    // The form's style draws the box, unless this field's style changed
+    // its corners, padding or color.
+    final FormFieldStyle formStyle = FormFieldStyle.of(context);
+    final bool grouped = formStyle.isGrouped && style.decoration == null;
+    final InputDecoration box = formStyle.decoration(
+      colors,
+      hasError: false,
+      disabled: false,
+      radius: style.containerBorderRadius == _defaultRadius
+          ? null
+          : style.containerBorderRadius,
     );
 
     final InputDecoration decoration = _decoration(
       labelText: labelText,
-      dropdownIcon: Icon(style.dropdownIcon, color: iconColor),
-      fallback: InputDecoration(
-        labelText: labelText,
-        labelStyle: placeholderStyle,
-        floatingLabelStyle: style.fieldNameTextStyle,
-        filled: true,
-        fillColor: containerColor,
-        isDense: true,
-        contentPadding: style.containerPadding,
-        border: border,
-        enabledBorder: border,
-        focusedBorder: border,
+      // A grouped row's label stands in for a plain icon.
+      prefixIcon: grouped && style.prefixIcon is Icon ? null : style.prefixIcon,
+      dropdownIcon: grouped
+          ? _GroupedChevron(color: iconColor)
+          : Icon(style.dropdownIcon, color: iconColor),
+      fallback: box.copyWith(
+        hintText: grouped ? placeholderPrefix : placeholder,
+        hintStyle: placeholderStyle,
+        fillColor: style.containerColor == null ? null : containerColor,
+        filled: style.containerColor != null || (box.filled ?? false),
+        prefixIconColor: colors.icon,
+        // A grouped row's arrow takes only its own width.
+        suffixIconConstraints: grouped ? const BoxConstraints() : null,
+        contentPadding: style.containerPadding == _defaultPadding
+            ? box.contentPadding
+            : style.containerPadding,
       ),
     );
 
-    return ConstrainedBox(
-      constraints: BoxConstraints(minHeight: style.containerHeight),
+    final Widget picker = ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: grouped || formStyle.dense ? 0 : style.containerHeight,
+      ),
       child: InputDecorator(
         decoration: decoration,
         isEmpty: isEmpty,
@@ -231,20 +229,46 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
               ),
       ),
     ).onTap(() => _selectValue(context));
+
+    if (style.decoration != null) return picker;
+    if (grouped) {
+      return FormFieldGroupRow(label: widget.field.name, child: picker);
+    }
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(
+          widget.field.name,
+          style: style.fieldNameTextStyle ?? colors.labelStyle,
+        ),
+        SizedBox(height: formStyle.labelGap),
+        picker,
+      ],
+    );
   }
+
+  static const BorderRadius _defaultRadius = BorderRadius.all(
+    Radius.circular(12),
+  );
+  static const EdgeInsets _defaultPadding = EdgeInsets.symmetric(
+    horizontal: 13,
+    vertical: 13,
+  );
 
   /// The style's own [FieldStylePicker.decoration] when it has one, keeping
   /// the field's label, the dropdown icon and the prefix icon where it gives
   /// none of its own, otherwise [fallback].
   InputDecoration _decoration({
     required String labelText,
+    required Widget? prefixIcon,
     required Widget dropdownIcon,
     required InputDecoration fallback,
   }) {
     final InputDecoration? custom = style.decoration;
     if (custom == null) {
       return fallback.copyWith(
-        prefixIcon: style.prefixIcon,
+        prefixIcon: prefixIcon,
         suffixIcon: dropdownIcon,
       );
     }
@@ -285,6 +309,7 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
   void _selectValue(BuildContext context) {
     // get the list of values
     FormCollection values = getOptions();
+    final NyFieldColors colors = NyFieldColors.of(context);
 
     // colors
     Color? backgroundColor = findColorFromMeta(
@@ -299,37 +324,24 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
     TextStyle? titleTextStyle =
         style.bottomModalSheetStyle?.titleStyle ??
         TextStyle(
-          fontWeight: FontWeight.bold,
-          color: color(light: Colors.black, dark: Colors.white),
+          fontWeight: FontWeight.w600,
+          fontSize: 18,
+          color: colors.text,
         );
     TextStyle? itemStyle =
         style.bottomModalSheetStyle?.itemStyle ??
-        TextStyle(
-          color: color(light: Colors.black87, dark: Colors.white),
-          fontWeight: FontWeight.bold,
-          fontSize: 14,
-        );
+        TextStyle(color: colors.text, fontSize: 16);
     TextStyle? clearButtonStyle =
         style.bottomModalSheetStyle?.clearButtonStyle ??
-        TextStyle(
-          fontSize: 13,
-          color: color(light: Colors.red, dark: Colors.red),
-        );
+        TextStyle(fontSize: 14, color: colors.accentText);
 
     Color dividerColor =
-        findColorFromMeta(
-          style.bottomSheetDividerColor,
-          defaultColor: color(
-            light: Colors.grey.shade100,
-            dark: Colors.black38,
-          ),
-        ) ??
-        Colors.grey.shade100;
+        findColorFromMeta(style.bottomSheetDividerColor) ?? colors.divider;
 
     // show modal bottom sheet
     showModalBottomSheet<void>(
       context: context,
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundColor ?? colors.sheet,
       barrierColor: barrierColor,
       useRootNavigator: style.bottomModalSheetStyle?.useRootNavigator ?? false,
       routeSettings: style.bottomModalSheetStyle?.routeSettings,
@@ -422,26 +434,33 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
       return listTileStyle!.builder!(item, isSelected, onTap);
     }
 
+    final NyFieldColors colors = NyFieldColors.of(context);
     final TextStyle effectiveStyle = isSelected
         ? (listTileStyle?.selectedTextStyle ??
               listTileStyle?.textStyle ??
-              itemStyle)
+              (listTileStyle == null
+                  ? itemStyle.copyWith(
+                      color: colors.accentText,
+                      fontWeight: FontWeight.w600,
+                    )
+                  : itemStyle))
         : (listTileStyle?.textStyle ?? itemStyle);
 
     Widget? leading;
     Widget? trailing;
+    if (listTileStyle == null && isSelected) {
+      trailing = Icon(Icons.check, color: colors.accentText);
+    }
 
     if (listTileStyle?.indicator == PickerListTileIndicator.radio) {
-      final Color radioColor =
-          listTileStyle?.activeColor ?? Theme.of(context).primaryColor;
+      final Color radioColor = listTileStyle?.activeColor ?? colors.accent;
       leading = Icon(
         isSelected ? Icons.radio_button_checked : Icons.radio_button_unchecked,
         color: isSelected ? radioColor : null,
       );
     } else if (listTileStyle?.indicator == PickerListTileIndicator.checkmark) {
       if (isSelected) {
-        final Color checkColor =
-            listTileStyle?.activeColor ?? Theme.of(context).primaryColor;
+        final Color checkColor = listTileStyle?.activeColor ?? colors.accent;
         trailing = Icon(Icons.check, color: checkColor);
       }
     }
@@ -457,4 +476,28 @@ class _NyFormPickerState extends FieldBaseState<NyFormPicker> {
       onTap: onTap,
     );
   }
+}
+
+/// A grouped picker's arrow, its visible edge on the row's inset.
+///
+/// The chevron glyph has empty space either side of it, so it is drawn
+/// past the end of this box by that much.
+class _GroupedChevron extends StatelessWidget {
+  const _GroupedChevron({required this.color});
+
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsetsDirectional.only(start: 8),
+    child: SizedBox(
+      width: 16,
+      height: 24,
+      child: OverflowBox(
+        maxWidth: 24,
+        alignment: AlignmentDirectional.centerStart,
+        child: Icon(Icons.chevron_right_rounded, size: 24, color: color),
+      ),
+    ),
+  );
 }

@@ -95,10 +95,10 @@ abstract class NyFormWidget extends StatefulWidget {
   /// The footer spacing
   final double footerSpacing;
 
-  /// The cross axis spacing for form fields
+  /// The horizontal gap between fields that share a row.
   final double crossAxisSpacing;
 
-  /// The main axis spacing for form fields
+  /// The vertical gap between fields.
   final double mainAxisSpacing;
 
   /// The loading style
@@ -127,6 +127,13 @@ abstract class NyFormWidget extends StatefulWidget {
 
   /// Override for async initial data loading
   Function()? get init => null;
+
+  /// How this form's fields are drawn, e.g. [FormFieldStyle.grouped]. Null
+  /// uses the app's, from `Nylo.configure`.
+  ///
+  /// With [FormFieldStyle.grouped], text, picker, date and switch fields
+  /// that follow each other share one card.
+  FormFieldStyle? get fieldStyle => null;
 
   /// Override for custom field change handling
   void onChange(String field, Map<String, dynamic> data) {}
@@ -418,8 +425,24 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
     },
   };
 
+  /// The style the fields were last laid out for.
+  FormFieldStyle? _laidOutStyle;
+
   @override
   Widget view(BuildContext context) {
+    final FormFieldStyle? own = widget.fieldStyle;
+    final FormFieldStyle style = own ?? FormFieldStyle.of(context);
+    if (style != _laidOutStyle) {
+      // Grouping depends on the style, so lay the fields out again.
+      _laidOutStyle = style;
+      _cachedFormWidgets = null;
+    }
+    final Widget form = _form();
+    if (own == null) return form;
+    return FormFieldStyleScope(style: own, child: form);
+  }
+
+  Widget _form() {
     if (_formData.getLoadData is Future Function()) {
       return _createWidget(
         IgnorePointer(
@@ -500,11 +523,58 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
     return _cachedFormWidgets!;
   }
 
+  /// Whether [field] is drawn as a row of a grouped card.
+  static bool _groupable(Field field) {
+    final Widget? widget = field.widget;
+    return widget is NyFormTextField ||
+        widget is NyFormPicker ||
+        widget is NyFormDateTimePicker ||
+        widget is NyFormSwitchBox;
+  }
+
   /// Create the form widgets
   List<Widget> _createForm() {
     List<Widget> items = [];
+    // A form that loads its data first can lay out before it builds.
+    final FormFieldStyle? style =
+        _laidOutStyle ??
+        widget.fieldStyle ??
+        (mounted ? FormFieldStyle.of(context) : null);
+    final bool grouped = style?.isGrouped ?? false;
+    final List<Field> run = [];
+
+    // Fields that follow each other share one card in a grouped form.
+    void endRun() {
+      if (run.isEmpty) return;
+      items.add(
+        KeyedSubtree(
+          key: ValueKey('group_${run.map((Field f) => f.stateKey).join('_')}'),
+          child: FormFieldGroup(
+            children: [
+              for (final Field field in run)
+                KeyedSubtree(
+                  key: ValueKey(field.stateKey),
+                  child: field.field!,
+                ),
+            ],
+          ),
+        ),
+      );
+      run.clear();
+    }
 
     for (Object? child in _formData.widgets) {
+      // A hidden field takes no space, so the fields either side of it
+      // stay in one card.
+      if (child is Field && child.field == null) continue;
+      if (grouped &&
+          child is Field &&
+          child.field != null &&
+          _groupable(child)) {
+        run.add(child);
+        continue;
+      }
+      endRun();
       if (child is Field && child.field != null) {
         items.add(
           KeyedSubtree(key: ValueKey(child.stateKey), child: child.field!),
@@ -529,7 +599,8 @@ class _NyFormWidgetState extends NyState<NyFormWidget> {
       }
     }
 
-    return items.withGap(widget.crossAxisSpacing);
+    endRun();
+    return items.withGap(widget.mainAxisSpacing);
   }
 }
 

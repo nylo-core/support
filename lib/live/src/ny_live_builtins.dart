@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert' show base64Encode;
 import 'dart:io' show Directory, Platform;
 
 import 'package:flutter/foundation.dart';
@@ -12,6 +13,7 @@ import '/localization/ny_localization.dart';
 import '/nylo.dart';
 import '/playbook/ny_playbook.dart';
 import '/router/ny_router.dart';
+import '/screenshot/ny_screenshot.dart';
 import '/themes/ny_themes.dart';
 import 'ny_live.dart';
 import 'live_command.dart';
@@ -60,6 +62,9 @@ final Map<String, NyLiveHandler> nyLiveBuiltIns = {
   'playbooks.list': _playbooksList,
   'playbooks.run': _playbooksRun,
   'playbooks.stop': _playbooksStop,
+  'screenshot.capture': _screenshotCapture,
+  'screenshot.get': _screenshotGet,
+  'screenshot.taken': _screenshotTaken,
 };
 
 // ---------------------------------------------------------------------------
@@ -85,6 +90,11 @@ Future<Object?> _status(Map<String, dynamic> args) async => {
   'commands': NyLive.commandNames,
   'seeders': NyLive.seederNames,
   'playbooks': NyLive.playbookNames,
+  'locales': await _bundledLocales(),
+  'themes': _orNull(() => ScreenshotLook.themeIds) ?? const <String>[],
+  'stores': [
+    for (final ScreenshotStore store in ScreenshotStore.all) store.toJson(),
+  ],
 };
 
 /// The iOS Simulator's UDID, which Metro records the screen of, or null on
@@ -579,7 +589,11 @@ Future<Object?> _themeSet(Map<String, dynamic> args) async {
           : 'No theme with id "$id". Registered themes: ${ids.join(', ')}.',
     );
   }
-  await manager.setTheme(id, remember: args['remember'] == true);
+  if (args['save'] == false) {
+    manager.showTheme(id);
+  } else {
+    await manager.setTheme(id, remember: args['remember'] == true);
+  }
   return {'theme': manager.currentThemeId};
 }
 
@@ -788,15 +802,28 @@ Future<Object?> _playbooksRun(Map<String, dynamic> args) async {
   }
   final dynamic overlay = args['overlay'] ?? true;
   final dynamic loop = args['loop'] ?? false;
-  if (overlay is! bool || loop is! bool) {
+  final dynamic native = args['native'] ?? false;
+  if (overlay is! bool || loop is! bool || native is! bool) {
     throw const LiveException.invalidParams(
-      '"overlay" and "loop" must be true or false.',
+      '"overlay", "loop" and "native" must be true or false.',
     );
   }
   final dynamic countdown = args['countdown'] ?? 0;
   if (countdown is! int || countdown < 0 || countdown > 10) {
     throw const LiveException.invalidParams(
       '"countdown" must be a whole number of seconds from 0 to 10.',
+    );
+  }
+  final String screenshotsName =
+      _optionalString(args, 'screenshots') ?? PlaybookScreenshots.off.name;
+  final PlaybookScreenshots? screenshots = PlaybookScreenshots.named(
+    screenshotsName,
+  );
+  if (screenshots == null) {
+    throw LiveException.invalidParams(
+      '"screenshots" must be '
+      '${PlaybookScreenshots.values.map((m) => m.name).join(', ')}, not '
+      '"$screenshotsName".',
     );
   }
 
@@ -807,6 +834,13 @@ Future<Object?> _playbooksRun(Map<String, dynamic> args) async {
     overlay: overlay,
     loop: loop,
     countdown: countdown,
+    screenshots: screenshots,
+    pixelRatio: _pixelRatio(args),
+    matrix: _matrix(args),
+    store: _store(args),
+    frame: _frame(args),
+    background: _background(args),
+    native: native,
   );
   return {'runId': runId, 'names': names};
 }
@@ -815,6 +849,182 @@ Future<Object?> _playbooksStop(Map<String, dynamic> args) async {
   final String? runId = _optionalString(args, 'runId');
   final String? active = PlaybookRunner.activeRunId;
   return {'stopped': PlaybookRunner.stop(runId), 'runId': runId ?? active};
+}
+
+// ---------------------------------------------------------------------------
+// Screenshots
+// ---------------------------------------------------------------------------
+
+Future<Object?> _screenshotCapture(Map<String, dynamic> args) async {
+  final String? area = _optionalString(args, 'area');
+  final String? locale = _optionalString(args, 'locale');
+  final String? theme = _optionalString(args, 'theme');
+  final String? caption = _optionalString(args, 'caption');
+  final double ratio = _pixelRatio(args);
+  final ScreenshotStore? store = _store(args);
+  final bool frame = _frame(args);
+  final Color? background = _background(args);
+  final double device =
+      WidgetsBinding
+          .instance
+          .platformDispatcher
+          .implicitView
+          ?.devicePixelRatio ??
+      1.0;
+  Screenshot shot;
+  try {
+    shot = area == null
+        ? await Screenshot.capture(
+            pixelRatio: device * ratio,
+            locale: locale,
+            theme: theme,
+          )
+        : await Screenshot.area(
+            area,
+            pixelRatio: device * ratio,
+            locale: locale,
+            theme: theme,
+          );
+  } on StateError catch (e) {
+    throw LiveException(e.message);
+  }
+  if (store != null) {
+    shot = await shot.forStore(
+      store,
+      frame: frame,
+      caption: caption?.tr(),
+      background: background,
+    );
+  } else if (frame) {
+    shot = await shot.framed(caption: caption?.tr(), background: background);
+  }
+  return {
+    'png': base64Encode(shot.bytes),
+    'width': shot.width,
+    'height': shot.height,
+    'route': Nylo.getCurrentRouteName(),
+    'locale':
+        locale ?? _orNull(() => NyLocalization.instance.locale.languageCode),
+    'theme':
+        theme ??
+        _orNull(() {
+          final String id = NyThemeManager.instance.currentThemeId;
+          return id.isEmpty ? null : id;
+        }),
+    'mode': NyLive.isDebugBuild ? 'debug' : 'profile',
+  };
+}
+
+Future<Object?> _screenshotGet(Map<String, dynamic> args) async {
+  final String id = _requireString(args, 'id');
+  final PlaybookShot? shot = PlaybookCamera.collect(id);
+  if (shot == null) {
+    throw LiveException(
+      'There\'s no screenshot "$id". The app keeps a run\'s last '
+      '${PlaybookCamera.maxHeld} screenshots until they\'re collected.',
+    );
+  }
+  final Screenshot? screenshot = shot.screenshot;
+  if (screenshot == null) {
+    throw LiveException(
+      'Screenshot "$id" was captured by Metro, which saved it itself.',
+    );
+  }
+  return {
+    'png': base64Encode(screenshot.bytes),
+    'width': screenshot.width,
+    'height': screenshot.height,
+  };
+}
+
+Future<Object?> _screenshotTaken(Map<String, dynamic> args) async {
+  final String runId = _requireString(args, 'runId');
+  final String id = _requireString(args, 'id');
+  final dynamic ok = args['ok'] ?? true;
+  if (ok is! bool) {
+    throw const LiveException.invalidParams('"ok" must be true or false.');
+  }
+  final String? error = ok
+      ? null
+      : _optionalString(args, 'error') ?? 'Metro couldn\'t capture the screen';
+  return {'resumed': PlaybookRunner.nativeTaken(runId, id, error: error)};
+}
+
+/// The language codes the app bundles a file for, or none when the asset
+/// manifest can't be read.
+Future<List<String>> _bundledLocales() async {
+  try {
+    return await ScreenshotLook.bundledLocales();
+  } catch (_) {
+    return const [];
+  }
+}
+
+/// The `matrix` argument of `playbooks.run`: the locale and theme of one
+/// pass of Metro's `--locales` / `--themes`, or null.
+({String? locale, String? theme})? _matrix(Map<String, dynamic> args) {
+  final dynamic matrix = args['matrix'];
+  if (matrix == null) return null;
+  final dynamic locale = matrix is Map ? matrix['locale'] : null;
+  final dynamic theme = matrix is Map ? matrix['theme'] : null;
+  if (matrix is! Map ||
+      (locale != null && locale is! String) ||
+      (theme != null && theme is! String)) {
+    throw const LiveException.invalidParams(
+      '"matrix" must be an object with an optional "locale" and "theme".',
+    );
+  }
+  return (locale: locale as String?, theme: theme as String?);
+}
+
+/// The `store` argument: a store size's id, or null.
+ScreenshotStore? _store(Map<String, dynamic> args) {
+  final String? id = _optionalString(args, 'store');
+  if (id == null) return null;
+  final ScreenshotStore? store = ScreenshotStore.named(id);
+  if (store == null) {
+    throw LiveException.invalidParams(
+      'There\'s no store size "$id". Store sizes: '
+      '${ScreenshotStore.all.map((ScreenshotStore s) => s.id).join(', ')}.',
+    );
+  }
+  return store;
+}
+
+/// The `frame` argument: whether to draw a phone outline, false by default.
+bool _frame(Map<String, dynamic> args) {
+  final dynamic frame = args['frame'] ?? false;
+  if (frame is! bool) {
+    throw const LiveException.invalidParams('"frame" must be true or false.');
+  }
+  return frame;
+}
+
+/// The `background` argument, `#RRGGBB` or `#AARRGGBB`, or null.
+Color? _background(Map<String, dynamic> args) {
+  final String? hex = _optionalString(args, 'background');
+  if (hex == null) return null;
+  final RegExpMatch? match = RegExp(
+    r'^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$',
+  ).firstMatch(hex);
+  if (match == null) {
+    throw LiveException.invalidParams(
+      '"background" must be a color like #1B2027, not "$hex".',
+    );
+  }
+  final String digits = match.group(1)!;
+  return Color(int.parse(digits.length == 6 ? 'FF$digits' : digits, radix: 16));
+}
+
+/// The `pixelRatio` argument: a size relative to the device's, 1 by default.
+double _pixelRatio(Map<String, dynamic> args) {
+  final dynamic ratio = args['pixelRatio'] ?? 1.0;
+  if (ratio is! num || ratio <= 0 || ratio > 4) {
+    throw const LiveException.invalidParams(
+      '"pixelRatio" must be a number above 0 and at most 4.',
+    );
+  }
+  return ratio.toDouble();
 }
 
 // ---------------------------------------------------------------------------

@@ -3,6 +3,7 @@ import 'dart:math' show max;
 import 'package:flutter/widgets.dart';
 
 import '/router/ny_router.dart';
+import '/screenshot/ny_screenshot.dart';
 import 'playbook_finder.dart';
 
 /// Where a playbook's step caption is shown.
@@ -20,7 +21,9 @@ enum PlaybookCaption {
 /// The playbook's finger and step caption, drawn above the app.
 ///
 /// The entry sits in an `IgnorePointer`, so it never takes a tap meant for
-/// the app, and inside a [PlaybookOverlayScope], so finders skip it.
+/// the app, and inside a [PlaybookOverlayScope], so finders skip it. In an
+/// app with a [ScreenshotRoot], it's drawn above the screenshot boundary,
+/// so screenshots leave it out while screen recordings show it.
 class PlaybookOverlay {
   /// Creates an overlay showing captions at [caption].
   PlaybookOverlay({this.caption = PlaybookCaption.hidden});
@@ -44,6 +47,10 @@ class PlaybookOverlay {
   /// down.
   final ValueNotifier<int?> countdown = ValueNotifier<int?>(null);
 
+  /// Whether the whole overlay is hidden, e.g. while Metro captures the
+  /// device's screen, which shows everything drawn above the app.
+  final ValueNotifier<bool> hidden = ValueNotifier<bool>(false);
+
   OverlayEntry? _entry;
   OverlayState? _overlay;
 
@@ -51,7 +58,8 @@ class PlaybookOverlay {
   // insertion is tracked here.
   bool _inserted = false;
 
-  /// Inserts the overlay into the app's root overlay.
+  /// Inserts the overlay above the screenshot boundary, or into the app's
+  /// root overlay.
   ///
   /// Returns false when the app has no overlay to draw in.
   bool attach() {
@@ -92,9 +100,12 @@ class PlaybookOverlay {
     text.dispose();
     showFinger.dispose();
     countdown.dispose();
+    hidden.dispose();
   }
 
   static OverlayState? _findOverlay() {
+    final OverlayState? top = Screenshot.overlayKey.currentState;
+    if (top != null && top.mounted) return top;
     try {
       final OverlayState? overlay =
           NyNavigator.instance.router.navigatorKey?.currentState?.overlay;
@@ -118,46 +129,53 @@ class PlaybookOverlay {
 
   Widget _build(BuildContext context) => PlaybookOverlayScope(
     child: IgnorePointer(
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          ListenableBuilder(
-            listenable: Listenable.merge([finger, showFinger]),
-            builder: (BuildContext context, Widget? child) {
-              final Offset? position = finger.value;
-              if (position == null || !showFinger.value) {
-                return const SizedBox.shrink();
-              }
-              return Positioned(
-                left: position.dx - 22,
-                top: position.dy - 22,
-                child: ValueListenableBuilder<bool>(
-                  valueListenable: pressed,
-                  builder: (BuildContext context, bool down, Widget? child) =>
-                      _Finger(pressed: down),
-                ),
-              );
-            },
-          ),
-          if (caption != PlaybookCaption.hidden)
-            ValueListenableBuilder<String?>(
-              valueListenable: text,
-              builder: (BuildContext context, String? value, Widget? child) {
-                if (value == null || value.isEmpty) {
+      child: ValueListenableBuilder<bool>(
+        valueListenable: hidden,
+        builder: (BuildContext context, bool isHidden, Widget? child) =>
+            isHidden ? const SizedBox.shrink() : child!,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            ListenableBuilder(
+              listenable: Listenable.merge([finger, showFinger]),
+              builder: (BuildContext context, Widget? child) {
+                final Offset? position = finger.value;
+                if (position == null || !showFinger.value) {
                   return const SizedBox.shrink();
                 }
-                return _Caption(
-                  text: value,
-                  top: caption == PlaybookCaption.top,
+                return Positioned(
+                  left: position.dx - 22,
+                  top: position.dy - 22,
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: pressed,
+                    builder: (BuildContext context, bool down, Widget? child) =>
+                        _Finger(pressed: down),
+                  ),
                 );
               },
             ),
-          ValueListenableBuilder<int?>(
-            valueListenable: countdown,
-            builder: (BuildContext context, int? left, Widget? child) =>
-                left == null ? const SizedBox.shrink() : _Countdown(left: left),
-          ),
-        ],
+            if (caption != PlaybookCaption.hidden)
+              ValueListenableBuilder<String?>(
+                valueListenable: text,
+                builder: (BuildContext context, String? value, Widget? child) {
+                  if (value == null || value.isEmpty) {
+                    return const SizedBox.shrink();
+                  }
+                  return _Caption(
+                    text: value,
+                    top: caption == PlaybookCaption.top,
+                  );
+                },
+              ),
+            ValueListenableBuilder<int?>(
+              valueListenable: countdown,
+              builder: (BuildContext context, int? left, Widget? child) =>
+                  left == null
+                  ? const SizedBox.shrink()
+                  : _Countdown(left: left),
+            ),
+          ],
+        ),
       ),
     ),
   );

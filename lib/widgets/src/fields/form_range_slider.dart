@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'field_slider_theme.dart';
 import '/widgets/ny_widgets.dart';
 
 /// A range slider widget for forms that allows users to select a range of values.
@@ -128,88 +129,88 @@ class _NyFormRangeSliderState extends FieldBaseState<NyFormRangeSlider> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
     Widget title =
         style.title ??
         Text(
           widget.field.name,
-          style:
-              widget.field.titleStyle ??
-              TextStyle(
-                color: color(light: Colors.black, dark: Colors.white),
-              ),
+          style: widget.field.titleStyle ?? colors.labelStyle,
         );
 
+    final Widget values = Text(
+      style.valueFormatter(currentValues.start, currentValues.end),
+      style:
+          style.valueTextStyle ??
+          TextStyle(
+            color: colors.accentText,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+    );
+    // The values sit at the end of the title's row.
+    final bool valuesBesideTitle = style.showTitle && style.showValues;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (style.showTitle) title,
+        if (valuesBesideTitle)
+          Row(
+            children: [
+              Expanded(child: title),
+              values,
+            ],
+          )
+        else if (style.showTitle)
+          title,
         if (style.showTitle && style.titleSpacing > 0)
           SizedBox(height: style.titleSpacing),
         _buildRangeSlider(context),
-        if (style.showValues)
+        if (style.showValues && !valuesBesideTitle)
           Padding(
             padding: EdgeInsets.only(top: style.valueSpacing),
-            child: Text(
-              style.valueFormatter(currentValues.start, currentValues.end),
-              style:
-                  style.valueTextStyle ??
-                  TextStyle(
-                    color: color(light: Colors.black54, dark: Colors.white70),
-                    fontSize: 12,
-                  ),
-            ),
+            child: values,
           ),
       ],
     );
   }
 
   Widget _buildRangeSlider(BuildContext context) {
-    Widget slider = RangeSlider(
-      values: currentValues,
-      min: style.min,
-      max: style.max,
-      divisions: style.divisions,
-      labels: style.showLabels
-          ? RangeLabels(
-              style.labelFormatter(currentValues.start),
-              style.labelFormatter(currentValues.end),
-            )
-          : null,
-      onChanged: style.enabled
-          ? (values) {
-              setState(() {
-                currentValues = values;
-                if (widget.onChanged != null) {
-                  widget.onChanged!(values);
-                }
-              });
-            }
-          : null,
-      activeColor: color(
-        light: style.activeColor ?? Theme.of(context).primaryColor,
-        dark: style.activeColor ?? Theme.of(context).primaryColor,
+    final NyFieldColors colors = NyFieldColors.of(context);
+    return SliderTheme(
+      data: fieldSliderTheme(
+        context,
+        colors,
+        active: style.activeColor,
+        inactive: style.inactiveColor,
+        thumb: style.thumbColor,
       ),
-      inactiveColor: color(
-        light: style.inactiveColor ?? Colors.grey[300],
-        dark: style.inactiveColor ?? Colors.grey[700],
+      child: RangeSlider(
+        values: currentValues,
+        min: style.min,
+        max: style.max,
+        divisions: style.divisions,
+        labels: style.showLabels
+            ? RangeLabels(
+                style.labelFormatter(currentValues.start),
+                style.labelFormatter(currentValues.end),
+              )
+            : null,
+        onChanged: style.enabled
+            ? (values) {
+                setState(() {
+                  currentValues = values;
+                  if (widget.onChanged != null) {
+                    widget.onChanged!(values);
+                  }
+                });
+              }
+            : null,
+        overlayColor: getWidgetStatePropertyColor(style.overlayColor),
+        mouseCursor: style.mouseCursor != null
+            ? WidgetStateProperty.all(style.mouseCursor)
+            : null,
+        semanticFormatterCallback: style.semanticFormatterCallback,
       ),
-      overlayColor: getWidgetStatePropertyColor(style.overlayColor),
-      mouseCursor: style.mouseCursor != null
-          ? WidgetStateProperty.all(style.mouseCursor)
-          : null,
-      semanticFormatterCallback: style.semanticFormatterCallback,
     );
-
-    if (style.thumbColor != null) {
-      return SliderTheme(
-        data: SliderTheme.of(context).copyWith(
-          rangeThumbShape: RoundRangeSliderThumbShape(enabledThumbRadius: 10.0),
-          thumbColor: style.thumbColor,
-        ),
-        child: slider,
-      );
-    }
-
-    return slider;
   }
 }

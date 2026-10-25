@@ -6,6 +6,7 @@ import '/live/src/seeder.dart';
 import '/nylo.dart';
 import '/router/ny_router.dart' show RouteView;
 import 'playbook_actor.dart';
+import 'playbook_camera.dart';
 import 'playbook_clock.dart';
 import 'playbook_finder.dart';
 import 'playbook_overlay.dart';
@@ -141,6 +142,10 @@ abstract class Playbook {
   /// Pass `NyTesterClock(tester)` as [clock] in a widget test. Without
   /// [overlay], no finger or caption is drawn.
   ///
+  /// [onScreenshot] receives the run's screenshots, chosen by [screenshots]
+  /// ([PlaybookScreenshots.auto] when it's null). [pixelRatio] sizes them
+  /// relative to the device.
+  ///
   /// A failing step doesn't throw: check [PlaybookReport.passed].
   Future<PlaybookReport> run({
     PlaybookSpeed? speed,
@@ -148,11 +153,21 @@ abstract class Playbook {
     PlaybookClock? clock,
     bool overlay = true,
     void Function(Map<String, Object?> event)? onEvent,
+    void Function(PlaybookShot shot)? onScreenshot,
+    PlaybookScreenshots? screenshots,
+    double pixelRatio = 1.0,
   }) async {
     final PlaybookSession session = await open(
       clock: clock,
       overlay: overlay,
       caption: caption,
+      camera: onScreenshot == null
+          ? null
+          : PlaybookCamera(
+              mode: screenshots ?? PlaybookScreenshots.auto,
+              pixelRatio: pixelRatio,
+              onShot: onScreenshot,
+            ),
     );
     try {
       return await runWith(session, speed: speed, data: data, emit: onEvent);
@@ -163,12 +178,14 @@ abstract class Playbook {
 
   /// Starts a run: waits for the app's first frame and shows the overlay.
   ///
-  /// Every [open] needs a [close]. Use [run] unless you're running several
-  /// playbooks back to back in one session.
+  /// [camera] takes the run's screenshots. Every [open] needs a [close].
+  /// Use [run] unless you're running several playbooks back to back in one
+  /// session.
   static Future<PlaybookSession> open({
     PlaybookClock? clock,
     bool overlay = true,
     PlaybookCaption caption = PlaybookCaption.hidden,
+    PlaybookCamera? camera,
   }) async {
     if (!isAvailable) {
       throw UnsupportedError('Playbooks don\'t run in release builds.');
@@ -186,6 +203,7 @@ abstract class Playbook {
     final PlaybookSession session = PlaybookSession(
       clock: time,
       overlay: layer,
+      camera: camera,
     );
     _active = session;
     try {
@@ -198,7 +216,7 @@ abstract class Playbook {
       await time.frame();
       if (layer != null && !layer.attach()) {
         layer.detach();
-        return _active = PlaybookSession(clock: time);
+        return _active = PlaybookSession(clock: time, camera: camera);
       }
       await time.frame();
       return session;
@@ -247,7 +265,7 @@ abstract class Playbook {
       data: merged,
     );
     final List<String> chain = [...path, name];
-    final PlaybookStepContext context = PlaybookStepContext(
+    PlaybookStepContext context = PlaybookStepContext(
       playbook: name,
       path: chain,
       depth: depth,
@@ -268,6 +286,16 @@ abstract class Playbook {
       try {
         await setUp(actor);
         list = steps;
+        if (PlaybookCamera.hasMarks(list)) {
+          context = PlaybookStepContext(
+            playbook: name,
+            path: chain,
+            depth: depth,
+            caption: caption,
+            emit: emit,
+            everyStep: false,
+          );
+        }
       } on PlaybookStopped {
         // Reported below as a stopped run.
       } catch (e) {
@@ -389,6 +417,8 @@ abstract class Playbook {
       }
 
       final Duration start = clock.elapsed;
+      final PlaybookCamera? camera = session.camera;
+      final List<PlaybookShot> shots = [];
       PlaybookStepResult result;
       try {
         if (step is PlaybookGroupStep) {
@@ -400,6 +430,14 @@ abstract class Playbook {
         } else {
           await step.action(actor);
           await actor.settle();
+          shots.addAll(
+            await camera?.afterStep(
+                  step,
+                  actor,
+                  everyStep: context.everyStep,
+                ) ??
+                const [],
+          );
           result = PlaybookStepResult(
             title: step.title,
             status: PlaybookStepStatus.passed,
@@ -433,8 +471,25 @@ abstract class Playbook {
         );
       }
 
+      // A group whose own steps failed already captured the failure.
+      final bool failedInside = result.steps.any(
+        (PlaybookStepResult child) => child.status == PlaybookStepStatus.failed,
+      );
+      if (result.status == PlaybookStepStatus.failed && !failedInside) {
+        final PlaybookShot? shot = await camera?.afterFailure();
+        if (shot != null) shots.add(shot);
+      }
+
       results.add(result);
-      _emitStep(context.emit, context, index, total, result, group: group);
+      _emitStep(
+        context.emit,
+        context,
+        index,
+        total,
+        result,
+        group: group,
+        shots: shots,
+      );
       if (result.status == PlaybookStepStatus.failed) {
         halted = true;
       } else if (index < total) {
@@ -486,6 +541,7 @@ abstract class Playbook {
     int total,
     PlaybookStepResult result, {
     required bool group,
+    List<PlaybookShot> shots = const [],
   }) {
     emit?.call({
       'event': 'step',
@@ -499,6 +555,8 @@ abstract class Playbook {
       'ms': result.elapsed.inMilliseconds,
       if (result.error != null) 'error': result.error,
       if (result.visibleText.isNotEmpty) 'visible': result.visibleText,
+      if (shots.isNotEmpty)
+        'shots': [for (final PlaybookShot shot in shots) shot.toJson()],
     });
   }
 
@@ -624,6 +682,63 @@ abstract class Playbook {
     (PlaybookActor actor) => actor.pause(seconds: seconds),
   );
 
+  /// Captures the screen as [name].
+  ///
+  /// `metro live:run playbook <name>` saves it as
+  /// `screenshots/<playbook>/<name>.png`, with no flag needed. A run from
+  /// code captures it with `run(onScreenshot: ...)`, and any other run, such
+  /// as `PLAYBOOK_ON_BOOT`, just waits for the screen to settle. [name] is
+  /// used as a file name, so it's made of letters, digits, `-`, `_` and
+  /// `.`.
+  ///
+  /// With [locales] or [themes], the same screen is captured once in each,
+  /// saved as `es/cart.png` or `es-dark/cart.png`. The app switches in
+  /// place, keeping the page and its state, and switches back before the
+  /// next step:
+  ///
+  /// ```dart
+  /// screenshot('cart', locales: ['en', 'es'], themes: ['light', 'dark']),
+  /// screenshot('home', locales: Screenshot.allLocales),
+  /// ```
+  ///
+  /// [caption] is the text above the screen when the run frames its
+  /// screenshots, e.g. `--screenshots --store ios-6.9 --frame`. A
+  /// translation key is translated into each locale.
+  ///
+  /// On the iOS Simulator and Android, Metro captures the device's whole
+  /// screen, so the status bar and keyboard are in it, and the finger and
+  /// caption are hidden while it does. Add `--clean-status-bar` to the run
+  /// for 9:41 with full signal and battery. Elsewhere, in runs that aren't
+  /// from Metro, and in `--store` and `--frame` runs, the app captures its
+  /// own screen. [native] false always uses the app's capture:
+  ///
+  /// ```dart
+  /// screenshot('checkout', native: false),
+  /// ```
+  PlaybookStep screenshot(
+    String name, {
+    List<String>? locales,
+    List<String>? themes,
+    String? caption,
+    bool native = true,
+  }) {
+    if (!RegExp(r'^[A-Za-z0-9][A-Za-z0-9_.-]*$').hasMatch(name)) {
+      throw ArgumentError.value(
+        name,
+        'name',
+        'must start with a letter or digit and use only letters, digits, '
+            '"-", "_" and "."',
+      );
+    }
+    return PlaybookScreenshotStep(
+      name,
+      locales: locales,
+      themes: themes,
+      caption: caption,
+      native: native,
+    );
+  }
+
   /// A step that runs any code, using the same verbs on [PlaybookActor].
   PlaybookStep step(
     String title,
@@ -637,6 +752,7 @@ abstract class Playbook {
         title,
         (PlaybookActor actor, PlaybookStepContext context) =>
             runSteps(actor, steps, context),
+        steps: steps,
       );
 
   /// Runs another playbook here, in full: its setUp, steps and tearDown.

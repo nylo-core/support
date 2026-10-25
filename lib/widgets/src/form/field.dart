@@ -324,6 +324,10 @@ class Field {
   }
 
   /// Field.currency is a constructor that helps in managing currency fields
+  ///
+  /// With [separateSymbol], the symbol is drawn beside the amount in the
+  /// hint color, e.g. a grey `\$` before `1,200.00`, and the field's value is
+  /// the amount alone.
   Field.currency(
     this.key, {
     this.label,
@@ -339,12 +343,14 @@ class Field {
     this.readOnly,
     Function(dynamic value)? onChanged,
     FieldStyleTextField? style,
+    bool separateSymbol = false,
   }) : _value = value,
        style = style ?? FieldStyleTextField() {
     CurrencyMeta currencyMeta = CurrencyInputMatcher.getCurrencyMeta(
       "currency:$currency",
       value: value ?? dummyData ?? "0",
       onChanged: onChanged,
+      separateSymbol: separateSymbol,
     );
 
     this.style = (this.style as FieldStyleTextField).copyWith(
@@ -352,6 +358,23 @@ class Field {
       keyboardType: const TextInputType.numberWithOptions(decimal: true),
       inputFormatters: [currencyMeta.formatter],
     );
+    if (separateSymbol) {
+      // The symbol sits beside the amount, in the hint color.
+      final FieldStyleTextField current = this.style as FieldStyleTextField;
+      final Widget symbol = _CurrencySymbol(
+        currencyMeta.symbol,
+        leads: currencyMeta.symbolLeads,
+      );
+      const BoxConstraints tight = BoxConstraints(minWidth: 0, minHeight: 0);
+      this.style = current.copyWith(
+        prefixIcon: currencyMeta.symbolLeads ? symbol : null,
+        suffixIcon: currencyMeta.symbolLeads ? null : symbol,
+        decoration: (current.decoration ?? const InputDecoration()).copyWith(
+          prefixIconConstraints: tight,
+          suffixIconConstraints: tight,
+        ),
+      );
+    }
 
     _value = currencyMeta.initialValue;
     dummyData = null;
@@ -597,6 +620,9 @@ class Field {
 
     this.style = (this.style as FieldStyleTextField).copyWith(
       maskedReturnValue: maskReturnValue,
+      prefixIcon: prefixIcon,
+      clearable: clearable ? true : null,
+      clearIcon: clearIcon,
       inputFormatters: [
         MaskTextInputFormatter(
           mask: mask,
@@ -656,7 +682,7 @@ class Field {
     this.readOnly,
     FieldStyleTextField? style,
     Function(dynamic value)? onChanged,
-  }) : style = style ?? FieldStyleTextField() {
+  }) : style = style ?? FieldStyleTextField(minLines: 3, maxLines: 6) {
     setOnChanged(onChanged);
     widget = NyFormTextField.fromField(this);
   }
@@ -896,4 +922,32 @@ class Field {
     setOnChanged(onChanged);
     widget = NyFormBuilder.fromField(this, builder: builder);
   }
+}
+
+/// A currency field's symbol, drawn beside the amount in the theme's
+/// placeholder color.
+class _CurrencySymbol extends StatelessWidget {
+  const _CurrencySymbol(this.symbol, {required this.leads});
+
+  final String symbol;
+
+  /// Whether it comes before the amount.
+  final bool leads;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: EdgeInsetsDirectional.only(
+      // A grouped row's amount starts at its edge, so the symbol does too.
+      start: leads ? (FormFieldStyle.of(context).isGrouped ? 0 : 14) : 6,
+      end: leads ? 6 : 14,
+    ),
+    child: Text(
+      symbol,
+      style: TextStyle(
+        fontSize: 16,
+        fontWeight: FontWeight.w500,
+        color: NyFieldColors.of(context).placeholder,
+      ),
+    ),
+  );
 }

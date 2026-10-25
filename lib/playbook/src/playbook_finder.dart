@@ -131,7 +131,62 @@ class PlaybookTree {
   void _collect(Element element) {
     if (element.widget is PlaybookOverlayScope) return;
     elements.add(element);
+    if (element is StatefulElement && element.state is OverlayState) {
+      _collectOverlay(element, element.state as OverlayState);
+      return;
+    }
     element.debugVisitOnstageChildren(_collect);
+  }
+
+  /// Collects [overlay]'s entries from its topmost page up.
+  ///
+  /// A page route that isn't opaque, like Nylo's by default, leaves the pages
+  /// under it onstage, but they're covered, so they're left out.
+  void _collectOverlay(Element overlay, OverlayState state) {
+    final List<Element> children = [];
+    overlay.debugVisitOnstageChildren(children.add);
+    if (children.length != 1 ||
+        children.single is! MultiChildRenderObjectElement) {
+      // Not the layout this expects, so nothing is left out.
+      children.forEach(_collect);
+      return;
+    }
+    final Element theater = children.single;
+    elements.add(theater);
+    final List<Element> entries = [];
+    theater.debugVisitOnstageChildren(entries.add);
+
+    int top = 0;
+    for (int i = 0; i < entries.length; i++) {
+      final ModalRoute<dynamic>? route = _routeOf(entries[i], state);
+      if (route is PageRoute && route.isActive) top = i;
+    }
+    entries.skip(top).forEach(_collect);
+  }
+
+  /// The route of [overlay]'s navigator that the overlay entry [entry]
+  /// shows, or null for a barrier or anything else.
+  ///
+  /// The route's scope sits a few render objects into the entry, so the
+  /// first few are asked which route they're in.
+  static ModalRoute<dynamic>? _routeOf(Element entry, OverlayState overlay) {
+    ModalRoute<dynamic>? found;
+    int asked = 0;
+    void visit(Element element) {
+      if (found != null || asked >= 8) return;
+      if (element is RenderObjectElement) {
+        asked++;
+        final ModalRoute<dynamic>? route = ModalRoute.of(element);
+        if (route != null && route.navigator?.overlay == overlay) {
+          found = route;
+          return;
+        }
+      }
+      element.debugVisitOnstageChildren(visit);
+    }
+
+    visit(entry);
+    return found;
   }
 
   /// The text a person reads on screen, top to bottom and left to right,

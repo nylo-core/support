@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '/localization/ny_localization.dart';
 import '/router/ny_router.dart';
+import '/screenshot/ny_screenshot.dart';
 import '/themes/ny_themes.dart';
 
 /// A unified widget that combines theme management and localization.
@@ -109,7 +110,12 @@ class NyApp extends StatefulWidget {
         theme: themeData,
         home: home,
         title: title ?? '',
-        builder: builder,
+        // The screenshot boundary sits outside the app's own builder, so
+        // captures hold everything it adds and nothing above it.
+        builder: (BuildContext context, Widget? child) => ScreenshotRoot(
+          child:
+              builder?.call(context, child) ?? child ?? const SizedBox.shrink(),
+        ),
         localeResolutionCallback:
             localeResolutionCallback ??
             (Locale? locale, Iterable<Locale> supportedLocales) => locale,
@@ -125,11 +131,30 @@ class NyApp extends StatefulWidget {
     context.findAncestorStateOfType<_NyAppState>()?.restart();
   }
 
+  /// Shows [NyLocalization]'s current locale without restarting the app.
+  ///
+  /// The page, its state and the navigation stack stay as they are: every
+  /// widget builds again, so translated text, Material's own strings and
+  /// the text direction follow the new locale. Text a page worked out once
+  /// and kept in its state stays as it was.
+  static void refreshLocale() {
+    _NyAppState._active?._localeNotifier.value = NyLocalization.instance.locale;
+    void rebuild(Element element) {
+      element.markNeedsBuild();
+      element.visitChildren(rebuild);
+    }
+
+    WidgetsBinding.instance.rootElement?.visitChildren(rebuild);
+  }
+
   @override
   State<NyApp> createState() => _NyAppState();
 }
 
 class _NyAppState extends State<NyApp> {
+  /// The app on screen, for [NyApp.refreshLocale].
+  static _NyAppState? _active;
+
   /// Key used to force rebuild the app.
   Key _key = UniqueKey();
 
@@ -140,10 +165,12 @@ class _NyAppState extends State<NyApp> {
   void initState() {
     super.initState();
     _localeNotifier = ValueNotifier(NyLocalization.instance.locale);
+    _active = this;
   }
 
   @override
   void dispose() {
+    if (identical(_active, this)) _active = null;
     _localeNotifier.dispose();
     super.dispose();
   }

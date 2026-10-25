@@ -190,10 +190,10 @@ void main() {
       final InputDecorator decorator = tester.widget<InputDecorator>(
         find.byType(InputDecorator),
       );
-      expect(decorator.decoration.labelStyle?.fontSize, 16);
+      expect(decorator.decoration.hintStyle?.fontSize, 16);
     });
 
-    testWidgets('floats its label above a choice, like a text field', (
+    testWidgets('shows its name above, and a placeholder until chosen', (
       tester,
     ) async {
       final Field field = Field.picker(
@@ -206,13 +206,14 @@ void main() {
       InputDecorator decorator() =>
           tester.widget<InputDecorator>(find.byType(InputDecorator));
       expect(decorator().isEmpty, isTrue);
-      expect(find.text("Select Reason"), findsOneWidget);
+      expect(find.text("Reason"), findsOneWidget);
+      expect(decorator().decoration.hintText, "Select Reason");
 
       field.setValue("billing");
       await tester.pumpAndSettle();
 
       expect(decorator().isEmpty, isFalse);
-      expect(decorator().decoration.labelText, "Reason");
+      expect(find.text("Reason"), findsOneWidget);
       expect(find.text("Billing"), findsOneWidget);
     });
 
@@ -258,9 +259,6 @@ void main() {
     ) async {
       /// Every chip was painted the dark surface, so selected ones looked
       /// unselected, and the default black labels vanished.
-      tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
-      addTearDown(tester.platformDispatcher.clearPlatformBrightnessTestValue);
-
       final Field field = Field.chips(
         "Features",
         value: ["garden"],
@@ -269,14 +267,23 @@ void main() {
           "parking": "Parking",
         }),
       );
-      await tester.pumpWidget(_app(field.widget!));
+      await tester.pumpWidget(
+        MaterialApp(
+          theme: ThemeData.dark(),
+          home: Scaffold(body: field.widget!),
+        ),
+      );
       await tester.pumpAndSettle();
 
       ChoiceChip chip(String label) => tester.widget<ChoiceChip>(
         find.ancestor(of: find.text(label), matching: find.byType(ChoiceChip)),
       );
-      Color background(String label) =>
-          chip(label).color!.resolve(<WidgetState>{})!;
+      // An unselected chip is see-through, so its text sits on the page.
+      Color background(String label) {
+        final Color color = chip(label).color!.resolve(<WidgetState>{})!;
+        return color.a == 0 ? ThemeData.dark().scaffoldBackgroundColor : color;
+      }
+
       Color text(String label) =>
           tester.widget<Text>(find.text(label)).style!.color!;
 

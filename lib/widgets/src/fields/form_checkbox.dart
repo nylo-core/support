@@ -122,27 +122,32 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
     Widget? title = style.title;
 
     if (title == null ||
         (title is Text && (title.data == null || title.data!.isEmpty))) {
       title = Text(
         widget.field.name,
-        style:
-            style.titleTextStyle ??
-            TextStyle(
-              color: color(light: Colors.black, dark: Colors.white),
-            ),
+        style: style.titleTextStyle ?? TextStyle(color: colors.text),
       );
     }
 
-    Color? fillColorMetaData = color(
-      light: style.fillColor ?? Colors.transparent,
-      dark: Colors.black,
-    );
-    WidgetStateProperty<Color?>? fillColor = WidgetStateProperty.all(
-      fillColorMetaData,
-    );
+    // Filled with the accent when checked, empty when not, unless the
+    // style gives a fill.
+    final Color? styleFill = style.fillColor;
+    final WidgetStateProperty<Color?> fillColor =
+        WidgetStateProperty.resolveWith((Set<WidgetState> states) {
+          if (styleFill != null) return styleFill;
+          if (states.contains(WidgetState.disabled)) {
+            return states.contains(WidgetState.selected)
+                ? colors.disabledText
+                : Colors.transparent;
+          }
+          return states.contains(WidgetState.selected)
+              ? (style.activeColor ?? colors.accent)
+              : Colors.transparent;
+        });
 
     Color? overlayColorMetaData = style.overlayColor;
     WidgetStateProperty<Color?>? overlayColor;
@@ -152,7 +157,12 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
 
     return CheckboxListTile(
       mouseCursor: style.mouseCursor,
-      title: title,
+      // A title or subtitle without a color takes the theme's, so it reads
+      // whatever the color scheme's `onSurface` is.
+      title: DefaultTextStyle.merge(
+        style: TextStyle(color: colors.text),
+        child: title ?? const SizedBox.shrink(),
+      ),
       value: currentValue,
       onChanged: (value) {
         setState(() {
@@ -163,15 +173,9 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
         });
       },
       controlAffinity: style.controlAffinity,
-      activeColor: color(
-        light: style.activeColor ?? Colors.black,
-        dark: Colors.black,
-      ),
+      activeColor: style.activeColor ?? colors.accent,
       fillColor: fillColor,
-      checkColor: color(
-        light: style.checkColor ?? Colors.black,
-        dark: Colors.white,
-      ),
+      checkColor: style.checkColor ?? colors.onAccent,
       hoverColor: style.hoverColor,
       overlayColor: overlayColor,
       splashRadius: style.splashRadius,
@@ -182,17 +186,20 @@ class _NyFormCheckboxState extends FieldBaseState<NyFormCheckbox> {
       shape: style.shape,
       side:
           style.side ??
-          whenTheme(
-            light: () => null,
-            dark: () => BorderSide(
-              width: 2,
-              color: color(light: Colors.black, dark: Colors.white),
-            ),
+          WidgetStateBorderSide.resolveWith(
+            (Set<WidgetState> states) => states.contains(WidgetState.selected)
+                ? BorderSide.none
+                : BorderSide(width: 2, color: colors.controlOff),
           ),
       isError: style.isError,
       enabled: style.enabled,
       tileColor: style.tileColor,
-      subtitle: style.subtitle,
+      subtitle: style.subtitle == null
+          ? null
+          : DefaultTextStyle.merge(
+              style: TextStyle(color: colors.placeholder, fontSize: 14),
+              child: style.subtitle!,
+            ),
       isThreeLine: style.isThreeLine,
       dense: style.dense,
       secondary: style.secondary,

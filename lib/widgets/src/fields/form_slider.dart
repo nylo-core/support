@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'field_slider_theme.dart';
 import '/widgets/ny_widgets.dart';
 
 /// A slider widget for forms that allows users to select a value from a range.
@@ -121,70 +122,78 @@ class _NyFormSliderState extends FieldBaseState<NyFormSlider> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
     Widget title =
         style.title ??
         Text(
           widget.field.name,
-          style:
-              widget.field.titleStyle ??
-              TextStyle(
-                color: color(light: Colors.black, dark: Colors.white),
-              ),
+          style: widget.field.titleStyle ?? colors.labelStyle,
         );
 
+    final Widget value = Text(
+      style.valueFormatter(currentValue),
+      style:
+          style.valueTextStyle ??
+          TextStyle(
+            color: colors.accentText,
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+          ),
+    );
+    // The value sits at the end of the title's row.
+    final bool valueBesideTitle = style.showTitle && style.showValue;
+
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        if (style.showTitle) title,
+        if (valueBesideTitle)
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Expanded(child: title),
+              value,
+            ],
+          )
+        else if (style.showTitle)
+          title,
         if (style.showTitle && style.titleSpacing > 0)
           SizedBox(height: style.titleSpacing),
-        Slider(
-          value: currentValue,
-          min: style.min,
-          max: style.max,
-          divisions: style.divisions,
-          label: style.showLabel ? style.labelFormatter(currentValue) : null,
-          onChanged: style.enabled
-              ? (value) {
-                  setState(() {
-                    currentValue = value;
-                    if (widget.onChanged != null) {
-                      widget.onChanged!(value);
-                    }
-                  });
-                }
-              : null,
-          activeColor: color(
-            light: style.activeColor ?? Theme.of(context).primaryColor,
-            dark: style.activeColor ?? Theme.of(context).primaryColor,
+        SliderTheme(
+          data: fieldSliderTheme(
+            context,
+            colors,
+            active: style.activeColor,
+            inactive: style.inactiveColor,
+            thumb: style.thumbColor,
           ),
-          inactiveColor: color(
-            light: style.inactiveColor ?? Colors.grey[300],
-            dark: style.inactiveColor ?? Colors.grey[700],
+          child: Slider(
+            value: currentValue,
+            min: style.min,
+            max: style.max,
+            divisions: style.divisions,
+            label: style.showLabel ? style.labelFormatter(currentValue) : null,
+            onChanged: style.enabled
+                ? (value) {
+                    setState(() {
+                      currentValue = value;
+                      if (widget.onChanged != null) {
+                        widget.onChanged!(value);
+                      }
+                    });
+                  }
+                : null,
+            focusNode: style.focusNode,
+            autofocus: style.autofocus,
+            mouseCursor: style.mouseCursor,
+            overlayColor: getWidgetStatePropertyColor(style.overlayColor),
+            semanticFormatterCallback: style.semanticFormatterCallback,
+            allowedInteraction: style.allowedInteraction,
           ),
-          thumbColor: color(
-            light: style.thumbColor ?? Theme.of(context).primaryColor,
-            dark: style.thumbColor ?? Theme.of(context).primaryColor,
-          ),
-          focusNode: style.focusNode,
-          autofocus: style.autofocus,
-          mouseCursor: style.mouseCursor,
-          overlayColor: getWidgetStatePropertyColor(style.overlayColor),
-          semanticFormatterCallback: style.semanticFormatterCallback,
-          allowedInteraction: style.allowedInteraction,
         ),
-        if (style.showValue)
+        if (style.showValue && !valueBesideTitle)
           Padding(
             padding: EdgeInsets.only(top: style.valueSpacing),
-            child: Text(
-              style.valueFormatter(currentValue),
-              style:
-                  style.valueTextStyle ??
-                  TextStyle(
-                    color: color(light: Colors.black54, dark: Colors.white70),
-                    fontSize: 12,
-                  ),
-            ),
+            child: value,
           ),
       ],
     );

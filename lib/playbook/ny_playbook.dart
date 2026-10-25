@@ -9,6 +9,7 @@ library;
 export 'src/playbook.dart' show Playbook;
 export 'src/playbook_actor.dart'
     show PlaybookActor, PlaybookFailure, PlaybookStopped, PlaybookSession;
+export 'src/playbook_camera.dart';
 export 'src/playbook_clock.dart';
 export 'src/playbook_finder.dart'
     show Find, PlaybookFinder, PlaybookTree, playbookVisibleRect;

@@ -11,10 +11,15 @@ class CurrencyMeta {
   /// Currency formatter
   CurrencyInputFormatter formatter;
 
+  /// Whether the symbol comes before the amount, like `\$`, rather than
+  /// after it, like `€` in many locales.
+  bool symbolLeads;
+
   CurrencyMeta({
     required this.symbol,
     required this.formatter,
     this.initialValue = "",
+    this.symbolLeads = true,
   });
 }
 
@@ -99,6 +104,7 @@ class CurrencyInputMatcher {
     String castTo, {
     required String value,
     void Function(num? value)? onChanged,
+    bool separateSymbol = false,
   }) {
     final String code = castTo.replaceFirst('currency:', '');
     final _CurrencyDef? def = _currencyDefinitions[code];
@@ -108,6 +114,20 @@ class CurrencyInputMatcher {
     }
 
     final String symbol = def.symbol;
+    final bool leads =
+        def.position == _SymbolPosition.leading ||
+        def.position == _SymbolPosition.leadingWithSpace;
+
+    // The symbol is drawn beside the field, so the text is just the amount.
+    if (separateSymbol) {
+      return CurrencyMeta(
+        symbol: symbol,
+        formatter: CurrencyInputFormatter(onValueChange: onChanged),
+        initialValue: value,
+        symbolLeads: leads,
+      );
+    }
+
     String defaultValue;
     CurrencyInputFormatter formatter;
 
@@ -142,6 +162,7 @@ class CurrencyInputMatcher {
       symbol: symbol,
       formatter: formatter,
       initialValue: defaultValue,
+      symbolLeads: leads,
     );
   }
 }

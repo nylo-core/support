@@ -37,6 +37,11 @@ class _SpeedProbe extends Playbook {
   ];
 }
 
+class _TypeAnywhere extends Playbook {
+  @override
+  List<PlaybookStep> get steps => [type(Find.byType(TextField), 'Hi')];
+}
+
 class _ProbeParent extends Playbook {
   @override
   Map<String, dynamic> get defaults => {'email': 'parent@nylo.dev'};
@@ -303,6 +308,28 @@ void main() {
       find.byType(EditableText).first,
     );
     expect(field.focusNode.hasFocus, isTrue);
+  });
+
+  testWidgets('typing closes the edit menu the tap opened', (
+    WidgetTester tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(home: Scaffold(body: TextField())),
+    );
+    final EditableTextState state = tester.state<EditableTextState>(
+      find.byType(EditableText),
+    );
+    await tester.tap(find.byType(TextField));
+    await tester.pump();
+    state.showToolbar();
+    await tester.pump();
+    expect(state.selectionOverlay?.toolbarIsVisible, isTrue);
+
+    final PlaybookReport report = await _run(tester, _TypeAnywhere());
+
+    expectPlaybookPassed(report);
+    expect(state.selectionOverlay?.toolbarIsVisible ?? false, isFalse);
+    expect(state.textEditingValue.text, 'Hi');
   });
 
   testWidgets('play() nests a playbook with its data, speed and report', (

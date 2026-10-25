@@ -38,7 +38,18 @@ class NyLive {
   ///    `nylo.playbook` events).
   /// 10: recording playbooks (`simulator` in `status`, and `countdown` in
   ///     `playbooks.run`).
-  static const int protocolVersion = 10;
+  /// 11: screenshots (`screenshot.capture`, `screenshot.get`, `screenshots`
+  ///     and `pixelRatio` in `playbooks.run`, and `shots` in step events).
+  /// 12: screenshots in other locales and themes (`locales` and `themes` in
+  ///     `status`, `locale` and `theme` in `screenshot.capture` and in shots,
+  ///     `matrix` in `playbooks.run`, and `save` in `theme.set`).
+  /// 13: store screenshots (`stores` in `status`, `store`, `frame` and
+  ///     `background` in `screenshot.capture` and `playbooks.run`, `caption`
+  ///     in `screenshot.capture`, and `store` in shots).
+  /// 14: native playbook screenshots (`native` in `playbooks.run`, `native`
+  ///     events, `screenshot.taken`, and `native` and `nativeFallback` in
+  ///     shots).
+  static const int protocolVersion = 14;
 
   /// Prefix of every service extension Nylo registers.
   static const String extensionPrefix = 'ext.nylo.';
@@ -62,6 +73,7 @@ class NyLive {
     'commands.list',
     'seeders.list',
     'playbooks.list',
+    'screenshot.capture',
   };
 
   /// Overrides the debug-build check in tests.

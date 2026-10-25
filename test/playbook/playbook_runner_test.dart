@@ -206,7 +206,7 @@ void main() {
 
     final Object? status = await NyLive.dispatch('status');
     expect((status as Map)['playbooks'], contains('log_out'));
-    expect(status['protocol'], 10);
+    expect(status['protocol'], 14);
     expect(status.containsKey('simulator'), isFalse);
     expect(
       simulatorIdFromPath(

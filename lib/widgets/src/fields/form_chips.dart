@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:nylo_support/widgets/src/form/form.dart';
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';
 import '/widgets/ny_widgets.dart';
@@ -156,6 +155,7 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
     FormCollection optionsValue = getOptions();
     List<FormOption> options = optionsValue.options;
     return LayoutBuilder(
@@ -165,41 +165,47 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
           spacing: getSpacing(),
           children: options.map((FormOption option) {
             bool isSelected = currentValues.contains(option.value);
-            final Color chipColor = whenTheme(
-              light: () => isSelected
-                  ? (getSelectedColor() ?? Colors.black)
-                  : getBackgroundColor(),
-              dark: () => isSelected
-                  ? (getSelectedColor() ?? Colors.white)
-                  : surfaceColorDark,
-            );
+            final Color chipColor = isSelected
+                ? (getSelectedColor() ?? colors.chipSelected)
+                : (style.backgroundColor ?? Colors.transparent);
             final TextStyle textStyle = isSelected
                 ? getSelectedTextStyle()
                 : getUnselectedTextStyle();
+            final Color background = chipColor.a == 0
+                ? Theme.of(context).scaffoldBackgroundColor
+                : chipColor;
+            // In a dark theme, colors chosen for light chips are swapped for
+            // ones that read.
+            final bool dark = Theme.of(context).brightness == Brightness.dark;
             return ChoiceChip(
               materialTapTargetSize: style.materialTapTargetSize,
-              side: isSelected ? getSelectedSide() : getUnselectedSide(),
+              side: isSelected
+                  ? (identical(
+                          style.selectedSide,
+                          FieldStyleChip.defaultSelectedSide,
+                        )
+                        ? BorderSide(color: chipColor)
+                        : getSelectedSide())
+                  : getUnselectedSide(),
               shape: getShape(),
               label: Text(
                 option.label.tr(),
-                style: whenTheme(
-                  light: () => textStyle,
-                  dark: () => textStyle.copyWith(
-                    color: _readableOn(chipColor, textStyle.color),
-                  ),
-                ),
+                style: dark
+                    ? textStyle.copyWith(
+                        color: _readableOn(background, textStyle.color),
+                      )
+                    : textStyle,
               ),
               labelStyle: getLabelStyle(),
               selected: isSelected,
-              selectedColor: getSelectedColor(),
+              selectedColor: chipColor,
               padding: getPadding(),
               backgroundColor: Colors.transparent,
               shadowColor: style.shadowColor,
               surfaceTintColor: style.surfaceTintColor,
-              checkmarkColor: whenTheme(
-                light: () => getCheckmarkColor(),
-                dark: () => _readableOn(chipColor, getCheckmarkColor()),
-              ),
+              checkmarkColor: dark
+                  ? _readableOn(background, getCheckmarkColor())
+                  : getCheckmarkColor(),
               selectedShadowColor: Colors.transparent,
               color: WidgetStateColor.resolveWith((_) => chipColor),
               onSelected: (bool selected) {
@@ -217,7 +223,16 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
           }).toList(),
         );
 
-        return container;
+        if (!style.showTitle) return container;
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(widget.field.name, style: colors.labelStyle),
+            const SizedBox(height: 10),
+            container,
+          ],
+        );
       },
     );
   }
@@ -226,17 +241,20 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
   FormCollection getOptions() => _options ?? widget.options;
 
   /// Get the background color from the field
-  Color getBackgroundColor() => style.backgroundColor ?? Colors.white;
+  Color getBackgroundColor() => style.backgroundColor ?? Colors.transparent;
 
   /// Get the selected color from the field
-  Color? getSelectedColor() =>
-      style.selectedColor ?? color(light: Colors.black, dark: Colors.white);
+  Color? getSelectedColor() => style.selectedColor;
 
   /// Get the borderRadius from the field
   OutlinedBorder getShape() => style.shape;
 
-  /// Get the unselected Side from the field
-  BorderSide getUnselectedSide() => style.unselectedSide;
+  /// Get the unselected Side from the field, in the theme's colors when
+  /// it's [FieldStyleChip.defaultUnselectedSide].
+  BorderSide getUnselectedSide() =>
+      identical(style.unselectedSide, FieldStyleChip.defaultUnselectedSide)
+      ? BorderSide(color: NyFieldColors.of(context).track)
+      : style.unselectedSide;
 
   /// Get the selected Side from the field
   BorderSide getSelectedSide() => style.selectedSide;
@@ -244,11 +262,29 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
   /// Get the labelStyle from the field
   TextStyle getLabelStyle() => style.labelStyle;
 
-  /// Get the unselectedTextStyle from the field
-  TextStyle getUnselectedTextStyle() => style.unselectedTextStyle;
+  /// Get the unselectedTextStyle from the field, in the theme's text color
+  /// when it's [FieldStyleChip.defaultUnselectedTextStyle].
+  TextStyle getUnselectedTextStyle() =>
+      identical(
+        style.unselectedTextStyle,
+        FieldStyleChip.defaultUnselectedTextStyle,
+      )
+      ? style.unselectedTextStyle.copyWith(
+          color: NyFieldColors.of(context).text,
+        )
+      : style.unselectedTextStyle;
 
-  /// Get the selectedTextStyle from the field
-  TextStyle getSelectedTextStyle() => style.selectedTextStyle;
+  /// Get the selectedTextStyle from the field, in the theme's accent when
+  /// it's [FieldStyleChip.defaultSelectedTextStyle].
+  TextStyle getSelectedTextStyle() =>
+      identical(
+        style.selectedTextStyle,
+        FieldStyleChip.defaultSelectedTextStyle,
+      )
+      ? style.selectedTextStyle.copyWith(
+          color: NyFieldColors.of(context).accentText,
+        )
+      : style.selectedTextStyle;
 
   /// Get the padding from the field
   EdgeInsets getPadding() => style.padding;
@@ -259,8 +295,12 @@ class _NyFormChipState extends FieldBaseState<NyFormChip> {
   /// Get the spacing from the field
   double getSpacing() => style.spacing;
 
-  /// Get the checkmarkColor from the field
-  Color getCheckmarkColor() => style.checkmarkColor;
+  /// Get the checkmarkColor from the field, the theme's accent when it's
+  /// [FieldStyleChip.defaultCheckmarkColor].
+  Color getCheckmarkColor() =>
+      identical(style.checkmarkColor, FieldStyleChip.defaultCheckmarkColor)
+      ? NyFieldColors.of(context).accentText
+      : style.checkmarkColor;
 
   /// [foreground] when it reads on [background] (at least 4.5:1, WCAG AA for
   /// text), otherwise black or white, whichever reads.

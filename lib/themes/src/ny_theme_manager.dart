@@ -440,6 +440,17 @@ class NyThemeManager with WidgetsBindingObserver {
   }
 
   /// Internal method to set theme.
+  /// Shows the theme [themeId] without saving it or changing whether the
+  /// app follows the system theme, e.g. for a screenshot or a preview.
+  ///
+  /// Throws an [ArgumentError] when no theme has that id.
+  void showTheme(String themeId) {
+    if (getThemeById(themeId) == null) {
+      throw ArgumentError('Theme with id "$themeId" not found.');
+    }
+    _setThemeInternal(themeId, notify: true, persist: false);
+  }
+
   void _setThemeInternal(
     String themeId, {
     required bool notify,

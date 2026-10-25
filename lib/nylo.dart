@@ -39,6 +39,7 @@ class Nylo {
   String? _initialRoute;
   Widget _appLoader;
   Widget _appLogo;
+  FormFieldStyle? _formFieldStyle;
   NyRouter? router;
   bool? _monitorAppUsage;
   bool? _showDateTimeInLogs;
@@ -600,6 +601,15 @@ class Nylo {
   void addLogo(Widget appLogo) {
     _appLogo = appLogo;
   }
+
+  /// Draws every form field in the app with [style], unless a form or
+  /// field chooses another. See [FormFieldStyle].
+  void addFormFieldStyle(FormFieldStyle style) {
+    _formFieldStyle = style;
+  }
+
+  /// The app's [FormFieldStyle], or null for [FormFieldStyle.filled].
+  FormFieldStyle? get formFieldStyle => _formFieldStyle;
 
   /// Add Controllers to your Nylo project.
   void addControllers(Map<Type, dynamic> controllers) {
@@ -1187,6 +1197,7 @@ class Nylo {
   /// await nylo.configure(
   ///   loader: DesignConfig.loader,
   ///   logo: DesignConfig.logo,
+  ///   formFieldStyle: DesignConfig.formFieldStyle,
   ///   themes: appThemes,
   ///   initialThemeId: 'light_theme',
   ///   toastNotifications: ToastNotificationConfig.styles,
@@ -1210,6 +1221,7 @@ class Nylo {
     // UI
     Widget? loader,
     Widget? logo,
+    FormFieldStyle? formFieldStyle,
 
     // Themes
     List<BaseThemeConfig>? themes,
@@ -1263,6 +1275,7 @@ class Nylo {
     // UI
     if (loader != null) addLoader(loader);
     if (logo != null) addLogo(logo);
+    if (formFieldStyle != null) addFormFieldStyle(formFieldStyle);
 
     // Themes
     if (themes != null) {

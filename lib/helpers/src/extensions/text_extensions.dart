@@ -4,13 +4,76 @@ import '/router/ny_router.dart';
 
 /// Extensions for [Text]
 extension NyTextExt on Text {
-  BuildContext get _context {
-    BuildContext? context =
-        NyNavigator.instance.router.navigatorKey?.currentContext;
-    if (context == null) {
-      throw Exception('');
+  /// This text in the theme's style that [select] picks, with [textStyle]
+  /// over it. The style is looked up whenever the text builds, so it follows
+  /// a change of theme.
+  Text _themed(
+    TextStyle? Function(TextTheme theme) select,
+    TextStyle textStyle,
+  ) {
+    final Text text = this;
+    return _ThemedText.like(
+      text,
+      select: select,
+      overrides:
+          (text is _ThemedText ? text.overrides : style)?.merge(textStyle) ??
+          textStyle,
+    );
+  }
+
+  /// A plain [Text], or [Text.rich] when this is rich text, with this text's
+  /// settings and any given here over them. The copy's style is [style].
+  Text _plainCopy({
+    Key? key,
+    TextStyle? style,
+    StrutStyle? strutStyle,
+    TextAlign? textAlign,
+    TextDirection? textDirection,
+    Locale? locale,
+    bool? softWrap,
+    TextOverflow? overflow,
+    TextScaler? textScaler,
+    int? maxLines,
+    String? semanticsLabel,
+    TextWidthBasis? textWidthBasis,
+  }) {
+    final InlineSpan? span = textSpan;
+    if (span != null) {
+      return Text.rich(
+        span,
+        key: key ?? this.key,
+        style: style,
+        strutStyle: strutStyle ?? this.strutStyle,
+        textAlign: textAlign ?? this.textAlign,
+        textDirection: textDirection ?? this.textDirection,
+        locale: locale ?? this.locale,
+        softWrap: softWrap ?? this.softWrap,
+        overflow: overflow ?? this.overflow,
+        textScaler: textScaler ?? this.textScaler,
+        maxLines: maxLines ?? this.maxLines,
+        semanticsLabel: semanticsLabel ?? this.semanticsLabel,
+        textWidthBasis: textWidthBasis ?? this.textWidthBasis,
+        textHeightBehavior: textHeightBehavior,
+        selectionColor: selectionColor,
+      );
     }
-    return context;
+    return Text(
+      data ?? "",
+      key: key ?? this.key,
+      style: style,
+      strutStyle: strutStyle ?? this.strutStyle,
+      textAlign: textAlign ?? this.textAlign,
+      textDirection: textDirection ?? this.textDirection,
+      locale: locale ?? this.locale,
+      softWrap: softWrap ?? this.softWrap,
+      overflow: overflow ?? this.overflow,
+      textScaler: textScaler ?? this.textScaler,
+      maxLines: maxLines ?? this.maxLines,
+      semanticsLabel: semanticsLabel ?? this.semanticsLabel,
+      textWidthBasis: textWidthBasis ?? this.textWidthBasis,
+      textHeightBehavior: textHeightBehavior,
+      selectionColor: selectionColor,
+    );
   }
 
   /// Set the Style to use [displayLarge].
@@ -69,14 +132,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.displayLarge?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.displayLarge?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.displayLarge, textStyle);
   }
 
   /// Set the Style to use [displayMedium].
@@ -135,14 +191,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.displayMedium?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.displayMedium?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.displayMedium, textStyle);
   }
 
   /// Set the Style to use [displaySmall].
@@ -201,14 +250,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.displaySmall?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.displaySmall?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.displaySmall, textStyle);
   }
 
   /// Set the Style to use [headlineLarge].
@@ -267,14 +309,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.headlineLarge?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.headlineLarge?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.headlineLarge, textStyle);
   }
 
   /// Set the Style to use [headlineMedium].
@@ -333,14 +368,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.headlineMedium?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.headlineMedium?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.headlineMedium, textStyle);
   }
 
   /// Set the Style to use [headlineSmall].
@@ -399,14 +427,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.headlineSmall?.merge(textStyle),
-      );
-    }
-    return setStyle(
-      Theme.of(_context).textTheme.headlineSmall?.merge(textStyle),
-    );
+    return _themed((TextTheme theme) => theme.headlineSmall, textStyle);
   }
 
   /// Set the Style to use [titleLarge].
@@ -465,12 +486,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.titleLarge?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.titleLarge?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.titleLarge, textStyle);
   }
 
   /// Set the Style to use [titleMedium].
@@ -529,12 +545,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.titleMedium?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.titleMedium?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.titleMedium, textStyle);
   }
 
   /// Set the Style to use [titleSmall].
@@ -593,12 +604,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.titleSmall?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.titleSmall?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.titleSmall, textStyle);
   }
 
   /// Set the Style to use [bodyLarge].
@@ -657,12 +663,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.bodyLarge?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.bodyLarge?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.bodyLarge, textStyle);
   }
 
   /// Set the Style to use [bodyMedium].
@@ -721,12 +722,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.bodyMedium?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.bodyMedium?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.bodyMedium, textStyle);
   }
 
   /// Set the Style to use [bodySmall].
@@ -785,12 +781,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.bodySmall?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.bodySmall?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.bodySmall, textStyle);
   }
 
   /// Set the Style to use [labelLarge].
@@ -849,12 +840,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.labelLarge?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.labelLarge?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.labelLarge, textStyle);
   }
 
   /// Set the Style to use [labelMedium].
@@ -913,12 +899,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.labelMedium?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.labelMedium?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.labelMedium, textStyle);
   }
 
   /// Set the Style to use [labelSmall].
@@ -977,12 +958,7 @@ extension NyTextExt on Text {
       package: package,
       overflow: overflow,
     );
-    if (style == null) {
-      return copyWith(
-        style: Theme.of(_context).textTheme.labelSmall?.merge(textStyle),
-      );
-    }
-    return setStyle(Theme.of(_context).textTheme.labelSmall?.merge(textStyle));
+    return _themed((TextTheme theme) => theme.labelSmall, textStyle);
   }
 
   /// Make the font bold.
@@ -1063,20 +1039,159 @@ extension NyTextExt on Text {
     TextWidthBasis? textWidthBasis,
     TextStyle? style,
   }) {
-    return Text(
-      data ?? "",
-      key: key ?? this.key,
-      strutStyle: strutStyle ?? this.strutStyle,
-      textAlign: textAlign ?? this.textAlign,
-      textDirection: textDirection ?? this.textDirection,
-      locale: locale ?? this.locale,
-      softWrap: softWrap ?? this.softWrap,
-      overflow: overflow ?? this.overflow,
-      textScaler: textScaler ?? this.textScaler,
-      maxLines: maxLines ?? this.maxLines,
-      semanticsLabel: semanticsLabel ?? this.semanticsLabel,
-      textWidthBasis: textWidthBasis ?? this.textWidthBasis,
+    final Text text = this;
+    final Text copy = _plainCopy(
+      key: key,
+      strutStyle: strutStyle,
+      textAlign: textAlign,
+      textDirection: textDirection,
+      locale: locale,
+      softWrap: softWrap,
+      overflow: overflow,
+      textScaler: textScaler,
+      maxLines: maxLines,
+      semanticsLabel: semanticsLabel,
+      textWidthBasis: textWidthBasis,
       style: style != null ? this.style?.merge(style) ?? style : this.style,
     );
+    if (text is _ThemedText) {
+      return _ThemedText.like(
+        copy,
+        select: text.select,
+        overrides: style != null
+            ? text.overrides?.merge(style) ?? style
+            : text.overrides,
+      );
+    }
+    return copy;
   }
+}
+
+/// A [Text] in one of the theme's text styles, such as `titleLarge`, with
+/// [overrides] over it.
+///
+/// [style] holds the style as it was when the text was made, for anyone who
+/// reads it. Building looks the theme's style up again, so the text follows
+/// the theme it's shown in, including a change of theme while its page is
+/// open.
+class _ThemedText extends Text {
+  const _ThemedText(
+    super.data, {
+    required this.select,
+    required this.overrides,
+    super.key,
+    super.style,
+    super.strutStyle,
+    super.textAlign,
+    super.textDirection,
+    super.locale,
+    super.softWrap,
+    super.overflow,
+    super.textScaler,
+    super.maxLines,
+    super.semanticsLabel,
+    super.textWidthBasis,
+    super.textHeightBehavior,
+    super.selectionColor,
+  });
+
+  const _ThemedText.rich(
+    super.textSpan, {
+    required this.select,
+    required this.overrides,
+    super.key,
+    super.style,
+    super.strutStyle,
+    super.textAlign,
+    super.textDirection,
+    super.locale,
+    super.softWrap,
+    super.overflow,
+    super.textScaler,
+    super.maxLines,
+    super.semanticsLabel,
+    super.textWidthBasis,
+    super.textHeightBehavior,
+    super.selectionColor,
+  }) : super.rich();
+
+  /// [text], rich or plain, in the theme's style that [select] picks with
+  /// [overrides] over it.
+  factory _ThemedText.like(
+    Text text, {
+    required TextStyle? Function(TextTheme theme) select,
+    required TextStyle? overrides,
+  }) {
+    final TextStyle? style = resolve(select, overrides, null);
+    final InlineSpan? span = text.textSpan;
+    if (span != null) {
+      return _ThemedText.rich(
+        span,
+        select: select,
+        overrides: overrides,
+        style: style,
+        key: text.key,
+        strutStyle: text.strutStyle,
+        textAlign: text.textAlign,
+        textDirection: text.textDirection,
+        locale: text.locale,
+        softWrap: text.softWrap,
+        overflow: text.overflow,
+        textScaler: text.textScaler,
+        maxLines: text.maxLines,
+        semanticsLabel: text.semanticsLabel,
+        textWidthBasis: text.textWidthBasis,
+        textHeightBehavior: text.textHeightBehavior,
+        selectionColor: text.selectionColor,
+      );
+    }
+    return _ThemedText(
+      text.data ?? "",
+      select: select,
+      overrides: overrides,
+      style: style,
+      key: text.key,
+      strutStyle: text.strutStyle,
+      textAlign: text.textAlign,
+      textDirection: text.textDirection,
+      locale: text.locale,
+      softWrap: text.softWrap,
+      overflow: text.overflow,
+      textScaler: text.textScaler,
+      maxLines: text.maxLines,
+      semanticsLabel: text.semanticsLabel,
+      textWidthBasis: text.textWidthBasis,
+      textHeightBehavior: text.textHeightBehavior,
+      selectionColor: text.selectionColor,
+    );
+  }
+
+  /// Picks the theme's text style, e.g. `titleLarge`.
+  final TextStyle? Function(TextTheme theme) select;
+
+  /// What's set over the theme's style.
+  final TextStyle? overrides;
+
+  /// The theme's style that [select] picks, from [context] or else the app's
+  /// navigator, with [overrides] over it.
+  static TextStyle? resolve(
+    TextStyle? Function(TextTheme theme) select,
+    TextStyle? overrides,
+    BuildContext? context,
+  ) {
+    BuildContext? themed = context;
+    if (themed == null) {
+      try {
+        themed = NyNavigator.instance.router.navigatorKey?.currentContext;
+      } catch (_) {
+        // Nylo's router isn't set up, e.g. in a plain widget test.
+      }
+    }
+    if (themed == null) return overrides;
+    return select(Theme.of(themed).textTheme)?.merge(overrides) ?? overrides;
+  }
+
+  @override
+  Widget build(BuildContext context) =>
+      _plainCopy(style: resolve(select, overrides, context)).build(context);
 }

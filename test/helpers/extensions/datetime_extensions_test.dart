@@ -2,6 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
+import 'package:nylo_support/nylo.dart';
 
 /// Helper function to create an EnvGetter from a Map for testing
 EnvGetter mockEnv(Map<String, dynamic> values) =>
@@ -407,6 +408,51 @@ void main() {
       nyTest('should return null for null DateTime', () async {
         DateTime? nullDate;
         expect(nullDate.toFormat('yyyy-MM-dd'), isNull);
+      });
+    });
+
+    nyGroup('toTimeAgoString', () {
+      nyTest('should format recent dates relative to now', () async {
+        await Nylo.init(env: mockEnv({'APP_NAME': 'Test App'}));
+        final DateTime date = DateTime.now().subtract(
+          const Duration(minutes: 5),
+        );
+
+        expect(date.toTimeAgoString(), contains('5'));
+      });
+
+      nyTest('should format older dates with the given pattern', () async {
+        await Nylo.init(env: mockEnv({'APP_NAME': 'Test App'}));
+        final DateTime date = DateTime(2024, 3, 4, 15, 47);
+
+        expect(
+          date.toTimeAgoString(pattern: "d MMM yyyy 'at' HH:mm"),
+          '4 Mar 2024 at 15:47',
+        );
+      });
+
+      nyTest('should format recent dates in the given locale', () async {
+        await Nylo.init(env: mockEnv({'APP_NAME': 'Test App'}));
+        final DateTime date = DateTime.now().subtract(
+          const Duration(minutes: 5),
+        );
+
+        expect(date.toTimeAgoString(locale: 'fr'), 'il y a 5 minutes');
+      });
+
+      nyTest('should format older dates in the given locale', () async {
+        await Nylo.init(env: mockEnv({'APP_NAME': 'Test App'}));
+        final DateTime date = DateTime(2025, 12, 4, 15, 47);
+
+        expect(
+          date.toTimeAgoString(locale: 'fr', pattern: "d MMM yyyy 'à' HH:mm"),
+          '4 déc. 2025 à 15:47',
+        );
+      });
+
+      nyTest('should return null for null DateTime', () async {
+        DateTime? nullDate;
+        expect(nullDate.toTimeAgoString(pattern: 'yyyy'), isNull);
       });
     });
 

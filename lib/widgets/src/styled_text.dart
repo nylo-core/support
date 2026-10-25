@@ -158,6 +158,17 @@ class _StyledTextState extends State<StyledText> {
 
   @override
   Widget build(BuildContext context) {
+    // Inherit the ambient text style (theme color, font) the same way [Text]
+    // does, so unstyled spans don't fall back to the engine's white default.
+    TextStyle effectiveStyle = DefaultTextStyle.of(
+      context,
+    ).style.merge(widget.style);
+    if (MediaQuery.boldTextOf(context)) {
+      effectiveStyle = effectiveStyle.merge(
+        const TextStyle(fontWeight: FontWeight.bold),
+      );
+    }
+
     return RichText(
       softWrap: widget.softWrap,
       textAlign: widget.textAlign,
@@ -168,7 +179,7 @@ class _StyledTextState extends State<StyledText> {
       strutStyle: widget.strutStyle,
       textScaler: widget.textScaler ?? MediaQuery.textScalerOf(context),
       selectionColor: widget.selectionColor,
-      text: TextSpan(text: "", style: widget.style, children: _textSpans),
+      text: TextSpan(text: "", style: effectiveStyle, children: _textSpans),
     );
   }
 

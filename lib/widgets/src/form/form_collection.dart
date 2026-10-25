@@ -24,11 +24,19 @@ class FormOption {
   /// radio button labels, chip text, etc.
   final String label;
 
+  /// A second line under [label], e.g. a plan's price. Radio options show
+  /// it.
+  final String? description;
+
   /// Creates a [FormOption] with the specified value and label.
   ///
   /// Both [value] and [label] are required and represent the data value
   /// and display text respectively.
-  const FormOption({required this.value, required this.label});
+  const FormOption({
+    required this.value,
+    required this.label,
+    this.description,
+  });
 
   /// Creates a [FormOption] from a JSON map.
   ///
@@ -38,6 +46,7 @@ class FormOption {
     return FormOption(
       value: json['value'] as String? ?? json['id']?.toString() ?? '',
       label: json['label'] as String? ?? json['name']?.toString() ?? '',
+      description: json['description']?.toString(),
     );
   }
 
@@ -46,17 +55,20 @@ class FormOption {
   /// Returns a map with 'value' and 'label' keys containing the
   /// respective string values.
   Map<String, dynamic> toJson() {
-    return {'value': value, 'label': label};
+    return {'value': value, 'label': label, 'description': ?description};
   }
 
   @override
   bool operator ==(Object other) {
     if (identical(this, other)) return true;
-    return other is FormOption && other.value == value && other.label == label;
+    return other is FormOption &&
+        other.value == value &&
+        other.label == label &&
+        other.description == description;
   }
 
   @override
-  int get hashCode => value.hashCode ^ label.hashCode;
+  int get hashCode => Object.hash(value, label, description);
 
   @override
   String toString() => 'FormOption(value: $value, label: $label)';
@@ -114,6 +126,12 @@ class FormCollection {
   ///   {'value': 'en', 'label': 'English'},
   ///   {'value': 'es', 'label': 'Spanish'}
   /// ]);
+  /// ```
+  ///
+  /// A `description` key adds a second line under the label, which radio
+  /// options show:
+  /// ```dart
+  /// {'value': 'pro', 'label': 'Pro', 'description': '\$9 a month'}
   /// ```
   factory FormCollection.fromKeyValue(List<Map<String, dynamic>> data) {
     final List<FormOption> options = data

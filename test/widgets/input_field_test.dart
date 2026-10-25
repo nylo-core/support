@@ -662,6 +662,7 @@ void main() {
         controller: TextEditingController(text: text),
         focusNode: focusNode,
         labelText: 'Bio',
+        labelPosition: FieldLabelPosition.floating,
         maxLines: 5,
         minLines: 5,
         prefixIcon: const Icon(Icons.notes),
@@ -679,6 +680,7 @@ void main() {
           InputField(
             controller: TextEditingController(),
             labelText: 'Bio',
+            labelPosition: FieldLabelPosition.floating,
             prefixIcon: const Icon(Icons.notes),
           ),
         ),
@@ -713,6 +715,7 @@ void main() {
                 key: name,
                 controller: TextEditingController(text: 'Anthony'),
                 labelText: 'Name',
+                labelPosition: FieldLabelPosition.floating,
                 prefixIcon: const Icon(Icons.person),
               ),
               textarea(key: bio, text: 'Hello'),

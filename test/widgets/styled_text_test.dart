@@ -290,6 +290,55 @@ void main() {
       });
     });
 
+    nyGroup('default text style', () {
+      testWidgets('inherits the ambient DefaultTextStyle color', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DefaultTextStyle(
+              style: const TextStyle(color: Colors.black87, fontSize: 14),
+              child: StyledText.template(
+                "Hello, {{World}}",
+                styles: {"World": TextStyle(color: Colors.blue)},
+                style: const TextStyle(fontSize: 100),
+              ),
+            ),
+          ),
+        );
+
+        final RichText richText = tester.widget<RichText>(
+          find.byType(RichText),
+        );
+        final TextStyle rootStyle = richText.text.style!;
+        expect(rootStyle.color, Colors.black87);
+        expect(rootStyle.fontSize, 100);
+        expect(_extractSpans(tester)[1].style!.color, Colors.blue);
+      });
+
+      testWidgets('non-inheriting style replaces the ambient style', (
+        tester,
+      ) async {
+        await tester.pumpWidget(
+          MaterialApp(
+            home: DefaultTextStyle(
+              style: const TextStyle(color: Colors.black87),
+              child: StyledText.template(
+                "Hello",
+                style: const TextStyle(inherit: false, fontSize: 20),
+              ),
+            ),
+          ),
+        );
+
+        final RichText richText = tester.widget<RichText>(
+          find.byType(RichText),
+        );
+        expect(richText.text.style!.color, isNull);
+        expect(richText.text.style!.fontSize, 20);
+      });
+    });
+
     nyGroup('recognizer lifecycle', () {
       testWidgets('recognizer count stays bounded across parent rebuilds', (
         tester,

@@ -246,12 +246,18 @@ extension NyDateTimeExt on DateTime? {
 
   // Format [DateTime] to a time ago.
   // Example: 2 hours ago
-  String? toTimeAgoString() {
+  // Dates older than a week use [pattern], e.g. "d MMM yyyy 'à' HH:mm".
+  // [locale] overrides the app's locale, e.g. "fr".
+  String? toTimeAgoString({String? pattern, String? locale}) {
     if (this == null) {
       NyLogger.dump('DateTime is null', null);
       return null;
     }
-    return GetTimeAgo.parse(this!, locale: Nylo.instance.locale);
+    return GetTimeAgo.parse(
+      this!,
+      locale: locale ?? Nylo.instance.locale,
+      pattern: pattern,
+    );
   }
 
   /// Format [DateTime] to a short date - example "Mon 1st Jan"

@@ -10,6 +10,7 @@ import 'package:flutter/scheduler.dart';
 
 import '/nylo.dart';
 import '/router/ny_router.dart';
+import 'playbook_camera.dart';
 import 'playbook_clock.dart';
 import 'playbook_finder.dart';
 import 'playbook_overlay.dart';
@@ -42,15 +43,23 @@ class PlaybookStopped implements Exception {
 /// What one run shares across nested playbooks: the clock, the overlay,
 /// the finger, and whether it's been asked to stop.
 class PlaybookSession {
-  /// Creates a session timed by [clock], drawing in [overlay] when given.
-  PlaybookSession({required this.clock, this.overlay, Random? random})
-    : random = random ?? Random();
+  /// Creates a session timed by [clock], drawing in [overlay] and capturing
+  /// with [camera] when given.
+  PlaybookSession({
+    required this.clock,
+    this.overlay,
+    this.camera,
+    Random? random,
+  }) : random = random ?? Random();
 
   /// Where the run's time comes from.
   final PlaybookClock clock;
 
   /// The finger and caption, or null when the run doesn't show them.
   final PlaybookOverlay? overlay;
+
+  /// Takes the run's screenshots, or null when the run doesn't capture.
+  final PlaybookCamera? camera;
 
   /// The source of typing jitter.
   final Random random;
@@ -163,6 +172,9 @@ class PlaybookActor {
         SelectionChangedCause.keyboard,
       );
     }
+    // Typing closes the edit menu the tap may have opened, like "Paste" on
+    // iOS, which the system draws over the app.
+    if (text.isNotEmpty) state.hideToolbar();
 
     for (final String character in text.characters) {
       _checkStopped();
@@ -412,6 +424,21 @@ class PlaybookActor {
 
   /// Waits for the screen to settle after a step.
   Future<void> settle() => _settle();
+
+  /// Waits for running animations, like a page transition or a tap's
+  /// ripple, to finish, for at most [timeout] so a looping animation can't
+  /// hold the run.
+  Future<void> settleAnimations({
+    Duration timeout = const Duration(seconds: 1),
+  }) async {
+    final Duration start = _clock.elapsed;
+    await _clock.frame();
+    while (SchedulerBinding.instance.transientCallbackCount > 0 &&
+        _clock.elapsed - start < timeout) {
+      await _sleep(_frameTime);
+    }
+    await _clock.frame();
+  }
 
   /// Throws [PlaybookStopped] when the run has been asked to stop.
   void _checkStopped() {

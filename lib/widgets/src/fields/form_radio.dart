@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';
 import '/widgets/ny_widgets.dart';
+import 'field_card.dart';
 
 /// A radio button group widget for forms that allows users to select a single option.
 ///
@@ -144,8 +145,57 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
 
   @override
   Widget view(BuildContext context) {
+    final NyFieldColors colors = NyFieldColors.of(context);
+    final FormFieldStyle formStyle = FormFieldStyle.of(context);
     FormCollection optionsValue = getOptions();
     List<FormOption> options = optionsValue.options;
+
+    final List<Widget> tiles = [
+      for (final FormOption formOption in options)
+        RadioListTile<dynamic>(
+          title: Text(
+            formOption.label.tr(),
+            style: formOption.description == null
+                ? listTileStyle()
+                : listTileStyle()?.copyWith(fontWeight: FontWeight.w600),
+          ),
+          subtitle: formOption.description == null
+              ? null
+              : Text(formOption.description!.tr(), style: subtitleStyle()),
+          value: formOption.value,
+          selected: formOption.value == currentValue,
+          // A little tighter than a list row, so the card reads as a field.
+          visualDensity: const VisualDensity(vertical: -2),
+          mouseCursor: getMouseCursor(),
+          activeColor: getActiveColor(),
+          fillColor: getFillColor(),
+          hoverColor: getHoverColor(),
+          overlayColor: getOverlayColor(),
+          splashRadius: getSplashRadius(),
+          contentPadding: getContentPadding(),
+          shape: getShape(),
+          tileColor: getTileColor(),
+          selectedTileColor: getSelectedTileColor(),
+        ),
+    ];
+
+    // The options sit in one card like a text field, unless the style
+    // colors or shapes the tiles itself.
+    final bool card =
+        style.tileColor == null &&
+        style.selectedColor == null &&
+        style.shape == null;
+
+    final Widget optionList = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (int i = 0; i < tiles.length; i++) ...[
+          if (i > 0) Divider(height: 1, thickness: 1, color: colors.divider),
+          tiles[i],
+        ],
+      ],
+    );
+    final BoxDecoration? cardDecoration = formStyle.cardDecoration(colors);
 
     return RadioGroup<dynamic>(
       groupValue: currentValue,
@@ -163,22 +213,12 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
           if (hideTitle() != true)
             Text(widget.field.name.tr(), style: titleStyle()),
           Spacing.vertical(style.titleSpacing),
-          ...options.map((FormOption formOption) {
-            return RadioListTile<dynamic>(
-              title: Text(formOption.label.tr(), style: listTileStyle()),
-              value: formOption.value,
-              mouseCursor: getMouseCursor(),
-              activeColor: getActiveColor(),
-              fillColor: getFillColor(),
-              hoverColor: getHoverColor(),
-              overlayColor: getOverlayColor(),
-              splashRadius: getSplashRadius(),
-              contentPadding: getContentPadding(),
-              shape: getShape(),
-              tileColor: getTileColor(),
-              selectedTileColor: getSelectedTileColor(),
-            );
-          }),
+          if (!card)
+            ...tiles
+          else if (cardDecoration == null)
+            Material(type: MaterialType.transparency, child: optionList)
+          else
+            FieldCard(decoration: cardDecoration, child: optionList),
         ],
       ),
     );
@@ -189,16 +229,13 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
 
   /// Get the selected color
   Color? getSelectedTileColor() {
-    return (style.selectedColor ??
-            NyColor(light: Colors.grey.shade100, dark: surfaceColorDark))
-        .toColor(context);
+    return style.selectedColor?.toColor(context) ??
+        NyFieldColors.of(context).selectedTint;
   }
 
   /// Get the tile color
   Color? getTileColor() {
-    return (style.tileColor ??
-            NyColor(light: Colors.transparent, dark: surfaceColorDark))
-        .toColor(context);
+    return style.tileColor?.toColor(context) ?? Colors.transparent;
   }
 
   /// Get the shape of the radio tile
@@ -208,44 +245,40 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
 
   /// Get the content padding
   EdgeInsetsGeometry getContentPadding() {
-    return style.contentPadding ?? const EdgeInsets.all(8.0);
+    return style.contentPadding ?? const EdgeInsets.all(2.0);
   }
 
   /// Get active color
   Color? getActiveColor() {
-    return (style.activeColor ??
-            NyColor(light: Colors.blue, dark: Colors.black))
-        .toColor(context);
+    return style.activeColor?.toColor(context) ??
+        NyFieldColors.of(context).accent;
   }
 
   /// Get the fill color
   WidgetStateColor? getFillColor() {
-    return WidgetStateColor.resolveWith((_) {
-      return ((style.fillColor ??
-                  NyColor(light: Colors.black, dark: Colors.white))
-              .toColor(context)) ??
-          const Color(0xFF000000);
+    final NyFieldColors colors = NyFieldColors.of(context);
+    final Color? custom = style.fillColor?.toColor(context);
+    return WidgetStateColor.resolveWith((Set<WidgetState> states) {
+      if (custom != null) return custom;
+      if (states.contains(WidgetState.disabled)) return colors.disabledText;
+      return states.contains(WidgetState.selected)
+          ? (getActiveColor() ?? colors.accent)
+          : colors.controlOff;
     });
   }
 
   /// Get hover color
   Color? getHoverColor() {
-    return (style.hoverColor ??
-            NyColor(light: Colors.grey.shade100, dark: Colors.grey.shade100))
-        .toColor(context);
+    return style.hoverColor?.toColor(context) ??
+        NyFieldColors.of(context).accent.withValues(alpha: 0.08);
   }
 
   /// Get overlay color
   WidgetStateColor? getOverlayColor() {
-    return WidgetStateColor.resolveWith((_) {
-      return (style.overlayColor ??
-                  NyColor(
-                    light: Colors.grey.shade100,
-                    dark: Colors.grey.shade100,
-                  ))
-              .toColor(context) ??
-          const Color(0xFF000000);
-    });
+    final Color overlay =
+        style.overlayColor?.toColor(context) ??
+        NyFieldColors.of(context).accent.withValues(alpha: 0.12);
+    return WidgetStateColor.resolveWith((_) => overlay);
   }
 
   /// Get splash radius
@@ -260,18 +293,21 @@ class _NyFormRadioState extends FieldBaseState<NyFormRadio> {
 
   /// Get the title style
   TextStyle? titleStyle() {
-    return style.titleStyle ??
-        TextStyle(
-          color: color(light: Colors.black, dark: Colors.white),
-        );
+    return style.titleStyle ?? NyFieldColors.of(context).labelStyle;
   }
 
   /// Get the list tile style
   TextStyle? listTileStyle() {
     return style.listTileStyle ??
-        TextStyle(
-          color: color(light: Colors.black, dark: Colors.white),
-        );
+        TextStyle(color: NyFieldColors.of(context).text, fontSize: 16);
+  }
+
+  /// Get the style of an option's description
+  TextStyle subtitleStyle() {
+    return TextStyle(
+      fontSize: 13,
+      color: NyFieldColors.of(context).placeholder,
+    ).merge(style.subtitleStyle);
   }
 
   /// Get the hide title
