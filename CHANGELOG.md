@@ -12,7 +12,6 @@
 * **`NyApp.refreshLocale()` and `NyThemeManager.showTheme()`** - show another locale or theme in place, keeping the page, its state and the navigation stack, without saving the choice
 * **Structured log context** - Nylo's own errors and debug logs pass their details as `NyLogger` context, so the message stays readable and the values are listed beside it
 * **`FieldStyleRadio(subtitleStyle:)`** - styles a radio option's description, merged over the default, so `FieldStyleRadio(subtitleStyle: TextStyle(color: Colors.teal))` recolors it and keeps its size
-* **`FieldStyleRadio(subtitleStyle:)`** - styles a radio option's description, merged over the default, so `FieldStyleRadio(subtitleStyle: TextStyle(color: Colors.teal))` recolors it and keeps its size
 * **`toTimeAgoString(pattern:, locale:)`** - `pattern` sets the date format used once a date is past the relative window, and `locale` formats in a language other than the app's, so `date.toTimeAgoString(locale: 'fr', pattern: "d MMM yyyy 'à' HH:mm")` shows `4 déc. 2025 à 15:47` ([#312](https://github.com/nylo-core/nylo/issues/312))
 
 ### Fixed
