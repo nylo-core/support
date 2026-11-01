@@ -1,3 +1,9 @@
+## [7.37.1] - 2026-11-01
+
+### Fixed
+
+* **Modal background color** - `NyBaseModal.show(backgroundColor:)` colors the modal's content area as well as its frame, so one color covers the whole sheet. `modalBackgroundColor` sets the content area to its own color
+
 ## [7.37.0] - 2026-10-25
 
 ### Added

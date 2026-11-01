@@ -60,14 +60,16 @@ abstract class NyBaseModal {
   /// [headerPadding] - Padding for the main content when header is present
   /// [contentPadding] - Padding for the main content
   /// [actionsPadding] - Padding for the actions section
-  /// [backgroundColor] - Background color of the modal
+  /// [backgroundColor] - Background color of the modal, used for the content
+  /// area too unless [modalBackgroundColor] is set
   /// [showHandle] - Whether to show the drag handle (default: true)
   /// [closeButtonColor] - Color of the close button background
   /// [closeButtonIconColor] - Color of the close button icon
   /// [modalDecoration] - Custom decoration for the modal container
   /// [handleColor] - Color of the drag handle
   /// [useRootNavigator] - Whether to use the root navigator (default: true)
-  /// [modalBackgroundColor] - Background color of the modal content area
+  /// [modalBackgroundColor] - Background color of the modal content area,
+  /// overriding [backgroundColor]
   static Future<T?> show<T>(
     BuildContext context, {
     required Widget child,
@@ -110,7 +112,7 @@ abstract class NyBaseModal {
           actionsColumn: actionsColumn,
           decoration: modalDecoration,
           handleColor: handleColor,
-          backgroundColor: modalBackgroundColor,
+          backgroundColor: modalBackgroundColor ?? backgroundColor,
           contentPadding: contentPadding,
           actionsPadding: actionsPadding,
           child: child,
