@@ -1,3 +1,9 @@
+## [7.37.2] - 2026-11-12
+
+### Changed
+
+* **Dependencies** - `app_badge_plus` ^1.4.0 and `crypto` ^3.0.8, with `patrol` ^4.11.0 for development
+
 ## [7.37.1] - 2026-11-01
 
 ### Fixed
