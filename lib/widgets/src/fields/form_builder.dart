@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '/widgets/ny_widgets.dart';
 
 /// Typedef for the builder function used by [Field.builder].
@@ -6,22 +7,20 @@ import '/widgets/ny_widgets.dart';
 /// Receives the [BuildContext], an [onChanged] callback to report value changes
 /// to the form, the [currentValue] of the field, and a [setState] callback
 /// to trigger a rebuild.
-typedef NyFieldBuilder =
-    Widget Function(
-      BuildContext context,
-      Function(dynamic value) onChanged,
-      dynamic currentValue,
-      Function() setState,
-    );
+typedef NyFieldBuilder = Widget Function(
+  BuildContext context,
+  Function(dynamic value) onChanged,
+  dynamic currentValue,
+  Function() setState,
+);
 
 /// Legacy typedef without [setState] parameter.
 /// Kept for backward compatibility with existing [Field.builder] callbacks.
-typedef NyFieldBuilderLegacy =
-    Widget Function(
-      BuildContext context,
-      Function(dynamic value) onChanged,
-      dynamic currentValue,
-    );
+typedef NyFieldBuilderLegacy = Widget Function(
+  BuildContext context,
+  Function(dynamic value) onChanged,
+  dynamic currentValue,
+);
 
 /// A builder widget for forms that lets developers create custom fields inline.
 ///

@@ -391,9 +391,8 @@ class Table {
           ? _borderGlyphs.verticalLine
           : _borderGlyphs.teeRight,
       horizontalLine,
-      [
-        for (final column in columnWidths) horizontalLine * column,
-      ].join(delimiter),
+      [for (final column in columnWidths) horizontalLine * column]
+          .join(delimiter),
       horizontalLine,
       borderType == BorderType.vertical
           ? _borderGlyphs.verticalLine

@@ -214,9 +214,8 @@ class LiveStateInspector {
   /// string, `#markRead` for the symbol of a typed action.
   static String _actionName(Object action) {
     if (action is! Symbol) return '$action';
-    final Match? match = RegExp(
-      r'^Symbol\("(.*)"\)$',
-    ).firstMatch(action.toString());
+    final Match? match = RegExp(r'^Symbol\("(.*)"\)$')
+        .firstMatch(action.toString());
     return match == null ? '$action' : '#${match.group(1)}';
   }
 

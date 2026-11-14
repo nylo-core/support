@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/event_bus/ny_event_bus.dart';
 import 'package:nylo_support/helpers/src/backpack.dart';
@@ -1029,9 +1029,8 @@ void main() {
         );
         await tester.pumpAndSettle();
 
-        CollectionView.stateActions(
-          'list_update_oor',
-        ).updateItemAtIndex(99, 'X');
+        CollectionView.stateActions('list_update_oor')
+            .updateItemAtIndex(99, 'X');
         await tester.pumpAndSettle();
 
         expect(find.text('A'), findsOneWidget);

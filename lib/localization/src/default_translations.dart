@@ -54,10 +54,8 @@ const Map<String, dynamic> defaultTranslations = {
       "field_required": "{{attribute}} is required",
       "field_failed": "Validation failed for {{attribute}}",
       "email": "The {{attribute}} must be a valid email address.",
-      "password_strength_1":
-          "The {{attribute}} must contain at least one uppercase letter, one digit, and a minimum of 8 characters.",
-      "password_strength_2":
-          "The {{attribute}} must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.",
+      "password_strength_1": "The {{attribute}} must contain at least one uppercase letter, one digit, and a minimum of 8 characters.",
+      "password_strength_2": "The {{attribute}} must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.",
       "equals": "The {{attribute}} must match.",
       "custom": "The {{attribute}} is invalid.",
       "min_length":
@@ -78,8 +76,7 @@ const Map<String, dynamic> defaultTranslations = {
       "phone_number_us": "The {{attribute}} is not a valid phone number.",
       "phone_number_uk": "The {{attribute}} is not a valid phone number",
       "url": "The {{attribute}} must be a valid URL.",
-      "contains":
-          "The {{attribute}} must contain one of the following values: {{values}}.",
+      "contains": "The {{attribute}} must contain one of the following values: {{values}}.",
       "begins_with": "The {{attribute}} must begin with '{{prefix}}'.",
       "ends_with": "The {{attribute}} must end with '{{suffix}}'.",
       "boolean_true": "The {{attribute}} must be true.",

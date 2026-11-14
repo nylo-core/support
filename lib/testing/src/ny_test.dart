@@ -1,7 +1,8 @@
 // ignore_for_file: avoid_print — NyTest.dump() writes its report to the test output.
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/testing/src/fake_disk.dart';
+
 import '/file_storage/src/file_storage.dart';
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'dart:math';
+
 import 'ansi.dart';
 import 'consolecolor.dart';
 import 'ffi/termlib.dart';

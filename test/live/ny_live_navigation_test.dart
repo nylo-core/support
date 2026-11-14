@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
 import 'package:nylo_support/live/ny_live.dart';
@@ -133,18 +133,16 @@ void main() {
     await run(tester, 'route.push', {'path': '/cart'});
     expect(
       ((await run(tester, 'route.push', {
-            'path': '/checkout',
-            'navigation': 'replace',
-          }))
-          as Map)['stack'],
+        'path': '/checkout',
+        'navigation': 'replace',
+      })) as Map)['stack'],
       ['/home', '/checkout'],
     );
     expect(
       ((await run(tester, 'route.push', {
-            'path': '/cart',
-            'navigation': 'clear',
-          }))
-          as Map)['stack'],
+        'path': '/cart',
+        'navigation': 'clear',
+      })) as Map)['stack'],
       ['/cart'],
     );
   });
@@ -233,11 +231,9 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    final Map result =
-        (await run(tester, 'deeplink.open', {
-              'uri': 'https://shop.example.com/checkout?ref=email',
-            }))
-            as Map;
+    final Map result = (await run(tester, 'deeplink.open', {
+      'uri': 'https://shop.example.com/checkout?ref=email',
+    })) as Map;
 
     expect(result['path'], '/checkout');
     expect(result['queryParameters'], {'ref': 'email'});
@@ -249,12 +245,10 @@ void main() {
   ) async {
     await pumpApp(tester);
 
-    final Map result =
-        (await run(tester, 'deeplink.open', {
-              'uri': 'myapp://cart',
-              'dry': true,
-            }))
-            as Map;
+    final Map result = (await run(tester, 'deeplink.open', {
+      'uri': 'myapp://cart',
+      'dry': true,
+    })) as Map;
 
     expect(result['path'], '/cart');
     expect(result['registered'], true);
@@ -266,12 +260,10 @@ void main() {
   nyWidgetTest('deeplink.open reports an unregistered path', (tester) async {
     await pumpApp(tester);
 
-    final Map result =
-        (await run(tester, 'deeplink.open', {
-              'uri': 'myapp://promo/summer',
-              'dry': true,
-            }))
-            as Map;
+    final Map result = (await run(tester, 'deeplink.open', {
+      'uri': 'myapp://promo/summer',
+      'dry': true,
+    })) as Map;
 
     expect(result['path'], '/promo/summer');
     expect(result['registered'], false);
@@ -307,12 +299,10 @@ void main() {
     });
     addTearDown(() => Nylo.instance.onIncomingLinkAction = null);
 
-    final Map result =
-        (await run(tester, 'deeplink.open', {
-              'uri': 'myapp://cart',
-              'callback': false,
-            }))
-            as Map;
+    final Map result = (await run(tester, 'deeplink.open', {
+      'uri': 'myapp://cart',
+      'callback': false,
+    })) as Map;
 
     expect(ran, isFalse);
     expect(result['callback'], 'skipped');

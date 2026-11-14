@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/helpers/src/extensions.dart';
 import 'package:nylo_support/widgets/src/text_tr.dart';
@@ -53,9 +53,10 @@ void main() {
     });
 
     testWidgets('keep the theme\'s style through a chain', (tester) async {
-      final Text title = const Text(
-        'Hello',
-      ).titleLarge().fontWeightBold().alignCenter();
+      final Text title = const Text('Hello')
+          .titleLarge()
+          .fontWeightBold()
+          .alignCenter();
 
       await _show(tester, title, _dark);
 

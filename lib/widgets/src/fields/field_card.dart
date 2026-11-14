@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// A field's card: [decoration]'s fill and rounded corners behind [child],
 /// its border drawn over [child].

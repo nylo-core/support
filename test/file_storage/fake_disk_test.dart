@@ -108,9 +108,8 @@ void main() {
 
     test('putFile stores a fake upload like a real one', () async {
       final FakeDisk local = FileStorage.fake('local');
-      final String path = await disk(
-        'local',
-      ).putFile('avatars', FakeFile.image('me.jpg'));
+      final String path = await disk('local')
+          .putFile('avatars', FakeFile.image('me.jpg'));
       expect(path, endsWith('.png'), reason: 'fake images are always PNG');
       local.assertCount('avatars', 1);
       expect(await disk('local').mimeType(path), 'image/png');

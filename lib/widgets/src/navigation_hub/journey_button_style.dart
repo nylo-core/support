@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '/localization/ny_localization.dart';
 
 /// Base class for defining the style and parameters of journey buttons.

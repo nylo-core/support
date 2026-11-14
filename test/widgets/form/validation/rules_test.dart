@@ -495,12 +495,8 @@ void main() {
     nyTest('read as the English text they had before translation', () async {
       final expected = <FormRule, String>{
         FormRuleEmail(): 'The Field must be a valid email address.',
-        FormRulePassword(
-          strength: 1,
-        ): 'The Field must contain at least one uppercase letter, one digit, and a minimum of 8 characters.',
-        FormRulePassword(
-          strength: 2,
-        ): 'The Field must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.',
+        FormRulePassword(strength: 1): 'The Field must contain at least one uppercase letter, one digit, and a minimum of 8 characters.',
+        FormRulePassword(strength: 2): 'The Field must contain at least one uppercase letter, one digit, a minimum of 8 characters, and at least one special character.',
         FormRuleEquals(dataSource: 'x'): 'The Field must match.',
         FormRuleCustom(customValidation: (_) => true): 'The Field is invalid.',
         FormRuleMinLength(3): 'The Field must be at least 3 characters long.',
@@ -548,8 +544,7 @@ void main() {
         values: {
           'nylo': {
             'validation': {
-              'min_length':
-                  'El campo {{attribute}} debe tener al menos {{minLength}} caracteres.',
+              'min_length': 'El campo {{attribute}} debe tener al menos {{minLength}} caracteres.',
             },
           },
         },

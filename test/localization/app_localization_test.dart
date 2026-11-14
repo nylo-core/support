@@ -1,7 +1,8 @@
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:flutter_localizations/flutter_localizations.dart'
+    show GlobalWidgetsLocalizations;
 import 'package:nylo_support/localization/ny_localization.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
 
@@ -295,14 +296,17 @@ void main() {
   });
 
   nyGroup('NyLocalization setLocale', () {
-    nyTest('should throw when loading fails without environment setup', () async {
-      // setLocale will try to load file and when it fails, NyLogger.error is called
-      // NyLogger.error requires environment to be initialized
-      expect(
-        () => NyLocalization.instance.setLocale(locale: const Locale('fr')),
-        throwsA(isA<StateError>()),
-      );
-    });
+    nyTest(
+      'should throw when loading fails without environment setup',
+      () async {
+        // setLocale will try to load file and when it fails, NyLogger.error is called
+        // NyLogger.error requires environment to be initialized
+        expect(
+          () => NyLocalization.instance.setLocale(locale: const Locale('fr')),
+          throwsA(isA<StateError>()),
+        );
+      },
+    );
   });
 
   nyGroup('edge cases and error handling', () {

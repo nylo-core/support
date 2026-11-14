@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:nylo_support/playbook/ny_playbook.dart';
 
@@ -93,9 +93,8 @@ class _SignUpPageState extends State<SignUpPage> {
         ),
         FilledButton(
           onPressed: _agreed
-              ? () => Navigator.of(
-                  context,
-                ).pushReplacementNamed('/dashboard', arguments: _email.text)
+              ? () => Navigator.of(context)
+                    .pushReplacementNamed('/dashboard', arguments: _email.text)
               : null,
           child: const Text('Create account'),
         ),
@@ -142,9 +141,9 @@ class _DashboardPageState extends State<DashboardPage> {
                     child: const Text('Cancel'),
                   ),
                   TextButton(
-                    onPressed: () => Navigator.of(
-                      dialog,
-                    ).pushNamedAndRemoveUntil('/', (_) => false),
+                    onPressed: () =>
+                        Navigator.of(dialog)
+                            .pushNamedAndRemoveUntil('/', (_) => false),
                     child: const Text('Confirm'),
                   ),
                 ],

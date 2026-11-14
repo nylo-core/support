@@ -114,9 +114,10 @@ String? _simulatorId() {
 /// `.../CoreSimulator/Devices/<UDID>/data/...`, or null when it isn't in a
 /// simulator.
 @visibleForTesting
-String? simulatorIdFromPath(String path) => RegExp(
-  r'/CoreSimulator/Devices/([0-9A-Fa-f-]{36})/',
-).firstMatch(path)?.group(1);
+String? simulatorIdFromPath(String path) =>
+    RegExp(r'/CoreSimulator/Devices/([0-9A-Fa-f-]{36})/')
+        .firstMatch(path)
+        ?.group(1);
 
 // ---------------------------------------------------------------------------
 // Routing
@@ -1004,9 +1005,8 @@ bool _frame(Map<String, dynamic> args) {
 Color? _background(Map<String, dynamic> args) {
   final String? hex = _optionalString(args, 'background');
   if (hex == null) return null;
-  final RegExpMatch? match = RegExp(
-    r'^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$',
-  ).firstMatch(hex);
+  final RegExpMatch? match = RegExp(r'^#?([0-9a-fA-F]{6}|[0-9a-fA-F]{8})$')
+      .firstMatch(hex);
   if (match == null) {
     throw LiveException.invalidParams(
       '"background" must be a color like #1B2027, not "$hex".',

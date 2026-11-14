@@ -46,8 +46,10 @@ class DeepLinkTarget {
 
 /// Signature for the function that actually routes an incoming deep link.
 /// Defaults to [routeTo]. Overridable in tests.
-typedef DeepLinkDispatcher =
-    void Function(String route, Map<String, dynamic> queryParameters);
+typedef DeepLinkDispatcher = void Function(
+  String route,
+  Map<String, dynamic> queryParameters,
+);
 
 /// Handles platform deep links (Android App Links / iOS Universal Links /
 /// custom URL schemes / web URLs) and dispatches them through Nylo's router.

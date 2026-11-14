@@ -1,8 +1,10 @@
 import 'dart:async';
 
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+
 import '/helpers/ny_helpers.dart';
 import '/localization/ny_localization.dart';
+
 import 'package:recase/recase.dart';
 
 import '/widgets/ny_widgets.dart';

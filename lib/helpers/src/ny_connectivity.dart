@@ -1,5 +1,7 @@
 import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
+
 import 'ny_logger.dart';
 
 /// Connectivity helper for checking network status.

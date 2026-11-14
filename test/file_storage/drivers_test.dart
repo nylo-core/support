@@ -84,9 +84,8 @@ void main() {
     test('hides temp files from listings', () async {
       final LocalDiskDriver driver = LocalDiskDriver.at(dir.path);
       await driver.write('a.txt', utf8.encode('a'));
-      await File(
-        '${dir.path}/.b.txt${LocalDiskDriver.tempMarker}123',
-      ).writeAsString('partial');
+      await File('${dir.path}/.b.txt${LocalDiskDriver.tempMarker}123')
+          .writeAsString('partial');
       final List<String> paths = await driver
           .list('', recursive: true)
           .map((e) => e.path)

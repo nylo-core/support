@@ -1,8 +1,9 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
+
 import '/widgets/ny_widgets.dart';
 import '/localization/ny_localization.dart';
 
@@ -1837,9 +1838,8 @@ class _InputFieldState extends NyState<InputField> {
     InputBorder? clear(InputBorder? border) => border?.copyWith(
       borderSide: border.borderSide.copyWith(color: Colors.transparent),
     );
-    final InputDecorationThemeData theme = Theme.of(
-      context,
-    ).inputDecorationTheme;
+    final InputDecorationThemeData theme = Theme.of(context)
+        .inputDecorationTheme;
     final InputBorder border =
         clear(decoration.border ?? theme.border) ??
         const UnderlineInputBorder(

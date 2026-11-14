@@ -366,9 +366,9 @@ void main() {
       expect(progress.last, 200 * 1024);
       expect(acceptHeaders.single, '*/*');
       expect(
-        Directory(
-          '${root.path}/nylo/invoices',
-        ).listSync().map((e) => e.uri.pathSegments.last),
+        Directory('${root.path}/nylo/invoices')
+            .listSync()
+            .map((e) => e.uri.pathSegments.last),
         ['042.pdf'],
         reason: 'the temp download was renamed into place',
       );
@@ -392,9 +392,9 @@ void main() {
       );
       expect(await local.get('invoices/042.pdf'), 'previous');
       expect(
-        Directory(
-          '${root.path}/nylo/invoices',
-        ).listSync().map((e) => e.uri.pathSegments.last),
+        Directory('${root.path}/nylo/invoices')
+            .listSync()
+            .map((e) => e.uri.pathSegments.last),
         ['042.pdf'],
       );
     });

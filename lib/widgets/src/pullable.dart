@@ -1,6 +1,8 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import '/widgets/src/legacy_material_scope.dart';
 
 /// Header types for the Pullable widget
 enum PullableHeaderType {
@@ -203,17 +205,19 @@ class _PullableState extends State<Pullable> {
   Widget build(BuildContext context) {
     final PullableConfig effectiveConfig = _getEffectiveConfig();
 
-    return SmartRefresher(
-      enablePullDown: effectiveConfig.enablePullDown,
-      enablePullUp: effectiveConfig.enablePullUp,
-      header: _buildHeader(effectiveConfig),
-      footer: _buildFooter(effectiveConfig),
-      controller: _refreshController,
-      physics: effectiveConfig.physics,
-      onRefresh: effectiveConfig.onRefresh != null ? _handleRefresh : null,
-      onLoading: effectiveConfig.onLoading != null ? _handleLoading : null,
-      dragStartBehavior: effectiveConfig.dragStartBehavior,
-      child: widget.child,
+    return LegacyMaterialScope(
+      child: SmartRefresher(
+        enablePullDown: effectiveConfig.enablePullDown,
+        enablePullUp: effectiveConfig.enablePullUp,
+        header: _buildHeader(effectiveConfig),
+        footer: _buildFooter(effectiveConfig),
+        controller: _refreshController,
+        physics: effectiveConfig.physics,
+        onRefresh: effectiveConfig.onRefresh != null ? _handleRefresh : null,
+        onLoading: effectiveConfig.onLoading != null ? _handleLoading : null,
+        dragStartBehavior: effectiveConfig.dragStartBehavior,
+        child: widget.child,
+      ),
     );
   }
 

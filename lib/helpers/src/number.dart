@@ -523,9 +523,8 @@ class Number {
       return value * mult;
     }
     if (value is String) {
-      final RegExpMatch? m = RegExp(
-        r'^\s*(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)\s*$',
-      ).firstMatch(value);
+      final RegExpMatch? m = RegExp(r'^\s*(-?\d+(?:\.\d+)?)\s*([a-zA-Z]+)\s*$')
+          .firstMatch(value);
       if (m == null) return null;
       final num n = double.parse(m.group(1)!);
       final int? mult = _byteUnits[m.group(2)!.toUpperCase()];

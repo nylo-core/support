@@ -19,9 +19,8 @@ class _FakeProject {
       'metro_pkg_test_',
     );
     final Directory root = await Directory('${base.path}/my app').create();
-    final Directory packages = await Directory(
-      '${base.path}/my packages',
-    ).create();
+    final Directory packages = await Directory('${base.path}/my packages')
+        .create();
     await File('${root.path}/pubspec.yaml').writeAsString(_pubspec());
     // Only resolvable through the project's package config, never through
     // the fake packages' own pubspecs.
@@ -41,9 +40,8 @@ class _FakeProject {
   /// Declares [packageName] as a dependency and resolves the project with pub,
   /// writing the real `.dart_tool/package_config.json`.
   Future<void> dependOnAndResolve(String packageName) async {
-    await File(
-      '${root.path}/pubspec.yaml',
-    ).writeAsString(_pubspec(dependency: packageName));
+    await File('${root.path}/pubspec.yaml')
+        .writeAsString(_pubspec(dependency: packageName));
     final ProcessResult result = await Process.run(
       'dart',
       ['pub', 'get', '--offline'],
@@ -64,18 +62,15 @@ class _FakeProject {
     Map<String, String> scripts = const {},
   }) async {
     final Directory dir = await Directory('${packages.path}/$name').create();
-    await File(
-      '${dir.path}/pubspec.yaml',
-    ).writeAsString('name: $name\nenvironment:\n  sdk: ^3.10.0\n');
+    await File('${dir.path}/pubspec.yaml')
+        .writeAsString('name: $name\nenvironment:\n  sdk: ^3.10.0\n');
     if (manifest != null) {
-      await File(
-        '${dir.path}/$packageCommandsManifest',
-      ).writeAsString(jsonEncode(manifest));
+      await File('${dir.path}/$packageCommandsManifest')
+          .writeAsString(jsonEncode(manifest));
     }
     if (rawManifest != null) {
-      await File(
-        '${dir.path}/$packageCommandsManifest',
-      ).writeAsString(rawManifest);
+      await File('${dir.path}/$packageCommandsManifest')
+          .writeAsString(rawManifest);
     }
     for (final MapEntry<String, String> entry in scripts.entries) {
       final file = File('${dir.path}/${entry.key}');
@@ -273,9 +268,8 @@ void main() {
             manifest: [_command('create', category: 'demo')],
           );
           // A manifest at the project root must not be picked up as a package.
-          await File(
-            '${project.root.path}/$packageCommandsManifest',
-          ).writeAsString(jsonEncode([_command('rogue', category: 'app')]));
+          await File('${project.root.path}/$packageCommandsManifest')
+              .writeAsString(jsonEncode([_command('rogue', category: 'app')]));
           await project.writePackageConfig([
             project.relativeEntry('plain_package'),
             project.relativeEntry('demo_package'),

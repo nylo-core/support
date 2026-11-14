@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+
 import '/nylo.dart';
 
 /// A [NavigatorObserver] that keeps track of the current route.

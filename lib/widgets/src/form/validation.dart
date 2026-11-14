@@ -11,8 +11,10 @@ export 'validation/rules.dart';
 /// The closure receives a fresh [FormValidator] and the field's current
 /// value, and is expected to register rules — typically via
 /// `validate.that(data, attribute).<rule>()`.
-typedef FormValidatorCallback =
-    void Function(FormValidator validate, dynamic data);
+typedef FormValidatorCallback = void Function(
+  FormValidator validate,
+  dynamic data,
+);
 
 /// Validates form field input using a typed rule pipeline.
 ///

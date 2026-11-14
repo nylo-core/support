@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Base theme config is used for theme management.
 /// Set the required parameters to create new themes.

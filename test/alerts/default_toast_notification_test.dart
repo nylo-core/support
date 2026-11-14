@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/alerts/ny_alerts.dart';
 import 'package:nylo_support/localization/ny_localization.dart';

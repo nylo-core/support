@@ -2,7 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '/nylo.dart';
 import '/helpers/ny_helpers.dart';
 import '/widgets/ny_widgets.dart';
@@ -579,6 +580,8 @@ class NyRouter {
           removeUntilPredicate != null,
     );
 
+    await _mountedNavigator(name);
+
     if (transitionType != null) {
       pageTransitionType = transitionType.pageTransitionType;
       pageTransitionSettings = transitionType.pageTransitionSettings;
@@ -765,37 +768,70 @@ class NyRouter {
       argsWrapper.resolvedMatch = resolution.match;
     }
 
+    final NavigatorState navigator = await _mountedNavigator(name);
+
     switch (navigationType) {
       case NavigationType.push:
-        return await navigatorKey!.currentState!.pushNamed(
+        return await navigator.pushNamed(
           pushName ?? name,
           arguments: argsWrapper,
         );
       case NavigationType.pushReplace:
-        return await navigatorKey!.currentState!.pushReplacementNamed(
+        return await navigator.pushReplacementNamed(
           pushName ?? name,
           result: result,
           arguments: argsWrapper,
         );
       case NavigationType.pushAndRemoveUntil:
-        return await navigatorKey!.currentState!.pushNamedAndRemoveUntil(
+        return await navigator.pushNamedAndRemoveUntil(
           pushName ?? name,
           removeUntilPredicate!,
           arguments: argsWrapper,
         );
       case NavigationType.popAndPushNamed:
-        return await navigatorKey!.currentState!.popAndPushNamed(
+        return await navigator.popAndPushNamed(
           pushName ?? name,
           result: result,
           arguments: argsWrapper,
         );
       case NavigationType.pushAndForgetAll:
-        return await navigatorKey!.currentState!.pushNamedAndRemoveUntil(
+        return await navigator.pushNamedAndRemoveUntil(
           pushName ?? name,
           (_) => false,
           arguments: argsWrapper,
         );
     }
+  }
+
+  /// How long [navigate] waits for a [Navigator] to mount on [navigatorKey]
+  /// before giving up.
+  static const Duration navigatorMountTimeout = Duration(seconds: 30);
+
+  /// Returns the [NavigatorState] behind [navigatorKey], waiting for it to
+  /// mount when navigation is requested before the app's first frame, e.g.
+  /// from a provider's `boot` or an event fired during startup.
+  ///
+  /// Throws a [StateError] if nothing mounts within [navigatorMountTimeout].
+  Future<NavigatorState> _mountedNavigator(String name) async {
+    NavigatorState? navigator = navigatorKey?.currentState;
+    if (navigator != null) return navigator;
+
+    _log('Waiting for the navigator to mount before navigating to: $name');
+    const Duration interval = Duration(milliseconds: 16);
+    Duration waited = Duration.zero;
+    while ((navigator = navigatorKey?.currentState) == null) {
+      if (waited >= navigatorMountTimeout) {
+        throw StateError(
+          'Cannot navigate to "$name": no Navigator mounted on '
+          'NyNavigator.instance.router.navigatorKey within '
+          '${navigatorMountTimeout.inSeconds}s. Pass that key to your '
+          'MaterialApp, or navigate after the app has been built.',
+        );
+      }
+      await Future.delayed(interval);
+      waited += interval;
+    }
+    return navigator!;
   }
 
   /// Get the previous route.
@@ -843,7 +879,7 @@ class NyRouter {
         "Page not found",
         context: {"route_name": name, "args": args.toString()},
       );
-      navigatorKey!.currentState!.push(
+      navigatorKey?.currentState?.push(
         MaterialPageRoute(
           builder: (BuildContext context) {
             return const PageNotFound();

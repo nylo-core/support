@@ -1,5 +1,6 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
+
 import 'default_toast_notification.dart';
 import 'toast_meta.dart';
 
@@ -148,7 +149,7 @@ void showToastNotification(
 
   // Show the toast notification (uses potentially updated meta)
   showToastWidget(
-    toastWidget,
+    Material(type: MaterialType.transparency, child: toastWidget),
     context: context,
     isIgnoring: toastMeta.isIgnoring ?? false,
     position: _toStyledPosition(toastMeta.position),

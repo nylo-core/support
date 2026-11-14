@@ -1,6 +1,8 @@
 import 'dart:math' as math;
-import 'package:flutter/material.dart';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
+
 import '/helpers/src/button_animation_style.dart';
 
 /// A wrapper widget that applies animation effects to buttons.

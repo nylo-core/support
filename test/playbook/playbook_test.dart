@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/playbook/ny_playbook.dart';
 import 'package:nylo_support/playbook/src/playbook_finder.dart'
@@ -502,9 +502,11 @@ void main() {
         Find.text('Delete').inside(Find.type<Card>()).find(tree),
         hasLength(3),
       );
-      final Element second = Find.text(
-        'Delete',
-      ).inside(Find.type<Card>()).at(1).find(tree).single;
+      final Element second = Find.text('Delete')
+          .inside(Find.type<Card>())
+          .at(1)
+          .find(tree)
+          .single;
       expect(second.widget.key, const ValueKey<String>('d1'));
       expect(Find.icon(Icons.add).find(tree), hasLength(1));
       expect(Find.target('Share').find(tree).single.widget, isA<Tooltip>());

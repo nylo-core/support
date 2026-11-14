@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '/widgets/ny_widgets.dart';
 
 /// The position of the progress indicator in the journey layout

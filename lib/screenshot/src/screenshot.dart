@@ -3,7 +3,7 @@ import 'dart:ui' as ui;
 
 import 'package:flutter/rendering.dart';
 import 'package:flutter/scheduler.dart';
-import 'package:flutter/material.dart' show Theme, ThemeData;
+import 'package:material_ui/material_ui.dart' show Theme, ThemeData;
 import 'package:flutter/widgets.dart';
 
 import '/file_storage/ny_file_storage.dart';
@@ -223,9 +223,8 @@ class Screenshot {
       return await _encode(image);
     } finally {
       // Unmount the tree so its states are disposed.
-      RenderObjectToWidgetAdapter<RenderBox>(
-        container: boundary,
-      ).attachToRenderTree(buildOwner, root);
+      RenderObjectToWidgetAdapter<RenderBox>(container: boundary)
+          .attachToRenderTree(buildOwner, root);
       buildOwner.buildScope(root);
       buildOwner.finalizeTree();
       focusManager.dispose();

@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/router/ny_router.dart';
 import 'package:nylo_support/testing/ny_testing.dart';
@@ -298,8 +298,12 @@ void main() {
       nyTest(
         'should report hasExternalListener when callback is set',
         () async {
-          NyRouteHistoryObserver.onRouteChange =
-              (action, routeName, {arguments, previousRoute}) {};
+          NyRouteHistoryObserver.onRouteChange = (
+            action,
+            routeName, {
+            arguments,
+            previousRoute,
+          }) {};
 
           expect(NyRouteHistoryObserver.hasExternalListener, isTrue);
         },

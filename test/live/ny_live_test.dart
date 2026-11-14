@@ -273,13 +273,11 @@ void main() {
     });
 
     nyTest('sets plain values with a ttl', () async {
-      final Map result =
-          (await NyLive.dispatch('storage.set', {
-                'key': 'otp',
-                'value': '123456',
-                'ttl': 60,
-              }))
-              as Map;
+      final Map result = (await NyLive.dispatch('storage.set', {
+        'key': 'otp',
+        'value': '123456',
+        'ttl': 60,
+      })) as Map;
 
       expect(result['type'], 'string');
       expect(

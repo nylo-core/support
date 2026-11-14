@@ -1,10 +1,12 @@
 import 'package:collection/collection.dart';
+
 import '/helpers/ny_helpers.dart';
 
 import '/local_storage/ny_local_storage.dart';
 import '/localization/ny_localization.dart';
 import '/widgets/ny_widgets.dart';
-import 'package:flutter/material.dart';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter/services.dart';
 
 /// Configures animations for [LanguageSwitcher] inline popup trigger and bottom modal list items.

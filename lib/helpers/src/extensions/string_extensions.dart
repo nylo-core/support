@@ -1,6 +1,7 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart' show Color;
+import 'package:material_ui/material_ui.dart' show Color;
+
 import '../helper.dart' show nyHexColor;
 import '../ny_logger.dart';
 

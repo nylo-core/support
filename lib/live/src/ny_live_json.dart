@@ -54,9 +54,8 @@ class NyLiveJson {
           'type': type,
           'value': _decodeEnvelopeValue(type, data),
           if (expiresAt is int)
-            'expiresAt': DateTime.fromMillisecondsSinceEpoch(
-              expiresAt,
-            ).toIso8601String(),
+            'expiresAt': DateTime.fromMillisecondsSinceEpoch(expiresAt)
+                .toIso8601String(),
         };
       }
     } catch (_) {

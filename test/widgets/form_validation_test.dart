@@ -211,30 +211,26 @@ void main() {
     });
 
     nyTest('minLength should pass for string meeting minimum', () async {
-      final FormValidationResult result = FormValidator.minLength(
-        3,
-      ).check('abc');
+      final FormValidationResult result = FormValidator.minLength(3)
+          .check('abc');
       expect(result.isValid, isTrue);
     });
 
     nyTest('minLength should fail for short string', () async {
-      final FormValidationResult result = FormValidator.minLength(
-        5,
-      ).check('ab');
+      final FormValidationResult result = FormValidator.minLength(5)
+          .check('ab');
       expect(result.isValid, isFalse);
     });
 
     nyTest('maxLength should pass for string within maximum', () async {
-      final FormValidationResult result = FormValidator.maxLength(
-        5,
-      ).check('abc');
+      final FormValidationResult result = FormValidator.maxLength(5)
+          .check('abc');
       expect(result.isValid, isTrue);
     });
 
     nyTest('maxLength should fail for long string', () async {
-      final FormValidationResult result = FormValidator.maxLength(
-        3,
-      ).check('abcdef');
+      final FormValidationResult result = FormValidator.maxLength(3)
+          .check('abcdef');
       expect(result.isValid, isFalse);
     });
 
@@ -277,38 +273,32 @@ void main() {
     });
 
     nyTest('contains should fail when value not in list', () async {
-      final FormValidationResult result = FormValidator.contains([
-        'a',
-        'b',
-      ]).check('x');
+      final FormValidationResult result = FormValidator.contains(['a', 'b'])
+          .check('x');
       expect(result.isValid, isFalse);
     });
 
     nyTest('beginsWith should pass for matching prefix', () async {
-      final FormValidationResult result = FormValidator.beginsWith(
-        'Hello',
-      ).check('Hello World');
+      final FormValidationResult result = FormValidator.beginsWith('Hello')
+          .check('Hello World');
       expect(result.isValid, isTrue);
     });
 
     nyTest('beginsWith should fail for non-matching prefix', () async {
-      final FormValidationResult result = FormValidator.beginsWith(
-        'Hello',
-      ).check('World');
+      final FormValidationResult result = FormValidator.beginsWith('Hello')
+          .check('World');
       expect(result.isValid, isFalse);
     });
 
     nyTest('endsWith should pass for matching suffix', () async {
-      final FormValidationResult result = FormValidator.endsWith(
-        'World',
-      ).check('Hello World');
+      final FormValidationResult result = FormValidator.endsWith('World')
+          .check('Hello World');
       expect(result.isValid, isTrue);
     });
 
     nyTest('endsWith should fail for non-matching suffix', () async {
-      final FormValidationResult result = FormValidator.endsWith(
-        '.com',
-      ).check('example.org');
+      final FormValidationResult result = FormValidator.endsWith('.com')
+          .check('example.org');
       expect(result.isValid, isFalse);
     });
 
@@ -355,16 +345,14 @@ void main() {
     });
 
     nyTest('regex should pass for matching pattern', () async {
-      final FormValidationResult result = FormValidator.regex(
-        r'^[a-z]+$',
-      ).check('abc');
+      final FormValidationResult result = FormValidator.regex(r'^[a-z]+$')
+          .check('abc');
       expect(result.isValid, isTrue);
     });
 
     nyTest('regex should fail for non-matching pattern', () async {
-      final FormValidationResult result = FormValidator.regex(
-        r'^[a-z]+$',
-      ).check('ABC');
+      final FormValidationResult result = FormValidator.regex(r'^[a-z]+$')
+          .check('ABC');
       expect(result.isValid, isFalse);
     });
 

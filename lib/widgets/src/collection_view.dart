@@ -1,8 +1,9 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart' show ScrollCacheExtent;
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:pull_to_refresh_flutter3/pull_to_refresh_flutter3.dart';
+
+import '/widgets/src/legacy_material_scope.dart';
 import '/helpers/ny_helpers.dart';
 import '/widgets/ny_widgets.dart';
 import '/localization/ny_localization.dart';
@@ -59,8 +60,10 @@ class CollectionItem<T> {
 }
 
 /// Type-safe builder function signature.
-typedef CollectionItemBuilder<T> =
-    Widget Function(BuildContext context, CollectionItem<T> item);
+typedef CollectionItemBuilder<T> = Widget Function(
+  BuildContext context,
+  CollectionItem<T> item,
+);
 
 /// The kind of collection view to build.
 enum CollectionViewKind { builder, separated, grid }
@@ -887,27 +890,31 @@ class _CollectionViewState<T> extends NyState<CollectionView<T>> {
         emptyChild = Column(children: [widget.header!, emptyChild]);
       }
 
-      return SmartRefresher(
-        enablePullDown: widget.enablePullDown,
-        enablePullUp: false,
-        header: _headerType(),
-        footer: _buildFooter(loadingWidget),
-        controller: _refreshController,
-        onRefresh: widget.enablePullDown ? _onRefresh : null,
-        onLoading: null,
-        child: emptyChild,
+      return LegacyMaterialScope(
+        child: SmartRefresher(
+          enablePullDown: widget.enablePullDown,
+          enablePullUp: false,
+          header: _headerType(),
+          footer: _buildFooter(loadingWidget),
+          controller: _refreshController,
+          onRefresh: widget.enablePullDown ? _onRefresh : null,
+          onLoading: null,
+          child: emptyChild,
+        ),
       );
     }
 
-    return SmartRefresher(
-      enablePullDown: widget.enablePullDown,
-      enablePullUp: true,
-      header: _headerType(),
-      footer: _buildFooter(loadingWidget),
-      controller: _refreshController,
-      onRefresh: _onRefresh,
-      onLoading: _onLoading,
-      child: _buildListView(),
+    return LegacyMaterialScope(
+      child: SmartRefresher(
+        enablePullDown: widget.enablePullDown,
+        enablePullUp: true,
+        header: _headerType(),
+        footer: _buildFooter(loadingWidget),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: _buildListView(),
+      ),
     );
   }
 

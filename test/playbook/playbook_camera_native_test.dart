@@ -145,13 +145,12 @@ void main() {
       tester,
       _Native(),
       captures: captures,
-      native:
-          ({
-            required String id,
-            required String name,
-            String? locale,
-            String? theme,
-          }) async => throw StateError('The simulator shut down'),
+      native: ({
+        required String id,
+        required String name,
+        String? locale,
+        String? theme,
+      }) async => throw StateError('The simulator shut down'),
     );
 
     expect(captures, hasLength(1));
@@ -192,13 +191,12 @@ void main() {
       _Native(),
       store: ScreenshotStore.ios69,
       composed: composed,
-      native:
-          ({
-            required String id,
-            required String name,
-            String? locale,
-            String? theme,
-          }) async => asked++,
+      native: ({
+        required String id,
+        required String name,
+        String? locale,
+        String? theme,
+      }) async => asked++,
     );
 
     final Map shot = _shots(events).single;
@@ -215,13 +213,12 @@ void main() {
     final List<Map<String, Object?>> events = await _run(
       tester,
       _AppOnly(),
-      native:
-          ({
-            required String id,
-            required String name,
-            String? locale,
-            String? theme,
-          }) async => asked++,
+      native: ({
+        required String id,
+        required String name,
+        String? locale,
+        String? theme,
+      }) async => asked++,
     );
 
     expect(asked, 0);
@@ -237,13 +234,12 @@ void main() {
     final List<Map<String, Object?>> events = await _run(
       tester,
       _NativeLocales(),
-      native:
-          ({
-            required String id,
-            required String name,
-            String? locale,
-            String? theme,
-          }) async => locales.add(locale),
+      native: ({
+        required String id,
+        required String name,
+        String? locale,
+        String? theme,
+      }) async => locales.add(locale),
     );
 
     expect(locales, ['en', 'es']);

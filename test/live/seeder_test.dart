@@ -611,11 +611,9 @@ void main() {
     });
 
     nyTest('runs seeders by name or class name', () async {
-      final Map payload =
-          (await NyLive.dispatch('seeders.run', {
-                'names': ['DemoUserSeeder', 'favourites'],
-              }))
-              as Map;
+      final Map payload = (await NyLive.dispatch('seeders.run', {
+        'names': ['DemoUserSeeder', 'favourites'],
+      })) as Map;
 
       expect(payload['failed'], isFalse);
       expect((payload['runs'] as List).map((run) => run['name']), [
@@ -625,12 +623,10 @@ void main() {
       expect((payload['runs'] as List).first['log'], isNotEmpty);
       expect(() => jsonEncode(payload), returnsNormally);
 
-      final Map down =
-          (await NyLive.dispatch('seeders.run', {
-                'names': ['demo_user', 'favourites'],
-                'direction': 'down',
-              }))
-              as Map;
+      final Map down = (await NyLive.dispatch('seeders.run', {
+        'names': ['demo_user', 'favourites'],
+        'direction': 'down',
+      })) as Map;
       expect((down['runs'] as List).map((run) => run['name']), [
         'favourites',
         'demo_user',
@@ -682,11 +678,9 @@ void main() {
     });
 
     nyTest('reports failures without throwing', () async {
-      final Map payload =
-          (await NyLive.dispatch('seeders.run', {
-                'names': ['broken'],
-              }))
-              as Map;
+      final Map payload = (await NyLive.dispatch('seeders.run', {
+        'names': ['broken'],
+      })) as Map;
 
       expect(payload['failed'], isTrue);
       expect(
@@ -726,9 +720,9 @@ void main() {
 
   nyGroup('LiveCommand.seed', () {
     nyTest('shows what the seeders changed in the command output', () async {
-      final Map payload =
-          (await NyLive.dispatch('commands.run', {'name': 'demo:seed_demo'}))
-              as Map;
+      final Map payload = (await NyLive.dispatch('commands.run', {
+        'name': 'demo:seed_demo',
+      })) as Map;
 
       expect(payload['failed'], isFalse);
       final List<String> lines = [
@@ -742,9 +736,9 @@ void main() {
     });
 
     nyTest('fails the command when a seeder fails', () async {
-      final Map payload =
-          (await NyLive.dispatch('commands.run', {'name': 'demo:seed_broken'}))
-              as Map;
+      final Map payload = (await NyLive.dispatch('commands.run', {
+        'name': 'demo:seed_broken',
+      })) as Map;
 
       expect(payload['failed'], isTrue);
       expect(

@@ -1,32 +1,31 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// Type definition for the [NyBaseModal.show] method.
 /// Use this to preserve type information when creating references to the show method.
-typedef ModalShowFunction =
-    Future<T?> Function<T>(
-      BuildContext context, {
-      required Widget child,
-      List<Widget> actionsRow,
-      List<Widget> actionsColumn,
-      double? height,
-      Widget? header,
-      bool useSafeArea,
-      bool isScrollControlled,
-      bool isDismissible,
-      bool enableDrag,
-      bool showCloseButton,
-      EdgeInsets? headerPadding,
-      EdgeInsets? contentPadding,
-      EdgeInsets? actionsPadding,
-      Color? backgroundColor,
-      bool showHandle,
-      Color? closeButtonColor,
-      Color? closeButtonIconColor,
-      BoxDecoration? modalDecoration,
-      Color? handleColor,
-      bool useRootNavigator,
-      Color? modalBackgroundColor,
-    });
+typedef ModalShowFunction = Future<T?> Function<T>(
+  BuildContext context, {
+  required Widget child,
+  List<Widget> actionsRow,
+  List<Widget> actionsColumn,
+  double? height,
+  Widget? header,
+  bool useSafeArea,
+  bool isScrollControlled,
+  bool isDismissible,
+  bool enableDrag,
+  bool showCloseButton,
+  EdgeInsets? headerPadding,
+  EdgeInsets? contentPadding,
+  EdgeInsets? actionsPadding,
+  Color? backgroundColor,
+  bool showHandle,
+  Color? closeButtonColor,
+  Color? closeButtonIconColor,
+  BoxDecoration? modalDecoration,
+  Color? handleColor,
+  bool useRootNavigator,
+  Color? modalBackgroundColor,
+});
 
 /// NyBaseModal
 ///

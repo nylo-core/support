@@ -1,5 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 
 /// StyledText allows you to display rich text with different styles.
 ///
@@ -160,9 +160,8 @@ class _StyledTextState extends State<StyledText> {
   Widget build(BuildContext context) {
     // Inherit the ambient text style (theme color, font) the same way [Text]
     // does, so unstyled spans don't fall back to the engine's white default.
-    TextStyle effectiveStyle = DefaultTextStyle.of(
-      context,
-    ).style.merge(widget.style);
+    TextStyle effectiveStyle = DefaultTextStyle.of(context).style
+        .merge(widget.style);
     if (MediaQuery.boldTextOf(context)) {
       effectiveStyle = effectiveStyle.merge(
         const TextStyle(fontWeight: FontWeight.bold),

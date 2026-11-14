@@ -794,12 +794,13 @@ void main() {
       await NyStorage.save('SK_USER', 'jane');
       Backpack.instance.save('cache_x', 1);
 
-      final Map<String, Object?> payload =
-          (await NyLive.dispatch('storage.export', {
-                'except': ['cache_*'],
-                'backpack': false,
-              }))
-              as Map<String, Object?>;
+      final Map<String, Object?> payload = (await NyLive.dispatch(
+        'storage.export',
+        {
+          'except': ['cache_*'],
+          'backpack': false,
+        },
+      )) as Map<String, Object?>;
 
       expect(payload['storage'], {'SK_USER': 'jane'});
       expect(payload['backpack'], isEmpty);
@@ -864,18 +865,19 @@ void main() {
       () async {
         await NyStorage.save('Pro', false);
 
-        final Map<String, Object?> payload =
-            (await NyLive.dispatch('snapshot.import', {
-                  'name': 'pro_user',
-                  'source': 'pro_user.json',
-                  'snapshot': {
-                    'storage': {'Pro': true, 'user_name': 'Dummy User(s)'},
-                    'backpack': {
-                      'cart': [1],
-                    },
-                  },
-                }))
-                as Map<String, Object?>;
+        final Map<String, Object?> payload = (await NyLive.dispatch(
+          'snapshot.import',
+          {
+            'name': 'pro_user',
+            'source': 'pro_user.json',
+            'snapshot': {
+              'storage': {'Pro': true, 'user_name': 'Dummy User(s)'},
+              'backpack': {
+                'cart': [1],
+              },
+            },
+          },
+        )) as Map<String, Object?>;
 
         expect(payload['failed'], isFalse);
         final Map<Object?, Object?> run =
@@ -908,12 +910,13 @@ void main() {
           ],
         );
 
-        final Map<String, Object?> rollback =
-            (await NyLive.dispatch('seeders.run', {
-                  'names': ['pro_user'],
-                  'direction': 'down',
-                }))
-                as Map<String, Object?>;
+        final Map<String, Object?> rollback = (await NyLive.dispatch(
+          'seeders.run',
+          {
+            'names': ['pro_user'],
+            'direction': 'down',
+          },
+        )) as Map<String, Object?>;
         expect(rollback['failed'], isFalse);
         expect(await NyStorage.read<bool>('Pro'), isFalse);
         expect(await _raw('user_name'), isNull);
@@ -924,15 +927,16 @@ void main() {
     nyTest('snapshot.import with fresh clears the app first', () async {
       await NyStorage.save('keep_me', 'yes');
 
-      final Map<String, Object?> payload =
-          (await NyLive.dispatch('snapshot.import', {
-                'name': 'clean',
-                'fresh': true,
-                'snapshot': {
-                  'storage': {'Pro': true},
-                },
-              }))
-              as Map<String, Object?>;
+      final Map<String, Object?> payload = (await NyLive.dispatch(
+        'snapshot.import',
+        {
+          'name': 'clean',
+          'fresh': true,
+          'snapshot': {
+            'storage': {'Pro': true},
+          },
+        },
+      )) as Map<String, Object?>;
 
       expect(payload['failed'], isFalse);
       expect(await _raw('keep_me'), isNull);

@@ -15,6 +15,7 @@ dev_dependencies:
   nylo_support:
     path: ../
 
+  material_ui: any
 flutter:
 
 #  uses-material-design: true

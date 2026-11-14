@@ -1,3 +1,17 @@
+## [7.38.0] - 2026-11-14
+
+### Changed
+
+* **`material_ui` and `cupertino_ui`** - Nylo's widgets are built on `package:material_ui` and `package:cupertino_ui`, the standalone Material and Cupertino libraries. Import `package:material_ui/material_ui.dart` in your app alongside Nylo
+* **Requirements** - Flutter 3.47.0 or later, with Dart 3.13
+* **Dependencies** - `material_ui` ^1.11.0, `cupertino_ui` ^1.1.6 and `date_field` ^7.0.0
+
+### Fixed
+
+* **Navigating during startup** - `NyRouter.navigate` and `routeTo` called before the app's first frame, e.g. from a provider's `boot` or a startup event, wait for the navigator to mount and then navigate
+* **Pull-to-refresh** - `CollectionView` and `Pullable` draw `MaterialClassicHeader` and the other refresh headers with the app's theme and Material localizations
+* **Toasts** - toast content sits on a transparent `Material`, so ink effects and text styles render as designed
+
 ## [7.37.2] - 2026-11-12
 
 ### Changed

@@ -160,18 +160,19 @@ class PlaybookScreenshotStep extends PlaybookStep {
 
 /// Asks Metro to capture the whole screen for the shot [id], and completes
 /// once it has. Throws with the reason when it can't.
-typedef PlaybookNative =
-    Future<void> Function({
-      required String id,
-      required String name,
-      String? locale,
-      String? theme,
-    });
+typedef PlaybookNative = Future<void> Function({
+  required String id,
+  required String name,
+  String? locale,
+  String? theme,
+});
 
 /// Shows the app in a locale and theme and returns a function that puts
 /// back the ones before, like [ScreenshotLook.show].
-typedef PlaybookLook =
-    Future<Future<void> Function()> Function({String? locale, String? theme});
+typedef PlaybookLook = Future<Future<void> Function()> Function({
+  String? locale,
+  String? theme,
+});
 
 /// Takes a playbook run's screenshots once each step settles.
 ///

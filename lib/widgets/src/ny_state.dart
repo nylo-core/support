@@ -1,7 +1,8 @@
 import 'package:nylo_support/controllers/src/controller.dart';
 
 import '/widgets/ny_widgets.dart';
-import 'package:flutter/material.dart';
+
+import 'package:material_ui/material_ui.dart';
 
 abstract class NyState<T extends StatefulWidget> extends NyBaseState<T> {
   /// Base NyState

@@ -1,16 +1,18 @@
 import 'dart:io';
-import 'package:flutter/cupertino.dart' show CupertinoPageTransitionsBuilder;
+
+import 'package:cupertino_ui/cupertino_ui.dart'
+    show CupertinoPageTransitionsBuilder;
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import 'enum.dart';
 
 /// Builder function type for creating the transition page
-typedef TransitionPageBuilder =
-    Widget Function(
-      BuildContext context,
-      Animation<double> animation,
-      Animation<double> secondaryAnimation,
-    );
+typedef TransitionPageBuilder = Widget Function(
+  BuildContext context,
+  Animation<double> animation,
+  Animation<double> secondaryAnimation,
+);
 
 /// Builder function type for creating child widget
 typedef ChildBuilder = Widget Function(BuildContext context);

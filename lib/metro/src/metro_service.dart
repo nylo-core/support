@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
+
 import '/metro/ny_metro.dart';
+
 import 'package:recase/recase.dart';
 
 class MetroService {
@@ -587,9 +589,8 @@ final Map<Type, BaseController> controllers = {$match
       String updatedCommands = jsonEncode(commands);
 
       // format json file
-      String formattedJson = const JsonEncoder.withIndent(
-        '  ',
-      ).convert(jsonDecode(updatedCommands));
+      String formattedJson = const JsonEncoder.withIndent('  ')
+          .convert(jsonDecode(updatedCommands));
 
       await file.writeAsString(formattedJson);
     } catch (e) {

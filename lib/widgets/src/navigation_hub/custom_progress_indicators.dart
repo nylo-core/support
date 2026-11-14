@@ -1,4 +1,5 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
+
 import '/localization/ny_localization.dart';
 
 /// A dot-based progress indicator for journeys

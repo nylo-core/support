@@ -97,9 +97,8 @@ void main() {
     });
 
     test('relocate keeps the type and reports the caller\'s disk and path', () {
-      final DiskException moved = const DiskReadOnlyException(
-        'put',
-      ).relocate('assets', 'x.txt');
+      final DiskException moved = const DiskReadOnlyException('put')
+          .relocate('assets', 'x.txt');
       expect(
         moved,
         isA<DiskReadOnlyException>()

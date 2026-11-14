@@ -1,4 +1,5 @@
 import 'package:characters/characters.dart';
+
 import 'textalignment.dart';
 
 extension StringUtils on String {

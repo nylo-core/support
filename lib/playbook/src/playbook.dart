@@ -465,9 +465,8 @@ abstract class Playbook {
           status: PlaybookStepStatus.failed,
           elapsed: clock.elapsed - start,
           error: _describe(e),
-          visibleText: PlaybookTree(
-            WidgetsBinding.instance.rootElement,
-          ).visibleText(),
+          visibleText: PlaybookTree(WidgetsBinding.instance.rootElement)
+              .visibleText(),
         );
       }
 

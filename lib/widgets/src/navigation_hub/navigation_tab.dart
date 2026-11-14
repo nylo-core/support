@@ -1,4 +1,5 @@
-import 'package:flutter/cupertino.dart';
+import 'package:cupertino_ui/cupertino_ui.dart';
+
 import '/widgets/src/navigation_hub/journey_progress_style.dart';
 
 /// NavigationTab is a class that holds the title, page, icon, activeIcon, backgroundColor, tooltip, and meta data of a bottom navigation tab.

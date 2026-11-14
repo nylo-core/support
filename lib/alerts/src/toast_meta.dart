@@ -1,11 +1,14 @@
 import '/helpers/ny_helpers.dart';
-import 'package:flutter/material.dart';
+
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_styled_toast/flutter_styled_toast.dart';
 
 /// Callback for the toast widget's [initState] lifecycle hook.
 /// Receives the toast display [duration] and animation [animDuration].
-typedef ToastOnInitStateCallback =
-    Function(Duration toastDuration, Duration animDuration);
+typedef ToastOnInitStateCallback = Function(
+  Duration toastDuration,
+  Duration animDuration,
+);
 
 /// Animation type for toast notifications.
 enum ToastAnimationType {
@@ -351,14 +354,17 @@ enum ToastNotificationPosition { top, bottom, center }
 /// Typedef for toast style factory function.
 /// The factory receives the [ToastMeta] and an [updateMeta] callback
 /// to allow the widget to update position, duration, etc.
-typedef ToastStyleFactory =
-    Widget Function(ToastMeta meta, void Function(ToastMeta) updateMeta);
+typedef ToastStyleFactory = Widget Function(
+  ToastMeta meta,
+  void Function(ToastMeta) updateMeta,
+);
 
 /// Typedef for a data-aware toast style factory.
 /// Receives a [data] map and returns a [ToastStyleFactory].
 /// This allows toast styles to use dynamic data passed at call time.
-typedef ToastStyleDataFactory =
-    ToastStyleFactory Function(Map<String, dynamic> data);
+typedef ToastStyleDataFactory = ToastStyleFactory Function(
+  Map<String, dynamic> data,
+);
 
 /// Toast Meta makes it easy to use pre-defined styles in the toast alert.
 class ToastMeta {

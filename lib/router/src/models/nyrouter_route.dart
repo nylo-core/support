@@ -3,20 +3,21 @@ import '/helpers/ny_helpers.dart';
 import '../ny_navigator.dart';
 import '../ny_router.dart';
 import '/widgets/ny_widgets.dart';
+
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+
 import 'ny_argument.dart';
 import 'ny_query_parameters.dart';
 import 'ny_page_transition_settings.dart';
 import 'nyrouter_route_guard.dart';
 
 /// The typedef for the route builder.
-typedef NyRouterRouteBuilder =
-    Widget Function(
-      BuildContext context,
-      NyArgument? args,
-      NyQueryParameters? queryParameters,
-    );
+typedef NyRouterRouteBuilder = Widget Function(
+  BuildContext context,
+  NyArgument? args,
+  NyQueryParameters? queryParameters,
+);
 
 /// The [NyRouterRoute] class is used to define a route in the Nylo Router.
 class NyRouterRoute {

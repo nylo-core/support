@@ -1,4 +1,5 @@
 import 'dart:async';
+
 import '/events/ny_events.dart' show NyEvent, NyListener;
 
 class NyEventBus {

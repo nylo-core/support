@@ -1,4 +1,4 @@
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:nylo_support/ny_core.dart';
 
 /// A [Text] widget that automatically translates its content using Nylo's

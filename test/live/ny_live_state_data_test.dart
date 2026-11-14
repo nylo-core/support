@@ -1,6 +1,6 @@
 import 'dart:convert';
 
-import 'package:flutter/material.dart';
+import 'package:material_ui/material_ui.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:nylo_support/event_bus/ny_event_bus.dart';
 import 'package:nylo_support/helpers/ny_helpers.dart';
@@ -354,9 +354,8 @@ void main() {
     });
 
     test('falls back to toString for a value that is not JSON', () {
-      final Map<String, Object?> described = decode([
-        ScrollController(),
-      ]).single;
+      final Map<String, Object?> described = decode([ScrollController()])
+          .single;
 
       expect(described['type'], 'ScrollController');
       expect('${described['value']}', contains('ScrollController'));
