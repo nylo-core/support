@@ -1,3 +1,9 @@
+## [7.38.1] - 2026-11-15
+
+### Fixed
+
+* **Modals** - content taller than a modal scrolls instead of overflowing, and the actions stay on screen. A `child` that is a `ScrollView` or `SingleChildScrollView` scrolls by itself, so its controller and physics keep working. Content that fits keeps its size ([#314](https://github.com/nylo-core/nylo/issues/314))
+
 ## [7.38.0] - 2026-11-14
 
 ### Changed

@@ -218,6 +218,21 @@ class NyModalLayout extends StatelessWidget {
     this.actionsPadding,
   });
 
+  /// Builds the content area. Content taller than the space left in the
+  /// modal scrolls, so the actions stay on screen. A [child] that is itself
+  /// a [ScrollView] or [SingleChildScrollView] does its own scrolling, so
+  /// its controller and physics keep working.
+  Widget _buildContent() {
+    final Widget content = Padding(
+      padding: contentPadding ?? EdgeInsets.zero,
+      child: child,
+    );
+    if (child is ScrollView || child is SingleChildScrollView) {
+      return content;
+    }
+    return SingleChildScrollView(primary: false, child: content);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -247,7 +262,7 @@ class NyModalLayout extends StatelessWidget {
               ),
             ),
           const SizedBox(height: 8),
-          Padding(padding: contentPadding ?? EdgeInsets.zero, child: child),
+          Flexible(child: _buildContent()),
           const SizedBox(height: 16),
           if (actionsColumn.isNotEmpty)
             Padding(
